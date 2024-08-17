@@ -3,6 +3,7 @@
 #include "utils/strutils.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
+#include "dlite-behavior.h"
 #include "dlite-pyembed.h"
 #include "dlite-python-storage.h"
 #include "dlite-python-mapping.h"
@@ -17,11 +18,7 @@
 #endif
 
 
-/* Whether a new Python interpreter was created and initialised by DLite */
 static int python_initialized = 0;
-
-/* Whether Python paths has been initialised by DLite */
-static int python_paths_initialized = 0;
 
 
 /* Struct correlating Python exceptions with DLite errors */
@@ -34,9 +31,6 @@ typedef struct {
 typedef struct {
   ErrorCorrelation *errcorr;  /* NULL-terminated array */
 } PyembedGlobals;
-
-/* Forward declarations */
-void _dlite_pyembed_initialise_paths(void);
 
 
 /* Free global state for this module */
@@ -58,6 +52,7 @@ static PyembedGlobals *get_globals(void)
   }
   return g;
 }
+
 
 /* Help function returning a constant pointer to a NULL-terminated
    array of ErrorCorrelation records. */
@@ -99,7 +94,7 @@ static const ErrorCorrelation *error_correlations(void)
  */
 void dlite_pyembed_initialise(void)
 {
-  if (!Py_IsInitialized()) {
+  if (!Py_IsInitialized() || !dlite_behavior_get("singleInterpreter")) {
     /*
       Python 3.8 and later implements the new Python
       Initialisation Configuration.
@@ -123,43 +118,37 @@ void dlite_pyembed_initialise(void)
     config.use_environment = 1;
     config.user_site_directory = 1;
 
-    status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
-    if (PyStatus_Exception(status)) {
-      PyConfig_Clear(&config);
-      FAIL("failed configuring pyembed program name");
+    /* If dlite is called from a python, reparse arguments to avoid
+       that they are stripped off... */
+    if (Py_IsInitialized()) {
+      int argc=0;
+      wchar_t **argv=NULL;
+      Py_GetArgcArgv(&argc, &argv);
+      config.parse_argv = 1;
+      status = PyConfig_SetArgv(&config, argc, argv);
+      if (PyStatus_Exception(status))
+        FAIL("failed configuring pyembed arguments");
     }
+
+    status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
+    if (PyStatus_Exception(status))
+      FAIL("failed configuring pyembed program name");
 
     status = Py_InitializeFromConfig(&config);
-    if (PyStatus_Exception(status)) {
-      PyConfig_Clear(&config);
-      FAIL("failed to initialise python in pyembed");
-    }
-    python_initialized = 1;
-
     PyConfig_Clear(&config);
+    if (PyStatus_Exception(status))
+      FAIL("failed clearing pyembed config");
 #else
     /* Old Initialisation */
     wchar_t *progname;
 
-    Py_Initialize();
-    python_initialized = 1;
-
-    if (!(progname = Py_DecodeLocale("dlite", NULL))) FAIL("decode failure");
+    if (!(progname = Py_DecodeLocale("dlite", NULL))) {
+      dlite_err(1, "allocation/decoding failure");
+      return;
+    }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
-#endif
-  }
-  _dlite_pyembed_initialise_paths();
-
- fail:
-  return;
-}
-
-/* Help function for initialising Python paths. */
-void _dlite_pyembed_initialise_paths(void)
-{
-  if (!python_paths_initialized) {
-    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
+ #endif
 
     if (dlite_use_build_root()) {
       if (!(sys = PyImport_ImportModule("sys")))
@@ -173,8 +162,6 @@ void _dlite_pyembed_initialise_paths(void)
       if (PyList_Insert(sys_path, 0, path))
         FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
     }
-    python_paths_initialized = 1;
-
   fail:
     Py_XDECREF(sys);
     Py_XDECREF(sys_path);

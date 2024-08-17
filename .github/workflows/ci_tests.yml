@@ -63,27 +63,39 @@ jobs:
         python --version
         pip freeze
 
-    - name: configure
+    - name: Configure
       run: |
         Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
         CFLAGS='-Wno-missing-field-initializers' \
         cmake -B build . -DFORCE_EXAMPLES=ON -DWITH_FORTRAN=YES
 
-    - name: make
+    - name: Build
       run: cmake --build .
       working-directory: build
 
-    - name: install
+    - name: Install
       run: cmake --install .
       working-directory: build
 
-    - name: make test
+    - name: Test
       env:
         DLITE_PYDEBUG: ""
       run: ctest || ctest --rerun-failed --output-on-failure -V
       working-directory: build
 
-    - name: build Linux wheel
+    - name: Test with all behavior changes disabled
+      env:
+        DLITE_BEHAVIOR: OFF
+      run: ctest || ctest --rerun-failed --output-on-failure -V
+      working-directory: build
+
+    - name: Test with all behavior changes enabled
+      env:
+        DLITE_BEHAVIOR: ON
+      run: ctest || ctest --rerun-failed --output-on-failure -V
+      working-directory: build
+
+    - name: Build Linux wheel
       run: python3 -m pip wheel -w dist ./python
 
     - name: Install python package and test the installation
