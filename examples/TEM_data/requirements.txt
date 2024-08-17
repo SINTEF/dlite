@@ -1,6 +1,5 @@
 dlite-python>=0.4.1,<1
-#tripper>=0.2.16,<1
-tripper @ git+https://github.com/EMMC-ASBL/tripper.git@fix-for-rdflib-literals
+tripper>=0.3.1,<0.3.2
 rdflib>=6,<8
 #oteapi-dlite>=0.1.5,<1
 -e git+https://github.com/EMMC-ASBL/oteapi-dlite.git@fa1b820383eb54a1c37f32f7b8ac9406b556dace#egg=oteapi_dlite
