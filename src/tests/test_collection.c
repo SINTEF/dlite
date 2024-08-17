@@ -140,7 +140,7 @@ MU_TEST(test_collection_value)
                                                    "animal", NULL, NULL, 0));
   mu_assert_string_eq(NULL, dlite_collection_value(coll, NULL, "is_a",
                                                    "mammal", NULL, NULL, 0));
- ErrCatch(dliteSearchError):
+ ErrCatch(dliteLookupError):
   break;
  ErrEnd;
 }

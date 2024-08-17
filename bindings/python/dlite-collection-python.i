@@ -361,7 +361,7 @@ class Collection(Instance):
 
         Raises:
             DLiteTypeError: Not exactly two of `s`, `p` and `o` are None.
-            DLiteSearchError: No match can be found or more that one match
+            DLiteLookupError: No match can be found or more that one match
                 if `any` is true.
         """
         return _dlite._collection_value(self, s, p, o, d, default, any)

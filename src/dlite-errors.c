@@ -17,7 +17,7 @@ const char *dlite_errname(DLiteErrCode code)
   case dliteRuntimeError:           return "DLiteRuntime";
   case dliteIndexError:             return "DLiteIndex";
   case dliteTypeError:              return "DLiteType";
-  case dliteDivisionByZero:         return "DLiteDivisionByZero";
+  case dliteDivisionByZeroError:    return "DLiteDivisionByZero";
   case dliteOverflowError:          return "DLiteOverflow";
   case dliteSyntaxError:            return "DLiteSyntax";
   case dliteValueError:             return "DLiteValue";
@@ -28,12 +28,15 @@ const char *dlite_errname(DLiteErrCode code)
 
   case dliteOSError:                return "DLiteOS";
   case dliteKeyError:               return "DLiteKey";
-  case dliteSearchError:            return "DLiteSearch";
+  case dliteNameError:              return "DLiteName";
+  case dliteLookupError:            return "DLiteLookup";
   case dliteParseError:             return "DLiteParse";
+  case dlitePermissionError:        return "DLitePermission";
   case dliteSerialiseError:         return "DLiteSerialise";
   case dliteUnsupportedError:       return "DLiteUnsupported";
   case dliteVerifyError:            return "DLiteVerify";
   case dliteInconsistentDataError:  return "DLiteInconsistentData";
+  case dliteInvalidMetadataError:   return "DLiteInvalidMetadata";
   case dliteStorageOpenError:       return "DLiteStorageOpen";
   case dliteStorageLoadError:       return "DLiteStorageLoad";
   case dliteStorageSaveError:       return "DLiteStorageSave";
@@ -63,7 +66,7 @@ const char *dlite_errdescr(DLiteErrCode code)
   case dliteRuntimeError:           return "Unspecified run-time error";
   case dliteIndexError:             return "Index out of range";
   case dliteTypeError:              return "Inappropriate argument type";
-  case dliteDivisionByZero:         return "Division by zero";
+  case dliteDivisionByZeroError:    return "Division by zero";
   case dliteOverflowError:          return "Result too large to be represented";
   case dliteSyntaxError:            return "Invalid syntax";
   case dliteValueError:             return "Inappropriate argument value (of correct type)";
@@ -74,12 +77,15 @@ const char *dlite_errdescr(DLiteErrCode code)
 
   case dliteOSError:                return "Error calling a system function";
   case dliteKeyError:               return "Mapping key is not found";
-  case dliteSearchError:            return "Error in search";
+  case dliteNameError:              return "Name not found";
+  case dliteLookupError:            return "Error looking up item";
   case dliteParseError:             return "Cannot parse input";
+  case dlitePermissionError:        return "Not enough permissions";
   case dliteSerialiseError:         return "Cannot serialise output";
   case dliteUnsupportedError:       return "Feature is not implemented/supported";
   case dliteVerifyError:            return "Object cannot be verified";
   case dliteInconsistentDataError:  return "Inconsistent data";
+  case dliteInvalidMetadataError:   return "Invalid metadata";
   case dliteStorageOpenError:       return "Cannot open storage plugin";
   case dliteStorageLoadError:       return "Cannot load storage plugin";
   case dliteStorageSaveError:       return "Cannot save storage plugin";
