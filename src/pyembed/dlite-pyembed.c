@@ -185,6 +185,8 @@ void dlite_pyembed_initialise(void)
     /* Old Initialisation */
     wchar_t *progname;
 
+    Py_Initialize();
+
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
       return;
