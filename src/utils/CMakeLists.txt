@@ -121,9 +121,15 @@ if(WITH_THREADS)
   if(Threads_FOUND)
     set(HAVE_THREADS TRUE)
     add_definitions(-DHAVE_THREADS)
+
+    # On some 32-bit systems (like manylinux2014_i686) we have to
+    # explicitly link with the threads library
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+      list(APPEND extra_link_libraries ${CMAKE_THREAD_LIBS_INIT})
+    endif()
+
   endif()
 endif()
-
 
 # -- additional checks...
 include(CheckCSourceCompiles)

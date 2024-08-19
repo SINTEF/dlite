@@ -41,12 +41,28 @@ DLite-specific environment variables
     plugin search paths, while it only affects the plugin search paths on
     Linux.
 
-  - **DLITE_PYDEBUG**: Traceback from errors happening Python plugins are normally
-    lost.  But, if `DLITE_PYDEBUG` is defined, a Python error message will be
-    written to standard error.
+  - **DLITE_PYDEBUG**: If defined, it will turn on printing error
+    messages from C to standard error.
+
+    It will also enable traceback from exceptions occuring in Python
+    plugins.  Traceback from exceptions occurring in Python plugins
+    are normally lost.  With `DLITE_PYDEBUG` defined the full error
+    message, including traceback, will be written to standard error.
 
   - **DLITE_ATEXIT_FREE**: Free memory at exit.  This might be useful to avoid
     getting false positive when tracking down memory leaks with tools like valgrind.
+
+  - **DLITE_BEHAVIOR**: Enables/disables the all behaviors by default.
+
+    The empty string or any of the following values will enable the behaviors:
+    "true", ".true.", "on", "yes", 1
+
+    Any of the following values will disable the behaviors:
+    "false", ".false.", "off", "no", 0
+
+  - **DLITE_BEHAVIOR_<name>**: Enables/disables the behavior `<name>`.
+    This overrides `DLITE_BEHAVIOR` for the named behavior.  The value
+    has the same meaning as for `DLITE_BEHAVIOR`.
 
 
 ### Specific paths

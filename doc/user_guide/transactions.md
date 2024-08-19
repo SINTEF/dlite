@@ -1,6 +1,6 @@
 Transactions
 ============
-Transactions is a concept that comes from SOFT, which allows to easy manage arbitrary long series of immutable (frozen) instances, while ensuring provenance.
+The Transaction concept comes from SOFT. It allows to easily manage arbitrary long series of immutable (frozen) instances, while ensuring provenance.
 Conceptually, it shares many similarities with [git](https://git-scm.com).
 
 A basic usage for transactions is to take snapshots of the current state of your system.

@@ -4,12 +4,11 @@ import sys
 from pathlib import Path
 
 import dlite
+from dlite.testutils import importskip, serverskip
 
-try:
-    import minio
-except ImportError:
-    print("minio not installed, skipping test")
-    sys.exit(44)  # skip test
+
+importskip("minio")  # skip this test if minio is not available
+#serverskip("play.min.io", 9000)  # skip test if minio is down
 
 
 thisdir = Path(__file__).resolve().parent

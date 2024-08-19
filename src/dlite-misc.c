@@ -12,6 +12,7 @@
 #include "utils/strtob.h"
 #include "utils/tgen.h"
 #include "utils/fileutils.h"
+#include "utils/strutils.h"
 #include "utils/session.h"
 #include "utils/rng.h"
 #include "getuuid.h"
@@ -539,11 +540,22 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
 }
 
 
-/* Error handler for DLite. */
+/* Error handler for DLite.
+
+   Since errors
+   Print warnings, but not errors unless DLITE_PYDEBUG is set.
+ */
 static void dlite_err_handler(const ErrRecord *record)
 {
+#ifdef WITH_PYTHON
+  if (record->level != errLevelError ||
+      !getenv("DLITE_PYDEBUG") ||
+      !dlite_err_ignored_get(record->eval))
+    err_default_handler(record);
+#else  /* WITH_PYTHON */
   if (!dlite_err_ignored_get(record->eval))
     err_default_handler(record);
+#endif
 }
 
 
@@ -790,3 +802,50 @@ int dlite_err_set_debug_mode(int mode) { return err_set_debug_mode(mode); }
 int dlite_err_get_debug_mode(void) { return err_get_debug_mode(); }
 int dlite_err_set_override_mode(int mode) {return err_set_override_mode(mode);}
 int dlite_err_get_override_mode(void) { return err_get_override_mode(); }
+
+
+
+/*
+  Issues a deprecation warning.
+
+  `version_removed` is the version the deprecated feature is expected
+  to be finally removed.
+  `descr` is a description of the deprecated feature.
+
+  Returns non-zero on error.
+ */
+int _dlite_deprecation_warning(const char *version_removed,
+                               const char *filepos, const char *func,
+                               const char *descr)
+{
+  static int initialised=0;
+  static map_int_t reported;
+
+  /* Return if this deprecation warning has already been issued. */
+  if (!initialised) {
+    map_init(&reported);
+    initialised = 1;
+  }
+  if (map_get(&reported, filepos)) return 0;
+  map_set(&reported, filepos, 1);
+
+  dlite_warnx("deprecated: %s", descr);
+
+  /* Check that version numbers are semantic.  */
+  if (strchk_semver(version_removed) < 0)
+    return dlite_errx(dliteSystemError,
+                      "argument version_removed=\"%s\" of %s must be a valid "
+                      "semantic version number. In %s",
+                      version_removed, func, filepos);
+  if (strchk_semver(dlite_VERSION) < 0)
+    return dlite_errx(dliteSystemError,
+                      "DLite version number is not semantic '%s'",
+                      dlite_VERSION);
+
+  /* Issue a system error if `version_removed` has passed.  */
+  if (strcmp_semver(version_removed, dlite_VERSION) <= 0)
+    return dlite_errx(dliteSystemError, "Deprecated feature was supposed to be "
+                "removed in version %s: %s", version_removed, descr);
+
+  return 0;
+}

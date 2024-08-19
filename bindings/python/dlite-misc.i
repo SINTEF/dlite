@@ -34,6 +34,16 @@
   /* Just check for errors, do nothing else. */
   void errcheck(void) {}
 
+  int chk_semver(const char *version, int n) {
+    if (n >= 0) return strnchk_semver(version, n);
+    return strchk_semver(version);
+  }
+
+  int cmp_semver(const char *v1, const char *v2, int n) {
+    if (n >= 0) return strncmp_semver(v1, v2, n);
+    return strcmp_semver(v1, v2);
+  }
+
 %}
 
 %include <stdint.i>
@@ -209,6 +219,28 @@ void errcheck(void);
 Set error stream.
 ") asbool;
 bool asbool(const char *str);
+
+
+%feature("docstring", "\
+Check if `version` is a valid semantic version 2.0.0 number.
+
+By default, the whole string is checked.  If `n` is non-negative, only
+the initial part of `version` is checked, at most `n` characters.
+
+Returns the length of the valid part of `version` or -1 if `version` is
+not a valid semantic number.
+") chk_semver;
+int chk_semver(const char *version, int n=-1);
+
+%feature("docstring", "\
+Compare semantic version strings `v1` and `v2`.
+
+Returns -1 if `v1 < v2`, 0 if `v1 == v2` and 1 if `v1 > v2`.
+
+By default, the whole of `v1` and `v2` are compared.  If `n` is non-negative,
+only the initial part of `v1` and `v2` are compared, at most `n` characters.
+") cmp_semver;
+int cmp_semver(const char *v1, const char *v2, int n=-1);
 
 
 

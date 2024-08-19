@@ -9,17 +9,27 @@
 # - `{{ ARCH }}` with a valid arch, ex:  x86_64, i686
 # Remove the `.template` suffix from the copy.
 #
+# Examples
+# --------
+#
+# Generate dockerfile:
+#
+#     .github/docker/gen_dockerfile.sh manylinux _2_24 x86_64 > \
+#         .github/docker/dockerfiles/Dockerfile-manylinux_2_24_x86_64
+#
 # Build:
 #
-#     docker build -t dlite-manylinux -f .github/docker/Dockerfile-manylinux_x_y .
+#     cd dlite  # cd to DLite root directory
+#     docker build -t dlite-manylinux \
+#         -f .github/docker/Dockerfile-manylinux_2_24_x86_64 .
 #
 # Run (for debugging):
 #
 #     docker run --rm -it \
-#        --volume $PWD:/io \
-#        --user $(id -u):$(id -g) \
-#        dlite-manylinux \
-#        /bin/bash
+#         --volume $PWD:/io \
+#         --user $(id -u):$(id -g) \
+#         dlite-manylinux_2_24_x86_64 \
+#         /bin/bash
 #
 
 # Reference: https://github.com/pypa/manylinux

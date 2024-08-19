@@ -84,7 +84,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 8,9,10,11,12
+            py_minors: 8,9,10,11
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: i686
@@ -230,12 +230,14 @@ jobs:
     needs: [cd_build_wheels,build_sdist]
     name: Publish DLite distributions
     runs-on: ubuntu-latest
+    permissions:
+      id-token: write
 
     steps:
     - name: Retrieve wheels and sdist
       uses: actions/download-artifact@v4
       with:
-        path: dist
+        path: dist/
 
     - name: Move sdists and wheels to dist and remove all directories
       run: |
@@ -256,6 +258,3 @@ jobs:
 
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-      with:
-        user: __token__
-        password: ${{ secrets.PYPI_TOKEN }}

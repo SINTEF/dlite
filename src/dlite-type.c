@@ -1289,24 +1289,35 @@ int dlite_type_update_sha3(sha3_context *c, const void *ptr,
     {
       const DLiteDimension *d = ptr;
       sha3_Update(c, d->name, strlen(d->name));
-      //if (d->description)
-      //  sha3_Update(c, p->description, strlen(d->description));
+      if (d->description)
+        sha3_Update(c, d->description, strlen(d->description));
     }
     break;
 
   case dliteProperty:
+    /* Size is only included in the hash for non-allocated types,
+       since the size of allocated types is system-dependent and is
+       independent of the semantic content of the property.
+
+       Description is also included in the hash calculation. This has
+       the desired effect that any change in a description will change
+       the hash of a metadata.
+    */
     {
       int i;
       const DLiteProperty *p = ptr;
       sha3_Update(c, p->name, strlen(p->name));
       sha3_Update(c, &p->type, sizeof(DLiteType));
-      sha3_Update(c, &p->size, sizeof(size_t));
+      if (!dlite_type_is_allocated(p->type)) {
+        uint64_t size = p->size;  /* For consistency between x86_64 and i686 */
+        sha3_Update(c, &size, sizeof(uint64_t));
+      }
       sha3_Update(c, &p->ndims, sizeof(int));
       for (i=0; i<p->ndims; i++)
         sha3_Update(c, p->shape[i], strlen(p->shape[i]));
       if (p->unit) sha3_Update(c, p->unit, strlen(p->unit));
-      //if (p->description)
-      //  sha3_Update(c, p->description, strlen(p->description));
+      if (p->description)
+        sha3_Update(c, p->description, strlen(p->description));
     }
     break;
 

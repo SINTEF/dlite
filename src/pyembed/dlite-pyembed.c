@@ -3,6 +3,7 @@
 #include "utils/strutils.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
+#include "dlite-behavior.h"
 #include "dlite-pyembed.h"
 #include "dlite-python-storage.h"
 #include "dlite-python-mapping.h"
@@ -17,13 +18,6 @@
 #endif
 
 
-/* Whether a new Python interpreter was created and initialised by DLite */
-static int python_initialized = 0;
-
-/* Whether Python paths has been initialised by DLite */
-static int python_paths_initialized = 0;
-
-
 /* Struct correlating Python exceptions with DLite errors */
 typedef struct {
   PyObject *exc;        /* Python exception */
@@ -34,9 +28,6 @@ typedef struct {
 typedef struct {
   ErrorCorrelation *errcorr;  /* NULL-terminated array */
 } PyembedGlobals;
-
-/* Forward declarations */
-void _dlite_pyembed_initialise_paths(void);
 
 
 /* Free global state for this module */
@@ -59,30 +50,76 @@ static PyembedGlobals *get_globals(void)
   return g;
 }
 
+
+/*
+  Return Python exception class corresponding to given DLite error code.
+  Returns NULL if `code` is zero.
+ */
+PyObject *dlite_pyembed_exception(DLiteErrCode code)
+{
+  switch (code) {
+  case dliteSuccess:               return NULL;
+  case dliteUnknownError:          break;
+  case dliteIOError:               return PyExc_IOError;
+  case dliteRuntimeError:          return PyExc_RuntimeError;
+  case dliteIndexError:            return PyExc_IndexError;
+  case dliteTypeError:             return PyExc_TypeError;
+  case dliteDivisionByZeroError:   return PyExc_ZeroDivisionError;
+  case dliteOverflowError:         return PyExc_OverflowError;
+  case dliteSyntaxError:           return PyExc_SyntaxError;
+  case dliteValueError:            return PyExc_ValueError;
+  case dliteSystemError:           return PyExc_SystemError;
+  case dliteAttributeError:        return PyExc_AttributeError;
+  case dliteMemoryError:           return PyExc_MemoryError;
+  case dliteNullReferenceError:    break;
+
+  case dliteOSError:               return PyExc_OSError;
+  case dliteKeyError:              return PyExc_KeyError;
+  case dliteNameError:             return PyExc_NameError;
+  case dliteLookupError:           return PyExc_LookupError;
+  case dliteParseError:            return PyExc_IOError;     // dup
+  case dlitePermissionError:       return PyExc_PermissionError;
+  case dliteSerialiseError:        return PyExc_IOError;     // dup
+  case dliteUnsupportedError:      break;
+  case dliteVerifyError:           break;
+  case dliteInconsistentDataError: return PyExc_ValueError;  // dup
+  case dliteInvalidMetadataError:  return PyExc_ValueError;  // dup
+  case dliteStorageOpenError:      return PyExc_IOError;     // dup
+  case dliteStorageLoadError:      return PyExc_IOError;     // dup
+  case dliteStorageSaveError:      return PyExc_IOError;     // dup
+  case dliteOptionError:           return PyExc_ValueError;  // dup
+  case dliteMissingInstanceError:  return PyExc_LookupError; // dup
+  case dliteMissingMetadataError:  return PyExc_LookupError; // dup
+  case dliteMetadataExistError:    break;
+  case dliteMappingError:          break;
+  case dlitePythonError:           break;
+  case dliteLastError:             break;
+  }
+  return PyExc_Exception;
+}
+
 /* Help function returning a constant pointer to a NULL-terminated
    array of ErrorCorrelation records. */
 static const ErrorCorrelation *error_correlations(void)
 {
   PyembedGlobals *g = get_globals();
   if (!g->errcorr) {
-    ErrorCorrelation corr[] = {
-      {PyExc_KeyError, dliteKeyError},
-      {PyExc_MemoryError, dliteMemoryError},
-      {PyExc_AttributeError, dliteAttributeError},
-      {PyExc_SystemError, dliteSystemError},
-      {PyExc_ValueError, dliteValueError},
-      {PyExc_SyntaxError, dliteSyntaxError},
-      {PyExc_OverflowError, dliteOverflowError},
-      {PyExc_ZeroDivisionError, dliteDivisionByZero},
-      {PyExc_TypeError, dliteTypeError},
-      {PyExc_IndexError, dliteIndexError},
-      {PyExc_RuntimeError, dliteRuntimeError},
-      {PyExc_IOError, dliteIOError},
-      {NULL, 0}
-    };
-    if (!(g->errcorr = malloc(sizeof(corr))))
+    int i, code, n=1;
+    for (code=-1; code>dliteLastError; code--)
+      if (dlite_pyembed_exception(code) != PyExc_Exception) n++;
+
+    if (!(g->errcorr = calloc(n, sizeof(ErrorCorrelation))))
       return dlite_err(dliteMemoryError, "allocation failure"), NULL;
-    memcpy(g->errcorr, corr, sizeof(corr));
+
+    for (code=-1, i=0; code>dliteLastError; code--) {
+      PyObject *exc;
+      if ((exc = dlite_pyembed_exception(code)) != PyExc_Exception) {
+        g->errcorr[i].exc = exc;
+        g->errcorr[i].errcode = code;
+        i++;
+      }
+    }
+    assert(i == n-1);
   }
   return g->errcorr;
 }
@@ -99,7 +136,7 @@ static const ErrorCorrelation *error_correlations(void)
  */
 void dlite_pyembed_initialise(void)
 {
-  if (!Py_IsInitialized()) {
+  if (!Py_IsInitialized() || !dlite_behavior_get("singleInterpreter")) {
     /*
       Python 3.8 and later implements the new Python
       Initialisation Configuration.
@@ -112,6 +149,7 @@ void dlite_pyembed_initialise(void)
       In DLite, we switch to the new Python Initialisation
       Configuration from Python 3.11.
     */
+    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
 #if PY_VERSION_HEX >= 0x030b0000  /* Python >= 3.11 */
     /* New Python Initialisation Configuration */
     PyStatus status;
@@ -123,43 +161,37 @@ void dlite_pyembed_initialise(void)
     config.use_environment = 1;
     config.user_site_directory = 1;
 
-    status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
-    if (PyStatus_Exception(status)) {
-      PyConfig_Clear(&config);
-      FAIL("failed configuring pyembed program name");
+    /* If dlite is called from a python, reparse arguments to avoid
+       that they are stripped off... */
+    if (Py_IsInitialized()) {
+      int argc=0;
+      wchar_t **argv=NULL;
+      Py_GetArgcArgv(&argc, &argv);
+      config.parse_argv = 1;
+      status = PyConfig_SetArgv(&config, argc, argv);
+      if (PyStatus_Exception(status))
+        FAIL("failed configuring pyembed arguments");
     }
+
+    status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
+    if (PyStatus_Exception(status))
+      FAIL("failed configuring pyembed program name");
 
     status = Py_InitializeFromConfig(&config);
-    if (PyStatus_Exception(status)) {
-      PyConfig_Clear(&config);
-      FAIL("failed to initialise python in pyembed");
-    }
-    python_initialized = 1;
-
     PyConfig_Clear(&config);
+    if (PyStatus_Exception(status))
+      FAIL("failed clearing pyembed config");
 #else
     /* Old Initialisation */
     wchar_t *progname;
 
-    Py_Initialize();
-    python_initialized = 1;
-
-    if (!(progname = Py_DecodeLocale("dlite", NULL))) FAIL("decode failure");
+    if (!(progname = Py_DecodeLocale("dlite", NULL))) {
+      dlite_err(1, "allocation/decoding failure");
+      return;
+    }
     Py_SetProgramName(progname);
     PyMem_RawFree(progname);
-#endif
-  }
-  _dlite_pyembed_initialise_paths();
-
- fail:
-  return;
-}
-
-/* Help function for initialising Python paths. */
-void _dlite_pyembed_initialise_paths(void)
-{
-  if (!python_paths_initialized) {
-    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
+ #endif
 
     if (dlite_use_build_root()) {
       if (!(sys = PyImport_ImportModule("sys")))
@@ -173,8 +205,6 @@ void _dlite_pyembed_initialise_paths(void)
       if (PyList_Insert(sys_path, 0, path))
         FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
     }
-    python_paths_initialized = 1;
-
   fail:
     Py_XDECREF(sys);
     Py_XDECREF(sys_path);
@@ -186,9 +216,8 @@ void _dlite_pyembed_initialise_paths(void)
 int dlite_pyembed_finalise(void)
 {
   int status=0;
-  if (python_initialized) {
+  if (Py_IsInitialized()) {
     status = Py_FinalizeEx();
-    python_initialized = 0;
   } else {
     return dlite_errx(1, "cannot finalize Python before it is initialized");
   }
@@ -226,22 +255,6 @@ DLiteErrCode dlite_pyembed_errcode(PyObject *type)
   }
   return dliteUnknownError;
 }
-
-/*
-  Return Python exception class corresponding to given DLite error code.
-  Returns NULL if `code` is zero.
- */
-PyObject *dlite_pyembed_exception(DLiteErrCode code)
-{
-  const ErrorCorrelation *corr = error_correlations();
-  if (!code) return NULL;
-  while (corr->exc) {
-    if (code == corr->errcode) return corr->exc;
-    corr++;
-  }
-  return PyExc_Exception;
-}
-
 
 /*
   Writes Python error message to `errmsg` (of length `len`) if an

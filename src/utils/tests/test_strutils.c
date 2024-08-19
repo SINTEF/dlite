@@ -445,6 +445,98 @@ MU_TEST(test_strlst)
 }
 
 
+MU_TEST(test_natoi)
+{
+  mu_assert_int_eq(1,  natoi("1", 10));
+  mu_assert_int_eq(2,  natoi("2 ", 10));
+  mu_assert_int_eq(3,  natoi(" 3", 10));
+  mu_assert_int_eq(1,  natoi("+1", 10));
+  mu_assert_int_eq(-2, natoi("-2", 10));
+  mu_assert_int_eq(0,  natoi("*2", 10));
+  mu_assert_int_eq(12, natoi("012345", 3));
+  mu_assert_int_eq(0,  natoi("012345", 0));
+  mu_assert_int_eq(0,  natoi("012345", -3));
+}
+
+
+MU_TEST(test_strchk_semver)
+{
+  mu_assert_int_eq(5,  strchk_semver("1.0.0"));
+  mu_assert_int_eq(-1, strchk_semver(" 1.0.0"));
+  mu_assert_int_eq(-1, strchk_semver("1.0.0 "));
+  mu_assert_int_eq(-1, strchk_semver("1"));
+  mu_assert_int_eq(-1, strchk_semver("1."));
+  mu_assert_int_eq(-1, strchk_semver("1.0"));
+  mu_assert_int_eq(-1, strchk_semver("1.0."));
+  mu_assert_int_eq(-1, strchk_semver("v1.0.0"));
+  mu_assert_int_eq(-1, strchk_semver("1.0.0-"));
+  mu_assert_int_eq(-1, strchk_semver("1.0.0x"));
+  mu_assert_int_eq(-1, strchk_semver("1.0.0 "));
+  mu_assert_int_eq(11, strchk_semver("5.12.17-rc1"));
+  mu_assert_int_eq(-1, strchk_semver("5.12.17-rc1 "));
+  mu_assert_int_eq(-1, strchk_semver("5.12.17-rc1."));
+  mu_assert_int_eq(13, strchk_semver("5.12.17-rc1.x"));
+  mu_assert_int_eq(-1, strchk_semver("5.12.17-rc1..x"));
+  mu_assert_int_eq(11, strchk_semver("5.12.17+001"));
+  mu_assert_int_eq(15, strchk_semver("5.12.17-rc1+001"));
+  mu_assert_int_eq(-1, strchk_semver("5.12.17-rc1+001 "));
+}
+
+
+MU_TEST(test_strnchk_semver)
+{
+  mu_assert_int_eq(5,  strnchk_semver("1.0.0", 10));
+  mu_assert_int_eq(5,  strnchk_semver("1.0.0", 10));
+  mu_assert_int_eq(5,  strnchk_semver("1.0.0", 5));
+  mu_assert_int_eq(-1, strnchk_semver("1.0.0", 4));
+  mu_assert_int_eq(5,  strnchk_semver("1.0.0 ", 5));
+  mu_assert_int_eq(-1, strnchk_semver("1.0.0 ", 6));
+  mu_assert_int_eq(-1, strnchk_semver(" 1.0.0", 6));
+  mu_assert_int_eq(15, strnchk_semver("5.12.17-rc1+001", 20));
+  mu_assert_int_eq(6,  strnchk_semver("5.12.17-rc1+001 ", 6));
+  mu_assert_int_eq(7,  strnchk_semver("5.12.17-rc1+001 ", 7));
+  mu_assert_int_eq(-1, strnchk_semver("5.12.17-rc1+001 ", 8));
+  mu_assert_int_eq(9,  strnchk_semver("5.12.17-rc1+001 ", 9));
+  mu_assert_int_eq(11, strnchk_semver("5.12.17-rc1+001 ", 11));
+  mu_assert_int_eq(-1, strnchk_semver("5.12.17-rc1+001 ", 12));
+  mu_assert_int_eq(13, strnchk_semver("5.12.17-rc1+001 ", 13));
+  mu_assert_int_eq(15, strnchk_semver("5.12.17-rc1+001 ", 15));
+  mu_assert_int_eq(-1, strnchk_semver("5.12.17-rc1+001 ", 16));
+  mu_assert_int_eq(-1, strnchk_semver("5.12.17-rc1+001 ", 20));
+}
+
+
+MU_TEST(test_strcmp_semver)
+{
+  mu_assert_int_eq(0,  strcmp_semver("0.1.1", "0.1.1"));
+  mu_assert_int_eq(-1, strcmp_semver("0.1.2", "0.1.11"));
+  mu_assert_int_eq(-1, strcmp_semver("0.1.2", "0.2.11"));
+  mu_assert_int_eq(1,  strcmp_semver("0.5.2", "0.2.11"));
+  mu_assert_int_eq(-1, strcmp_semver("5.12.17", "5.12.17-rc1+001"));
+  mu_assert_int_eq(0,  strcmp_semver("5.12.17", "5.12.17+001"));
+  mu_assert_int_eq(1,  strcmp_semver("5.12.17", "5.11.17+001"));
+  mu_assert_int_eq(1,  strcmp_semver("5.12.17-rc1.12", "5.12.17-rc1.4"));
+}
+
+
+MU_TEST(test_strncmp_semver)
+{
+  mu_assert_int_eq(0,  strncmp_semver("0.1.1", "0.1.1", 5));
+  mu_assert_int_eq(0,  strncmp_semver("0.1.1", "0.1.1", 6));
+  mu_assert_int_eq(0,  strncmp_semver("0.1.1", "0.1.12", 5));
+  mu_assert_int_eq(-1, strncmp_semver("0.1.1", "0.1.12", 6));
+  mu_assert_int_eq(1,  strncmp_semver("0.1.2", "0.1.11", 5));
+  mu_assert_int_eq(-1, strncmp_semver("0.1.2", "0.1.11", 6));
+  mu_assert_int_eq(0,  strncmp_semver("5.12.17", "5.12.17-rc1+001", 6));
+  mu_assert_int_eq(-1, strncmp_semver("5.12.17", "5.12.17-rc1+001", 7));
+  mu_assert_int_eq(-1, strncmp_semver("5.12.17", "5.12.17-rc1+001", 9));
+  mu_assert_int_eq(-1, strncmp_semver("5.12.17", "5.12.17-rc1+001", 20));
+  mu_assert_int_eq(0,  strncmp_semver("5.12.17", "5.12.17+001", 7));
+  mu_assert_int_eq(0,  strncmp_semver("5.12.17", "5.12.17+001", 9));
+  mu_assert_int_eq(0,  strncmp_semver("5.12.17", "5.12.17+001", 20));
+}
+
+
 /***********************************************************************/
 
 MU_TEST_SUITE(test_suite)
@@ -462,6 +554,11 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_strcategory);
   MU_RUN_TEST(test_strcatspn);
   MU_RUN_TEST(test_strlst);
+  MU_RUN_TEST(test_natoi);
+  MU_RUN_TEST(test_strchk_semver);
+  MU_RUN_TEST(test_strnchk_semver);
+  MU_RUN_TEST(test_strcmp_semver);
+  MU_RUN_TEST(test_strncmp_semver);
 }
 
 

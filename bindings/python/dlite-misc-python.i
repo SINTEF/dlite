@@ -5,6 +5,8 @@
 %pythoncode %{
 
 import atexit
+import warnings
+
 
 atexit.register(_mark_python_atexit)
 
@@ -77,4 +79,44 @@ class errctl():
 
 
 silent = errctl(filename="None")
+
+# A set for keeping track of already issued deprecation warnings
+_deprecation_warning_record = set()
+
+def deprecation_warning(version_removed, descr):
+    """Issues a deprecation warning.
+
+    Arguments:
+        version_removed: The version the deprecated feature is
+            expected to be finally removed.
+        descr: Description of the deprecated feature.
+
+    Returns non-zero on error.
+    """
+    if descr in _deprecation_warning_record:
+        return
+    _deprecation_warning_record.add(descr)
+
+    warnings.warn(
+        f"{descr}\nIt will be removed in v{version_removed}",
+        DeprecationWarning,
+        stacklevel=2,
+    )
+
+    dlite_version = get_version()
+    if chk_semver(version_removed) < 0:
+        raise SystemError(
+            f"argument `version_removed='{version_removed}'` must be a "
+            "valid semantic version number",
+        )
+    if chk_semver(dlite_version) < 0:
+        raise SystemError(
+            f"DLite version number is not semantic: {dlite_version}"
+        )
+    if cmp_semver(version_removed, dlite_version) <= 0:
+        raise SystemError(
+            "deprecated feature was supposed to be removed in version "
+            f"{version_removed}: {descr}"
+        )
+
 %}
