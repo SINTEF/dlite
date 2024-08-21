@@ -93,17 +93,27 @@ As a user, you will almost always deal with only entities or data
 instances, but the hierarchy gives DLite a strong and theoretically
 well-defined schema.
 
-The actual data or *Data instances* are instances of the *Entity* that
-describes them.
+An *instance* in DLite is a formal representation of a dataset.  It is
+called an instance, because it is an instance of a data model (or
+*metadata* using the DLite terminology).
+This is similar to instances of classes in object oriented programming.
+
+In DLite we often say that an instance is described by its metadata (aka data model).
+The DLite metadata are themselves formalised and described by their meta-metadata.
+Hence, metadata are instances, too.
+
+At the lowest level of abstraction we have the actual data or *data
+instances*.  For historical reasons and compatibility with SOFT, are
+the metadata (or data models) that describe *data instances* called
+*entities*.
 *Entities* are instances of the *EntitySchema*.
-The *EntitySchema* is
-an instance of the *BasicMetadataSchema* and an instance of itself
-(meaning that it can be used to describe itself).
-Hence, in DLite **everything is an instance**.
-This has a practical implication that the API for instances can be applied
-to all metadata as well.
-Since the BasicMetadataSchema can describe itself, no more abstraction
-levels are needed, making the DLite metadata schema complete and well-defined.
+The *EntitySchema* is an instance of the *BasicMetadataSchema* and an
+instance of itself (meaning that it can be used to describe itself).
+Hence, in DLite **everything is an instance**.  This has a practical
+implication that the API for instances can be applied to all metadata
+as well.  Since the BasicMetadataSchema can describe itself, no more
+abstraction levels are needed, making the DLite metadata schema
+complete and well-defined.
 
 From Figure 2, one can also see that *[collections]* are simply
 instances of the *CollectionEntity*.
