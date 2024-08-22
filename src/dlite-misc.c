@@ -549,7 +549,7 @@ static void dlite_err_handler(const ErrRecord *record)
 {
 #ifdef WITH_PYTHON
   if (record->level != errLevelError ||
-      !getenv("DLITE_PYDEBUG") ||
+      getenv("DLITE_PYDEBUG") ||
       !dlite_err_ignored_get(record->eval))
     err_default_handler(record);
 #else  /* WITH_PYTHON */
