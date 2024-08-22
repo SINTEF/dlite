@@ -128,15 +128,8 @@ int dlite_behavior_get(const char *name)
 
     dlite_warn("Behavior `%s` is not configured. "
                "It will be enabled by default from v%s. "
-               "The old behavior is scheduled for removal in v%s.\n\n"
-               "To configure the behavior, set environment variable "
-               "`DLITE_BEHAVIOR_%s` to a boolean value.  True will "
-               "enable the new behavior and false will disable it.\n\n"
-               "You can also configure it from Python by setting "
-               "`dlite.Behavior.%s` or from C by calling "
-               "`dlite_behavior_set()`.",
-               b->name, b->version_new, b->version_remove, b->name, b->name);
-  }
+               "See https://sintef.github.io/dlite/user_guide/configure_behavior_changes.html for more info.",
+               b->name, b->version_new);
 
   assert(b->value >= 0);
   return b->value;
