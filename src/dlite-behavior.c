@@ -130,6 +130,7 @@ int dlite_behavior_get(const char *name)
                "It will be enabled by default from v%s. "
                "See https://sintef.github.io/dlite/user_guide/configure_behavior_changes.html for more info.",
                b->name, b->version_new);
+  }
 
   assert(b->value >= 0);
   return b->value;
