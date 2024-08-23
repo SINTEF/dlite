@@ -103,11 +103,11 @@ The DLite metadata are themselves formalised and described by their meta-metadat
 Hence, metadata are instances, too.
 
 At the lowest level of abstraction we have the actual data or *data
-instances*.  For historical reasons and compatibility with SOFT, are
-the metadata (or data models) that describe *data instances* called
-*entities*.
+instances*.
+Metadata that describe *data instances* are (for historical reasons
+and compatibility with SOFT) called *entities*.
 *Entities* are instances of the *EntitySchema*.
-The *EntitySchema* is an instance of the *BasicMetadataSchema* and an
+The *EntitySchema* is an instance of the *BasicMetadataSchema*, which is an
 instance of itself (meaning that it can be used to describe itself).
 Hence, in DLite **everything is an instance**.  This has a practical
 implication that the API for instances can be applied to all metadata
