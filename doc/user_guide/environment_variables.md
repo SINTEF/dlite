@@ -52,7 +52,7 @@ DLite-specific environment variables
   - **DLITE_ATEXIT_FREE**: Free memory at exit.  This might be useful to avoid
     getting false positive when tracking down memory leaks with tools like valgrind.
 
-  - **DLITE_BEHAVIOR**: Enables/disables the all behaviors by default.
+  - **DLITE_BEHAVIOR**: Enables/disables the all behavior changes by default.
 
     The empty string or any of the following values will enable the behaviors:
     "true", ".true.", "on", "yes", 1
