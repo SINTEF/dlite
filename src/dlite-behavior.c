@@ -22,8 +22,9 @@
 //  description
 static DLiteBehavior behavior_table[] = {
   { "singleInterpreter",           "0.5.17",  "0.7.0",   "0.9.0",
-    "Plugins are executed by the calling interpreter when DLite is called "
-    "from Python.", -1 },
+    "Evaluate Python plugins from calling interpreter when DLite is called "
+    "from Python.  The old behavior is to call the plugins from an internal "
+    "interpreter", -1 },
   { NULL,                          NULL,      NULL,      NULL,     NULL, 0 }
 };
 
@@ -49,13 +50,16 @@ void dlite_behavior_table_init(void)
   if (!initialised) {
     DLiteBehavior *b = (DLiteBehavior *)behavior_table;
     while (b->name) {
+      const char *env;
       b->value = -1;
 
-      /* Check environment */
+      /* Check environment variable: DLITE_BEHAVIOR */
+      if ((env = getenv("DLITE_BEHAVIOR"))) b->value = (*env) ? atob(env) : 1;
+
+      /* Check environment variable: DLITE_BEHAVIOR_<name> */
       char buf[64];
       snprintf(buf, sizeof(buf), "DLITE_BEHAVIOR_%s", b->name);
-      const char *env = getenv(buf);
-      if (env) b->value = (*env) ? atob(env) : 1;
+      if ((env = getenv(buf))) b->value = (*env) ? atob(env) : 1;
 
       /* Warn if behavior is expected to be removed. */
       if (strcmp_semver(dlite_get_version(), b->version_remove) >= 0)
@@ -115,7 +119,7 @@ const DLiteBehavior *dlite_behavior_record(const char *name)
 int dlite_behavior_get(const char *name)
 {
   DLiteBehavior *b = (DLiteBehavior *)dlite_behavior_record(name);
-  if (!b) return dlite_err(dliteKeyError, "No behavior with name: %s", name);
+  if (!b) return dlite_err(dliteNameError, "No behavior with name: %s", name);
 
   /* If value is unset, enable behavior if DLite version > version_new */
   if (b->value < 0) {
@@ -124,14 +128,8 @@ int dlite_behavior_get(const char *name)
 
     dlite_warn("Behavior `%s` is not configured. "
                "It will be enabled by default from v%s. "
-               "The old behavior is scheduled for removal in v%s.\n\n"
-               "To configure the behavior, set environment variable "
-               "`DLITE_BEHAVIOR_%s` to a boolean value.  True will "
-               "enable the new behavior and false will disable it.\n\n"
-               "You can also configure it from Python by setting "
-               "`dlite.Behavior.%s` or from C by calling "
-               "`dlite_behavior_set()`.",
-               b->name, b->version_new, b->version_remove, b->name, b->name);
+               "See https://sintef.github.io/dlite/user_guide/configure_behavior_changes.html for more info.",
+               b->name, b->version_new);
   }
 
   assert(b->value >= 0);
@@ -147,7 +145,7 @@ int dlite_behavior_get(const char *name)
 int dlite_behavior_set(const char *name, int value)
 {
   DLiteBehavior *b = (DLiteBehavior *)dlite_behavior_record(name);
-  if (!b) return dlite_err(dliteKeyError, "No behavior with name: %s", name);
+  if (!b) return dlite_err(dliteNameError, "No behavior with name: %s", name);
   b->value = value;
   return 0;
 }
