@@ -15,6 +15,7 @@ User Guide
    code_generation
    storage_plugins
    storage_plugins_mongodb
+   configure_behavior_changes
    environment_variables
    features
    vocabulary

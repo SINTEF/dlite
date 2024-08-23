@@ -3,6 +3,7 @@
 #include "utils/strutils.h"
 #include "dlite-macros.h"
 #include "dlite-misc.h"
+#include "dlite-behavior.h"
 #include "dlite-pyembed.h"
 #include "dlite-python-storage.h"
 #include "dlite-python-mapping.h"
@@ -15,9 +16,6 @@
 #if defined WIN32 || defined _WIN32 || defined __WIN32__
 # pragma warning(disable: 4273 4996)
 #endif
-
-
-static int python_initialized = 0;
 
 
 /* Struct correlating Python exceptions with DLite errors */
@@ -100,7 +98,6 @@ PyObject *dlite_pyembed_exception(DLiteErrCode code)
   return PyExc_Exception;
 }
 
-
 /* Help function returning a constant pointer to a NULL-terminated
    array of ErrorCorrelation records. */
 static const ErrorCorrelation *error_correlations(void)
@@ -127,15 +124,19 @@ static const ErrorCorrelation *error_correlations(void)
   return g->errcorr;
 }
 
-/* Initialises the embedded Python environment. */
+/* Initialises the embedded Python environment.
+
+   From DLite v0.6.0, this function will only initialise an new
+   internal Python interpreter if there are no initialised
+   interpreters in the process.  This means that if DLite is called
+   from Python, the plugins will be called from the calling Python
+   interpreter.
+
+   This function can be called more than once.
+ */
 void dlite_pyembed_initialise(void)
 {
-  if (!python_initialized) {
-    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
-
-    Py_Initialize();
-    python_initialized = 1;
-
+  if (!Py_IsInitialized() || !dlite_behavior_get("singleInterpreter")) {
     /*
       Python 3.8 and later implements the new Python
       Initialisation Configuration.
@@ -148,6 +149,7 @@ void dlite_pyembed_initialise(void)
       In DLite, we switch to the new Python Initialisation
       Configuration from Python 3.11.
     */
+    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
 #if PY_VERSION_HEX >= 0x030b0000  /* Python >= 3.11 */
     /* New Python Initialisation Configuration */
     PyStatus status;
@@ -160,15 +162,16 @@ void dlite_pyembed_initialise(void)
     config.user_site_directory = 1;
 
     /* If dlite is called from a python, reparse arguments to avoid
-       that they are stripped off...
-       Aren't we initialising a new interpreter? */
-    int argc=0;
-    wchar_t **argv=NULL;
-    Py_GetArgcArgv(&argc, &argv);
-    config.parse_argv = 1;
-    status = PyConfig_SetArgv(&config, argc, argv);
-    if (PyStatus_Exception(status))
-      FAIL("failed configuring pyembed arguments");
+       that they are stripped off... */
+    if (Py_IsInitialized()) {
+      int argc=0;
+      wchar_t **argv=NULL;
+      Py_GetArgcArgv(&argc, &argv);
+      config.parse_argv = 1;
+      status = PyConfig_SetArgv(&config, argc, argv);
+      if (PyStatus_Exception(status))
+        FAIL("failed configuring pyembed arguments");
+    }
 
     status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
     if (PyStatus_Exception(status))
@@ -181,6 +184,8 @@ void dlite_pyembed_initialise(void)
 #else
     /* Old Initialisation */
     wchar_t *progname;
+
+    Py_Initialize();
 
     if (!(progname = Py_DecodeLocale("dlite", NULL))) {
       dlite_err(1, "allocation/decoding failure");
@@ -213,9 +218,8 @@ void dlite_pyembed_initialise(void)
 int dlite_pyembed_finalise(void)
 {
   int status=0;
-  if (python_initialized) {
+  if (Py_IsInitialized()) {
     status = Py_FinalizeEx();
-    python_initialized = 0;
   } else {
     return dlite_errx(1, "cannot finalize Python before it is initialized");
   }

@@ -71,10 +71,13 @@ Whether to enable a behavior can be configured in several ways:
 
       export DLITE_BEHAVIOR_<NAME>=1
 
-  The empty string or any of the following values will enable the behavior:
+  You can use the environment variable `DLITE_BEHAVIOR` to initialise all
+  behavior variables.  This is e.g. useful for testing.
+
+  The empty string or any of the following values will enable the behavior change:
   "true", ".true.", "on", "yes", 1
 
-  Any of the following values will disable the behavior:
+  Any of the following values will disable the behavior change:
   "false", ".false.", "off", "no", 0
 
 A warning will automatically be issued if a behavior is not selected explicitly.
