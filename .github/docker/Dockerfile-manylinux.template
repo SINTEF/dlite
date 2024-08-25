@@ -37,6 +37,8 @@ FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 
 ARG PY_MINORS="8 9 10 11 12"
 
+COPY requirements_full.txt requirements_dev.txt /tmp/
+
 {{ EXTRA_PRE }}
 
 # Enable rpmfusion for additional packages
@@ -46,12 +48,13 @@ RUN \
     https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm --eval %{centos_ver}).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm --eval %{centos_ver}).noarch.rpm && \
   yum install -y \
+    swig \
     redland-devel \
     rasqal-devel \
-    swig \
     libcurl-devel \
     libxslt-devel \
-    libxml2-devel && \
+    libxml2-devel \
+    libffi-devel && \
   # hdf5-devel is needed for building the hdf5 plugin
   yum install -y hdf5-devel || true && \
   # Unpack static libraries
@@ -59,13 +62,33 @@ RUN \
   # exist here.
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
+  # Filter out challenging packages from requirements
+  sed \
+    -e '/mongomock/d' \
+    -i  /tmp/requirements_dev.txt && \
+  sed \
+    -e '/pandas/d' \
+    -e '/pyarrow/d' \
+    -e '/tables/d' \
+    -e '/openpyxl/d' \
+    -e '/jinja2/d' \
+    -e '/pydantic/d' \
+    -e '/fortran-language-server/d' \
+    -e '/matplotlib/d' \
+    -e '/scikit-image/d' \
+    -e '/ncempy/d' \
+    -e '/h5py/d' \
+    -i /tmp/requirements_full.txt && \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
-    python3.${minor} -m pip install -U pip && \
-    python3.${minor} -m pip install -U setuptools wheel && \
-    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache \
-      cmake oldest-supported-numpy; \
+    python3.${minor} -m pip install --cache-dir=/ci/pip_cache -U pip && \
+    python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
+      -U setuptools wheel && \
+    python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
+      oldest-supported-numpy \
+      -r /tmp/requirements_dev.txt \
+      -r /tmp/requirements_full.txt; \
   done && \
   rm -rf /ci/pip_cache
 

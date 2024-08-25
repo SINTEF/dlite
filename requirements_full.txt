@@ -25,10 +25,10 @@ typing_extensions>=4.1,<5
 fortran-language-server>=1.12.0,<1.13
 
 # For TEM demo
-matplotlib>=3,<4
-scikit-image>=0.19,<1
-ncempy>=1.10,<2
-h5py>=3.9,<4
+##matplotlib>=3,<4
+##scikit-image>=0.19,<1
+##ncempy>=1.10,<2
+##h5py>=3.9,<4
 #oteapi-dlite>=0.1.5,<1
 #git+https://github.com/EMMC-ASBL/oteapi-dlite.git@fa1b820383eb54a1c37f32f7b8ac9406b556dace#egg=oteapi_dlite
 #otelib>=0.3.2,<1
