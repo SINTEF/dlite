@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Write Dockerfile for given system to stdout.
 #
 # Usage:
