@@ -3,6 +3,7 @@ from pathlib import Path
 import dlite
 from dlite.testutils import raises, importskip
 importskip("tripper")
+importskip("rdflib")
 
 from tripper import MAP, Triplestore
 

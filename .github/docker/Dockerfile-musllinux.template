@@ -34,33 +34,52 @@ FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
 ARG PY_MINORS="8 9 10 11 12"
 
+COPY requirements_full.txt requirements_dev.txt /tmp/
+
+{{ EXTRA_PRE }}
+
 # Do not use distutils distributed with setuptools
 # This is due to base changes in the distutils API, removing msvccompiler,
 # which is necessary for building the numpy wheel.
 ENV SETUPTOOLS_USE_DISTUTILS="stdlib"
 
-RUN apk add -u \
-  redland \
-  rasqal \
-  hdf5-dev \
-  openssl-dev \
-  swig && \
+RUN \
+  apk add -u \
+    redland-dev \
+    rasqal-dev \
+    hdf5-dev \
+    openssl-dev \
+    openblas-dev \
+    swig && \
   # Unpack static libraries
   # It's necessary to be in /opt/_internal because the internal libraries
   # exist here.
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
-  # Filter minor versions
-  minors=$( for n in $PY_MINORS; do \
-    if [ $(uname -m) == "i686" -o $n -lt 12 ]; then echo $n; fi; \
-  done ) && \
-  echo "*** Minors: $minors" && \
+  # Filter out challenging packages from requirements_full.txt
+  sed \
+    -e '/pandas/d' \
+    -e '/pyarrow/d' \
+    -e '/tables/d' \
+    -e '/jinja2/d' \
+    -e '/pydantic/d' \
+    -e '/matplotlib/d' \
+    -e '/scikit-image/d' \
+    -e '/ncempy/d' \
+    -e '/h5py/d' \
+    -i /tmp/requirements_full.txt && \
+    #-e 's/^pydantic.*/pydantic<2/' \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
-  for minor in ${minors}; do \
-    python3.${minor} -m pip install -U pip && \
-    python3.${minor} -m pip install -U setuptools wheel; \
-    python3.${minor} -m pip install -U --cache-dir /ci/pip_cache \
-      oldest-supported-numpy; \
+  for minor in ${PY_MINORS}; do \
+    python3.${minor} -m pip install --cache-dir=/ci/pip_cache -U pip && \
+    python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
+      -U setuptools wheel && \
+    python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
+      oldest-supported-numpy \
+      -r /tmp/requirements_dev.txt \
+      -r /tmp/requirements_full.txt; \
   done && \
   rm -rf /ci/pip_cache
+
+{{ EXTRA_POST }}

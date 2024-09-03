@@ -95,7 +95,7 @@ jobs:
         if: env.BUILD_NEW_IMAGE == 'true'
         run: |
           mkdir -p docker_build_wheel
-          sh .github/docker/gen_dockerfile.sh ${{ matrix.system }} ${{ matrix.type }} ${{ matrix.arch }} \
+          bash .github/docker/gen_dockerfile.sh ${{ matrix.system }} ${{ matrix.type }} ${{ matrix.arch }} \
             > docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
 
       - name: Login to GitHub Container Registry
