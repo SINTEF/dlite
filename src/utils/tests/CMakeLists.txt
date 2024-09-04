@@ -30,6 +30,7 @@ set(tests
   test_bson
   test_session
   test_rng
+  test_uri_encode
 
   tgen_example
   )
