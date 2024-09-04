@@ -219,9 +219,9 @@ add_custom_command(
     ${dlite_SOURCE_DIR}/README.md ${dlite_SOURCE_DIR}/LICENSE
     ${pkgdir}/share/dlite
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    ${CMAKE_BINARY_DIR}/tools/dlite-codegen${EXEEXT}
-    ${CMAKE_BINARY_DIR}/tools/dlite-env${EXEEXT}
-    ${CMAKE_BINARY_DIR}/tools/dlite-getuuid${EXEEXT}
+    "$<TARGET_FILE:dlite-codegen>"
+    "$<TARGET_FILE:dlite-env>"
+    "$<TARGET_FILE:dlite-getuuid>"
     ${pkgdir}/share/dlite/bin
   DEPENDS
     python_package
