@@ -309,6 +309,7 @@ set(sources
   bson.c
   session.c
   rng.c
+  uri_encode.c
 
   md5.c
   sha1.c
