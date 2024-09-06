@@ -19,6 +19,16 @@ MU_TEST(test_encode_something) {
   mu_assert_string_eq("something", buf);
   mu_assert_int_eq(9, n);
 }
+MU_TEST(test_encode_something_percent) {
+  int n = uri_encode("something%", 10, buf);
+  mu_assert_string_eq("something%25", buf);
+  mu_assert_int_eq(12, n);
+}
+MU_TEST(test_encode_something_zslash) {
+  int n = uri_encode("something%z/", 12, buf);
+  mu_assert_string_eq("something%25z%2F", buf);
+  mu_assert_int_eq(16, n);
+}
 MU_TEST(test_encode_space) {
   int n = uri_encode(" ", 1, buf);
   mu_assert_string_eq("%20", buf);
@@ -139,6 +149,8 @@ MU_TEST_SUITE(test_suite)
 {
   MU_RUN_TEST(test_encode_empty);
   MU_RUN_TEST(test_encode_something);
+  MU_RUN_TEST(test_encode_something_percent);
+  MU_RUN_TEST(test_encode_something_zslash);
   MU_RUN_TEST(test_encode_percent);
   MU_RUN_TEST(test_encode_space);
   MU_RUN_TEST(test_encode_empty);
