@@ -97,11 +97,11 @@ with raises(SystemError):
 
 # Test uri encode/decode
 assert dlite.uriencode("") == ""
-assert dlite.uriencode("å") == "%C3%A5"
+assert dlite.uriencode(u"å") == "%C3%A5"
 assert dlite.uriencode("abc") == "abc"
 assert dlite.uriencode("abc\x00def") == "abc%00def"
 
 assert dlite.uridecode("") == ""
-assert dlite.uridecode("%C3%A5") == "å"
+assert dlite.uridecode("%C3%A5") == u"å"
 assert dlite.uridecode("abc") == "abc"
 assert dlite.uridecode("abc%00def") == "abc\x00def"
