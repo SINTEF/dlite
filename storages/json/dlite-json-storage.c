@@ -84,7 +84,7 @@ DLiteStorage *json_loader(const DLiteStoragePlugin *api, const char *uri,
 
   /* parse options */
   char *optcopy = (options) ? strdup(options) : NULL;
-  if (dlite_option_parse(optcopy, opts, 1)) goto fail;
+  if (dlite_option_parse(optcopy, opts)) goto fail;
 
   char mode = *opts[0].value;
   int single = (*opts[1].value) ? atob(opts[1].value) : -2;
@@ -354,7 +354,7 @@ int json_memsave(const DLiteStoragePlugin *api,
   };
   char *optcopy = (options) ? strdup(options) : NULL;
   UNUSED(api);
-  if (dlite_option_parse(optcopy, opts, 1)) goto fail;
+  if (dlite_option_parse(optcopy, opts)) goto fail;
   indent = atoi(opts[0].value);
   if ((*opts[1].value) ? atob(opts[1].value) : dlite_instance_is_meta(inst))
     flags |= dliteJsonSingle;

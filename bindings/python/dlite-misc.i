@@ -3,6 +3,7 @@
 %{
   #include "utils/strtob.h"
   #include "utils/globmatch.h"
+  #include "utils/uri_encode.h"
 
   posstatus_t get_uuid_version(const char *id) {
     char buff[DLITE_UUID_LENGTH+1];
@@ -43,6 +44,27 @@
     if (n >= 0) return strncmp_semver(v1, v2, n);
     return strcmp_semver(v1, v2);
   }
+
+  char *uriencode(const char *src, size_t len) {
+    char *buf;
+    size_t m, n = uri_encode(src, len, NULL);
+    if (!(buf = malloc(n+1)))
+      return dlite_err(dliteMemoryError, "allocation failure"), NULL;
+    m = uri_encode(src, len, buf);
+    assert(m == n);
+    return buf;
+  }
+
+  status_t uridecode(const char *src, size_t len, char **dest, size_t *n) {
+    *n = uri_decode(src, len, NULL);
+    if (!(*dest = malloc(*n+1)))
+      return dlite_err(dliteMemoryError, "allocation failure");
+    size_t m = uri_decode(src, len, *dest);
+    printf("*** uridecode: '%s' (%d) n=%d, m=%d\n", src, (int)len, (int)*n, (int) m);
+    assert(m == *n);
+    return 0;
+  }
+
 
 %}
 
@@ -241,6 +263,17 @@ By default, the whole of `v1` and `v2` are compared.  If `n` is non-negative,
 only the initial part of `v1` and `v2` are compared, at most `n` characters.
 ") cmp_semver;
 int cmp_semver(const char *v1, const char *v2, int n=-1);
+
+
+%feature("docstring", "Return percent-encoded copy of input.") uriencode;
+%newobject uriencode;
+char *uriencode(const char *INPUT, size_t LEN);
+
+%feature("docstring", "Return percent-decoded copy of input.") uridecode;
+%newobject uridecode;
+status_t uridecode(const char *INPUT, size_t LEN, char **ARGOUT_STRING, size_t *LENGTH);
+
+
 
 
 

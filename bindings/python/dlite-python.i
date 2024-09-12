@@ -1108,6 +1108,8 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 /*
  * Input typemaps
  * --------------
+ * const char *INPUT, size_t LEN             <- string
+ *     String (with possible NUL-bytes)
  * int, struct _DLiteDimension *             <- numpy array
  *     Array of dimensions.
  * int, struct _DLiteProperty *              <- numpy array
@@ -1121,6 +1123,9 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  *
  * Argout typemaps
  * ---------------
+ * char **ARGOUT, size_t *LENGTH              -> string
+ *     This assumes that the wrapped function assignes *ARGOUT_BYTES to
+ *     an malloc'ed buffer.
  * unsigned char **ARGOUT_BYTES, size_t *LEN  -> bytes
  *     This assumes that the wrapped function assignes *ARGOUT_BYTES to
  *     an malloc'ed buffer.
@@ -1143,6 +1148,14 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 /* --------------
  * Input typemaps
  * -------------- */
+
+/* String (with possible NUL-bytes) */
+%typemap("doc") (const char *INPUT, size_t LEN)
+  "string"
+%typemap(in, numinputs=1) (const char *INPUT, size_t LEN) (Py_ssize_t tmp) {
+  $1 = (char *)PyUnicode_AsUTF8AndSize($input, &tmp);
+  $2 = tmp;
+}
 
 /* Array of input dimensions */
 %typemap("doc") (struct _DLiteDimension *dimensions, int ndimensions)
@@ -1288,6 +1301,21 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  * Argout typemaps
  * --------------- */
 
+/* Argout string */
+/* Assumes that *ARGOUT_BYTES is malloc()'ed by the wrapped function */
+%typemap("doc") (char **ARGOUT_STRING, size_t *LENGTH) "string"
+%typemap(in,numinputs=0) (char **ARGOUT_STRING, size_t *LENGTH)
+  (char *tmp, Py_ssize_t n) {
+  $1 = &tmp;
+  $2 = (size_t *)&n;
+}
+%typemap(argout) (char **ARGOUT_STRING, size_t *LENGTH) {
+  $result = PyUnicode_FromStringAndSize((char *)tmp$argnum, n$argnum);
+}
+%typemap(freearg) (char **ARGOUT_STRING, size_t *LENGTH) {
+  free(*($1));
+}
+
 /* Argout bytes */
 /* Assumes that *ARGOUT_BYTES is malloc()'ed by the wrapped function */
 %typemap("doc") (unsigned char **ARGOUT_BYTES, size_t *LEN) "bytes"
@@ -1344,7 +1372,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   if ($1) {
     char **p;
     for (p=$1; *p; p++) {
-      PyList_Append($result, PyString_FromString(*p));
+      PyList_Append($result, PyUnicode_FromString(*p));
       free(*p);
     }
     free($1);
@@ -1361,7 +1389,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   if ($1) {
     char **p;
     for (p=$1; *p; p++)
-      PyList_Append($result, PyString_FromString(*p));
+      PyList_Append($result, PyUnicode_FromString(*p));
   }
 }
 
