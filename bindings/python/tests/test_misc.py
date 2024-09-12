@@ -106,6 +106,8 @@ assert dlite.uridecode("") == ""
 assert dlite.uridecode("abc") == "abc"
 assert dlite.uridecode("abc%00def") == "abc\x00def"
 
+assert dlite.uridecode(dlite.uriencode("ÆØÅ")) == "ÆØÅ"
+
 # Ignore Windows - it has its own encoding (utf-16) of non-ascii characters
 if sys.platform != "win32":
     assert dlite.uriencode("å") == "%C3%A5"
