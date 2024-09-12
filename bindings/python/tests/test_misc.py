@@ -81,8 +81,7 @@ assert dlite.cmp_semver("1.3.11", "1.3.13", 5) == 0
 
 
 # Test deprecation warnings
-dlite.deprecation_warning("100.3.2", "My deprecated feature...")
-dlite.deprecation_warning("100.3.2", "My deprecated feature...")
+# Future deprecation is not displayed
 dlite.deprecation_warning("100.3.2", "My deprecated feature...")
 
 with raises(SystemError):

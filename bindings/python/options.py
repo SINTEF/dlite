@@ -3,6 +3,8 @@ storage plugins."""
 
 import json
 
+import dlite
+
 
 class Options(dict):
     """A dict representation of the options string `options`.
@@ -25,7 +27,11 @@ class Options(dict):
             defaults = Options(defaults)
         if defaults:
             self.update(defaults)
+
         if isinstance(options, str):
+            # URI-decode the options string
+            options = dlite.uridecode(options)
+
             if options.startswith("{"):
                 self.update(json.loads(options))
             else:
@@ -39,6 +45,13 @@ class Options(dict):
                     tokens = [options]
                 if tokens and tokens != [""]:
                     self.update([t.split("=", 1) for t in tokens])
+        elif isinstance(options, dict):
+            self.update(options)
+        elif options is not None:
+            raise TypeError(
+                "`options` should be either a %-encoded string or a dict: "
+                f"{options!r}"
+            )
 
     def __getattr__(self, name):
         if name in self:
