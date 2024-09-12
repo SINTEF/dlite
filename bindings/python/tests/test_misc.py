@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
+
 import dlite
 from dlite.testutils import raises
 
@@ -97,11 +99,14 @@ with raises(SystemError):
 
 # Test uri encode/decode
 assert dlite.uriencode("") == ""
-assert dlite.uriencode(u"å") == "%C3%A5"
 assert dlite.uriencode("abc") == "abc"
 assert dlite.uriencode("abc\x00def") == "abc%00def"
 
 assert dlite.uridecode("") == ""
-assert dlite.uridecode("%C3%A5") == u"å"
 assert dlite.uridecode("abc") == "abc"
 assert dlite.uridecode("abc%00def") == "abc\x00def"
+
+# Ignore Windows - it has its own encoding (utf-16) of non-ascii characters
+if sys.platform != "win32":
+    assert dlite.uriencode("å") == "%C3%A5"
+    assert dlite.uridecode("%C3%A5") == "å"
