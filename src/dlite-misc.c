@@ -199,13 +199,21 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
 int dlite_option_parse(char *options, DLiteOpt *opts)
 {
   char *p = options;
-  char buf[(options) ? strlen(options) : 0];
-  if (!options) return 0;
+  char *buf = NULL;
+  int status = 0;
+  if (!options || !*options) return 0;
+  if (!(buf = malloc(strlen(options)+1))) {
+    status = err(dliteMemoryError, "allocation failure");
+      goto fail;
+  }
   while (*p && *p != '#') {
     size_t i, len = strcspn(p, "=;&#");
-    if (p[len] != '=')
-      return errx(1, "no value for key '%.*s' in option string '%s'",
-                  (int)len, p, options);
+    if (p[len] != '=') {
+      status = errx(dliteValueError,
+                    "no value for key '%.*s' in option string '%s'",
+                    (int)len, p, options);
+      goto fail;
+    }
     for (i=0; opts[i].key; i++) {
       if (strncmp(opts[i].key, p, len) == 0 && strlen(opts[i].key) == len) {
         p += len;
@@ -224,10 +232,13 @@ int dlite_option_parse(char *options, DLiteOpt *opts)
     }
     if (!opts[i].key) {
       int len = strcspn(p, "=;&#");
-      return errx(dliteValueError, "unknown option key: '%.*s'", len, p);
+      status = errx(dliteValueError, "unknown option key: '%.*s'", len, p);
+      goto fail;
     }
   }
-  return 0;
+ fail:
+  if (buf) free(buf);
+  return status;
 }
 
 
