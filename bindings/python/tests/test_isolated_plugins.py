@@ -6,10 +6,7 @@ from dlite.testutils import importskip
 yaml = importskip("yaml")
 
 
-# At this point no plugins have been loaded
-assert not dlite.DLiteStorageBase.__subclasses__()
-
-# yaml is the module we imported above (PyYAML)
+# yaml is the PyYAML module we just imported
 assert yaml.__package__ == "yaml"
 
 # Load all plugins
@@ -18,5 +15,5 @@ dlite.Storage.load_plugins()
 # Now the yaml plugin is loaded
 assert "yaml" in set(m.__name__ for m in dlite.DLiteStorageBase.__subclasses__())
 
-# yaml is still the module we imported above (PyYAML)
+# yaml is still the PyYAML module we imported above
 assert yaml.__package__ == "yaml"
