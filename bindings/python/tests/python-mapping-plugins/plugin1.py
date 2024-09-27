@@ -1,5 +1,6 @@
 import dlite
 
+print("*** load mapping plugin1")
 
 class Person2SimplePerson(DLiteMappingBase):
     name = "Person2SimplePerson"
@@ -8,6 +9,7 @@ class Person2SimplePerson(DLiteMappingBase):
     cost = 25
 
     def map(self, instances):
+        print("*** call map:", instances)
         person = instances[0]
         simple = dlite.Instance.from_metaid(self.output_uri, [])
         simple.name = person.name
@@ -22,6 +24,7 @@ class SimplePerson2Person(DLiteMappingBase):
     cost = 25
 
     def map(self, instances):
+        print("*** call map 2:", instances)
         simple = instances[0]
         person = dlite.Instance.from_metaid(self.output_uri, [0])
         person.name = simple.name

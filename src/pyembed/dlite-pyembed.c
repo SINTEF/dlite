@@ -27,6 +27,7 @@ typedef struct {
 /* Global state for this module */
 typedef struct {
   ErrorCorrelation *errcorr;  /* NULL-terminated array */
+  int initialised;            /* Whether DLite pyembed has been initialised */
 } PyembedGlobals;
 
 
@@ -136,7 +137,11 @@ static const ErrorCorrelation *error_correlations(void)
  */
 void dlite_pyembed_initialise(void)
 {
-  if (!Py_IsInitialized() || !dlite_behavior_get("singleInterpreter")) {
+  PyembedGlobals *g = get_globals();
+
+  if (!g->initialised &&
+      (!Py_IsInitialized() || !dlite_behavior_get("singleInterpreter"))) {
+
     /*
       Python 3.8 and later implements the new Python
       Initialisation Configuration.
@@ -207,6 +212,8 @@ void dlite_pyembed_initialise(void)
       if (PyList_Insert(sys_path, 0, path))
         FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
     }
+
+    g->initialised = 1;
   fail:
     Py_XDECREF(sys);
     Py_XDECREF(sys_path);
@@ -575,7 +582,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
                                      char ***failed_paths, size_t *failed_len)
 {
   const char *path;
-  PyObject *main_dict, *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
+  PyObject *ppath=NULL, *pfun=NULL, *subclasses=NULL, *lst=NULL;
   PyObject *subclassnames=NULL;
   FUIter *iter;
   int i;
@@ -583,11 +590,11 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
 
   dlite_errclr();
   dlite_pyembed_initialise();
-  if (!(main_dict = dlite_python_maindict())) goto fail;
 
   /* Get list of initial subclasses and corresponding set subclassnames */
   if ((pfun = PyObject_GetAttrString(baseclass, "__subclasses__")))
       subclasses = PyObject_CallFunctionObjArgs(pfun, NULL);
+
   Py_XDECREF(pfun);
   if (!(subclassnames = PySet_New(NULL))) FAIL("cannot create empty set");
   for (i=0; i < PyList_Size(subclasses); i++) {
@@ -606,17 +613,22 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
   /* Load all modules in `paths` */
   if (!(iter = fu_pathsiter_init(paths, "*.py"))) goto fail;
   while ((path = fu_pathsiter_next(iter))) {
-    int stat;
-    FILE *fp=NULL;
-    char *basename=NULL;
-
-    if (!(ppath = PyUnicode_FromString(path)))
-      FAIL1("cannot create Python string from path: '%s'", path);
-    stat = PyDict_SetItemString(main_dict, "__file__", ppath);
-    Py_DECREF(ppath);
-    if (stat) FAIL("cannot assign path to '__file__' in dict of main module");
+    char *basename;
 
     if ((basename = fu_basename(path))) {
+      int stat;
+      FILE *fp=NULL;
+      PyObject *plugindict;
+
+      if (!(plugindict = dlite_python_plugindict(basename))) goto fail;
+
+      if (!(ppath = PyUnicode_FromString(path)))
+        FAIL1("cannot create Python string from path: '%s'", path);
+      stat = PyDict_SetItemString(plugindict, "__file__", ppath);
+      Py_DECREF(ppath);
+      if (stat)
+        FAIL("cannot assign path to '__file__' in dict of main module");
+
       size_t n;
       char **q = (failed_paths) ? *failed_paths : NULL;
       for (n=0; q && *q; n++)
@@ -625,8 +637,8 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
 
       if (!in_failed) {
         if ((fp = fopen(path, "r"))) {
-          PyObject *ret = PyRun_File(fp, basename, Py_file_input, main_dict,
-                                     main_dict);
+          PyObject *ret = PyRun_File(fp, basename, Py_file_input, plugindict,
+                                     plugindict);
           if (!ret) {
 
             if (failed_paths && failed_len) {
@@ -679,4 +691,89 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
   Py_XDECREF(lst);
   Py_XDECREF(subclassnames);
   return subclasses;
+}
+
+
+/*
+  Return borrowed reference to a dict object for DLite or NULL on error.
+
+  If the dlite module has been imported, the dlite module `__dict__`
+  is returned.  Otherwise a warning is issued and a, possible newly
+  created, `__main__._dlite` dict is returned.
+
+  Use dlite_python_module_dict() if you only want the dlite module dict.
+ */
+PyObject *dlite_python_dlitedict(void)
+{
+  PyObject *name=NULL, *module=NULL, *dict=NULL;
+
+  dlite_pyembed_initialise();
+
+  if (!(name = PyUnicode_FromString("dlite")))
+    FAILCODE(dliteValueError, "invalid string: 'dlite'");
+
+  if (!(module = PyImport_GetModule(name))) {
+    PyObject *maindict = dlite_python_maindict();
+    if (!maindict) goto fail;
+    if (!(dict = PyDict_GetItemString(maindict, "_dlite"))) {
+      if (!(dict = PyDict_New()))
+        FAILCODE(dlitePythonError, "cannot create dict `__main__._dlite`");
+      int stat = PyDict_SetItemString(maindict, "_dlite", dict);
+      Py_DECREF(dict);
+      if (stat) FAILCODE(dlitePythonError,
+                         "cannot insert dict `__main__._dlite`");
+      dlite_warnx("dlite not imported.  Created dict `__main__._dlite`");
+    }
+  } else {
+    if (!(dict = PyModule_GetDict(module)))
+      FAILCODE(dlitePythonError, "cannot get dlite module dict");
+  }
+
+ fail:
+  Py_XDECREF(name);
+  Py_XDECREF(module);
+
+  return dict;
+}
+
+
+/*
+  Return borrowed reference to a dict serving as a namespace for the
+  given plugin.
+
+  The returned dict is accessable from Python as
+  `dlite._plugindict[plugin_name]`.  The dict will be created if it
+  doesn't already exists.
+
+  Returns NULL on error.
+ */
+PyObject *dlite_python_plugindict(const char *plugin_name)
+{
+  PyObject *dlitedict=NULL, *plugindict=NULL, *dict=NULL;
+
+  if (!(dlitedict = dlite_python_dlitedict())) goto fail;
+
+  if (!(plugindict = PyDict_GetItemString(dlitedict, "_plugindict"))) {
+    if (!(plugindict = PyDict_New()))
+      FAILCODE(dlitePythonError, "cannot create dict `dlite._plugindict`");
+    int stat = PyDict_SetItemString(dlitedict, "_plugindict", plugindict);
+    Py_DECREF(plugindict);
+    if (stat) FAILCODE(dlitePythonError,
+                       "cannot insert dict `dlite._plugindict`");
+  }
+
+  if (!(dict = PyDict_GetItemString(plugindict, plugin_name))) {
+    if (!(dict = PyDict_New()))
+      FAILCODE1(dlitePythonError,
+               "cannot create dict `dlite._plugindict[%s]`",
+               plugin_name);
+    int stat = PyDict_SetItemString(plugindict, plugin_name, dict);
+    Py_DECREF(dict);
+    if (stat) FAILCODE1(dlitePythonError,
+                        "cannot insert dict `dlite._plugindict[%s]`",
+                        plugin_name);
+  }
+
+ fail:
+  return dict;
 }
