@@ -28,6 +28,7 @@ typedef struct {
 typedef struct {
   ErrorCorrelation *errcorr;  /* NULL-terminated array */
   int initialised;            /* Whether DLite pyembed has been initialised */
+  PyObject *dlitedict;        /* Cached dlite dictionary */
 } PyembedGlobals;
 
 
@@ -613,14 +614,15 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
   /* Load all modules in `paths` */
   if (!(iter = fu_pathsiter_init(paths, "*.py"))) goto fail;
   while ((path = fu_pathsiter_next(iter))) {
-    char *basename;
+    char *stem;
 
-    if ((basename = fu_basename(path))) {
+    if ((stem = fu_stem(path))) {
       int stat;
       FILE *fp=NULL;
       PyObject *plugindict;
 
-      if (!(plugindict = dlite_python_plugindict(basename))) goto fail;
+      if (!(plugindict = dlite_python_plugindict(stem))) goto fail;
+      //if (!(plugindict = dlite_python_dlitedict())) goto fail;
 
       if (!(ppath = PyUnicode_FromString(path)))
         FAIL1("cannot create Python string from path: '%s'", path);
@@ -637,7 +639,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
 
       if (!in_failed) {
         if ((fp = fopen(path, "r"))) {
-          PyObject *ret = PyRun_File(fp, basename, Py_file_input, plugindict,
+          PyObject *ret = PyRun_File(fp, path, Py_file_input, plugindict,
                                      plugindict);
           if (!ret) {
 
@@ -653,7 +655,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
           Py_XDECREF(ret);
         }
       }
-      free(basename);
+      free(stem);
     }
 
   }
@@ -701,13 +703,19 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
   is returned.  Otherwise a warning is issued and a, possible newly
   created, `__main__._dlite` dict is returned.
 
+  The returned reference is cashed and will therefore always be consistent.
+
   Use dlite_python_module_dict() if you only want the dlite module dict.
  */
 PyObject *dlite_python_dlitedict(void)
 {
   PyObject *name=NULL, *module=NULL, *dict=NULL;
+  PyembedGlobals *g = get_globals();
 
   dlite_pyembed_initialise();
+
+  /* Caching the dlitedict */
+  if (g->dlitedict) return g->dlitedict;
 
   if (!(name = PyUnicode_FromString("dlite")))
     FAILCODE(dliteValueError, "invalid string: 'dlite'");
@@ -728,6 +736,8 @@ PyObject *dlite_python_dlitedict(void)
     if (!(dict = PyModule_GetDict(module)))
       FAILCODE(dlitePythonError, "cannot get dlite module dict");
   }
+
+  g->dlitedict = dict;
 
  fail:
   Py_XDECREF(name);
