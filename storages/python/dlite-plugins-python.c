@@ -15,6 +15,7 @@
 #include "utils/boolean.h"
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "dlite-behavior.h"
 #include "dlite-storage-plugins.h"
 #include "pyembed/dlite-pyembed.h"
 #include "pyembed/dlite-python-storage.h"
@@ -470,7 +471,7 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
                               name, classname, failmsg()))
     goto fail;
   if (!PyIter_Check(iter->v))
-    FAIL1("method %s.%s() does not return a iterator object", classname, name);
+    FAIL2("method %s.%s() does not return a iterator object", classname, name);
 
   iter->classname = classname;
 
@@ -604,13 +605,13 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   }
 
   /* Due to typo, fallback to old method name: queue() */
-  char *name = "query";
-  if (!PyObject_HasAttrString(sp->obj, name) &&
-      dlite_behavior_get("storageQuery") == 0) name = "queue";
-  if (PyObject_HasAttrString(cls, name)) {
-    query = PyObject_GetAttrString(cls, name);
+  char *qname = "query";
+  if (!PyObject_HasAttrString(cls, qname) &&
+      dlite_behavior_get("storageQuery") == 0) qname = "queue";
+  if (PyObject_HasAttrString(cls, qname)) {
+    query = PyObject_GetAttrString(cls, qname);
     if (!PyCallable_Check(query))
-      FAIL2("attribute '%s' of '%s' is not callable", name, classname);
+      FAIL2("attribute '%s' of '%s' is not callable", qname, classname);
   }
 
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))

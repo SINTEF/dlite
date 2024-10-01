@@ -738,7 +738,7 @@ static DLiteStoragePlugin rdf_plugin = {
   NULL,                                 /* flush */
   NULL,                                 /* help */
 
-  /* queue api */
+  /* query api */
   rdf_iter_create,                      /* iterCreate */
   rdf_iter_next,                        /* iterNext */
   rdf_iter_free,                        /* iterFree */
