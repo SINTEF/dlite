@@ -1389,6 +1389,11 @@ DLiteStorageBase = _dlite._get_storage_base()
 DLiteMappingBase = _dlite._get_mapping_base()
 del n, exc
 
+
+class DLiteProtocolBase:
+    """Base class for Python protocol plugins."""
+
+
 def instance_cast(inst, newtype=None):
     """Return instance converted to a new instance subclass.
 
