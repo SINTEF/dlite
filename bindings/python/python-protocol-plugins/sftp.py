@@ -83,16 +83,15 @@ class sftp(dlite.DLiteProtocolBase):
         stored in a zip object and then the bytes content of the zip
         object is returned.
         """
-        if uuid:
-            path = f"{self.path.rstrip('/')/{uuid}")
+        path = f"{self.path.rstrip('/')}/{uuid}") if uuid else self.path
         s = self.client.stat(path)
         if stat.S_ISDIR(s.st_mode):
             buf = io.BytesIO()
-            with zipfile.ZipFile(buf, "a", zipfile.ZIP_DEFLATED) as f:
+            with zipfile.ZipFile(buf, "a", zipfile.ZIP_DEFLATED) as fzip:
                 # Not recursive for now...
                 for entry in self.client.listdir_attr(path):
                     if stat.S_ISREG(entry):
-                        f.writestr(entry.filename, entry.asbytes())
+                        fzip.writestr(entry.filename, entry.asbytes())
             data = buf.getvalue()
         elif stat.S_ISREG(s.st_mode):
             with self.client.open(path, mode="r") as f:
@@ -104,24 +103,30 @@ class sftp(dlite.DLiteProtocolBase):
             )
         return data
 
-    def save(self, data):
+    def save(self, data, uuid=None):
         """Save bytes object `data` to remote location."""
+        path = f"{self.path.rstrip('/')}/{uuid}") if uuid else self.path
         buf = io.BytesIO(data)
         if zipfile.is_zipfile(buf):
             compression = self.zip_compressions[self.options.zip_compression]
-            with zipfile.ZipFile(buf, "r", compression) as f:
+            with zipfile.ZipFile(buf, "r", compression) as fzip:
                 for name in f.namelist():
-                    self.client.  WRITE
+                    with fzip.open(name, mode="r") as f:
+                        self.client.putfo(f, f"{path}/{name}")
+        else:
+            self.client.putfo(buf, path)
+
+    def delete(self, uuid):
+        """Delete instance with given `uuid`."""
+        path = f"{self.path.rstrip('/')}/{uuid}") if uuid else self.path
+        self.client.remove(path)
 
 
 # SFTP connection parameters
 
 host = "nas.aimen.es"
-
 port = 2122
-
 username = "matchmaker"
-
 password = "1p1B4E45pZcqYz9L@bBzb1&8d"
 
 try:
