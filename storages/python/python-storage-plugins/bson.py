@@ -71,7 +71,7 @@ class bson(dlite.DLiteStorageBase):
             else:
                 mode = self.mode
 
-            for uuid in self.queue():
+            for uuid in self.query():
                 props = self._data[uuid]["properties"]
                 if isinstance(props, dict):  # Metadata props is list
                     for key in props:
@@ -107,7 +107,7 @@ class bson(dlite.DLiteStorageBase):
             soft7=dlite.asbool(self.options.soft7), uuid=True, single=True
         )
 
-    def queue(
+    def query(
         self, pattern: "Optional[str]" = None
     ) -> "Generator[str, None, None]":
         """Generator method that iterates over all UUIDs in the storage whose metadata
