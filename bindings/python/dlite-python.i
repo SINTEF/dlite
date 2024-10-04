@@ -1110,7 +1110,8 @@ PyObject *dlite_run_file(const char *path, PyObject *globals, PyObject *locals)
   if (!(fp = fopen(path, "rt")))
     FAILCODE1(dliteIOError, "cannot open python file: %s", path);
   if (!(result = PyRun_File(fp, basename, Py_file_input, globals, locals)))
-    FAILCODE1(dliteIOError, "cannot run python file: %s", path);
+    dlite_pyembed_err(dlitePythonError, "cannot run python file: %s", path);
+
  fail:
   if (fp) fclose(fp);
   if (basename) free(basename);
@@ -1401,7 +1402,8 @@ PyObject *dlite_python_module_error(int code);
 
 int _get_number_of_errors(void);
 
-%feature("docstring", "Exposing PyRun_File") dlite_run_file;
+%rename(run_file) dlite_run_file;
+%feature("docstring", "Exposing PyRun_File from the Python C API.") dlite_run_file;
 PyObject *dlite_run_file(const char *path, PyObject *globals=NULL, PyObject *locals=NULL);
 
 

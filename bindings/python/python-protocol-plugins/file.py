@@ -35,7 +35,7 @@ class sftp(dlite.DLiteProtocolBase):
                   "ssh-ed25519"
                 - `key_bytes`: Hex-encoded key bytes for key-based authorisation.
                 - `zip_compression`: Zip compression method. One of "none",
-                  "deflated" (default), "bzip2" or "lzma".
+                  "deflated", "bzip2" or "lzma".
 
         Example:
 

@@ -238,6 +238,12 @@ install(
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-protocol-plugins
+  DESTINATION share/dlite
+  PATTERN ".gitignore" EXCLUDE
+  PATTERN "*~" EXCLUDE
+)
 
 add_subdirectory(scripts)
 
