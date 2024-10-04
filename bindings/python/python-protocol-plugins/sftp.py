@@ -121,46 +121,17 @@ class sftp(dlite.DLiteProtocolBase):
         path = f"{self.path.rstrip('/')}/{uuid}") if uuid else self.path
         self.client.remove(path)
 
-
-# SFTP connection parameters
-
-host = "nas.aimen.es"
-port = 2122
-username = "matchmaker"
-password = "1p1B4E45pZcqYz9L@bBzb1&8d"
-
-try:
-
-    transport = paramiko.Transport((host, port))
-
-     transport.connect(username=username, password=password)
-
-    sftp = paramiko.SFTPClient.from_transport(transport)
-
-
-
-    # List directories in the root directory
-
-    root_path = '.'
-
-    files_and_dirs = sftp.listdir_attr(root_path)
-
-
-
-    # Filter out directories
-
-    directories = [entry.filename for entry in files_and_dirs if stat.S_ISDIR(entry.st_mode)]
-
-    print('Directories in the root directory:', directories)
-
-
-
-    # Close the SFTP connection
-
-    sftp.close()
-
-    transport.close()
-
-except Exception as e:
-
-    print(f'An error occurred: {e}')
+    def query(self, pattern=None):
+        """Generator method."""
+        s = self.client.stat(self.path)
+        if stat.S_ISDIR(s.st_mode):
+            for entry in self.client.listdir_attr(self.path):
+                if stat.S_ISREG(entry):
+                    yield.entry.filename
+        elif stat.S_ISREG(s.st_mode):
+            yield self.path
+        else:
+            raise TypeError(
+                "remote path must either be a directory or a regular "
+                f"file: {self.path}"
+            )

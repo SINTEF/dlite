@@ -6,6 +6,7 @@ set(py_sources
   options.py
   utils.py
   mappings.py
+  protocol.py
   datamodel.py
   rdf.py
   dataset.py

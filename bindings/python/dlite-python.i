@@ -1098,6 +1098,25 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   return status;
 }
 
+
+/* Expose PyRun_File() to python. Returns NULL on error. */
+PyObject *dlite_run_file(const char *path, PyObject *globals, PyObject *locals)
+{
+  char *basename=NULL;
+  FILE *fp=NULL;
+  PyObject *result=NULL;
+  if (!(basename = fu_basename(path)))
+    FAILCODE(dliteMemoryError, "cannot allocate path base name");
+  if (!(fp = fopen(path, "rt")))
+    FAILCODE1(dliteIOError, "cannot open python file: %s", path);
+  if (!(result = PyRun_File(fp, basename, Py_file_input, globals, locals)))
+    FAILCODE1(dliteIOError, "cannot run python file: %s", path);
+ fail:
+  if (fp) fclose(fp);
+  if (basename) free(basename);
+  return result;
+}
+
 %}
 
 
@@ -1379,7 +1398,12 @@ PyObject *dlite_python_mapping_base(void);
 %rename(errgetexc) dlite_python_module_error;
 %feature("docstring", "Returns DLite exception corresponding to error code.") dlite_python_module_error;
 PyObject *dlite_python_module_error(int code);
+
 int _get_number_of_errors(void);
+
+%feature("docstring", "Exposing PyRun_File") dlite_run_file;
+PyObject *dlite_run_file(const char *path, PyObject *globals=NULL, PyObject *locals=NULL);
+
 
 %pythoncode %{
 for n in range(_dlite._get_number_of_errors()):
