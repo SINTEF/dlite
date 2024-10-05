@@ -427,7 +427,6 @@ def get_instance(
             Instance loaded from storage.
         """
         from dlite.protocol import Protocol
-        Protocol.load_plugins()
 
         pr = Protocol(protocol=protocol, location=location, options=options)
         buffer = pr.load(uuid=id)

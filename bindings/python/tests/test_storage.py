@@ -4,10 +4,10 @@ from pathlib import Path
 import numpy as np
 
 import dlite
-from dlite.testutils import checkimport, raises
+from dlite.testutils import importcheck, raises
 
-yaml = checkimport("yaml")
-requests = checkimport("requests")
+yaml = importcheck("yaml")
+requests = importcheck("requests")
 #try:
 #    import yaml
 #    HAVE_YAML = True

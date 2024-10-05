@@ -13,9 +13,9 @@ from dlite.protocol import (
     archive_extract,
     archive_add,
 )
-from dlite.testutils import checkimport, raises
+from dlite.testutils import importcheck, raises
 
-paramiko = checkimport("paramiko")
+paramiko = importcheck("paramiko")
 
 
 thisdir = Path(__file__).resolve().parent
@@ -24,7 +24,7 @@ indir = thisdir / "input"
 
 
 # Load plugins
-Protocol.load_plugins()
+#Protocol.load_plugins()
 
 
 # Test load_path() and save_path()

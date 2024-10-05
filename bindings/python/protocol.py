@@ -27,6 +27,8 @@ class Protocol():
     """
 
     def __init__(self, protocol, location, options=None):
+        self.load_plugins()  # Load plugins before anything else
+
         d = {cls.__name__: cls for cls in dlite.DLiteProtocolBase.__subclasses__()}
         if protocol not in d:
             raise dlite.DLiteLookupError(f"no such protocol plugin: {protocol}")
@@ -67,7 +69,7 @@ class Protocol():
         """
         return self._call("query", pattern=pattern)
 
-    _failed_plugins = ()
+    _failed_plugins = set()
 
     @classmethod
     def load_plugins(cls):
