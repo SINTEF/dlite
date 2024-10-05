@@ -13,7 +13,9 @@ from dlite.protocol import (
     archive_extract,
     archive_add,
 )
-from dlite.testutils import raises
+from dlite.testutils import checkimport, raises
+
+paramiko = checkimport("paramiko")
 
 
 thisdir = Path(__file__).resolve().parent
@@ -68,7 +70,7 @@ host = os.getenv("AIMEN_SFTP_HOST")
 port = os.getenv("AIMEN_SFTP_PORT")
 username = os.getenv("AIMEN_SFTP_USERNAME")
 password = os.getenv("AIMEN_SFTP_PASSWORD")
-if host and port and username and password:
+if paramiko and host and port and username and password:
     con = Protocol(
         protocol="sftp",
         location=(

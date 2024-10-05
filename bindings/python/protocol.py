@@ -8,6 +8,8 @@ representing a file directory.
 import inspect
 import io
 import re
+import traceback
+import warnings
 import zipfile
 from glob import glob
 from pathlib import Path
@@ -65,8 +67,10 @@ class Protocol():
         """
         return self._call("query", pattern=pattern)
 
-    @staticmethod
-    def load_plugins():
+    _failed_plugins = ()
+
+    @classmethod
+    def load_plugins(cls):
         """Load all protocol plugins."""
 
         # This should not be needed when PR #953 has been merged
@@ -78,9 +82,17 @@ class Protocol():
                 path = f"{Path(path) / '*.py'}"
             for filename in glob(path):
                 scopename = f"{Path(filename).stem}_protocol"
-                dlite._plugindict.setdefault(scopename, {})
-                scope = dlite._plugindict[scopename]
-                dlite.run_file(filename, scope, scope)
+                if (scopename not in dlite._plugindict
+                    and scopename not in cls._failed_plugins
+                ):
+                    dlite._plugindict.setdefault(scopename, {})
+                    scope = dlite._plugindict[scopename]
+                    try:
+                        dlite.run_file(filename, scope, scope)
+                    except Exception:
+                        msg = traceback.format_exc()
+                        warnings.warn(f"error loading '{scopename}':\n{msg}")
+                        cls._failed_plugins.add(scopename)
 
     def _call(self, method, *args, **kwargs):
         """Call given method usin `call()` if it exists."""
@@ -96,9 +108,8 @@ class Protocol():
         if not self.closed:
             try:
                 self.close()
-            except Expeption:
+            except Expeption:  # Ignore exceptions at shutdown
                 pass
-
 
 # Help functions
 

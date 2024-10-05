@@ -4,13 +4,21 @@ from pathlib import Path
 import numpy as np
 
 import dlite
-from dlite.testutils import raises
+from dlite.testutils import checkimport, raises
 
-try:
-    import yaml
-    HAVE_YAML = True
-except ModuleNotFoundError:
-    HAVE_YAML = False
+yaml = checkimport("yaml")
+requests = checkimport("requests")
+#try:
+#    import yaml
+#    HAVE_YAML = True
+#except ModuleNotFoundError:
+#    HAVE_YAML = False
+#
+#try:
+#    import requests
+#    HAVE_REQUESTS = True
+#except ModuleNotFoundError:
+#    HAVE_REQUESTS = False
 
 
 thisdir = Path(__file__).absolute().parent
@@ -110,7 +118,7 @@ assert rel1 == rel2
 
 
 # Test yaml
-if HAVE_YAML:
+if yaml:
     print('--- testing yaml')
     inst.save(f"yaml://{outdir}/test_storage_inst.yaml?mode=w")
     del inst
@@ -190,7 +198,7 @@ else:
 
 
 # Tests for issue #587
-if HAVE_YAML:
+if yaml:
     bytearr = inst.to_bytes("yaml")
     #print(bytes(bytearr).decode())
 
@@ -221,7 +229,14 @@ iter2 = s.instances()
 for i in range(6):
     print(iter2.next())
 
-print("==========")
 
-for i in range(5):
-    print(iter.next())
+# Test combining protocol and storage plugins using dlite.Instance.load()
+# -----------------------------------------------------------------------
+if requests and yaml:
+    url = (
+        "https://raw.githubusercontent.com/SINTEF/dlite/refs/heads/master/"
+        "storages/python/tests-python/input/test_meta.yaml"
+    )
+    m = dlite.Instance.load(protocol="http", driver="yaml", location=url)
+    assert m.uri == "http://onto-ns.com/meta/0.1/TestEntity"
+    assert type(m) is dlite.Metadata

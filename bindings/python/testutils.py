@@ -62,6 +62,15 @@ class raises():
         ) from exc_value
 
 
+def checkimport(module_name):
+    """Import and return the requested module if it exists.
+    Otherwise None is returned."""
+    try:
+        return importlib.import_module(module_name)
+    except ModuleNotFoundError as exc:
+        return None
+
+
 def importskip(module_name, exitcode=44):
     """Import and return the requested module.
 
