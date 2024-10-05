@@ -628,7 +628,8 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst);
  */
 DLiteInstance *dlite_instance_memload(const char *driver,
                                       const unsigned char *buf, size_t size,
-                                      const char *id, const char *options);
+                                      const char *id, const char *options,
+                                      const char *metaid);
 
 /**
   Stores instance `inst` to memory buffer `buf` of size `size`.

@@ -841,7 +841,8 @@ bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 struct _DLiteInstance *
          dlite_instance_memload(const char *driver,
                                 unsigned char *INPUT_BYTES, size_t LEN,
-                                const char *id=NULL, const char *options=NULL);
+                                const char *id=NULL, const char *options=NULL,
+                                const char *metaid=NULL);
 
 
 /* FIXME - how do we avoid duplicating these constants from dlite-schemas.h? */

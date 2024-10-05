@@ -1,23 +1,18 @@
 import io
 import stat
 import zipfile
+from pathlib import Path
 from urllib.parse import urlparse
 
 import paramiko
 
 import dlite
 from dlite.options import Options
+from dlite.protocol import zip_compressions
 
 
 class sftp(dlite.DLiteProtocolBase):
     """DLite protocol plugin for sftp."""
-
-    zip_compressions = {
-        "none": zipfile.ZIP_STORED,
-        "deflated": zipfile.ZIP_DEFLATED,
-        "bzip2": zipfile.ZIP_BZIP2,
-        "lzma": zipfile.ZIP_LZMA,
-    }
 
     def open(self, location, options=None):
         """Opens `location`.
@@ -33,9 +28,18 @@ class sftp(dlite.DLiteProtocolBase):
                 - `port`: Port number. Default is 22.
                 - `key_type`: Key type for key-based authorisation, ex:
                   "ssh-ed25519"
-                - `key_bytes`: Hex-encoded key bytes for key-based authorisation.
-                - `zip_compression`: Zip compression method. One of "none",
+                - `key_bytes`: Hex-encoded key bytes for key-based
+                  authorisation.
+                - `include`: Regular expression matching file names to be
+                  included if `location` is a directory.
+                - `exclude`: Regular expression matching file names to be
+                  excluded if `location` is a directory.
+                - `compression`: Zip compression method. One of "none",
                   "deflated" (default), "bzip2" or "lzma".
+                - `compresslevel`: Integer compression level.
+                  For compresison "none" or "lzma"; no effect.
+                  For compresison "deflated"; 0 to 9 are valid.
+                  For compresison "bzip2"; 1 to 9 are valid.
 
         Example:
 
@@ -48,23 +52,27 @@ class sftp(dlite.DLiteProtocolBase):
             key_bytes = pkey.asbytes().hex()
 
         """
-        options = Options("port=22;zip_compression=deflated")
+        options = Options(options, "port=22;compression=lzma")
 
         p = urlparse(location)
-        username = p.username if p.username else options.username
-        password = p.password if p.password else options.password
-        hostname = p.hostname if p.hostname else options.hostname
-        port = p.port if p.port else int(options.port)
+        if not p.scheme:
+            p = urlparse("sftp://" + location)
+        username = p.username if p.username else options.pop("username", None)
+        password = p.password if p.password else options.pop("password", None)
+        hostname = p.hostname if p.hostname else options.get("hostname")
+        port = p.port if p.port else int(options.pop("port"))
 
         transport = paramiko.Transport((hostname, port))
 
-        if options.key_type and options.key_bytes:
+        if "key_type" in options and "key_bytes" in options:
             pkey = paramiko.PKey.from_type_string(
-                key_type, bytes.fromhex(key_bytes)
+                options.key_type, bytes.fromhex(options.key_bytes)
             )
             transport.connect(username=username, pkey=pkey)
-        else:
+        elif username and password:
             transport.connect(username=username, password=password)
+        else:
+            transport.connect()
 
         self.options = options
         self.client = paramiko.SFTPClient.from_transport(transport)
@@ -84,14 +92,33 @@ class sftp(dlite.DLiteProtocolBase):
         object is returned.
         """
         path = f"{self.path.rstrip('/')}/{uuid}" if uuid else self.path
+        opts = self.options
         s = self.client.stat(path)
         if stat.S_ISDIR(s.st_mode):
+            incl = re.compile(opts.include) if "include" in opts else None
+            excl = re.compile(opts.exclude) if "exclude" in opts else None
             buf = io.BytesIO()
-            with zipfile.ZipFile(buf, "a", zipfile.ZIP_DEFLATED) as fzip:
-                # Not recursive for now...
-                for entry in self.client.listdir_attr(path):
-                    if stat.S_ISREG(entry):
-                        fzip.writestr(entry.filename, entry.asbytes())
+            with zipfile.ZipFile(
+                    file=buf,
+                    mode="w",
+                    compression=zip_compressions[opts.compression],
+                    compresslevel=opts.get("compresslevel"),
+            ) as fzip:
+
+                def iterdir(dirpath):
+                    """Add all files matching regular expressions."""
+                    for entry in self.client.listdir_attr(dirpath):
+                        fullpath = Path(dirpath) / entry.filename
+                        name = str(fullpath.relative_to(path))
+                        if (stat.S_ISREG(entry.st_mode)
+                            and (not incl or incl.match(name))
+                            and (not excl or not excl.match(name))
+                        ):
+                            fzip.writestr(name, entry.asbytes())
+                        elif stat.S_ISDIR(entry.st_mode):
+                            iterdir(str(fullpath))
+
+                iterdir(path)
             data = buf.getvalue()
         elif stat.S_ISREG(s.st_mode):
             with self.client.open(path, mode="r") as f:
@@ -106,17 +133,46 @@ class sftp(dlite.DLiteProtocolBase):
     def save(self, data, uuid=None):
         """Save bytes object `data` to remote location."""
         path = f"{self.path.rstrip('/')}/{uuid}" if uuid else self.path
+        opts = self.options
+
         buf = io.BytesIO(data)
-        if zipfile.is_zipfile(buf):
-            compression = self.zip_compressions[self.options.zip_compression]
-            with zipfile.ZipFile(buf, "r", compression) as fzip:
-                for name in f.namelist():
+        iszip = zipfile.is_zipfile(buf)
+        buf.seek(0)
+
+        if iszip:
+            incl = re.compile(opts.include) if "include" in opts else None
+            excl = re.compile(opts.exclude) if "exclude" in opts else None
+            with zipfile.ZipFile(file=buf, mode="r") as fzip:
+                for name in fzip.namelist():
+                    if ((incl and not incl.match(name))
+                        or (excl and excl.match(name))):
+                        continue
                     with fzip.open(name, mode="r") as f:
-                        self.client.putfo(f, f"{path}/{name}")
+                        pathname = f"{path}/{name}"
+                        self._create_missing_dirs(pathname)
+                        self.client.putfo(f, pathname)
         else:
+            self._create_missing_dirs(path)
             self.client.putfo(buf, path)
 
-    def delete(self, uuid):
+    def _create_missing_dirs(self, path):
+        """Create missing directories in `path` on remote host."""
+        p = Path(path).parent
+        missing_dirs = []
+        while True:
+            try:
+                self.client.stat(str(p))
+            except FileNotFoundError:
+                missing_dirs.append(p.parts[-1])
+                p = p.parent
+            else:
+                break
+
+        for dir in reversed(missing_dirs):
+            p = p / dir
+            self.client.mkdir(str(p))
+
+    def delete(self, uuid=None):
         """Delete instance with given `uuid`."""
         path = f"{self.path.rstrip('/')}/{uuid}" if uuid else self.path
         self.client.remove(path)

@@ -19,34 +19,37 @@ class Protocol():
     """Provides an interface to protocol plugins.
 
     Arguments:
-        scheme: Name of protocol.
-        location: URL or file path to storage.
+        protocol: Name of protocol.
+        location: Location of resource.  Typically a URL or file path.
         options: Options passed to the protocol plugin.
     """
 
-    def __init__(self, scheme, location, options=None):
+    def __init__(self, protocol, location, options=None):
         d = {cls.__name__: cls for cls in dlite.DLiteProtocolBase.__subclasses__()}
-        if scheme not in d:
-            raise DLiteLookupError(f"no such protocol plugin: {scheme}")
+        if protocol not in d:
+            raise dlite.DLiteLookupError(f"no such protocol plugin: {protocol}")
 
-        self.conn = d[scheme]()
-        call(self.conn.open, location, options=options)
+        self.conn = d[protocol]()
+        self.protocol = protocol
+        self.closed = False
+        self._call("open", location, options=options)
 
     def close(self):
         """Close connection."""
-        self.conn.close()
+        self._call("close")
+        self.closed = True
 
     def load(self, uuid=None):
         """Load data from connection and return it as a bytes object."""
-        return call(self.conn.load, uuid=uuid)
+        return self._call("load", uuid=uuid)
 
     def save(self, data, uuid=None):
         """Save bytes object `data` to connection."""
-        call(self.conn.save, data, uuid=uuid)
+        self._call("save", data, uuid=uuid)
 
     def delete(self, uuid):
         """Delete instance with given `uuid` from connection."""
-        return call(self.conn.delete, uuid=uuid)
+        return self._call("delete", uuid=uuid)
 
     def query(self, pattern=None):
         """Generator method that iterates over all UUIDs in the connection
@@ -60,7 +63,7 @@ class Protocol():
             If no `pattern` is given, the UUIDs of all instances in the
             connection are yielded.
         """
-        return call(self.conn.query, pattern=pattern)
+        return self._call("query", pattern=pattern)
 
     @staticmethod
     def load_plugins():
@@ -79,6 +82,25 @@ class Protocol():
                 scope = dlite._plugindict[scopename]
                 dlite.run_file(filename, scope, scope)
 
+    def _call(self, method, *args, **kwargs):
+        """Call given method usin `call()` if it exists."""
+        if self.closed:
+            raise dlite.DLiteIOError(
+                f"calling closed connection to '{self.protocol}' protocol "
+                "plugin"
+            )
+        if hasattr(self.conn, method):
+            return call(getattr(self.conn, method), *args, **kwargs)
+
+    def __del__(self):
+        if not self.closed:
+            try:
+                self.close()
+            except Expeption:
+                pass
+
+
+# Help functions
 
 def call(func, *args, **kwargs):
     """Call a function.  Keyword arguments that are None, will not be passed
@@ -96,6 +118,8 @@ def call(func, *args, **kwargs):
     return func(*args, **kw)
 
 
+# Functions for zip archive
+
 zip_compressions = {
     "none": zipfile.ZIP_STORED,
     "deflated": zipfile.ZIP_DEFLATED,
@@ -104,7 +128,13 @@ zip_compressions = {
 }
 
 
-def load_path(path, regex=None, zip_compression="deflated", compresslevel=None):
+def load_path(
+    path,
+    include=None,
+    exclude=None,
+    compression="lzma",
+    compresslevel=None,
+):
     """Returns content of path as bytes.
 
     If `path` is a directory, it will be zipped first.
@@ -112,10 +142,17 @@ def load_path(path, regex=None, zip_compression="deflated", compresslevel=None):
     Arguments:
         path: File-like object or name to a regular file, directory or
             socket to load from .
-        regex: If given, a regular expression matching file names to be
-            included when path is a directory.
-        zip_compression: Zip compression level to use if path is a directory.
-            Should be: "none", "deflated", "bzip2" or "lzma".
+        include: Regular expression matching file names to be included
+            when path is a directory.
+        exclude: Regular expression matching file names to be excluded
+            when path is a directory.  May exclude files included with
+            `include`.
+        compression: Compression to use if path is a directory.
+            Should be "none", "deflated", "bzip2" or "lzma".
+        compresslevel: Integer compression level.
+            For compresison "none" or "lzma"; no effect.
+            For compresison "deflated"; 0 to 9 are valid.
+            For compresison "bzip2"; 1 to 9 are valid.
 
     Returns:
         Bytes object with content of `path`.
@@ -128,30 +165,30 @@ def load_path(path, regex=None, zip_compression="deflated", compresslevel=None):
         return p.read_bytes()
 
     if p.is_dir():
-        if regex:
-            expr = re.compile(regex)
+        incl = re.compile(include) if include else None
+        excl = re.compile(exclude) if exclude else None
         buf = io.BytesIO()
         with zipfile.ZipFile(
                 file=buf,
-                mode="a",
-                compression=zip_compressions[zip_compression],
+                mode="w",
+                compression=zip_compressions[compression],
                 compresslevel=compresslevel,
         ) as fzip:
 
             def iterdir(dirpath):
-                """Add all files matching `regex` to zipfile."""
+                """Add all files matching regular expressions to zipfile."""
                 for p in dirpath.iterdir():
-                    if p.is_file() and (not regex or expr.match(p.name)):
-                        print("  - read:", p.relative_to(path))
-                        fzip.writestr(str(p.relative_to(path)), p.read_bytes())
+                    name = str(p.relative_to(path))
+                    if (p.is_file()
+                        and (not incl or incl.match(name))
+                        and (not excl or not excl.match(name))
+                    ):
+                        fzip.writestr(name, p.read_bytes())
                     elif p.is_dir():
                         iterdir(p)
 
             iterdir(p)
-            #return buf.getvalue()
-            data = buf.getvalue()
-            print("*** load dir to zip:", len(data))
-            return data
+        return buf.getvalue()
 
     if p.is_socket():
         buf = []
@@ -163,7 +200,7 @@ def load_path(path, regex=None, zip_compression="deflated", compresslevel=None):
                 return b"".join(buf)
 
 
-def save_path(data, path, overwrite=False):
+def save_path(data, path, overwrite=False, include=None, exclude=None):
     """Save `data` to file path.
 
     Arguments:
@@ -171,23 +208,33 @@ def save_path(data, path, overwrite=False):
         path: File-like object or name to a regular file, directory or
             socket to save to.
         overwrite: Whether to overwrite an existing path.
+        include: Regular expression matching file names to be included
+            when path is a directory.
+        exclude: Regular expression matching file names to be excluded
+            when path is a directory.  May exclude files included with
+            `include`.
     """
     if isinstance(path, io.IOBase):
         path.write(data)
     else:
-        #magic_numbers = b"PK\x03\x04", b"PK\x05\x06", b"PK\x07\x08"
         p = Path(path)
 
-        #if data.startswith(magic_numbers):
         buf = io.BytesIO(data)
-        if zipfile.is_zipfile(buf):
-            print("*** save zip to dir")
+        iszip = zipfile.is_zipfile(buf)
+        buf.seek(0)
+
+        if iszip:
             if p.exists() and not p.is_dir():
                 raise ValueError(
                     f"cannot write zipped data to non-directory path: {path}"
                 )
+            incl = re.compile(include) if include else None
+            excl = re.compile(exclude) if exclude else None
             with zipfile.ZipFile(file=buf, mode="r") as fzip:
                 for name in fzip.namelist():
+                    if ((incl and not incl.match(name))
+                        or (excl and  excl.match(name))):
+                        continue
                     filepath = p / name
                     filepath.parent.mkdir(parents=True, exist_ok=True)
                     if filepath.exists():
@@ -198,9 +245,8 @@ def save_path(data, path, overwrite=False):
                                 "cannot write to existing non-file path: "
                                 f"{filename}"
                             )
-                    fzip.extact(name, path=path)
+                    fzip.extract(name, path=path)
         elif p.exists():
-            print("*** exists:", p)
             if p.is_socket():
                 path.sendall(data)
             elif p.is_file():
@@ -211,6 +257,40 @@ def save_path(data, path, overwrite=False):
                     f"cannot write data to existing non-file path: {path}"
                 )
         else:
-            print("*** write:", p)
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_bytes(data)
+
+
+def is_archive(data):
+    """Returns true if binary data `data` is an archieve, otherwise false."""
+    return zipfile.is_zipfile(io.BytesIO(data))
+
+
+def archive_check(data):
+    """Raises an exception if `data` is not an archive.  Otherwise return
+    a io.BytesIO object for data."""
+    buf = io.BytesIO(data)
+    if not zipfile.is_zipfile(buf):
+        raise TypeError("data is not an archieve")
+    return buf
+
+def archive_names(data):
+    """If `data` is an archive, return a list of archive file names."""
+    with zipfile.ZipFile(file=archive_check(data), mode="r") as fzip:
+        return fzip.namelist()
+
+
+def archive_extract(data, name):
+    """If `data` is an archieve, return object with given name."""
+    with zipfile.ZipFile(file=archive_check(data), mode="r") as fzip:
+        with fzip.open(name, mode="r") as f:
+            return f.read()
+
+
+def archive_add(data, name, content):
+    """If `data` is an archieve, return a new bytes object with
+    `content` added to `data` using the given name."""
+    with zipfile.ZipFile(file=archive_check(data), mode="a") as fzip:
+        with fzip.open(name, mode="w") as f:
+            f.write(content.encode() if hasattr(content, "encode") else content)
+    return buf.getvalue()

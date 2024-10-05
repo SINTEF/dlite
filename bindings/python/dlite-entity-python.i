@@ -2,7 +2,9 @@
 
 /* Python-specific extensions to dlite-entity.i */
 %pythoncode %{
+import tempfile
 import warnings
+from urllib.parse import urlparse
 from uuid import UUID
 
 import numpy as np
@@ -406,12 +408,58 @@ def get_instance(
         )
 
     @classmethod
+    def load(
+        cls, protocol, driver, location, options=None, id=None, metaid=None
+    ):
+        """Load the instance from storage:
+
+        Arguments:
+            protocol: Name of protocol plugin used for data transfer.
+            driver: Name of storage plugin for data parsing.
+            location: Location of resource.  Typically a URL or file path.
+            options: Options passed to the protocol and driver plugins.
+            id: ID of instance to load.
+            metaid: If given, the instance is tried mapped to this metadata
+                before it is returned.
+
+        Return:
+            Instance loaded from storage.
+        """
+        pr = Protocol(protocol=protocol, location=location, options=options)
+        buffer = pr.load(id=id)
+        try:
+            return cls.from_bytes(
+                driver, buffer, id=id, options=options, metaid=metaid
+            )
+        except DLiteUnsupportedError:
+            pass
+        tmpfile = None
+        try:
+            with tempfile.NamedTemporaryFile(delete=False) as f:
+                tmpfile = f.name
+                f.write(buffer)
+            inst = cls.from_location(
+                driver, tmpfile, options=options, id=id, metaid=metaid
+            )
+        finally:
+            Path(tmpfile).unlink()
+        return inst
+
+    @classmethod
     def from_url(cls, url, metaid=None):
         """Load the instance from `url`.  The URL should be of the form
         ``driver://location?options#id``.
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
+        p = urlparse(url)
+        if "+" in p.scheme:
+            protocol, driver = p.split("+", 1)
+            location = f"{protocol}://{p.netloc}{p.path}"
+            return cls.load(
+                protocol, driver, location, options=p.query, id=p.fragment,
+                metaid=metaid
+            )
         return Instance(
             url=url, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
@@ -431,13 +479,16 @@ def get_instance(
         )
 
     @classmethod
-    def from_location(cls, driver, location, options=None, id=None):
+    def from_location(
+        cls, driver, location, options=None, id=None, metaid=None
+    ):
         """Load the instance from storage specified by `driver`, `location`
         and `options`.  `id` is the id of the instance in the storage (not
         required if the storage only contains more one instance).
         """
         return Instance(
             driver=driver, location=str(location), options=options, id=id,
+            metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
 
