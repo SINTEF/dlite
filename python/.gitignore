@@ -2,5 +2,7 @@
 
 dist/
 wheelhouse/
-dlite_python.egg-info
+build/
+dlite_python.egg-info/
+DLite_Python.egg-info/
 .eggs

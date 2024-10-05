@@ -16,8 +16,8 @@ set(py_sources
 
 # Python sub-packages
 set(py_packages
-  triplestore
-  )
+  #triplestore
+)
 
 configure_file(paths.py.in paths.py)
 if(dlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE)
@@ -188,6 +188,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-storage-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-mapping-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storages
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/bin
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:dlite>"
     ${pkgdir}
@@ -200,14 +201,34 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "$<TARGET_FILE:dlite-plugins-json>"
     ${pkgdir}/share/dlite/storage-plugins
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
-    ${pkgdir}/share/dlite/python-storage-plugins
-  COMMAND ${CMAKE_COMMAND} -E copy_directory
-    ${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins
-    ${pkgdir}/share/dlite/python-mapping-plugins
+  COMMAND ${CMAKE_COMMAND}
+    -DSOURCE_DIR=${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
+    -DDEST_DIR=${pkgdir}/share/dlite/python-storage-plugins
+    -DPATTERN="*.py"
+    -P ${dlite_SOURCE_DIR}/cmake/CopyDirectory.cmake
+  COMMAND ${CMAKE_COMMAND}
+    -DSOURCE_DIR=${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins
+    -DDEST_DIR=${pkgdir}/share/dlite/python-mapping-plugins
+    -DPATTERN="*.py"
+    -P ${dlite_SOURCE_DIR}/cmake/CopyDirectory.cmake
+  COMMAND ${CMAKE_COMMAND}
+    -DSOURCE_DIR=${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
+    -DDEST_DIR=${pkgdir}/share/dlite/storages
+    -DPATTERN="*.json"
+    -P ${dlite_SOURCE_DIR}/cmake/CopyDirectory.cmake
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    ${dlite_SOURCE_DIR}/README.md ${dlite_SOURCE_DIR}/LICENSE
+    ${pkgdir}/share/dlite
+  COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "$<TARGET_FILE:dlite-codegen>"
+    "$<TARGET_FILE:dlite-env>"
+    "$<TARGET_FILE:dlite-getuuid>"
+    ${pkgdir}/share/dlite/bin
   DEPENDS
     python_package
+    dlite-codegen
+    dlite-env
+    dlite-getuuid
   )
 
 #
