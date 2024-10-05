@@ -6,15 +6,16 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${dlite_SOURCE_DIR}/cmake)
 
 # Convert from pipe-separated paths to lists
 set(dlite_BUILD_ROOT ${dlite_BINARY_DIR})
-string(REPLACE "|" ";" dlite_PATH                   "${dlite_PATH}")
-string(REPLACE "|" ";" dlite_LD_LIBRARY_PATH        "${dlite_LD_LIBRARY_PATH}")
-string(REPLACE "|" ";" dlite_PYTHONPATH             "${dlite_PYTHONPATH}")
-string(REPLACE "|" ";" dlite_STORAGE_PLUGINS        "${dlite_STORAGE_PLUGINS}")
-string(REPLACE "|" ";" dlite_MAPPING_PLUGINS        "${dlite_MAPPING_PLUGINS}")
-string(REPLACE "|" ";" dlite_PYTHON_STORAGE_PLUGINS "${dlite_PYTHON_STORAGE_PLUGINS}")
-string(REPLACE "|" ";" dlite_PYTHON_MAPPING_PLUGINS "${dlite_PYTHON_MAPPING_PLUGINS}")
-string(REPLACE "|" ";" dlite_TEMPLATES              "${dlite_TEMPLATES}")
-string(REPLACE "|" ";" dlite_STORAGES               "${dlite_STORAGES}")
+string(REPLACE "|" ";" dlite_PATH                    "${dlite_PATH}")
+string(REPLACE "|" ";" dlite_LD_LIBRARY_PATH         "${dlite_LD_LIBRARY_PATH}")
+string(REPLACE "|" ";" dlite_PYTHONPATH              "${dlite_PYTHONPATH}")
+string(REPLACE "|" ";" dlite_STORAGE_PLUGINS         "${dlite_STORAGE_PLUGINS}")
+string(REPLACE "|" ";" dlite_MAPPING_PLUGINS         "${dlite_MAPPING_PLUGINS}")
+string(REPLACE "|" ";" dlite_PYTHON_STORAGE_PLUGINS  "${dlite_PYTHON_STORAGE_PLUGINS}")
+string(REPLACE "|" ";" dlite_PYTHON_MAPPING_PLUGINS  "${dlite_PYTHON_MAPPING_PLUGINS}")
+string(REPLACE "|" ";" dlite_PYTHON_PROTOCOL_PLUGINS "${dlite_PYTHON_PROTOCOL_PLUGINS}")
+string(REPLACE "|" ";" dlite_TEMPLATES               "${dlite_TEMPLATES}")
+string(REPLACE "|" ";" dlite_STORAGES                "${dlite_STORAGES}")
 
 
 # Add platform-specific paths
@@ -28,6 +29,7 @@ make_platform_paths(
     dlite_PYTHONPATH
     dlite_PYTHON_STORAGE_PLUGINS
     dlite_PYTHON_MAPPING_PLUGINS
+    dlite_PYTHON_PROTOCOL_PLUGINS
     dlite_TEMPLATES
   MULTI_CONFIG_PATHS
     dlite_PATH

@@ -128,12 +128,13 @@ endif()
 # Install paths
 # -------------
 # DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
-set(DLITE_TEMPLATE_DIRS              "share/dlite/templates")
-set(DLITE_STORAGE_PLUGIN_DIRS        "share/dlite/storage-plugins")
-set(DLITE_MAPPING_PLUGIN_DIRS        "share/dlite/mapping-plugins")
-set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS "share/dlite/python-mapping-plugins")
-set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS "share/dlite/python-storage-plugins")
-set(DLITE_STORAGES                   "share/dlite/storages")
+set(DLITE_TEMPLATE_DIRS               "share/dlite/templates")
+set(DLITE_STORAGE_PLUGIN_DIRS         "share/dlite/storage-plugins")
+set(DLITE_MAPPING_PLUGIN_DIRS         "share/dlite/mapping-plugins")
+set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS  "share/dlite/python-mapping-plugins")
+set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS  "share/dlite/python-storage-plugins")
+set(DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS "share/dlite/python-protocol-plugins")
+set(DLITE_STORAGES                    "share/dlite/storages")
 
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
@@ -364,7 +365,8 @@ if(WITH_PYTHON)
     Python3_LIBRARIES
     DLITE_PYTHON_STORAGE_PLUGIN_DIRS
     DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-    )
+    DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS
+  )
 endif()
 
 
@@ -628,35 +630,35 @@ endif()
 if(WITH_PYTHON)
   build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/python)
 endif()
-list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
 
 # DLITE_MAPPING_PLUGIN_DIRS - search path for DLite mapping plugins
 set(dlite_MAPPING_PLUGINS "")
-list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
 
 # DLITE_PYTHON_STORAGE_PLUGIN_DIRS - search path for Python storage plugins
 set(dlite_PYTHON_STORAGE_PLUGINS
   ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
-  )
-list(REMOVE_DUPLICATES dlite_PYTHON_STORAGE_PLUGINS)
+)
 
 # DLITE_PYTHON_MAPPING_PLUGIN_DIRS - search path for Python mapping plugins
 set(dlite_PYTHON_MAPPING_PLUGINS
   ${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins
-  )
-list(REMOVE_DUPLICATES dlite_PYTHON_MAPPING_PLUGINS)
+)
+
+# DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS - search path for Python protocol plugins
+set(dlite_PYTHON_PROTOCOL_PLUGINS
+  ${dlite_SOURCE_DIR}/bindings/python/python-protocol-plugins
+)
 
 # DLITE_TEMPLATE_DIRS - search path for DLite templates
 set(dlite_TEMPLATES
   ${dlite_SOURCE_DIR}/tools/templates
-  )
-list(REMOVE_DUPLICATES dlite_TEMPLATES)
+)
 
 # DLITE_STORAGES - DLite storages (inc. metadata)
 set(dlite_STORAGES
   ${dlite_SOURCE_DIR}/examples/storages/*.json
-  )
-list(REMOVE_DUPLICATES dlite_STORAGES)
+)
+
 
 #if(UNIX)
 #  string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
@@ -666,6 +668,7 @@ list(REMOVE_DUPLICATES dlite_STORAGES)
 #  string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
 #  string(REPLACE ";" ":" dlite_PYTHON_STORAGE_PLUGINS  "${dlite_PYTHON_STORAGE_PLUGINS}")
 #  string(REPLACE ";" ":" dlite_PYTHON_MAPPING_PLUGINS  "${dlite_PYTHON_MAPPING_PLUGINS}")
+#  string(REPLACE ";" ":" dlite_PYTHON_PROTOCOL_PLUGINS  "${dlite_PYTHON_PROTOCOL_PLUGINS}")
 #  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
 #endif()
 
@@ -675,6 +678,7 @@ make_platform_paths(
     dlite_PYTHONPATH
     dlite_PYTHON_STORAGE_PLUGINS
     dlite_PYTHON_MAPPING_PLUGINS
+    dlite_PYTHON_PROTOCOL_PLUGINS
     dlite_TEMPLATES
     dlite_STORAGES
   MULTI_CONFIG_PATHS
@@ -727,6 +731,7 @@ set(test_env
   "export DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}"
   "export DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}"
   "export DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}"
+  "export DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS=${dlite_PYTHON_PROTOCOL_PLUGINS}"
   "export DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}"
   "export DLITE_STORAGES='${dlite_STORAGES}'"
   ""

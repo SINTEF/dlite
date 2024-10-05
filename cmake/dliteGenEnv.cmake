@@ -33,6 +33,7 @@ function(dlite_genenv output newline_style)
   string(REPLACE ";" "|" MAPPING_PLUGINS        "${dlite_MAPPING_PLUGINS}")
   string(REPLACE ";" "|" PYTHON_STORAGE_PLUGINS "${dlite_PYTHON_STORAGE_PLUGINS}")
   string(REPLACE ";" "|" PYTHON_MAPPING_PLUGINS "${dlite_PYTHON_MAPPING_PLUGINS}")
+  string(REPLACE ";" "|" PYTHON_PROTOCOL_PLUGINS "${dlite_PYTHON_PROTOCOL_PLUGINS}")
   string(REPLACE ";" "|" TEMPLATES              "${dlite_TEMPLATES}")
 
 
@@ -54,6 +55,7 @@ function(dlite_genenv output newline_style)
         -Ddlite_MAPPING_PLUGINS="${MAPPING_PLUGINS}"
         -Ddlite_PYTHON_STORAGE_PLUGINS="${PYTHON_STORAGE_PLUGINS}"
         -Ddlite_PYTHON_MAPPING_PLUGINS="${PYTHON_MAPPING_PLUGINS}"
+        -Ddlite_PYTHON_PROTOCOL_PLUGINS="${PYTHON_PROTOCOL_PLUGINS}"
         -Ddlite_TEMPLATES="${TEMPLATES}"
         -Ddlite_STORAGES="${dlite_STORAGES}"
         -P ${script}

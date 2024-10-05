@@ -2,7 +2,9 @@
 
 /* Python-specific extensions to dlite-entity.i */
 %pythoncode %{
+import tempfile
 import warnings
+from urllib.parse import urlparse
 from uuid import UUID
 
 import numpy as np
@@ -400,10 +402,51 @@ def get_instance(
         # Allow metaid to be an Instance
         if isinstance(metaid, Instance):
             metaid = metaid.uri
-        return Instance(
+        inst = Instance(
             metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
+        return instance_cast(inst)
+
+    @classmethod
+    def load(
+        cls, protocol, driver, location, options=None, id=None, metaid=None
+    ):
+        """Load the instance from storage:
+
+        Arguments:
+            protocol: Name of protocol plugin used for data transfer.
+            driver: Name of storage plugin for data parsing.
+            location: Location of resource.  Typically a URL or file path.
+            options: Options passed to the protocol and driver plugins.
+            id: ID of instance to load.
+            metaid: If given, the instance is tried mapped to this metadata
+                before it is returned.
+
+        Return:
+            Instance loaded from storage.
+        """
+        from dlite.protocol import Protocol
+
+        pr = Protocol(protocol=protocol, location=location, options=options)
+        buffer = pr.load(uuid=id)
+        try:
+            return cls.from_bytes(
+                driver, buffer, id=id, options=options, metaid=metaid
+            )
+        except _dlite.DLiteUnsupportedError:
+            pass
+        tmpfile = None
+        try:
+            with tempfile.NamedTemporaryFile(delete=False) as f:
+                tmpfile = f.name
+                f.write(buffer)
+            inst = cls.from_location(
+                driver, tmpfile, options=options, id=id, metaid=metaid
+            )
+        finally:
+            Path(tmpfile).unlink()
+        return instance_cast(inst)
 
     @classmethod
     def from_url(cls, url, metaid=None):
@@ -412,10 +455,19 @@ def get_instance(
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
-        return Instance(
+        p = urlparse(url)
+        if "+" in p.scheme:
+            protocol, driver = p.split("+", 1)
+            location = f"{protocol}://{p.netloc}{p.path}"
+            return cls.load(
+                protocol, driver, location, options=p.query, id=p.fragment,
+                metaid=metaid
+            )
+        inst = Instance(
             url=url, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def from_storage(cls, storage, id=None, metaid=None):
@@ -425,37 +477,44 @@ def get_instance(
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
-        return Instance(
+        inst = Instance(
             storage=storage, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
-    def from_location(cls, driver, location, options=None, id=None):
+    def from_location(
+        cls, driver, location, options=None, id=None, metaid=None
+    ):
         """Load the instance from storage specified by `driver`, `location`
         and `options`.  `id` is the id of the instance in the storage (not
         required if the storage only contains more one instance).
         """
-        return Instance(
+        inst = Instance(
             driver=driver, location=str(location), options=options, id=id,
+            metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def from_json(cls, jsoninput, id=None, metaid=None):
         """Load the instance from json input."""
-        return Instance(
+        inst = Instance(
             jsoninput=jsoninput, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def from_bson(cls, bsoninput):
         """Load the instance from bson input."""
-        return Instance(
+        inst = Instance(
             bsoninput=bsoninput,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def from_dict(cls, d, id=None, single=None, check_storages=True):
@@ -483,27 +542,32 @@ def get_instance(
             New instance.
         """
         from dlite.utils import instance_from_dict
-        return instance_from_dict(
+        inst = instance_from_dict(
             d, id=id, single=single, check_storages=check_storages,
         )
+        return instance_cast(inst)
 
     @classmethod
-    def from_bytes(cls, driver, buffer, id=None, options=None):
+    def from_bytes(cls, driver, buffer, options=None, id=None, metaid=None):
         """Load the instance with ID `id` from bytes `buffer` using the
         given storage driver.
         """
-        return _from_bytes(driver, buffer, id=id, options=options)
+        inst = _from_bytes(
+            driver, buffer, id=id, options=options, metaid=metaid
+        )
+        return instance_cast(inst)
 
     @classmethod
     def create_metadata(cls, uri, dimensions, properties, description):
         """Create a new metadata entity (instance of entity schema) casted
         to an instance.
         """
-        return Instance(
+        inst = Instance(
             uri=uri, dimensions=dimensions, properties=properties,
             description=description,
             dims=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def create_from_metaid(cls, metaid, dimensions, id=None):
@@ -519,10 +583,11 @@ def get_instance(
             meta = get_instance(metaid)
             dimensions = [dimensions[dim.name]
                           for dim in meta.properties['dimensions']]
-        return Instance(
+        inst = Instance(
             metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
+        return instance_cast(inst)
 
     @classmethod
     def create_from_url(cls, url, metaid=None):
@@ -550,10 +615,11 @@ def get_instance(
         warnings.warn(
             "create_from_storage() is deprecated, use from_storage() instead.",
             DeprecationWarning, stacklevel=2)
-        return Instance(
+        inst = Instance(
             storage=storage, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def create_from_location(cls, driver, location, options=None, id=None):
@@ -564,10 +630,11 @@ def get_instance(
         warnings.warn(
             "create_from_location() is deprecated, use from_location() "
             "instead.", DeprecationWarning, stacklevel=2)
-        return Instance(
+        inst = Instance(
             driver=driver, location=str(location), options=options, id=id,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     def save(self, dest, location=None, options=None):
         """Saves this instance to url or storage.

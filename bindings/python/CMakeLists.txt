@@ -6,6 +6,7 @@ set(py_sources
   options.py
   utils.py
   mappings.py
+  protocol.py
   datamodel.py
   rdf.py
   dataset.py
@@ -233,6 +234,12 @@ install(
 )
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-mapping-plugins
+  DESTINATION share/dlite
+  PATTERN ".gitignore" EXCLUDE
+  PATTERN "*~" EXCLUDE
+)
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-protocol-plugins
   DESTINATION share/dlite
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE

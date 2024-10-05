@@ -19,6 +19,8 @@ Loading data from a storage into an instance and saving it back again is a key m
 DLite provides a plugin system that makes it easy to connect to new data sources via a common interface (using a [strategy design pattern]).
 Opening a storage takes three arguments, a `driver` name identifying the storage plugin to use, the `location` of the storage and `options`.
 
+Since v0.5.22, DLite introduced [protocol plugins] to provide a clear separation between transfer of raw data from/to the storage and parsing/serialisation.
+
 Storage plugins can be categorised as either *generic* or *specific*.
 A generic storage plugin can store and retrieve any type of instance and metadata while a specific storage plugin typically deals with specific instances of one type of entity.
 DLite comes with a set of generic storage plugins, like json, yaml, rdf, hdf5, postgresql and mongodb.
@@ -26,12 +28,56 @@ It also comes with a specific Blob storage plugin, that can load and save instan
 Storage plugins can be written in either C or Python.
 
 
+Using storages implicitly
+-------------------------
+For convenience DLite also has an interface for creating storages implicitly.
+If you only want to load a single instance from a storage, you can use one of the following class methods:
+* `dlite.Instance.load()`: to load from a location using a specific protocol
+* `dlite.Instance.from_location()`: to load from a location
+* `dlite.Instance.from_url()`: to load from URL
+* `dlite.Instance.from_bytes()`: to load from a buffer
+* `dlite.Instance.from_dict()`: to load from Python dict
+* `dlite.Instance.from_json()`: to load from a JSON string
+* `dlite.Instance.from_bson()`: to load from a BSON string
+* `dlite.Instance.from_metaid()`: to create a new empty instance
+* `dlite.Instance.from_storage()`: to load from a storage
+
+For example
+
+```python
+    >>> import dlite
+    >>> newinst = dlite.Instance.from_location(
+    ...    "json", "newfile.json", id="ex:blob1")
+    >>> newinst.uri
+    'ex:blob1'
+
+```
+
+To load a YAML file from a web location, you can combine the `http` protocol plugin with the `yaml` storage plugin using `dlite.Instance.load()`:
+
+```python
+    >>> url = "https://raw.githubusercontent.com/SINTEF/dlite/refs/heads/master/storages/python/tests-python/input/test_meta.yaml"
+    >>> dlite.Instance.load(protocol="http", driver="yaml", location=url)
+
+```
+
+
+
+DLite instances also have the methods `save()` and `save_to_url()` for saving to a storage without first creating a `dlite.Storage` object.
+
+Saving this instance to BSON, can be done in a one-liner:
+
+```python
+    >>> newinst.save("bson", "newinst.bson", options="mode=w")
+
+```
+
+
 Working with storages in Python
 -------------------------------
 For instance, to create a new file-based JSON storage can in Python be done with:
 
 ```python
-    >>> import dlite
     >>> s = dlite.Storage("json", location="newfile.json", options="mode=w")
 
 ```
@@ -137,33 +183,6 @@ In fact, even though `blob1` and `inst1` are different python objects, they shar
 ```
 
 
-Using storages implicitly
--------------------------
-For convenience DLite also has an interface for creating storages implicitly.
-If you only want to load a single instance from a storage, you can use one of the following class methods:
-* `dlite.Instance.from_location()`: to read from a location
-* `dlite.Instance.from_url()`: to read from URL
-
-For example
-
-```python
-    >>> newinst = dlite.Instance.from_location(
-    ...    "json", "newfile.json", id="ex:blob1")
-    >>> newinst.uri
-    'ex:blob1'
-
-```
-
-DLite instances also have the methods `save()` and `save_to_url()` for saving to a storage without first creating a `dlite.Storage` object.
-
-Saving this instance to BSON, can be done in a one-liner:
-
-```python
-    >>> newinst.save("bson", "newinst.bson", options="mode=w")
-
-```
-
-
 Writing Python storage plugins
 ------------------------------
 Storage plugins can be written in either C or Python.
@@ -198,6 +217,7 @@ An example is available in [ex4].
 
 [strategy design pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
 [C reference manual]: https://sintef.github.io/dlite/dlite/storage.html
+[protocol plugins]: https://github.com/SINTEF/dlite/tree/master/doc/user_guide/protocol_plugins.py
 [Python storage plugin template]: https://github.com/SINTEF/dlite/blob/master/doc/user_guide/storage_plugin.py
 [Python storage plugin example]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin
 [ex1]: https://github.com/SINTEF/dlite/tree/master/examples/ex1
