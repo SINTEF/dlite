@@ -15,6 +15,7 @@ from dlite.protocol import (
 )
 from dlite.testutils import importcheck, raises
 
+requests = importcheck("requests")
 paramiko = importcheck("paramiko")
 
 
@@ -57,11 +58,12 @@ with raises(dlite.DLiteIOError):
 
 # Test http plugin
 # ----------------
-url = "https://raw.githubusercontent.com/SINTEF/dlite/refs/heads/master/examples/entities/aa6060.json"
-pr = Protocol(protocol="http", location=url)
-s = pr.load()
-d = json.loads(s)
-assert d["25a1d213-15bb-5d46-9fcc-cbb3a6e0568e"]["uri"] == "aa6060"
+if requests:
+    url = "https://raw.githubusercontent.com/SINTEF/dlite/refs/heads/master/examples/entities/aa6060.json"
+    pr = Protocol(protocol="http", location=url)
+    s = pr.load()
+    d = json.loads(s)
+    assert d["25a1d213-15bb-5d46-9fcc-cbb3a6e0568e"]["uri"] == "aa6060"
 
 
 # Test sftp plugin

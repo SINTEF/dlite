@@ -27,6 +27,7 @@ set(tests
   test_iri
   test_dataset1_save
   test_dataset2_load
+  test_protocol
 )
 
 foreach(test ${tests})

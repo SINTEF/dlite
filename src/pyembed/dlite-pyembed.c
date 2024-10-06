@@ -92,6 +92,7 @@ PyObject *dlite_pyembed_exception(DLiteErrCode code)
   case dliteMissingMetadataError:  return PyExc_LookupError; // dup
   case dliteMetadataExistError:    break;
   case dliteMappingError:          break;
+  case dliteProtocolError:         break;
   case dlitePythonError:           break;
   case dliteLastError:             break;
   }
@@ -262,7 +263,7 @@ DLiteErrCode dlite_pyembed_errcode(PyObject *type)
   Writes Python error message to `errmsg` (of length `len`) if an
   Python error has occured.
 
-  On return the The Python error indicator is reset.
+  Resets the Python error indicator.
 
   Returns 0 if no error has occured.  Otherwise return the number of
   bytes written to, or would have been written to `errmsg` if it had

@@ -31,7 +31,12 @@ class Protocol():
 
         d = {cls.__name__: cls for cls in dlite.DLiteProtocolBase.__subclasses__()}
         if protocol not in d:
-            raise dlite.DLiteLookupError(f"no such protocol plugin: {protocol}")
+            msg = (
+                "protocol plugin failed to load"
+                if protocol in self._failed_plugins
+                else "no such protocol plugin"
+            )
+            raise dlite.DLiteProtocolError(f"{msg}: {protocol}")
 
         self.conn = d[protocol]()
         self.protocol = protocol
@@ -69,6 +74,7 @@ class Protocol():
         """
         return self._call("query", pattern=pattern)
 
+    # The stem of protocol plugins that failed to load
     _failed_plugins = set()
 
     @classmethod
@@ -83,7 +89,8 @@ class Protocol():
             if Path(path).is_dir():
                 path = f"{Path(path) / '*.py'}"
             for filename in glob(path):
-                scopename = f"{Path(filename).stem}_protocol"
+                name = Path(filename).stem
+                scopename = f"{name}_protocol"
                 if (scopename not in dlite._plugindict
                     and scopename not in cls._failed_plugins
                 ):
@@ -93,8 +100,10 @@ class Protocol():
                         dlite.run_file(filename, scope, scope)
                     except Exception:
                         msg = traceback.format_exc()
-                        warnings.warn(f"error loading '{scopename}':\n{msg}")
-                        cls._failed_plugins.add(scopename)
+                        warnings.warn(
+                            f"cannot load protocol plugin: {name}\n{msg}"
+                        )
+                        cls._failed_plugins.add(name)
 
     def _call(self, method, *args, **kwargs):
         """Call given method usin `call()` if it exists."""
@@ -107,11 +116,11 @@ class Protocol():
             return call(getattr(self.conn, method), *args, **kwargs)
 
     def __del__(self):
-        if not self.closed:
-            try:
+        try:
+            if not self.closed:
                 self.close()
-            except Expeption:  # Ignore exceptions at shutdown
-                pass
+        except Exception:  # Ignore exceptions at shutdown
+            pass
 
 # Help functions
 
