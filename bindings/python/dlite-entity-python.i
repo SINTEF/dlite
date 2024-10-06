@@ -4,6 +4,7 @@
 %pythoncode %{
 import tempfile
 import warnings
+from typing import Sequence
 from urllib.parse import urlparse
 from uuid import UUID
 
@@ -636,22 +637,66 @@ def get_instance(
         )
         return instance_cast(inst)
 
-    def save(self, dest, location=None, options=None):
+    def save(self, *dest, location=None, options=None):
         """Saves this instance to url or storage.
 
         Call signatures:
+          - save(storage)
           - save(url)
           - save(driver, location, options=None)
           - save(protocol, driver, location, options=None)
-          - save(storage)
+
+        Arguments:
+            storage: A dlite.Storage instance to store the instance to.
+            url: A URL for the storate to store to.
+            protocol: Name of protocol plugin to use for transferring the
+                serialised data to `location`.
+            driver: Name of storage plugin for serialisation.
+            location: A string describing where to save the instance.
+            options: Options to the protocol and driver plugins. Should be
+                a semicolon- or ampersand-separated string of key=value pairs.
         """
+        # Assign arguments from call signature.
+        # Far too complicated, but ensures backward compatibility.
+        storage = url = protocol = driver = None
         if isinstance(dest, Storage):
-            self.save_to_storage(storage=dest)
-        elif location:
-            with Storage(dest, str(location), options) as storage:
-                storage.save(self)
+            storage = dest
         elif isinstance(dest, str):
-            self.save_to_url(dest)
+            if location:
+                driver = dest
+            else:
+                url = dest
+        elif isinstance(dest, Sequence):
+            if len(dest) == 1:
+                if isinstance(dest[0], Storage):
+                    storage, = dest
+                else:
+                    url, = dest
+            if len(dest) == 2:
+                if location:
+                    protocol, driver = dest
+                else:
+                    driver, location = dest
+            elif len(dest) == 3:
+                if not location and options is None:
+                     arg1, arg2, arg3 = dest
+                     if arg2 is None and arg3 is None:
+                         url = arg1
+                     else:
+                         driver, location, options = dest
+                elif not location:
+                     protocol, driver, location = dest
+
+        # Call lower-level save methods
+        if protocol:
+            raise NotImplementedError("protocol saving is not implemented")
+        elif driver:
+            with Storage(driver, str(location), options) as storage:
+                storage.save(self)
+        elif url:
+            self.save_to_url(url)
+        elif storage:
+            self.save_to_storage(storage=storage)
         else:
             raise _dlite.DLiteTypeError(
                 'Arguments to save() do not match any of the call signatures'
