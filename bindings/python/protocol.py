@@ -41,7 +41,7 @@ class Protocol():
         self.conn = d[protocol]()
         self.protocol = protocol
         self.closed = False
-        self._call("open", location, options=options)
+        self._call("open", str(location), options=options)
 
     def close(self):
         """Close connection."""
