@@ -1,4 +1,7 @@
-#!/usr/bin/env python
+# This file is executedevaluated by test_global_dlite_state.py
+#
+# Note that entitydir is defined in the global scope, so it should
+# not be redefined here
 from pathlib import Path
 
 import dlite
@@ -6,9 +9,6 @@ from dlite import Instance, Dimension, Property, Relation
 
 assert len(dlite.istore_get_uuids()) == 3 + 3
 
-
-thisdir = Path(__file__).absolute().parent
-entitydir = thisdir / "entities"
 
 url = f"json://{entitydir}/MyEntity.json"
 

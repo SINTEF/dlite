@@ -42,12 +42,14 @@ MU_TEST(test_initialize)
 
 MU_TEST(test_map)
 {
-  DLiteInstance *insts[1], *inst3;
+  DLiteInstance *insts[1], *inst3, *ent3;
   const DLiteInstance **instances = (const DLiteInstance **)insts;
   void *p;
   instances[0] = dlite_instance_get("2daa6967-8ecd-4248-97b2-9ad6fefeac14");
   mu_check(instances[0]);
 
+  ent3 = dlite_instance_get("http://onto-ns.com/meta/0.1/ent3");
+  mu_check(ent3);
   inst3 = dlite_mapping("http://onto-ns.com/meta/0.1/ent3", instances, 1);
   mu_check(inst3);
   mu_check((p = dlite_instance_get_property(inst3, "c")));
