@@ -17,7 +17,7 @@ This can be done as follows:
        python -m venv ~/.envs/testenv
        source ~/.envs/testenv/bin/activate
        pip install -U pip
-       pip install -r requirements.txt -r requirements_dev.txt wheel
+       pip install wheel -r requirements.txt
 
 2. Build the wheel
 
