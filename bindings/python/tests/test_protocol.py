@@ -43,9 +43,7 @@ outfile = outdir / "hello.txt"
 outfile.unlink(missing_ok=True)
 pr = Protocol(protocol="file", location=outfile, options="mode=rw")
 pr.save(b"hello world")
-#assert outfile.read_bytes() == b"hello world"
 assert pr.load() == b"hello world"
-
 assert pr.query() == "hello.txt"
 pr.close()
 with raises(dlite.DLiteIOError):  # double-close raises an DLiteIOError
@@ -56,8 +54,8 @@ with raises(dlite.DLiteIOError):  # double-close raises an DLiteIOError
 # ----------------
 if requests:
     url = "https://raw.githubusercontent.com/SINTEF/dlite/refs/heads/master/examples/entities/aa6060.json"
-    pr = Protocol(protocol="http", location=url)
-    s = pr.load()
+    with Protocol(protocol="http", location=url) as pr:
+        s = pr.load()
     d = json.loads(s)
     assert d["25a1d213-15bb-5d46-9fcc-cbb3a6e0568e"]["uri"] == "aa6060"
 

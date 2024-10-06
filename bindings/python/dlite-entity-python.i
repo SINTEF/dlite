@@ -5,6 +5,7 @@
 import tempfile
 import warnings
 from typing import Sequence
+from pathlib import Path
 from urllib.parse import urlparse
 from uuid import UUID
 
@@ -429,8 +430,8 @@ def get_instance(
         """
         from dlite.protocol import Protocol
 
-        pr = Protocol(protocol=protocol, location=location, options=options)
-        buffer = pr.load(uuid=id)
+        with Protocol(protocol, location=location, options=options) as pr:
+            buffer = pr.load(uuid=id)
         try:
             return cls.from_bytes(
                 driver, buffer, id=id, options=options, metaid=metaid
@@ -689,7 +690,21 @@ def get_instance(
 
         # Call lower-level save methods
         if protocol:
-            raise NotImplementedError("protocol saving is not implemented")
+            try:
+                buf = self.to_bytes(driver, options=options)
+            except (_dlite.DLiteAttributeError, _dlite.DLiteUnsupportedError):
+                buf = None
+            if not buf:
+                try:
+                    with tempfile.NamedTemporaryFile(delete=False) as f:
+                        tmpfile = f.name
+                    self.save(driver, location=tmpfile, options=options)
+                    with open(tmpfile, "rb") as f:
+                        buf = f.read()
+                finally:
+                    Path(tmpfile).unlink()
+            with Protocol(protocol, location=location, options=options) as pr:
+                pr.save()
         elif driver:
             with Storage(driver, str(location), options) as storage:
                 storage.save(self)

@@ -28,32 +28,33 @@ It also comes with a specific Blob storage plugin, that can load and save instan
 Storage plugins can be written in either C or Python.
 
 
-Using storages implicitly
--------------------------
+Using storages implicitly from Python
+-------------------------------------
 For convenience DLite also has an interface for creating storages implicitly.
+
+### Loading an instance
 If you only want to load a single instance from a storage, you can use one of the following class methods:
-* `dlite.Instance.load()`: to load from a location using a specific protocol
-* `dlite.Instance.from_location()`: to load from a location
-* `dlite.Instance.from_url()`: to load from URL
-* `dlite.Instance.from_bytes()`: to load from a buffer
-* `dlite.Instance.from_dict()`: to load from Python dict
-* `dlite.Instance.from_json()`: to load from a JSON string
-* `dlite.Instance.from_bson()`: to load from a BSON string
-* `dlite.Instance.from_metaid()`: to create a new empty instance
-* `dlite.Instance.from_storage()`: to load from a storage
+* `dlite.Instance.load()`: load from a location using a specific protocol
+* `dlite.Instance.from_location()`: load from a location
+* `dlite.Instance.from_url()`: load from URL
+* `dlite.Instance.from_bytes()`: load from a buffer
+* `dlite.Instance.from_dict()`: load from Python dict
+* `dlite.Instance.from_json()`: load from a JSON string
+* `dlite.Instance.from_bson()`: load from a BSON string
+* `dlite.Instance.from_storage()`: load from a storage
+* `dlite.Instance.from_metaid()`: create a new empty instance (not loading anything)
 
 For example
 
 ```python
     >>> import dlite
-    >>> newinst = dlite.Instance.from_location(
-    ...    "json", "newfile.json", id="ex:blob1")
+    >>> newinst = dlite.Instance.from_location("json", "newfile.json", id="ex:blob1")
     >>> newinst.uri
     'ex:blob1'
 
 ```
 
-To load a YAML file from a web location, you can combine the `http` protocol plugin with the `yaml` storage plugin using `dlite.Instance.load()`:
+To load a YAML file from a web location, you can combine the `http` [protocol plugin][protocol plugins] with the `yaml` storage plugin using `dlite.Instance.load()`:
 
 ```python
     >>> url = "https://raw.githubusercontent.com/SINTEF/dlite/refs/heads/master/storages/python/tests-python/input/test_meta.yaml"
@@ -61,11 +62,16 @@ To load a YAML file from a web location, you can combine the `http` protocol plu
 
 ```
 
+### Saving an instance
+Similarly, if you want to save an instance, you can use the following methods:
+* `dlite.Instance.save()`: save to location, optionally using a specific protocol.
+  Can also take an open `dlite.Storage` object or an URL as argument.
+* `dlite.Instance.to_bytes()`: returns the instance as a bytes object
+* `dlite.Instance.asdict()`: returns the instance as a python dict
+* `dlite.Instance.asjson()`: returns the instance as a JSON string
+* `dlite.Instance.asbson()`: returns the instance as a BSON string
 
-
-DLite instances also have the methods `save()` and `save_to_url()` for saving to a storage without first creating a `dlite.Storage` object.
-
-Saving this instance to BSON, can be done in a one-liner:
+For example, saving `newinst` to  BSON, can be done with:
 
 ```python
     >>> newinst.save("bson", "newinst.bson", options="mode=w")
@@ -217,7 +223,7 @@ An example is available in [ex4].
 
 [strategy design pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
 [C reference manual]: https://sintef.github.io/dlite/dlite/storage.html
-[protocol plugins]: https://github.com/SINTEF/dlite/tree/master/doc/user_guide/protocol_plugins.py
+[protocol plugins]: https://sintef.github.io/dlite/user_guide/storage_plugins.html
 [Python storage plugin template]: https://github.com/SINTEF/dlite/blob/master/doc/user_guide/storage_plugin.py
 [Python storage plugin example]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin
 [ex1]: https://github.com/SINTEF/dlite/tree/master/examples/ex1

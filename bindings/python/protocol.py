@@ -115,6 +115,12 @@ class Protocol():
         if hasattr(self.conn, method):
             return call(getattr(self.conn, method), *args, **kwargs)
 
+    def __enter__(self):
+        return self
+
+    def __exit__(self, *exc):
+        self.close()
+
     def __del__(self):
         try:
             if not self.closed:
