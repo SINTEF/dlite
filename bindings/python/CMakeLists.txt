@@ -187,6 +187,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/mapping-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-storage-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-mapping-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-protocol-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storages
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/bin
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -209,6 +210,11 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND}
     -DSOURCE_DIR=${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins
     -DDEST_DIR=${pkgdir}/share/dlite/python-mapping-plugins
+    -DPATTERN="*.py"
+    -P ${dlite_SOURCE_DIR}/cmake/CopyDirectory.cmake
+  COMMAND ${CMAKE_COMMAND}
+    -DSOURCE_DIR=${dlite_SOURCE_DIR}/bindings/python/python-protocol-plugins
+    -DDEST_DIR=${pkgdir}/share/dlite/python-protocol-plugins
     -DPATTERN="*.py"
     -P ${dlite_SOURCE_DIR}/cmake/CopyDirectory.cmake
   COMMAND ${CMAKE_COMMAND}

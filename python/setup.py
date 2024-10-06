@@ -226,7 +226,9 @@ setup(
             str(share / "mapping-plugins" / dlite_compiled_dll_suffix),
             str(share / "python-storage-plugins" / "*.py"),
             str(share / "python-mapping-plugins" / "*.py"),
+            str(share / "python-protocol-plugins" / "*.py"),
             str(share / "storages" / "*.json"),
+            str(share / "storages" / "*.yaml"),
         ]
     },
     ext_modules=[

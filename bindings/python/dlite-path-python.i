@@ -63,5 +63,8 @@ if (sharedir / "python-storage-plugins").exists():
 if (sharedir / "python-mapping-plugins").exists():
     python_mapping_plugin_path[-1] = sharedir / "python-mapping-plugins"
     #python_mapping_plugin_path.append(sharedir / "python-mapping-plugins")
+if (sharedir / "python-protocol-plugins").exists():
+    python_protocol_plugin_path[-1] = sharedir / "python-protocol-plugins"
+    #python_protocol_plugin_path.append(sharedir / "python-protocol-plugins")
 
 %}

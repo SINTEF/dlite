@@ -642,6 +642,7 @@ def get_instance(
         Call signatures:
           - save(url)
           - save(driver, location, options=None)
+          - save(protocol, driver, location, options=None)
           - save(storage)
         """
         if isinstance(dest, Storage):
