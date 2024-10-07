@@ -15,6 +15,9 @@ DLiteInstance *inst = NULL;
 
 MU_TEST(test_load)
 {
+  dlite_storage_plugin_load_all();
+
+
   char *url = "blob://"
     STRINGIFY(CURRENT_SOURCE_DIR)  // cppcheck-suppress unknownMacro
     "/test_blob_storage.c?mode=r";
