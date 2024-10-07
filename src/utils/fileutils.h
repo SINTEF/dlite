@@ -181,6 +181,12 @@ char *fu_dirname(const char *path);
 char *fu_basename(const char *path);
 
 /**
+  Returns the final component of `path` without extension as a newly
+  allocated string.
+*/
+char *fu_stem(const char *path);
+
+/**
   Returns a pointer to file extension of `path` (what follows after
   the last ".").
 */

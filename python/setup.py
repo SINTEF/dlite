@@ -2,14 +2,16 @@ import os
 import sys
 import platform
 import re
+import shutil
 import site
 import subprocess
-from shutil import copytree
+from glob import glob
 from typing import TYPE_CHECKING
 from pathlib import Path
 
 from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
+from setuptools.command.install import install
 
 if TYPE_CHECKING:
     from typing import Union
@@ -120,8 +122,8 @@ class CMakeBuildExt(build_ext):
         build_type = "Debug" if self.debug else "Release"
         cmake_args = [
             "cmake",
-            str(ext.sourcedir),
             f"-DCMAKE_CONFIGURATION_TYPES:STRING={build_type}",
+            str(ext.sourcedir),
         ]
         cmake_args.extend(CMAKE_ARGS)
         cmake_args.extend(environment_cmake_args)
@@ -134,7 +136,8 @@ class CMakeBuildExt(build_ext):
                 cwd=self.build_temp,
                 env=env,
                 capture_output=True,
-                check=True)
+                check=True,
+            )
         except subprocess.CalledProcessError as e:
             print("stdout:", e.stdout.decode("utf-8"), "\n\nstderr:",
                   e.stderr.decode("utf-8"))
@@ -145,7 +148,7 @@ class CMakeBuildExt(build_ext):
                 cwd=self.build_temp,
                 env=env,
                 capture_output=True,
-                check=True
+                check=True,
             )
         except subprocess.CalledProcessError as e:
             print("stdout:", e.stdout.decode("utf-8"), "\n\nstderr:",
@@ -153,16 +156,28 @@ class CMakeBuildExt(build_ext):
             raise
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
-        copytree(
+        shutil.copytree(
             str(cmake_bdist_dir / ext.name),
             str(Path(output_dir) / ext.name),
             dirs_exist_ok=True,
         )
 
+
+class CustomInstall(install):
+    """Custom handler for the 'install' command."""
+    def run(self):
+        super().run()
+        bindir = Path(self.build_lib) / "dlite" / "share" / "dlite" / "bin"
+        # Possible to make a symlink instead of copy to save space
+        for prog in glob(str(bindir / "*")):
+            shutil.copy(prog, self.install_scripts)
+
+
 version = re.search(
     r"project\([^)]*VERSION\s+([0-9.]+)",
     (SOURCE_DIR / "CMakeLists.txt").read_text(),
 ).groups()[0]
+share = Path(".") / "share" / "dlite"
 
 setup(
     name="DLite-Python",
@@ -198,20 +213,20 @@ setup(
     install_requires="numpy>=1.14.5,<1.27.0",
     #install_requires=requirements,
     #extras_require=extra_requirements,
-    packages=["dlite"],
+    packages=["DLite-Python"],
     scripts=[
         str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),
+        str(SOURCE_DIR / "cmake" / "patch-activate.sh"),
     ],
     package_data={
         "dlite": [
-            dlite_compiled_ext,
-            dlite_compiled_dll_suffix,
-            str(Path(".") / "share" / "dlite" / "storage-plugins" /
-                dlite_compiled_dll_suffix),
-            str(Path(".") / "bin" / "dlite-getuuid"),
-            str(Path(".") / "bin" / "dlite-codegen"),
-            str(Path(".") / "bin" / "dlite-env"),
-            str(Path(".") / "bin" / "patch-activate.sh"),
+            str(share / "README.md"),
+            str(share / "LICENSE"),
+            str(share / "storage-plugins" / dlite_compiled_dll_suffix),
+            str(share / "mapping-plugins" / dlite_compiled_dll_suffix),
+            str(share / "python-storage-plugins" / "*.py"),
+            str(share / "python-mapping-plugins" / "*.py"),
+            str(share / "storages" / "*.json"),
         ]
     },
     ext_modules=[
@@ -223,6 +238,7 @@ setup(
     ],
     cmdclass={
         "build_ext": CMakeBuildExt,
+        "install": CustomInstall,
     },
     zip_safe=False,
 )
