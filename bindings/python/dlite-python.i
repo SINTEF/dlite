@@ -1124,8 +1124,10 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  * Argout typemaps
  * ---------------
  * char **ARGOUT, size_t *LENGTH              -> string
- *     This assumes that the wrapped function assignes *ARGOUT_BYTES to
+ *     This assumes that the wrapped function assignes *ARGOUT to
  *     an malloc'ed buffer.
+ * char **ARGOUT_STRING, size_t *LENGTH       -> string
+ *     Assumes that *ARGOUT_STRING is malloc()'ed by the wrapped function.
  * unsigned char **ARGOUT_BYTES, size_t *LEN  -> bytes
  *     This assumes that the wrapped function assignes *ARGOUT_BYTES to
  *     an malloc'ed buffer.
@@ -1302,10 +1304,10 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  * --------------- */
 
 /* Argout string */
-/* Assumes that *ARGOUT_BYTES is malloc()'ed by the wrapped function */
+/* Assumes that *ARGOUT_STRING is malloc()'ed by the wrapped function */
 %typemap("doc") (char **ARGOUT_STRING, size_t *LENGTH) "string"
 %typemap(in,numinputs=0) (char **ARGOUT_STRING, size_t *LENGTH)
-  (char *tmp, Py_ssize_t n) {
+  (char *tmp=NULL, Py_ssize_t n) {
   $1 = &tmp;
   $2 = (size_t *)&n;
 }
@@ -1313,14 +1315,14 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   $result = PyUnicode_FromStringAndSize((char *)tmp$argnum, n$argnum);
 }
 %typemap(freearg) (char **ARGOUT_STRING, size_t *LENGTH) {
-  free(*($1));
+  if ($1 && *$1) free(*$1);
 }
 
 /* Argout bytes */
 /* Assumes that *ARGOUT_BYTES is malloc()'ed by the wrapped function */
 %typemap("doc") (unsigned char **ARGOUT_BYTES, size_t *LEN) "bytes"
 %typemap(in,numinputs=0) (unsigned char **ARGOUT_BYTES, size_t *LEN)
-  (unsigned char *tmp, size_t n) {
+  (unsigned char *tmp=NULL, size_t n) {
   $1 = &tmp;
   $2 = &n;
 }
@@ -1328,7 +1330,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   $result = PyByteArray_FromStringAndSize((char *)tmp$argnum, n$argnum);
 }
 %typemap(freearg) (unsigned char **ARGOUT_BYTES, size_t *LEN) {
-  free(*($1));
+  if ($1 && *$1) free(*$1);
 }
 
 

@@ -56,11 +56,12 @@
   }
 
   status_t uridecode(const char *src, size_t len, char **dest, size_t *n) {
+    if (!src)
+      return dlite_err(dliteValueError, "argument to uridecode must be a string");
     *n = uri_decode(src, len, NULL);
     if (!(*dest = malloc(*n+1)))
       return dlite_err(dliteMemoryError, "allocation failure");
     size_t m = uri_decode(src, len, *dest);
-    printf("*** uridecode: '%s' (%d) n=%d, m=%d\n", src, (int)len, (int)*n, (int) m);
     assert(m == *n);
     return 0;
   }
