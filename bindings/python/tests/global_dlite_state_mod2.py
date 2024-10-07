@@ -1,4 +1,4 @@
-# This file is executedevaluated by test_global_dlite_state.py
+# This file is executed by test_global_dlite_state.py
 #
 # Note that entitydir is defined in the global scope, so it should
 # not be redefined here
