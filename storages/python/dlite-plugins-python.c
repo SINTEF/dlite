@@ -460,7 +460,7 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
   if (!(iter = calloc(1, sizeof(Iter))))
     FAILCODE(dliteMemoryError, "allocation failure");
 
-  /* Due to typo, fallback to old method name: queue() */
+  /* Fallback to old method name: queue() */
   if (!PyObject_HasAttrString(sp->obj, name) &&
       dlite_behavior_get("storageQuery") == 0) name = "queue";
   if (!PyObject_HasAttrString(sp->obj, name))
