@@ -1,7 +1,7 @@
 Protocol plugins
 ================
 Protocol plugins is a new feature of DLite that allow a clear separation between serialising/parsing DLite instances to/from external data representations and transferring data to/from external data resources.
-This is illustrated in the figure below.
+This is illustrated in the Figure below.
 
 ![DLite storage and protocol plugins.](../../_static/storage-protocol.svg)
 
