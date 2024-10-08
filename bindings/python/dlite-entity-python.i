@@ -509,6 +509,9 @@ def get_instance(
         and `options`.  `id` is the id of the instance in the storage (not
         required if the storage only contains more one instance).
         """
+        from dlite.options import make_query
+        if options and not isinstance(options, str):
+            options = make_query(options)
         inst = Instance(
             driver=driver, location=str(location), options=options, id=id,
             metaid=metaid,
@@ -570,6 +573,9 @@ def get_instance(
         """Load the instance with ID `id` from bytes `buffer` using the
         given storage driver.
         """
+        from dlite.options import make_query
+        if options and not isinstance(options, str):
+            options = make_query(options)
         inst = _from_bytes(
             driver, buffer, id=id, options=options, metaid=metaid
         )
@@ -648,6 +654,9 @@ def get_instance(
         warnings.warn(
             "create_from_location() is deprecated, use from_location() "
             "instead.", DeprecationWarning, stacklevel=2)
+        from dlite.options import make_query
+        if options and not isinstance(options, str):
+            options = make_query(options)
         inst = Instance(
             driver=driver, location=str(location), options=options, id=id,
             dims=(), dimensions=(), properties=()  # arrays
@@ -681,6 +690,10 @@ def get_instance(
                 protocol://location?driver=<driver>;options#id
 
         """
+        from dlite.options import make_query
+        if options and not isinstance(options, str):
+            options = make_query(options)
+
         # Assign arguments from call signature.
         # Far too complicated, but ensures backward compatibility.
         storage = url = protocol = driver = None

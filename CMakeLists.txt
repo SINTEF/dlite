@@ -775,9 +775,6 @@ add_custom_target(show ${cmd})
 # Subdirectories
 add_subdirectory(src)
 
-# Tools - may depend on storage plugins
-add_subdirectory(tools)
-
 # Storage plugins
 add_subdirectory(storages/json)
 if(WITH_HDF5)
@@ -790,6 +787,9 @@ if(WITH_PYTHON)
   add_subdirectory(bindings/python)
   add_subdirectory(storages/python)
 endif()
+
+# Tools - may depend on storage plugins
+add_subdirectory(tools)
 
 # Fortran - depends on tools
 if(WITH_FORTRAN)
