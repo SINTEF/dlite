@@ -75,7 +75,7 @@ class mongodb(dlite.DLiteStorageBase):
         document = inst.asdict(uuid=True, single=True)
         self.collection.insert_one(document)
 
-    def queue(self, pattern=None):
+    def query(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who's metadata URI matches glob pattern `pattern`."""
         # If a pattern is provided, convert it to a MongoDB-compatible

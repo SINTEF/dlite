@@ -89,7 +89,7 @@ class pyrdf(dlite.DLiteStorageBase):
             ),
         )
 
-    def queue(self, pattern: "Optional[str]" = None) -> "Generator[str]":
+    def query(self, pattern: "Optional[str]" = None) -> "Generator[str]":
         """Generator method that iterates over all UUIDs in the storage
         who"s metadata URI matches glob pattern `pattern`.
 

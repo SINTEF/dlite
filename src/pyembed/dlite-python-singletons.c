@@ -4,8 +4,7 @@
 
 
 /*
-  Returns a pointer to __main__.__dict__ of the embedded interpreater
-  or NULL on error.
+  Returns a borrowed reference to `__main__.__dict__` or NULL on error.
 */
 PyObject *dlite_python_maindict(void)
 {
@@ -23,31 +22,31 @@ PyObject *dlite_python_maindict(void)
 
 
 /*
-  Creates a new empty singleton class and return it.
+  Creates a new empty singleton class in the dlite module and return it.
 
   The name of the new class is `classname`.
 
   Returns NULL on error.
  */
-PyObject *dlite_python_mainclass(const char *classname)
+PyObject *dlite_python_dliteclass(const char *classname)
 {
-  PyObject *main_dict, *class;
+  PyObject *dlitedict, *class, *result=NULL;
   char initcode[96];
 
-  if (!(main_dict = dlite_python_maindict())) goto fail;
+  if (!(dlitedict = dlite_python_dlitedict())) goto fail;
 
   /* Return newclass if it is already in __main__.__dict__ */
-  if ((class = PyDict_GetItemString(main_dict, classname)))
+  if ((class = PyDict_GetItemString(dlitedict, classname)))
     return class;
 
   /* Create and inject new class into the __main__ module */
   if (snprintf(initcode, sizeof(initcode), "class %s: pass\n", classname) < 0)
-    FAIL("failure to create initialisation code for embedded Python "
-         "__main__ module");
-  if (PyRun_SimpleString(initcode))
-    FAIL("failure when running embedded Python __main__ module "
-         "initialisation code");
-  if ((class = PyDict_GetItemString(main_dict, classname)))
+    FAILCODE1(dliteSystemError, "cannot create init code for class '%s'",
+              classname);
+  if (!(result = PyRun_String(initcode, Py_single_input, dlitedict, dlitedict)))
+    FAILCODE1(dlitePythonError, "failure running Python code '%s'", initcode);
+  Py_DECREF(result);
+  if ((class = PyDict_GetItemString(dlitedict, classname)))
     return class;
 
  fail:
@@ -58,14 +57,14 @@ PyObject *dlite_python_mainclass(const char *classname)
 /* Returns the base class for storage plugins. */
 PyObject *dlite_python_storage_base(void)
 {
-  return dlite_python_mainclass("DLiteStorageBase");
+  return dlite_python_dliteclass("DLiteStorageBase");
 }
 
 
 /* Returns the base class for mapping plugins. */
 PyObject *dlite_python_mapping_base(void)
 {
-  return dlite_python_mainclass("DLiteMappingBase");
+  return dlite_python_dliteclass("DLiteMappingBase");
 }
 
 

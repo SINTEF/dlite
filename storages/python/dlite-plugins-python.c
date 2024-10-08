@@ -15,6 +15,7 @@
 #include "utils/boolean.h"
 #include "dlite.h"
 #include "dlite-macros.h"
+#include "dlite-behavior.h"
 #include "dlite-storage-plugins.h"
 #include "pyembed/dlite-pyembed.h"
 #include "pyembed/dlite-python-storage.h"
@@ -425,7 +426,7 @@ static void freeapi(PluginAPI *api)
 
 /* Struct returned by iterCreate(). */
 typedef struct {
-  PyObject *v;           /* iterator returned by Python method queue() */
+  PyObject *v;           /* iterator returned by Python method query() */
   //const char *pattern;   /* pattern */
   const char *classname; /* class name */
 } Iter;
@@ -451,7 +452,7 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
   void *retval=NULL;
   Iter *iter = NULL;
   PyObject *class = (PyObject *)s->api->data;
-  const char *classname;
+  const char *classname, *name="query";
   dlite_errclr();
   if (!(classname = dlite_pyembed_classname(class)))
     dlite_warnx("cannot get class name for storage plugin '%s'", s->api->name);
@@ -459,12 +460,18 @@ void *iterCreate(const DLiteStorage *s, const char *pattern)
   if (!(iter = calloc(1, sizeof(Iter))))
     FAILCODE(dliteMemoryError, "allocation failure");
 
-  iter->v = PyObject_CallMethod(sp->obj, "queue", "s", pattern);
-  if (dlite_pyembed_err_check("calling queue() in Python plugin '%s'%s",
-                              classname, failmsg()))
+  /* Fallback to old method name: queue() */
+  if (!PyObject_HasAttrString(sp->obj, name) &&
+      dlite_behavior_get("storageQuery") == 0) name = "queue";
+  if (!PyObject_HasAttrString(sp->obj, name))
+    FAIL1("no such method: %s.query()", classname);
+
+  iter->v = PyObject_CallMethod(sp->obj, name, "s", pattern);
+  if (dlite_pyembed_err_check("calling %s() in Python plugin '%s'%s",
+                              name, classname, failmsg()))
     goto fail;
   if (!PyIter_Check(iter->v))
-    FAIL1("method %s.queue() does not return a iterator object", classname);
+    FAIL2("method %s.%s() does not return a iterator object", classname, name);
 
   iter->classname = classname;
 
@@ -488,13 +495,13 @@ int iterNext(void *iter, char *buf)
   Iter *i = (Iter *)iter;
   PyObject *next = PyIter_Next((PyObject *)i->v);
 
-  if (dlite_pyembed_err_check("error iterating over %s.queue()",
+  if (dlite_pyembed_err_check("error iterating over %s.query()",
                               i->classname)) goto fail;
   if (next) {
     if (!PyUnicode_Check(next))
-      FAIL1("generator method %s.queue() should return a string", i->classname);
+      FAIL1("generator method %s.query() should return a string", i->classname);
     if (!(uuid = PyUnicode_AsUTF8(next)) || strlen(uuid) != DLITE_UUID_LENGTH)
-      FAIL1("generator method %s.queue() should return a uuid", i->classname);
+      FAIL1("generator method %s.query() should return a uuid", i->classname);
     memcpy(buf, uuid, DLITE_UUID_LENGTH+1);
     retval = 0;
   } else {
@@ -515,7 +522,7 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   int n;
   DLiteStoragePlugin *api=NULL, *retval=NULL;
   PyObject *storages=NULL, *cls=NULL, *name=NULL;
-  PyObject *open=NULL, *close=NULL, *queue=NULL, *load=NULL, *save=NULL,
+  PyObject *open=NULL, *close=NULL, *query=NULL, *load=NULL, *save=NULL,
     *flush=NULL, *delete=NULL, *memload=NULL, *memsave=NULL;
   const char *classname=NULL;
 
@@ -597,10 +604,14 @@ get_dlite_storage_plugin_api(void *state, int *iter)
       FAIL1("attribute 'to_bytes' of '%s' is not callable", classname);
   }
 
-  if (PyObject_HasAttrString(cls, "queue")) {
-    queue = PyObject_GetAttrString(cls, "queue");
-    if (!PyCallable_Check(queue))
-      FAIL1("attribute 'queue' of '%s' is not callable", classname);
+  /* Due to typo, fallback to old method name: queue() */
+  char *qname = "query";
+  if (!PyObject_HasAttrString(cls, qname) &&
+      dlite_behavior_get("storageQuery") == 0) qname = "queue";
+  if (PyObject_HasAttrString(cls, qname)) {
+    query = PyObject_GetAttrString(cls, qname);
+    if (!PyCallable_Check(query))
+      FAIL2("attribute '%s' of '%s' is not callable", qname, classname);
   }
 
   if (!(api = calloc(1, sizeof(DLiteStoragePlugin))))
@@ -612,7 +623,7 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   api->close = closer;
   api->flush = flusher;
   api->help = helper;
-  if (queue) {
+  if (query) {
     api->iterCreate = iterCreate;
     api->iterNext = iterNext;
     api->iterFree = iterFree;
@@ -639,7 +650,7 @@ get_dlite_storage_plugin_api(void *state, int *iter)
   Py_XDECREF(delete);
   Py_XDECREF(memload);
   Py_XDECREF(memsave);
-  Py_XDECREF(queue);
+  Py_XDECREF(query);
 
   return retval;
 }

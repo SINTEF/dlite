@@ -93,7 +93,7 @@ class minio(dlite.DLiteStorageBase):
         uuid = dlite.get_uuid(id)
         self.client.remove_object(self.bucket_name, uuid)
 
-    def queue(self, pattern=None):
+    def query(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who"s metadata URI matches glob pattern `pattern`.
 
