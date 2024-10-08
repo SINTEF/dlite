@@ -1,7 +1,5 @@
 {
-  "name": "ent3",
-  "version": "0.1",
-  "namespace": "http://onto-ns.com/meta",
+  "uri": "http://onto-ns.com/meta/0.1/ent3",
   "description": "test entity",
   "dimensions": [],
   "properties": [
@@ -11,5 +9,4 @@
       "unit": "hundreds"
     }
   ],
-  "dataname": "http://onto-ns.com/meta/0.1/ent1"
 }

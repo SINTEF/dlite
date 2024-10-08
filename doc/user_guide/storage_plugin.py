@@ -53,7 +53,7 @@ class plugin_driver_name(dlite.DLiteStorageBase):
             uuid: UUID of instance to delete.
         """
 
-    def queue(self, pattern=None):
+    def query(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who"s metadata URI matches glob pattern `pattern`.
 

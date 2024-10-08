@@ -136,4 +136,24 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
                                      char ***failed_paths, size_t *failed_len);
 
 
+/**
+  Return borrowed reference to the `__dict__` object in the dlite
+  module or NULL on error.
+ */
+PyObject *dlite_python_dlitedict(void);
+
+
+/**
+  Return borrowed reference to a dict serving as a namespace for the
+  given plugin.
+
+  The returned dict is accessable from Python as
+  `dlite._plugindict[plugin_name]`.  The dict will be created if it
+  doesn't already exists.
+
+  Returns NULL on error.
+ */
+PyObject *dlite_python_plugindict(const char *plugin_name);
+
+
 #endif /* _DLITE_PYEMBED_H */

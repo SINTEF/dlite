@@ -427,7 +427,7 @@ static DLiteStoragePlugin dlite_json_plugin = {
   NULL,                     /* flush */
   NULL,                     /* help */
 
-  /* queue api */
+  /* query api */
   json_iter_create,         /* iterCreate */
   json_iter_next,           /* iterNext */
   json_iter_free,           /* iterFree */
