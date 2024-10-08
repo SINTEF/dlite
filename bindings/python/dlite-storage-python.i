@@ -7,6 +7,9 @@
   %pythoncode %{
       # Override default __init__()
       def __init__(self, driver_or_url, location=None, options=None):
+          from dlite.options import make_query
+          if options and not isinstance(options, str):
+              options = make_query(options)
           loc = str(location) if location else None
           _dlite.Storage_swiginit(self, _dlite.new_Storage(
               driver_or_url=driver_or_url, location=loc, options=options))

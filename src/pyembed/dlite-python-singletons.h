@@ -9,19 +9,18 @@
 
 
 /**
-  Returns a pointer to __main__.__dict__ of the embedded interpreater
-  or NULL on error.
+  Returns a borrowed reference to `__main__.__dict__` or NULL on error.
 */
 PyObject *dlite_python_maindict(void);
 
 /**
-  Creates a new empty singleton class and return it.
+  Creates a new empty singleton class in the dlite module and return it.
 
   The name of the new class is `classname`.
 
   Returns NULL on error.
  */
-PyObject *dlite_python_mainclass(const char *classname);
+PyObject *dlite_python_dliteclass(const char *classname);
 
 
 /**
