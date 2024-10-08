@@ -26,7 +26,7 @@ Directly access to protocols
 ----------------------------
 Protocol plugins can also be accessed in Python via the `Protocol` class.
 
-This example first save the data `b"hello world"` to the file `hello.txt` and then read load it back again:
+In the example below the data `b"hello world"`  is first saved to the file `hello.txt` and then loaded back again:
 ```python
     >>> with Protocol(protocol="file", location="hello.txt", options="mode=rw") as pr:
     ...     pr.save(b"hello world")
