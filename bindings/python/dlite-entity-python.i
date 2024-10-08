@@ -452,23 +452,39 @@ def get_instance(
 
     @classmethod
     def from_url(cls, url, metaid=None):
-        """Load the instance from `url`.  The URL should be of the form
-        ``driver://location?options#id``.
+        """Load the instance from `url`.  The URL should be of one of the
+        the following forms:
+
+            driver://location?options#id
+            protocol+driver://location?options#id
+            protocol://location?driver=<driver>;options#id
+
+        where `protocol`, `driver`, `location`, `options` and `id are
+        documented in the load() method.
+
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
+        from dlite.protocol import Protocol
+        from dlite.options import parse_query
+
         p = urlparse(url)
-        if "+" in p.scheme:
-            protocol, driver = p.split("+", 1)
+        if "driver=" in p.query or "+" in p.scheme:
+            if "driver=" in p.query:
+                protocol = p.scheme
+                driver = parse_query(p.query)["driver"]
+            else:
+                protocol, driver = p.split("+", 1)
             location = f"{protocol}://{p.netloc}{p.path}"
-            return cls.load(
+            inst = cls.load(
                 protocol, driver, location, options=p.query, id=p.fragment,
                 metaid=metaid
             )
-        inst = Instance(
-            url=url, metaid=metaid,
-            dims=(), dimensions=(), properties=()  # arrays
-        )
+        else:
+            inst = Instance(
+                url=url, metaid=metaid,
+                dims=(), dimensions=(), properties=()  # arrays
+            )
         return instance_cast(inst)
 
     @classmethod
@@ -656,6 +672,14 @@ def get_instance(
             location: A string describing where to save the instance.
             options: Options to the protocol and driver plugins. Should be
                 a semicolon- or ampersand-separated string of key=value pairs.
+
+        Notes:
+            The URL may be given in any of the following forms:
+
+                driver://location?options#id
+                protocol+driver://location?options#id
+                protocol://location?driver=<driver>;options#id
+
         """
         # Assign arguments from call signature.
         # Far too complicated, but ensures backward compatibility.

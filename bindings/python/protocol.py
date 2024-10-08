@@ -79,7 +79,15 @@ class Protocol():
 
     @classmethod
     def load_plugins(cls):
-        """Load all protocol plugins."""
+        """Load all protocol plugins.
+
+        The names of all plugin files that have been attempted to load
+        are cached (regardless whether loading succeeded or
+        not). Hence, it is safe to call this class method multiple
+        times.  It won't reload already loaded plugins or try to
+        reload plugins that already failed to load.
+
+        """
 
         # This should not be needed when PR #953 has been merged
         if not hasattr(dlite, "_plugindict"):
@@ -92,7 +100,7 @@ class Protocol():
                 name = Path(filename).stem
                 scopename = f"{name}_protocol"
                 if (scopename not in dlite._plugindict
-                    and scopename not in cls._failed_plugins
+                    and name not in cls._failed_plugins
                 ):
                     dlite._plugindict.setdefault(scopename, {})
                     scope = dlite._plugindict[scopename]
@@ -104,6 +112,18 @@ class Protocol():
                             f"cannot load protocol plugin: {name}\n{msg}"
                         )
                         cls._failed_plugins.add(name)
+
+    @classmethod
+    def loaded_plugins(cls):
+        """Return a set with the names of already loaded plugins."""
+        return set(p.__name__ for p in dlite.DLiteProtocolBase.__subclasses__())
+
+    @classmethod
+    def failed_plugins(cls):
+        """Return a set with the stem of the plugin files that have failed ot
+        load.  This is typically the same as the plugin names.
+        """
+        return cls._failed_plugins.copy()
 
     def _call(self, method, *args, **kwargs):
         """Call given method usin `call()` if it exists."""
