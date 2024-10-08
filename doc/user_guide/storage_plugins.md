@@ -201,11 +201,11 @@ A complete example can be found in the [Python storage plugin example].
 
 
 :::{danger}
-**When writing a Python storage plugin, do not define any variables or functions outside the `DLiteStorageBase` subclass!**
-
-The reason for this requirement is that all plugins will be loaded into the same shared scope within the built-in interpreter.
-Hence, variables or functions outside the plugin class may interfere with other plugins, resulting in confusing and hard-to-find bugs.
+**For DLite <0.5.23 storage plugins were executed in the same scope.
+Hence, to avoid confusing and hard-to-find bugs due to interference between your plugins, you should not define any variables or functions outside the `DLiteStorageBase` subclass!**
 :::
+
+Since DLite v0.5.23, plugins are evaluated in separate scopes (which are available in `dlite._plugindict).
 
 
 

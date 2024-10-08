@@ -31,6 +31,8 @@ MU_TEST(test_load_modules)
   PyObject *plugins;
   PyObject *mappingbase = dlite_python_mapping_base();
 
+  mu_check(mappingbase);
+
   fu_paths_init(&paths, "DLITE_PYTHON_MAPPING_PLUGIN_DIRS");
   fu_paths_insert(&paths, STRINGIFY(TESTDIR), 0);
 

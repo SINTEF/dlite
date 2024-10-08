@@ -1,7 +1,7 @@
 import dlite
 
 
-class Person2SimplePerson(DLiteMappingBase):
+class Person2SimplePerson(dlite.DLiteMappingBase):
     name = "Person2SimplePerson"
     output_uri = "http://onto-ns.com/meta/0.1/SimplePerson"
     input_uris = ["http://onto-ns.com/meta/0.1/Person"]
@@ -15,7 +15,7 @@ class Person2SimplePerson(DLiteMappingBase):
         return simple
 
 
-class SimplePerson2Person(DLiteMappingBase):
+class SimplePerson2Person(dlite.DLiteMappingBase):
     name = "SimplePerson2Person"
     output_uri = "http://onto-ns.com/meta/0.1/Person"
     input_uris = ["http://onto-ns.com/meta/0.1/SimplePerson"]

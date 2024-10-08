@@ -28,6 +28,7 @@ set(tests
   test_dataset1_save
   test_dataset2_load
   test_protocol
+  test_isolated_plugins
 )
 
 foreach(test ${tests})
