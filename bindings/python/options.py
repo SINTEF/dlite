@@ -1,14 +1,21 @@
 """A module for converting option to storage plugins between
 valid percent-encoded URL query strings and and dicts.
 
-Options is a string of the form
+A URL query string is a string of the form
 
-    opt1=value1;opt2=value2...
+    key1=value1;key2=value2...
 
-where semicolon (;) may be replaced with an ampersand (&).
+where the keys and and values are percent-encoded.  The key-value
+pairs may be separated by either semicolon (;) or ampersand (&).
 
+Percent-encoding means that all characters that are digits, letters or
+one of "~._-" are encoded as-is, while all other is encoded as their
+unicode byte number in hex with each byte preceeded "%". For example
+"a" would be encoded as "a", "+" would be encoded as "%2B" and "å" as
+"%C3%A5".
 
-
+If a value starts with "%%", the rest of the value is assumed to be a
+percent-encoded json strings.
 """
 
 import json
@@ -30,35 +37,14 @@ class Options(dict):
     """
 
     def __init__(self, options, defaults=None):
-        dict.__init__(self)
-        if isinstance(defaults, str):
-            defaults = Options(defaults)
+        super().__init__()
         if defaults:
-            self.update(defaults)
-
-        if isinstance(options, str):
-            # URI-decode the options string
-            options = dlite.uridecode(options)
-
-            if options.startswith("{"):
-                self.update(json.loads(options))
-            else:
-                # strip hash and everything following
-                options = options.split("#")[0]
-                if ";" in options:
-                    tokens = options.split(";")
-                elif "&" in options:
-                    tokens = options.split("&")
-                else:
-                    tokens = [options]
-                if tokens and tokens != [""]:
-                    self.update([t.split("=", 1) for t in tokens])
-        elif isinstance(options, dict):
-            self.update(options)
-        elif options is not None:
-            raise TypeError(
-                "`options` should be either a %-encoded string or a dict: "
-                f"{options!r}"
+            self.update(
+                parse_query(defaults) if isinstance(defaults, str) else defaults
+            )
+        if options:
+            self.update(
+                parse_query(options) if isinstance(options, str) else options
             )
 
     def __getattr__(self, name):
@@ -71,19 +57,7 @@ class Options(dict):
         self[name] = value
 
     def __str__(self):
-        encode = False
-        for value in self.values():
-            if isinstance(value, (bool, int, float)):
-                encode = True
-                break
-            elif isinstance(value, str):
-                if ("&" in value) | (";" in value):
-                    encode = True
-                    break
-        if encode:
-            return json.dumps(self, separators=(",", ":"))
-        else:
-            return ";".join([f"{k}={v}" for k, v in self.items()])
+        return make_query(self)
 
 
 def parse_query(query):
