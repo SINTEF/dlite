@@ -10,7 +10,6 @@ set(py_sources
   rdf.py
   dataset.py
   quantity.py
-  options.py
   testutils.py
   )
 
