@@ -774,7 +774,7 @@ static DLiteStoragePlugin h5_plugin = {
   NULL,                                // flush
   NULL,                                // help
 
-  /* queue api */
+  /* query api */
   NULL,                                // iterCreate
   NULL,                                // iterNext
   NULL,                                // iterFree
