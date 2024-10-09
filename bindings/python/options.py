@@ -1,13 +1,17 @@
-"""A module for handling options passed to storage plugins, 
-converting between valid percent-encoded URL query strings 
+"""A module for handling options passed to storage plugins,
+converting between valid percent-encoded URL query strings
 and dicts.
 
-A URL query string is a string of the form
+A URL query string is a string of key-value pairs separated by either semicolon (;) or ampersand (&).
+For example
 
     key1=value1;key2=value2...
 
-where the keys and and values are percent-encoded.  The key-value
-pairs may be separated by either semicolon (;) or ampersand (&).
+or
+
+    key1=value1&key2=value2...
+
+where the keys and and values are percent-encoded.
 
 Percent-encoding means that all characters that are digits, letters or
 one of "~._-" are encoded as-is, while all other are encoded as their
@@ -15,8 +19,8 @@ unicode byte number in hex with each byte preceeded "%". For example
 "a" would be encoded as "a", "+" would be encoded as "%2B" and "å" as
 "%C3%A5".
 
-If a value starts with "%%", the rest of the value is assumed to be a
-percent-encoded json string.
+In DLite, a value can also start with "%%", which means that the rest of the value is assumed to be a percent-encoded json string.
+This addition makes it possible to pass any kind of json-serialisable data structures as option values.
 """
 
 import json
