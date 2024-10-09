@@ -1,5 +1,6 @@
-"""A module for converting option to storage plugins between
-valid percent-encoded URL query strings and and dicts.
+"""A module for handling options passed to storage plugins, 
+converting between valid percent-encoded URL query strings 
+and dicts.
 
 A URL query string is a string of the form
 
