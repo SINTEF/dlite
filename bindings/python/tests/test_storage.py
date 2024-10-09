@@ -54,6 +54,10 @@ assert np.all(inst["a-relation-array"] == [
 with dlite.Storage("json", outdir / "test_storage_tmp.json", "mode=w") as s:
     s.save(inst)
 
+# Test Storage.save() with options given as dict
+with dlite.Storage("json", outdir / "test_storage_tmp2.json", {"mode": "w"}) as s:
+    s.save(inst)
+
 # Test query
 
 

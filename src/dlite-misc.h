@@ -99,16 +99,16 @@ typedef struct _DLiteOpt {
 
       key1=value1;key2=value2...
 
-  where the values are terminated by NUL or any of the characters in ";&#".
-  A hash (#) terminates the options.
+  where the values should be encoded with `uri_encode()` and
+  terminated by NUL or any of the characters in ";&#".  A hash (#)
+  terminates the options.
+
+  At return, `options` is modified. All values in the `options` string
+  will be URI decoded and NUL-terminated.
 
   `opts` should be a NULL-terminated DLiteOpt array initialised with
   default values.  At return, the values of the provided options are
   updated.
-
-  If `modify` is non-zero, `options` is modifies such that all values in
-  `opts` are NUL-terminated.  Otherwise they may be terminated by any of
-  the characters in ";&#".
 
   Returns non-zero on error.
 
@@ -125,7 +125,7 @@ typedef struct _DLiteOpt {
     {'b', "key2", "default2", "description of key2..."},
     {NULL, NULL}
   };
-  dlite_getopt(options, opts, 0);
+  dlite_getopt(options, opts);
   for (i=0; opts[i].key; i++) {
     switch (opts[i].c) {
     case '1':
@@ -138,7 +138,7 @@ typedef struct _DLiteOpt {
   }
   ```
  */
-int dlite_option_parse(char *options, DLiteOpt *opts, int modify);
+int dlite_option_parse(char *options, DLiteOpt *opts);
 
 /** @} */
 
