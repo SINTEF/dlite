@@ -1,0 +1,11 @@
+{
+  "9d4e0a82-a8ca-41c1-9db3-84908ebf6041":  {
+    "meta": "http://onto-ns.com/meta/0.1/Blob",
+    "dimensions": {
+      "n": 3
+    },
+    "properties": {
+      "content": [97, 98, 99]
+    }
+  }
+}

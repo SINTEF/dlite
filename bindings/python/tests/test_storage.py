@@ -5,20 +5,10 @@ import numpy as np
 
 import dlite
 from dlite.testutils import importcheck, raises
+from dlite.protocol import Protocol, archive_extract
 
 yaml = importcheck("yaml")
 requests = importcheck("requests")
-#try:
-#    import yaml
-#    HAVE_YAML = True
-#except ModuleNotFoundError:
-#    HAVE_YAML = False
-#
-#try:
-#    import requests
-#    HAVE_REQUESTS = True
-#except ModuleNotFoundError:
-#    HAVE_REQUESTS = False
 
 
 thisdir = Path(__file__).absolute().parent
@@ -105,9 +95,6 @@ assert s4.startswith("{\n  \"uri\": \"my-data\",\n  \"uuid\":")
 
 # FIXME: Add test for the `arrays`, `no-parent` and `compact` options.
 # Should we rename `arrays` to `soft7` for consistency with the Python API?
-
-with raises(dlite.DLiteValueError):
-    inst.to_bytes("json", options="invalid-opt=").decode()
 
 
 # Test json
@@ -234,13 +221,24 @@ for i in range(6):
     print(iter2.next())
 
 
-# Test combining protocol and storage plugins using dlite.Instance.load()
-# -----------------------------------------------------------------------
-if requests and yaml:
-    url = (
-        "https://raw.githubusercontent.com/SINTEF/dlite/refs/heads/master/"
-        "storages/python/tests-python/input/test_meta.yaml"
-    )
-    m = dlite.Instance.load(protocol="http", driver="yaml", location=url)
-    assert m.uri == "http://onto-ns.com/meta/0.1/TestEntity"
-    assert type(m) is dlite.Metadata
+
+
+
+# Test URL versions of dlite.Instance.save()
+Blob = dlite.get_instance("http://onto-ns.com/meta/0.1/Blob")
+blob = Blob([3], id="myblob")
+blob.content = b'abc'
+blob.save(f"file+json://{outdir}/blob1.json?mode=w")
+blob.save(f"file://{outdir}/blob2.txt?driver=json;mode=w")
+blob.save(f"file://{outdir}/blob3.json?mode=w")
+blob.save(f"json://{outdir}/blob4.json?mode=w")
+t1 = (outdir/"blob1.json").read_text()
+t2 = (outdir/"blob2.txt").read_text()
+t3 = (outdir/"blob3.json").read_text()
+t4 = (outdir/"blob4.json").read_text()
+assert t2 == t1
+assert t3 == t1
+assert (
+    t4.replace(" ", "").replace("\n", "") ==
+    t1.replace(" ", "").replace("\n", "")
+)

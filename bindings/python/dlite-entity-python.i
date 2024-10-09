@@ -473,8 +473,15 @@ def get_instance(
             if "driver=" in p.query:
                 protocol = p.scheme
                 driver = parse_query(p.query)["driver"]
+            elif "+" in p.scheme:
+                protocol, driver = p.scheme.split("+", 1)
+            elif Path(p.path).suffix:
+                protocol = p.scheme
+                driver = Path(p.path).suffix[1:]
             else:
-                protocol, driver = p.split("+", 1)
+                raise _dlite.DLiteParseError(
+                    f"cannot infer driver from URL: {url}"
+                )
             location = f"{protocol}://{p.netloc}{p.path}"
             inst = cls.load(
                 protocol, driver, location, options=p.query, id=p.fragment,
@@ -690,7 +697,9 @@ def get_instance(
                 protocol://location?driver=<driver>;options#id
 
         """
-        from dlite.options import make_query
+        from dlite.protocol import Protocol
+        from dlite.options import make_query, parse_query
+
         if options and not isinstance(options, str):
             options = make_query(options)
 
@@ -708,6 +717,8 @@ def get_instance(
             if len(dest) == 1:
                 if isinstance(dest[0], Storage):
                     storage, = dest
+                elif location:
+                    driver, = dest
                 else:
                     url, = dest
             if len(dest) == 2:
@@ -724,6 +735,19 @@ def get_instance(
                          driver, location, options = dest
                 elif not location:
                      protocol, driver, location = dest
+                else:
+                    raise _dlite.DLiteValueError(
+                        "dlite.Instance.save() got `location` both as "
+                        f"positional ({dest[2]}) and keyword ({location}) "
+                        "argument"
+                    )
+            elif len(dest) == 4:
+                if location or options:
+                    raise _dlite.DLiteValueError(
+                        "dlite.Instance.save() got `location` and/or "
+                        "`options` both as positional and keyword arguments"
+                    )
+                protocol, driver, location, options = dest
 
         # Call lower-level save methods
         if protocol:
@@ -741,12 +765,34 @@ def get_instance(
                 finally:
                     Path(tmpfile).unlink()
             with Protocol(protocol, location=location, options=options) as pr:
-                pr.save()
+                pr.save(buf)
         elif driver:
             with Storage(driver, str(location), options) as storage:
                 storage.save(self)
         elif url:
-            self.save_to_url(url)
+            protocol = driver = None
+            scheme, loc, options, _ = split_url(url)
+            if "+" in scheme:
+                protocol, driver = scheme.split("+", 1)
+            elif scheme in Protocol.loaded_plugins():
+                protocol = scheme
+            else:
+                driver = scheme
+            if "driver=" in options:
+                driver = parse_query(options)["driver"]
+            elif not driver:
+                suffix = Path(loc).suffix
+                if suffix:
+                    driver = suffix[1:]
+                else:
+                    raise _dlite.DLiteParseError(
+                        f"cannot infer driver from URL: {url}"
+                    )
+            if protocol:
+                self.save(protocol, driver, location=loc, options=options)
+            else:
+                opts = f"?{options}" if options else ""
+                self.save_to_url(f"{driver}://{loc}{opts}")
         elif storage:
             self.save_to_storage(storage=storage)
         else:

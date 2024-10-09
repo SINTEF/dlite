@@ -67,24 +67,4 @@ if (sharedir / "python-protocol-plugins").exists():
     python_protocol_plugin_path[-1] = sharedir / "python-protocol-plugins"
     #python_protocol_plugin_path.append(sharedir / "python-protocol-plugins")
 
-# Update default search paths
-from pathlib import Path
-pkgdir = Path(__file__).resolve().parent
-sharedir = pkgdir / "share" / "dlite"
-if (sharedir / "storages").exists():
-    storage_path[-1] = sharedir / "storages"
-    #storage_path.append(sharedir / "storages")
-if (sharedir / "storage-plugins").exists():
-    storage_plugin_path[-1] = sharedir / "storage-plugins"
-    #storage_plugin_path.append(sharedir / "storage-plugins")
-if (sharedir / "mapping-plugins").exists():
-    mapping_plugin_path[-1] = sharedir / "mapping-plugins"
-    #mapping_plugin_path.append(sharedir / "mapping-plugins")
-if (sharedir / "python-storage-plugins").exists():
-    python_storage_plugin_path[-1] = sharedir / "python-storage-plugins"
-    #python_storage_plugin_path.append(sharedir / "python-storage-plugins")
-if (sharedir / "python-mapping-plugins").exists():
-    python_mapping_plugin_path[-1] = sharedir / "python-mapping-plugins"
-    #python_mapping_plugin_path.append(sharedir / "python-mapping-plugins")
-
 %}

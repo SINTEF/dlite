@@ -196,7 +196,7 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
 
   Returns non-zero on error.
 */
-int dlite_option_parse(char *options, DLiteOpt *opts)
+int dlite_option_parse(char *options, DLiteOpt *opts, DLiteOptFlag flags)
 {
   char *p = options;
   char *buf = NULL;
@@ -231,9 +231,14 @@ int dlite_option_parse(char *options, DLiteOpt *opts)
       }
     }
     if (!opts[i].key) {
-      int len = strcspn(p, "=;&#");
-      status = errx(dliteValueError, "unknown option key: '%.*s'", len, p);
-      goto fail;
+      if (flags & dliteOptStrict) {
+        int len = strcspn(p, "=;&#");
+        status = errx(dliteValueError, "unknown option key: '%.*s'", len, p);
+        goto fail;
+      } else {
+        p += strcspn(p, ";&#");
+        if (*p && strchr(";&", *p)) p++;
+      }
     }
   }
  fail:
