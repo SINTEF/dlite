@@ -10,7 +10,7 @@ where the keys and and values are percent-encoded.  The key-value
 pairs may be separated by either semicolon (;) or ampersand (&).
 
 Percent-encoding means that all characters that are digits, letters or
-one of "~._-" are encoded as-is, while all other is encoded as their
+one of "~._-" are encoded as-is, while all other are encoded as their
 unicode byte number in hex with each byte preceeded "%". For example
 "a" would be encoded as "a", "+" would be encoded as "%2B" and "å" as
 "%C3%A5".
