@@ -16,7 +16,7 @@ unicode byte number in hex with each byte preceeded "%". For example
 "%C3%A5".
 
 If a value starts with "%%", the rest of the value is assumed to be a
-percent-encoded json strings.
+percent-encoded json string.
 """
 
 import json
