@@ -36,7 +36,7 @@ class file(dlite.DLiteProtocolBase):
         """
         opts = Options(options, "compression=lzma")
         isurl = dlite.asbool(opts.url) if "url" in opts else bool(
-            re.match(r"^[a-zA-Z][a-zA-Z0-9.+-]*:", str(location))
+            re.match(r"^[a-zA-Z][a-zA-Z0-9.+-]*:[^\]", str(location))
         )
         self.path = Path(urlparse(location).path if isurl else location)
         self.mode = (
