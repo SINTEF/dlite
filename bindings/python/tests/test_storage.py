@@ -1,4 +1,5 @@
-#!/usr/bin/env python
+"""Test storages."""
+import sys
 from pathlib import Path
 
 import numpy as np
