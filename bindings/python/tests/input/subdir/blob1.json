@@ -1,0 +1,12 @@
+{
+  "de191839-2940-56aa-9fe8-47fa2151a100":  {
+    "uri": "blob1",
+    "meta": "http://onto-ns.com/meta/0.1/Blob",
+    "dimensions": {
+      "n": 3
+    },
+    "properties": {
+      "content": [97, 98, 99]
+    }
+  }
+}

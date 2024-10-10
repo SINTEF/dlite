@@ -128,10 +128,10 @@ int dlite_behavior_get(const char *name)
     const char *ver = dlite_get_version();  // current version
     b->value = (strcmp_semver(ver, b->version_new) >= 0) ? 1 : 0;
 
-    dlite_warn("Behavior `%s` is not configured. "
-               "It will be enabled by default from v%s. "
-               "See https://sintef.github.io/dlite/user_guide/configure_behavior_changes.html for more info.",
-               b->name, b->version_new);
+    dlite_warnx("Behavior `%s` is not configured. "
+                "It will be enabled by default from v%s. "
+                "See https://sintef.github.io/dlite/user_guide/configure_behavior_changes.html for more info.",
+                b->name, b->version_new);
   }
 
   assert(b->value >= 0);

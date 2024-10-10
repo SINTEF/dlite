@@ -1144,14 +1144,22 @@ int dlite_instance_save_url(const char *url, const DLiteInstance *inst)
  */
 DLiteInstance *dlite_instance_memload(const char *driver,
                                       const unsigned char *buf, size_t size,
-                                      const char *id, const char *options)
+                                      const char *id, const char *options,
+                                      const char *metaid)
 {
   const DLiteStoragePlugin *api;
+  DLiteInstance *inst;
   if (!(api = dlite_storage_plugin_get(driver))) return NULL;
   if (!api->memLoadInstance)
     return err(dliteUnsupportedError, "driver does not support memload: %s",
                api->name), NULL;
-  return api->memLoadInstance(api, buf, size, id, options);
+
+  if (!(inst = api->memLoadInstance(api, buf, size, id, options)))
+    return NULL;
+  if (metaid)
+    return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+  else
+    return inst;
 }
 
 /*

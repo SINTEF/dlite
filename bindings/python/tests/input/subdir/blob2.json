@@ -1,0 +1,12 @@
+{
+  "8255c571-727f-5bcc-adfd-846b73873bd9":  {
+    "uri": "blob2",
+    "meta": "http://onto-ns.com/meta/0.1/Blob",
+    "dimensions": {
+      "n": 3
+    },
+    "properties": {
+      "content": [97, 98, 99]
+    }
+  }
+}

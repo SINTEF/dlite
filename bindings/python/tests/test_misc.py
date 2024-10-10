@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
+import sys
+
 import dlite
 from dlite.testutils import raises
 
@@ -79,8 +81,7 @@ assert dlite.cmp_semver("1.3.11", "1.3.13", 5) == 0
 
 
 # Test deprecation warnings
-dlite.deprecation_warning("100.3.2", "My deprecated feature...")
-dlite.deprecation_warning("100.3.2", "My deprecated feature...")
+# Future deprecation is not displayed
 dlite.deprecation_warning("100.3.2", "My deprecated feature...")
 
 with raises(SystemError):
@@ -93,3 +94,20 @@ dlite.deprecation_warning("0.0.1", "My deprecated feature 2...")
 
 with raises(SystemError):
     dlite.deprecation_warning("0.0.x", "My deprecated feature 3...")
+
+
+# Test uri encode/decode
+assert dlite.uriencode("") == ""
+assert dlite.uriencode("abc") == "abc"
+assert dlite.uriencode("abc\x00def") == "abc%00def"
+
+assert dlite.uridecode("") == ""
+assert dlite.uridecode("abc") == "abc"
+assert dlite.uridecode("abc%00def") == "abc\x00def"
+
+assert dlite.uridecode(dlite.uriencode("ÆØÅ")) == "ÆØÅ"
+
+# Ignore Windows - it has its own encoding (utf-16) of non-ascii characters
+if sys.platform != "win32":
+    assert dlite.uriencode("å") == "%C3%A5"
+    assert dlite.uridecode("%C3%A5") == "å"
