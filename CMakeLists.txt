@@ -281,6 +281,7 @@ if(WITH_PYTHON)
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
   list(APPEND extra_link_libraries ${Python3_LDFLAGS})
+  message(STATUS "Python3_LDFLAGS: ${Python3_LDFLAGS}")
 
   # Link libraries when compiling against static Python (e.g. manylinux)
   # if(WITH_STATIC_PYTHON)
@@ -304,8 +305,10 @@ if(WITH_PYTHON)
 
   # Link libraries when compiling against static Python (e.g. cibuildwheel)
   if(DEFINED ENV{Python3_LIBRARY})
+    set(Python3_STATIC_LIBS $ENV{Python3_LIBRARY})
     list(APPEND extra_link_libraries $ENV{Python3_LIBRARY})
   endif()
+  message(STATUS "ENV{Python3_LIBRARY}: $ENV{Python3_LIBRARY}")
 
 
   message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")

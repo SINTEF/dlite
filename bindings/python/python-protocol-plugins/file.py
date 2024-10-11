@@ -19,7 +19,8 @@ class file(dlite.DLiteProtocolBase):
             options: Supported options:
                 - `mode`: Combination of "r" (read), "w" (write) or "a" (append)
                   Defaults to "r" if `location` exists and "w" otherwise.
-                  Use "rw" for reading and writing.
+                  This default avoids accidentially overwriting an existing
+                  file.  Use "rw" for reading and writing.
                 - `url`: Whether `location` is an URL.  The default is
                   read it as an URL if it starts with a scheme, otherwise
                   as a file path.
@@ -36,6 +37,8 @@ class file(dlite.DLiteProtocolBase):
         """
         opts = Options(options, "compression=lzma")
         isurl = dlite.asbool(opts.url) if "url" in opts else bool(
+            # The last slash in the regex is to avoid matching a Windows
+            # path C:\...
             re.match(r"^[a-zA-Z][a-zA-Z0-9.+-]*:[^\\]", str(location))
         )
         self.path = Path(urlparse(location).path if isurl else location)
