@@ -265,36 +265,37 @@ if(WITH_PYTHON)
   # Find Python installation directory (relative to CMAKE_INSTALL_PREFIX)
   if(NOT Python3_PKGDIR)
     execute_process(
-      COMMAND ${python_exe} -c "import site; print(site.getsitepackages()[0])"
+      COMMAND ${Python3_EXECUTABLE} -c "import site; print(site.getsitepackages()[0])"
       OUTPUT_VARIABLE Python3_PKGDIR
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
-    file(RELATIVE_PATH Python3_SITE ${CMAKE_INSTALL_PREFIX} ${Python3_PKGDIR})
-    set(Python3_PREFIX "${Python3_SITE}/dlite/")
   endif()
+
+  file(RELATIVE_PATH Python3_SITE ${CMAKE_INSTALL_PREFIX} ${Python3_PKGDIR})
+  set(Python3_PREFIX "${Python3_SITE}/dlite/")
 
   # Link libraries when compiling against static Python (e.g. manylinux)
-  if(WITH_STATIC_PYTHON)
-    execute_process(
-      COMMAND ${Python3_EXECUTABLE}-config --ldflags
-      OUTPUT_VARIABLE Python3_LDFLAGS
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
+  # if(WITH_STATIC_PYTHON)
+  #   execute_process(
+  #     COMMAND ${Python3_EXECUTABLE}-config --ldflags
+  #     OUTPUT_VARIABLE Python3_LDFLAGS
+  #     OUTPUT_STRIP_TRAILING_WHITESPACE
+  #   )
+  #
+  #   # TODO: find a more portable way to add the "-Xlinker -export-dynamic" options.
+  #   # They are needed to ensure that the linker include all symbols in
+  #   # the static Python library.
+  #   set(Python3_STATIC_LIBS
+  #     ${Python3_LDFLAGS}
+  #     -Xlinker -export-dynamic
+  #     ${Python3_LIBRARY}
+  #   )
+  #
+  #   list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
+  # endif()
 
-    # TODO: find a more portable way to add the "-Xlinker -export-dynamic" options.
-    # They are needed to ensure that the linker include all symbols in
-    # the static Python library.
-    set(Python3_STATIC_LIBS
-      ${Python3_LDFLAGS}
-      -Xlinker -export-dynamic
-      ${Python3_LIBRARY}
-    )
-
-    list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
-  endif()
-
+  message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
   message(STATUS "Python3_SITE = ${Python3_SITE}")
-
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
   message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
