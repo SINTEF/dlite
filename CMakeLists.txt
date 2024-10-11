@@ -294,7 +294,7 @@ if(WITH_PYTHON)
   #   list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
   # endif()
 
-  # Link libraries when compiling against static Python (e.g. manylinux)
+  # Link libraries when compiling against static Python (e.g. cibuildwheel)
   if(DEFINED ENV{Python3_LIBRARY})
     list(APPEND extra_link_libraries $ENV{Python3_LIBRARY})
   endif()
