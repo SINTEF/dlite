@@ -274,6 +274,14 @@ if(WITH_PYTHON)
   file(RELATIVE_PATH Python3_SITE ${CMAKE_INSTALL_PREFIX} ${Python3_PKGDIR})
   set(Python3_PREFIX "${Python3_SITE}/dlite/")
 
+  # Add linker flags for linking against Python
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} -c "import sysconfig; print(sysconfig.get_config_var('PY_LDFLAGS'))"
+    OUTPUT_VARIABLE Python3_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  list(APPEND extra_link_libraries ${Python3_LDFLAGS})
+
   # Link libraries when compiling against static Python (e.g. manylinux)
   # if(WITH_STATIC_PYTHON)
   #   execute_process(
