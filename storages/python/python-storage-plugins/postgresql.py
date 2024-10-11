@@ -1,3 +1,7 @@
+"""DLite plugin for PostgreSQL.
+
+Note: Continous testing is not run for this plugin.
+"""
 import os
 import re
 import sys

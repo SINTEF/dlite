@@ -1,3 +1,8 @@
+"""DLite protocol plugin for sftp.
+
+Note: Continous testing is not run for this plugin.
+"""
+
 import io
 import stat
 import zipfile
