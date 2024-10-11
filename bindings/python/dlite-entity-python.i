@@ -436,6 +436,9 @@ def get_instance(
         and `options`.  `id` is the id of the instance in the storage (not
         required if the storage only contains more one instance).
         """
+        from dlite.options import make_query
+        if options and not isinstance(options, str):
+            options = make_query(options)
         return Instance(
             driver=driver, location=str(location), options=options, id=id,
             dims=(), dimensions=(), properties=()  # arrays
@@ -492,6 +495,9 @@ def get_instance(
         """Load the instance with ID `id` from bytes `buffer` using the
         given storage driver.
         """
+        from dlite.options import make_query
+        if options and not isinstance(options, str):
+            options = make_query(options)
         return _from_bytes(driver, buffer, id=id, options=options)
 
     @classmethod
@@ -564,6 +570,9 @@ def get_instance(
         warnings.warn(
             "create_from_location() is deprecated, use from_location() "
             "instead.", DeprecationWarning, stacklevel=2)
+        from dlite.options import make_query
+        if options and not isinstance(options, str):
+            options = make_query(options)
         return Instance(
             driver=driver, location=str(location), options=options, id=id,
             dims=(), dimensions=(), properties=()  # arrays
@@ -577,6 +586,9 @@ def get_instance(
           - save(driver, location, options=None)
           - save(storage)
         """
+        from dlite.options import make_query
+        if options and not isinstance(options, str):
+            options = make_query(options)
         if isinstance(dest, Storage):
             self.save_to_storage(storage=dest)
         elif location:
