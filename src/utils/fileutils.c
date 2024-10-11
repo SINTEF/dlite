@@ -324,7 +324,7 @@ char *fu_stem(const char *path)
   char *p;
   if ((p = fu_lastsep(path)) && *p) {
     p++;
-    char *ext = fu_fileext(p);
+    const char *ext = fu_fileext(p);
     if (ext && *ext) return strndup(p, ext - p - 1);
     return strdup(p);
   }
