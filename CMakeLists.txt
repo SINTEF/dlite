@@ -281,34 +281,37 @@ if(WITH_PYTHON)
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
   list(APPEND extra_link_libraries ${Python3_LDFLAGS})
-  message(STATUS "Python3_LDFLAGS: ${Python3_LDFLAGS}")
+  #message(STATUS "Python3_LDFLAGS: ${Python3_LDFLAGS}")
 
   # Link libraries when compiling against static Python (e.g. manylinux)
-  # if(WITH_STATIC_PYTHON)
-  #   execute_process(
-  #     COMMAND ${Python3_EXECUTABLE}-config --ldflags
-  #     OUTPUT_VARIABLE Python3_LDFLAGS
-  #     OUTPUT_STRIP_TRAILING_WHITESPACE
-  #   )
-  #
-  #   # TODO: find a more portable way to add the "-Xlinker -export-dynamic" options.
-  #   # They are needed to ensure that the linker include all symbols in
-  #   # the static Python library.
-  #   set(Python3_STATIC_LIBS
-  #     ${Python3_LDFLAGS}
-  #     -Xlinker -export-dynamic
-  #     ${Python3_LIBRARY}
-  #   )
-  #
-  #   list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
-  # endif()
+  if(WITH_STATIC_PYTHON)
+    execute_process(
+      COMMAND ${Python3_EXECUTABLE}-config --ldflags
+      OUTPUT_VARIABLE Python3_LDFLAGS
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+
+    # Linker flags "-Xlinker -export-dynamic" are needed to ensure that
+    # the linker include all symbols in the static Python library.
+    include(CheckLinkerFlag)
+    check_linker_flag(C "-Xlinker -export-dynamic" HAVE_linker_dynexport)
+    if(HAVE_linker_dynexport)
+      list(APPEND Python3_LDFLAGS "-Xlinker" "-export-dynamic")
+    endif()
+
+    set(Python3_STATIC_LIBS
+      ${Python3_LDFLAGS}
+      ${Python3_LIBRARY}
+    )
+    list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
+  endif()
 
   # Link libraries when compiling against static Python (e.g. cibuildwheel)
-  if(DEFINED ENV{Python3_LIBRARY})
-    set(Python3_STATIC_LIBS $ENV{Python3_LIBRARY})
-    list(APPEND extra_link_libraries $ENV{Python3_LIBRARY})
-  endif()
-  message(STATUS "ENV{Python3_LIBRARY}: $ENV{Python3_LIBRARY}")
+  # if(DEFINED ENV{Python3_LIBRARY})
+  #   set(Python3_STATIC_LIBS $ENV{Python3_LIBRARY})
+  #   list(APPEND extra_link_libraries $ENV{Python3_LIBRARY})
+  # endif()
+  # message(STATUS "ENV{Python3_LIBRARY}: $ENV{Python3_LIBRARY}")
 
 
   message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
@@ -349,7 +352,7 @@ else()
   set(Python3_LIBRARIES "")
 endif()
 
-message(STATUS "extra_link_libraries = ${extra_link_libraries}")
+#message(STATUS "extra_link_libraries = ${extra_link_libraries}")
 
 
 #
