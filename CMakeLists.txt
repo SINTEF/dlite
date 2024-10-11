@@ -294,6 +294,12 @@ if(WITH_PYTHON)
   #   list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
   # endif()
 
+  # Link libraries when compiling against static Python (e.g. manylinux)
+  if(DEFINED ENV{Python3_LIBRARY})
+    list(APPEND extra_link_libraries $ENV{Python3_LIBRARY})
+  endif()
+
+
   message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
   message(STATUS "Python3_SITE = ${Python3_SITE}")
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
