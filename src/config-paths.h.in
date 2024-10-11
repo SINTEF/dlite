@@ -9,7 +9,8 @@
 #define dlite_LD_LIBRARY_PATH         "@dlite_LD_LIBRARY_PATH@"
 #define dlite_PYTHONPATH              "@dlite_PYTHONPATH@"
 
-#define dlite_BUILD_ROOT              "@dlite_BUILD_ROOT_NATIVE@"
+//#define dlite_BUILD_ROOT              "@dlite_BUILD_ROOT_NATIVE@"
+#define dlite_BUILD_ROOT              "@dlite_BINARY_DIR@"
 #define dlite_INSTALL_ROOT            "@CMAKE_INSTALL_PREFIX@"
 
 /* hardcoded paths in build tree */

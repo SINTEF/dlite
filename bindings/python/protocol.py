@@ -7,6 +7,7 @@ representing a file directory.
 """
 import inspect
 import io
+import os
 import re
 import traceback
 import warnings
@@ -106,10 +107,14 @@ class Protocol():
                     scope = dlite._plugindict[scopename]
                     try:
                         dlite.run_file(filename, scope, scope)
-                    except Exception:
-                        msg = traceback.format_exc()
+                    except Exception as exc:
+                        msg = (
+                            f"\n{traceback.format_exc()}"
+                            if os.getenv("DLITE_PYDEBUG")
+                            else f": {exc}"
+                        )
                         warnings.warn(
-                            f"cannot load protocol plugin: {name}\n{msg}"
+                            f"cannot load protocol plugin: {name}{msg}"
                         )
                         cls._failed_plugins.add(name)
 

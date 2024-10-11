@@ -127,14 +127,6 @@ endif()
 
 # Install paths
 # -------------
-# DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
-set(DLITE_TEMPLATE_DIRS               "share/dlite/templates")
-set(DLITE_STORAGE_PLUGIN_DIRS         "share/dlite/storage-plugins")
-set(DLITE_MAPPING_PLUGIN_DIRS         "share/dlite/mapping-plugins")
-set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS  "share/dlite/python-mapping-plugins")
-set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS  "share/dlite/python-storage-plugins")
-set(DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS "share/dlite/python-protocol-plugins")
-set(DLITE_STORAGES                    "share/dlite/storages")
 
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
@@ -160,6 +152,7 @@ include(GNUInstallDirs)
 
 # Installation paths
 set(DLITE_ROOT ${CMAKE_INSTALL_PREFIX})
+set(DLITE_BUILD_ROOT ${dlite_BINARY_DIR})
 set(DLITE_INCLUDE_DIRS include/dlite)
 set(DLITE_LIBRARY_DIR  lib)
 set(DLITE_RUNTIME_DIR  bin)
@@ -169,6 +162,7 @@ include(MakePlatformPaths)
 make_platform_paths(
   PATHS
     DLITE_ROOT
+    DLITE_BUILD_ROOT
     DLITE_INCLUDE_DIRS
     DLITE_LIBRARY_DIR
     DLITE_RUNTIME_DIR
@@ -232,7 +226,7 @@ if(WITH_PYTHON)
     set(Python3_USE_STATIC_LIBS TRUE)
   endif()
 
-  #
+  # Find Python version
   if(DEFINED ENV{VIRTUAL_ENV})
     message(STATUS "Detected virtual environment $ENV{VIRTUAL_ENV}")
 
@@ -268,6 +262,17 @@ if(WITH_PYTHON)
   endif()
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
+  # Find Python installation directory (relative to CMAKE_INSTALL_PREFIX)
+  if(NOT Python3_PKGDIR)
+    execute_process(
+      COMMAND ${python_exe} -c "import site; print(site.getsitepackages()[0])"
+      OUTPUT_VARIABLE Python3_PKGDIR
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+    file(RELATIVE_PATH Python3_SITE ${CMAKE_INSTALL_PREFIX} ${Python3_PKGDIR})
+    set(Python3_PREFIX "${Python3_SITE}/dlite/")
+  endif()
+
   # Link libraries when compiling against static Python (e.g. manylinux)
   if(WITH_STATIC_PYTHON)
     execute_process(
@@ -288,6 +293,7 @@ if(WITH_PYTHON)
     list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
   endif()
 
+  message(STATUS "Python3_SITE = ${Python3_SITE}")
 
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
@@ -341,6 +347,16 @@ if(WITH_FORTRAN)
   enable_fortran_compiler_flag_if_supported("-Wpedantic")
   enable_fortran_compiler_flag_if_supported("-Werror")
 endif()
+
+
+# DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
+set(DLITE_TEMPLATE_DIRS               "${Python3_PREFIX}share/dlite/templates")
+set(DLITE_STORAGE_PLUGIN_DIRS         "${Python3_PREFIX}share/dlite/storage-plugins")
+set(DLITE_MAPPING_PLUGIN_DIRS         "${Python3_PREFIX}share/dlite/mapping-plugins")
+set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS  "${Python3_PREFIX}share/dlite/python-mapping-plugins")
+set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS  "${Python3_PREFIX}share/dlite/python-storage-plugins")
+set(DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS "${Python3_PREFIX}share/dlite/python-protocol-plugins")
+set(DLITE_STORAGES                    "${Python3_PREFIX}share/dlite/storages")
 
 
 

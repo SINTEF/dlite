@@ -255,19 +255,25 @@ execute_process(COMMAND
 
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
-  DESTINATION ${Python3_MODULE_PATH}
+  #DESTINATION ${Python3_MODULE_PATH}
+  DESTINATION ${Python3_SITE}
+  USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-mapping-plugins
-  DESTINATION share/dlite
+  #DESTINATION share/dlite
+  DESTINATION ${Python3_PREFIX}share/dlite
+  USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-protocol-plugins
-  DESTINATION share/dlite
+  #DESTINATION share/dlite
+  DESTINATION ${Python3_PREFIX}share/dlite
+  USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
