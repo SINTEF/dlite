@@ -247,11 +247,11 @@ else()
   set(pyext_ext ".pyd")
 endif()
 
-execute_process(COMMAND
-  ${RUNNER} ${Python3_EXECUTABLE} -c "import site, pathlib; print(pathlib.Path(site.getusersitepackages()).relative_to(site.getuserbase()).as_posix())"
-  OUTPUT_VARIABLE Python3_MODULE_PATH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
+# execute_process(COMMAND
+#   ${RUNNER} ${Python3_EXECUTABLE} -c "import site, pathlib; print(pathlib.Path(site.getusersitepackages()).relative_to(site.getuserbase()).as_posix())"
+#   OUTPUT_VARIABLE Python3_MODULE_PATH
+#   OUTPUT_STRIP_TRAILING_WHITESPACE
+# )
 
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
