@@ -97,6 +97,15 @@ check_symbol_exists(localeconv          locale.h     HAVE__LOCALECONV)
 check_symbol_exists(va_copy             stdarg.h     HAVE_VA_COPY)
 check_symbol_exists(__va_copy           stdarg.h     HAVE___VA_COPY)
 
+# C11 mutex
+check_symbol_exists(mtx_init            threads.h    HAVE_MTX_INIT)
+check_symbol_exists(mtx_lock            threads.h    HAVE_MTX_LOCK)
+check_symbol_exists(mtx_timedlock       threads.h    HAVE_MTX_TIMEDLOCK)
+check_symbol_exists(mtx_trylock         threads.h    HAVE_MTX_TRYLOCK)
+check_symbol_exists(mtx_unlock          threads.h    HAVE_MTX_UNLOCK)
+check_symbol_exists(mtx_destroy         threads.h    HAVE_MTX_DESTROY)
+
+
 
 # -- typedefs
 include(CheckTypeSize)

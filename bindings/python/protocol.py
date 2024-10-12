@@ -43,10 +43,6 @@ class Protocol():
                     for path in dlite.python_protocol_plugin_path:
                         from glob import glob
                         msg.append(f"- {path}: {glob(path+'/*')}")
-                    msg.append("Storage search path:")
-                    for path in dlite.python_storage_plugin_path:
-                        from glob import glob
-                        msg.append(f"- {path}: {glob(path+'/*')}")
                 raise dlite.DLiteProtocolError("\n".join(msg))
 
         self.conn = d[protocol]()

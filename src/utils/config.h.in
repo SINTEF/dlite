@@ -92,6 +92,13 @@
 // #cmakedefine HAVE_VA_COPY
 // #cmakedefine HAVE___VA_COPY
 
+#cmakedefine HAVE_MTX_INIT
+#cmakedefine HAVE_MTX_LOCK
+#cmakedefine HAVE_MTX_TIMEDLOCK
+#cmakedefine HAVE_MTX_TRYLOCK
+#cmakedefine HAVE_MTX_UNLOCK
+#cmakedefine HAVE_MTX_DESTROY
+
 /* Whether types exists */
 #cmakedefine HAVE_CLOCK_T
 

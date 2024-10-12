@@ -45,9 +45,9 @@ python_mapping_plugin_path = FUPath("python-mapping-plugins")
 python_protocol_plugin_path = FUPath("python-protocol-plugins")
 
 # Update default search paths
-# from pathlib import Path
-# pkgdir = Path(__file__).resolve().parent
-# sharedir = pkgdir / "share" / "dlite"
+from pathlib import Path
+pkgdir = Path(__file__).resolve().parent
+sharedir = pkgdir / "share" / "dlite"
 # if (sharedir / "storages").exists():
 #     storage_path[-1] = sharedir / "storages"
 #     #storage_path.append(sharedir / "storages")
@@ -63,8 +63,8 @@ python_protocol_plugin_path = FUPath("python-protocol-plugins")
 # if (sharedir / "python-mapping-plugins").exists():
 #     python_mapping_plugin_path[-1] = sharedir / "python-mapping-plugins"
 #     #python_mapping_plugin_path.append(sharedir / "python-mapping-plugins")
-# if (sharedir / "python-protocol-plugins").exists():
-#     python_protocol_plugin_path[-1] = sharedir / "python-protocol-plugins"
-#     #python_protocol_plugin_path.append(sharedir / "python-protocol-plugins")
+if (sharedir / "python-protocol-plugins").exists():
+    #python_protocol_plugin_path[-1] = sharedir / "python-protocol-plugins"
+    python_protocol_plugin_path.append(sharedir / "python-protocol-plugins")
 
 %}
