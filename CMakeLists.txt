@@ -328,7 +328,10 @@ if(WITH_PYTHON)
 
 
   message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+  message(STATUS "Python3_prefix = ${Python3_prefix}")
+  message(STATUS "Python3_PKGDIR = ${Python3_PKGDIR}")
   message(STATUS "Python3_SITE = ${Python3_SITE}")
+  message(STATUS "Python3_PREFIX = ${Python3_PREFIX}")
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
   message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
