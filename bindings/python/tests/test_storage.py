@@ -15,7 +15,9 @@ thisdir = Path(__file__).absolute().parent
 outdir = thisdir / "output"
 indir = thisdir / "input"
 entitydir = thisdir / "entities"
+plugindir = thisdir / "plugins"
 dlite.storage_path.append(entitydir / "*.json")
+dlite.python_storage_plugin_path.append(plugindir)
 
 url = f"json://{entitydir}/MyEntity.json"
 
@@ -221,7 +223,6 @@ for i in range(6):
     print(iter2.next())
 
 
-
 # Test URL versions of dlite.Instance.save()
 Blob = dlite.get_instance("http://onto-ns.com/meta/0.1/Blob")
 blob = Blob([3], id="myblob")
@@ -240,3 +241,9 @@ assert (
     t4.replace(" ", "").replace("\n", "") ==
     t1.replace(" ", "").replace("\n", "")
 )
+
+
+# Test plugin that only defines to_bytes() and from_bytes()
+#print("===================================")
+#dlite.Storage.plugin_help("testbuff")
+#buf = inst.to_bytes("bufftest")

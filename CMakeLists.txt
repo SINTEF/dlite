@@ -271,7 +271,13 @@ if(WITH_PYTHON)
     )
   endif()
 
-  file(RELATIVE_PATH Python3_SITE ${CMAKE_INSTALL_PREFIX} ${Python3_PKGDIR})
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} -c "import sys; print(sys.prefix)"
+    OUTPUT_VARIABLE Python3_prefix
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  file(RELATIVE_PATH Python3_SITE ${Python3_prefix} ${Python3_PKGDIR})
   set(Python3_PREFIX "${Python3_SITE}/dlite/")
 
   # Add linker flags for linking against Python
@@ -283,10 +289,17 @@ if(WITH_PYTHON)
   list(APPEND extra_link_libraries ${Python3_LDFLAGS})
   #message(STATUS "Python3_LDFLAGS: ${Python3_LDFLAGS}")
 
+  # Find python-config
+  find_program(
+    Python3_config
+    NAMES ${Python3_EXECUTABLE}-config python3-config python-config
+    HINTS ${Python3_prefix}/bin
+  )
+
   # Link libraries when compiling against static Python (e.g. manylinux)
   if(WITH_STATIC_PYTHON)
     execute_process(
-      COMMAND ${Python3_EXECUTABLE}-config --ldflags
+      COMMAND ${Python3_config} --ldflags --embed
       OUTPUT_VARIABLE Python3_LDFLAGS
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
@@ -352,7 +365,7 @@ else()
   set(Python3_LIBRARIES "")
 endif()
 
-#message(STATUS "extra_link_libraries = ${extra_link_libraries}")
+message(STATUS "extra_link_libraries = ${extra_link_libraries}")
 
 
 #

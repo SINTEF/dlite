@@ -41,9 +41,8 @@ foreach(test ${tests})
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
   endif()
-  # No need to set PYTHONPATH since we are not importing the package in any test here
-  #set_property(TEST ${test} APPEND PROPERTY
-  #  ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   if (NOT WIN32)
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")

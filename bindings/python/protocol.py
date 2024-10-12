@@ -32,12 +32,22 @@ class Protocol():
 
         d = {cls.__name__: cls for cls in dlite.DLiteProtocolBase.__subclasses__()}
         if protocol not in d:
-            msg = (
-                "protocol plugin failed to load"
-                if protocol in self._failed_plugins
-                else "no such protocol plugin"
-            )
-            raise dlite.DLiteProtocolError(f"{msg}: {protocol}")
+            if protocol in self._failed_plugins:
+                raise dlite.DLiteProtocolError(
+                    f"protocol plugin failed to load: {protocol}"
+                )
+            else:
+                msg = [f"no such protocol plugin: {protocol}"]
+                if True or os.getenv("DLITE_PYDEBUG"):
+                    msg.append("Checked search path:")
+                    for path in dlite.python_protocol_plugin_path:
+                        from glob import glob
+                        msg.append(f"- {path}: {glob(path+'/*')}")
+                    msg.append("Storage search path:")
+                    for path in dlite.python_storage_plugin_path:
+                        from glob import glob
+                        msg.append(f"- {path}: {glob(path+'/*')}")
+                raise dlite.DLiteProtocolError("\n".join(msg))
 
         self.conn = d[protocol]()
         self.protocol = protocol

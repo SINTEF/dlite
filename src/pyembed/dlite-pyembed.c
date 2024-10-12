@@ -436,14 +436,14 @@ void *dlite_pyembed_get_address(const char *symbol)
   /* Import dlite */
   if (!(dlite_name = PyUnicode_FromString("dlite")) ||
       !(dlite_module = PyImport_Import(dlite_name)))
-    FAIL("cannot import Python package: dlite");
+    PYFAILCODE(dlitePythonError, "cannot import Python package: dlite");
 
   /* Get path to _dlite */
   if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
       !(_dlite_module = PyDict_GetItemString(dlite_dict, "_dlite")) ||
       !(_dlite_dict = PyModule_GetDict(_dlite_module)) ||
       !(_dlite_file = PyDict_GetItemString(_dlite_dict, "__file__")))
-    FAIL("cannot get path to dlite extension module");
+    PYFAILCODE(dlitePythonError, "cannot get path to dlite extension module");
 
   /* Get C path to _dlite */
   if (!PyUnicode_Check(_dlite_file) ||

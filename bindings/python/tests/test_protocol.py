@@ -33,8 +33,8 @@ data1 = load_path(indir / "coll.json")
 save_path(data1, outdir / "coll.json", overwrite=True)
 assert is_archive(data1) is False
 
-data2 = load_path(indir, exclude=".*(~|\.bak)$")
-save_path(data2, outdir / "indir", overwrite=True, include=".*\.json$")
+data2 = load_path(indir, exclude=r".*(~|\.bak)$")
+save_path(data2, outdir / "indir", overwrite=True, include=r".*\.json$")
 assert is_archive(data2) is True
 assert "rdf.ttl" in archive_names(data2)
 assert archive_extract(data2, "coll.json") == data1
@@ -108,27 +108,28 @@ if requests and yaml:
 
 # Test sftp plugin
 # ----------------
-host = os.getenv("SFTP_HOST", "localhost")
-port = os.getenv("SFTP_PORT", "22")
-username = os.getenv("SFTP_USERNAME", getpass.getuser())
-password = os.getenv("SFTP_PASSWORD")  #
-pkpassword = os.getenv("SFTP_PKPASSWORD")  # Private key password
-keytype = os.getenv("SFTP_KEYTYPE", "ed25519")  # Private key type
-if paramiko and (password or pkpassword):
-    options = {"port": int(port), "username": username}
-    if pkpassword:
-        pkey = paramiko.Ed25519Key.from_private_key_file(
-            f"/home/{username}/.ssh/id_{keytype}",
-            password=pkpassword,
-        )
-        options["pkey_type"] = pkey.name
-        options["pkey_bytes"] = pkey.asbytes().hex()
-    else:
-        options["password"] = password
+if False:
+    host = os.getenv("SFTP_HOST", "localhost")
+    port = os.getenv("SFTP_PORT", "22")
+    username = os.getenv("SFTP_USERNAME", getpass.getuser())
+    password = os.getenv("SFTP_PASSWORD")  #
+    pkpassword = os.getenv("SFTP_PKPASSWORD")  # Private key password
+    keytype = os.getenv("SFTP_KEYTYPE", "ed25519")  # Private key type
+    if paramiko and (password or pkpassword):
+        options = {"port": int(port), "username": username}
+        if pkpassword:
+            pkey = paramiko.Ed25519Key.from_private_key_file(
+                f"/home/{username}/.ssh/id_{keytype}",
+                password=pkpassword,
+            )
+            options["pkey_type"] = pkey.name
+            options["pkey_bytes"] = pkey.asbytes().hex()
+        else:
+            options["password"] = password
 
-    b.save(
-        "sftp", "json", location=f"{host}/tmp/blob.json", options=options
-    )
+        b.save(
+            "sftp", "json", location=f"{host}/tmp/blob.json", options=options
+        )
 
 
 
