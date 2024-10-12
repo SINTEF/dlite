@@ -278,7 +278,11 @@ if(WITH_PYTHON)
   )
 
   file(RELATIVE_PATH Python3_SITE ${Python3_prefix} ${Python3_PKGDIR})
-  set(Python3_PREFIX "${Python3_SITE}/dlite/")
+  if(Python3_SITE)
+    set(Python3_PREFIX "${Python3_SITE}/dlite/")
+  else()
+    set(Python3_PREFIX "dlite/")
+  endif()
 
   # Add linker flags for linking against Python
   execute_process(
@@ -287,7 +291,6 @@ if(WITH_PYTHON)
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
   list(APPEND extra_link_libraries ${Python3_LDFLAGS})
-  #message(STATUS "Python3_LDFLAGS: ${Python3_LDFLAGS}")
 
   # Find python-config
   find_program(

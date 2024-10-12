@@ -247,23 +247,15 @@ else()
   set(pyext_ext ".pyd")
 endif()
 
-# execute_process(COMMAND
-#   ${RUNNER} ${Python3_EXECUTABLE} -c "import site, pathlib; print(pathlib.Path(site.getusersitepackages()).relative_to(site.getuserbase()).as_posix())"
-#   OUTPUT_VARIABLE Python3_MODULE_PATH
-#   OUTPUT_STRIP_TRAILING_WHITESPACE
-# )
-
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
-  #DESTINATION ${Python3_MODULE_PATH}
-  DESTINATION ${Python3_SITE}
+  DESTINATION "${Python3_SITE}"
   USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-mapping-plugins
-  #DESTINATION share/dlite
   DESTINATION ${Python3_PREFIX}share/dlite
   USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
@@ -271,7 +263,6 @@ install(
 )
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-protocol-plugins
-  #DESTINATION share/dlite
   DESTINATION ${Python3_PREFIX}share/dlite
   USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
