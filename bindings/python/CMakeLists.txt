@@ -144,11 +144,11 @@ add_custom_target(python_package ALL DEPENDS ${abs_targets} ${package_targets})
 add_custom_command(
   OUTPUT
     ${abs_targets}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${abs_sources}
     ${pkgdir}
   DEPENDS
-    ${pkgdir}
     ${abs_sources}
     dlite-plugins-json
   )

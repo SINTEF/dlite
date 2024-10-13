@@ -4,7 +4,9 @@
 
 /* Get rid of annoying warnings on Windows */
 #ifdef _MSC_VER
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif
 #pragma warning(disable: 4996 4267)
 #endif
 

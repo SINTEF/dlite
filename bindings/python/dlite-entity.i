@@ -168,7 +168,7 @@ struct _DLiteProperty {
                                 dliteStringPtr, sizeof(char *), $self->shape);
   }
   void set_shape(obj_t *arr) {
-    int i, n = dlite_swig_length(arr);
+    int i, n = (int)dlite_swig_length(arr);
     char **new=NULL;
     if (!(new = calloc(n, sizeof(char *))))
       FAIL("allocation failure");
@@ -478,7 +478,7 @@ Call signatures:
     uint8_t *hashp = NULL;
     if (hash) {
       uint8_t data[DLITE_HASH_SIZE];
-      if (strhex_decode(data, sizeof(data), hash, strlen(hash)) < 0) {
+      if (strhex_decode(data, sizeof(data), hash, (int)strlen(hash)) < 0) {
         dlite_err(1, "cannot decode hash: %s\n", hash);
         return;
       }
@@ -770,7 +770,7 @@ Returns:
   char *get_uri() {
     char *uri;
     if ($self->uri) return strdup($self->uri);
-    int n = strlen($self->meta->uri);
+    int n = (int)strlen($self->meta->uri);
     if (!(uri = malloc(n + DLITE_UUID_LENGTH + 2)))
       return dlite_err(dliteMemoryError, "allocation failure"), NULL;
     memcpy(uri, $self->meta->uri, n);

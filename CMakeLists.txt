@@ -389,10 +389,10 @@ if(WITH_FORTRAN)
 endif()
 
 # Unset extra_link_libraries if it is empty
-if("${extra_link_libraries}" MATCHES "^[ \t\n\r;]*$")
+message(STATUS "extra_link_libraries = ${extra_link_libraries}")
+if(extra_link_libraries MATCHES "^[ \t\n\r;]*$")
   unset(extra_link_libraries)
 endif()
-message(STATUS "extra_link_libraries = ${extra_link_libraries}")
 
 
 # DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
@@ -675,7 +675,7 @@ list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 set(dlite_PYTHONPATH
   ${dlite_BINARY_DIR}/bindings/python
   $ENV{PYTHONPATH}
-  )
+)
 if(dlite_PYTHONPATH)
   list(REMOVE_DUPLICATES dlite_PYTHONPATH)
 endif()

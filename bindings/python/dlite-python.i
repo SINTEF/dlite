@@ -214,14 +214,14 @@ int dlite_swig_read_python_blob(PyObject *src, uint8_t *dest, size_t n)
     Py_ssize_t len;
     const char *s = PyUnicode_AsUTF8AndSize(src, &len);
     if (!s) FAIL("failed representing string as UTF-8");
-    if (strhex_decode(dest, n, s, len) < 0)
+    if (strhex_decode(dest, n, s, (int)len) < 0)
       FAIL("cannot convert Python string to blob");
-    retval = len/2;
+    retval = (int)len/2;
   } else if (PyObject_CheckBuffer(src)) {
     Py_buffer view;
     if (PyObject_GetBuffer(src, &view, PyBUF_SIMPLE)) goto fail;
     memcpy(dest, view.buf, n);
-    retval = view.len;
+    retval = (int)(view.len);
     PyBuffer_Release(&view);
   } else {
     FAIL("Only Python types supporting the buffer protocol "
