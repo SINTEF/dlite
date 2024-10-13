@@ -389,8 +389,7 @@ if(WITH_FORTRAN)
 endif()
 
 # Unset extra_link_libraries if it is empty
-string(STRIP "${extra_link_libraries}" stripped)
-if(NOT stripped)
+if("${extra_link_libraries}" MATCHES "^[ \t\n\r;]*$")
   unset(extra_link_libraries)
 endif()
 message(STATUS "extra_link_libraries = ${extra_link_libraries}")
