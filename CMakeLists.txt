@@ -293,7 +293,9 @@ if(WITH_PYTHON)
     OUTPUT_VARIABLE Python3_LDFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
-  list(APPEND extra_link_libraries ${Python3_LDFLAGS})
+  if(Python3_LDFLAGS)
+    list(APPEND extra_link_libraries ${Python3_LDFLAGS})
+  endif()
 
   # Find python-config
   find_program(
@@ -322,7 +324,9 @@ if(WITH_PYTHON)
       ${Python3_LDFLAGS}
       ${Python3_LIBRARY}
     )
-    list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
+    if(Python3_STATIC_LIBS)
+      list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
+    endif()
   endif()
 
   # Link libraries when compiling against static Python (e.g. cibuildwheel)

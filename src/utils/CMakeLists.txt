@@ -134,7 +134,7 @@ if(WITH_THREADS)
 
     # On some 32-bit systems (like manylinux2014_i686) we have to
     # explicitly link with the threads library
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND CMAKE_THREAD_LIBS_INIT)
       list(APPEND extra_link_libraries ${CMAKE_THREAD_LIBS_INIT})
     endif()
 
