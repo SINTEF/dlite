@@ -5,6 +5,10 @@
 
 #include "minunit/minunit.h"
 
+/* Get rid of MSVC warnings */
+#ifdef _MSC_VER
+# pragma warning(disable: 4267)
+#endif
 
 
 MU_TEST(test_strsetc)
