@@ -30,6 +30,7 @@ set(tests
   test_protocol
   test_isolated_plugins
   test_options
+  test_plugin
 )
 
 foreach(test ${tests})

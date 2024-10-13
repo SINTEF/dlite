@@ -22,7 +22,8 @@ check_include_file(byteswap.h   HAVE_BYTESWAP_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
 check_include_file(time.h       HAVE_TIME_H)
 check_include_file(unistd.h     HAVE_UNISTD_H)
-check_include_file(windows.h    HAVE_WINDOWS_H)
+check_include_file(windows.h    HAVE_WINDOWS_H)  # Windows-specific
+check_include_file(io.h         HAVE_IO_H)       # Windows-specific
 
 # -- check for symbols
 set(CMAKE_C_FLAGS_saved ${CMAKE_C_FLAGS})

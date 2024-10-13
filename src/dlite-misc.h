@@ -331,7 +331,7 @@ DLiteErrMask *_dlite_err_mask_get(void);
 void _dlite_err_mask_set(DLiteErrMask mask);
 
 #define DLITE_ERRBIT(code)                                              \
-  (1<<((code >= 0) ? 0 : (code <= dliteLastError) ? -dliteLastError : -code))
+  ((int)1<<(int)((code >= 0) ? 0 : (code <= dliteLastError) ? -dliteLastError : -code))
 
 #define DLITE_NOERR(mask)                                       \
   do {                                                          \

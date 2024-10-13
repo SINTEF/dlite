@@ -2,11 +2,9 @@
 
 import dlite
 
+
 class bufftest(dlite.DLiteStorageBase):
     """Test plugin that represents instances as byte-encoded json."""
-
-    def open(self, location, options=None):
-        """Open storage."""
 
     @classmethod
     def to_bytes(cls, inst, options=None):

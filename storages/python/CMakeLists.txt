@@ -24,25 +24,11 @@ set_target_properties(dlite-plugins-python PROPERTIES
   INSTALL_RPATH "$ORIGIN/../../../"
   )
 
-# Simplify plugin search path for testing in build tree, copy target
-# to ${dlite_BINARY_DIR}/plugins
-add_custom_command(
-  TARGET dlite-plugins-python
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    $<TARGET_FILE:dlite-plugins-python>
-    ${dlite_BINARY_DIR}/plugins
-  )
-
 
 install(
   TARGETS dlite-plugins-python
   DESTINATION ${DLITE_STORAGE_PLUGIN_DIRS}
-)
-
-install(
-  TARGETS dlite-plugins-python
-  LIBRARY DESTINATION lib
+  #LIBRARY DESTINATION lib
 )
 
 install(

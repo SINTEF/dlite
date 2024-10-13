@@ -118,6 +118,9 @@ if(MSVC)
   # Do not complain about strdup() and similar POSIX functions to be
   # deprecated in MSVC
   add_definitions("-D_CRT_NONSTDC_NO_DEPRECATE")
+
+  # Do not complain about standard library functions
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS")
 endif()
 
 # Uncomment the lines below to compile with AddressSanitizer
@@ -371,9 +374,6 @@ else()
   set(Python3_LIBRARIES "")
 endif()
 
-message(STATUS "extra_link_libraries = ${extra_link_libraries}")
-
-
 #
 # Fortran
 # =======
@@ -387,6 +387,13 @@ if(WITH_FORTRAN)
   enable_fortran_compiler_flag_if_supported("-Wpedantic")
   enable_fortran_compiler_flag_if_supported("-Werror")
 endif()
+
+# Unset extra_link_libraries if it is empty
+string(STRIP "${extra_link_libraries}" stripped)
+if(NOT stripped)
+  unset(extra_link_libraries)
+endif()
+message(STATUS "extra_link_libraries = ${extra_link_libraries}")
 
 
 # DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these

@@ -37,6 +37,7 @@
 #cmakedefine HAVE_TIME_H
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_WINDOWS_H
+#cmakedefine HAVE_IO_H
 
 /* Whether symbols exists. If not, they are defined in compat.c or compat/ */
 #cmakedefine HAVE_STRDUP
