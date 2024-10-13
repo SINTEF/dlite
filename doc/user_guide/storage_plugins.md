@@ -17,14 +17,14 @@ It can be a file on disk, a local database or a database accessed via a web inte
 Loading data from a storage into an instance and saving it back again is a key mechanism for interoperability at a syntactic level.
 
 DLite provides a plugin system that makes it easy to connect to new data sources via a common interface (using a [strategy design pattern]).
-Opening a storage takes three arguments, a `driver` name identifying the storage plugin to use, the `location` of the storage and `options`.
+Opening a storage takes in the general case four arguments, a `protocol` name identifying the [protocol plugin] to use for data transfer, a `driver` name identifying the storage plugin to use for parsing/serialisation, the `location` of the storage and a set of storage-specific `options`.
 
-Since v0.5.22, DLite introduced [protocol plugins] to provide a clear separation between transfer of raw data from/to the storage and parsing/serialisation.
+The `protocol` argument was introduced in v0.5.22 to provide a clear separation between transfer of raw data from/to the storage and parsing/serialisation of the data.
 
 Storage plugins can be categorised as either *generic* or *specific*.
 A generic storage plugin can store and retrieve any type of instance and metadata while a specific storage plugin typically deals with specific instances of one type of entity.
 DLite comes with a set of generic storage plugins, like json, yaml, rdf, hdf5, postgresql and mongodb.
-It also comes with a specific Blob storage plugin, that can load and save instances of a `http://onto-ns.com/meta/0.1/Blob` entity.
+It also comes with a specific `Blob` and `Image` storage plugin, that can load and save instances of `http://onto-ns.com/meta/0.1/Blob` and `http://onto-ns.com/meta/0.1/Image`, respectively.
 Storage plugins can be written in either C or Python.
 
 
@@ -54,7 +54,7 @@ For example
 
 ```
 
-To load a YAML file from a web location, you can combine the `http` [protocol plugin][protocol plugins] with the `yaml` storage plugin using `dlite.Instance.load()`:
+To load a YAML file from a web location, you can combine the `http` [protocol plugin] with the `yaml` storage plugin using `dlite.Instance.load()`:
 
 ```python
     >>> url = "https://raw.githubusercontent.com/SINTEF/dlite/refs/heads/master/storages/python/tests-python/input/test_meta.yaml"
@@ -193,20 +193,30 @@ Writing Python storage plugins
 ------------------------------
 Storage plugins can be written in either C or Python.
 
-In Python the storage plugin should be a Python module defining a subclass of `dlite.DLiteStorageBase` with a set of methods for opening, closing, reading, writing and searching the storage.
-In order for DLite to find the storage plugin, it should be in the search path defined by the `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` environment variable or from Python, in `dlite.python_storage_plugin_path`.
+In Python the storage plugin should be a Python module defining a subclass of `dlite.DLiteStorageBase` defining one or more of the following methods:
+- **open()**: Open and initiate the storage.  Required if any of load(), save(), delete(), query(), flush(), close() are defined.
+- **load()**: Load an instance from the storage and return it.
+- **save()**: Save an instance to the storage.
+- **delete()**: Delete and an instance from the storage.
+- **query()**: Query the storage for instance UUIDs.
+- **flush()**: Flushed cached data to the storage.
+- **close()**: Close the storage.
+- **from_bytes()**: Class method that loads an instance from a buffer.
+- **to_bytes()**: Class method that saves an instance to a buffer.
 
+All methods are optional. You only have to implement the methods providing the functionality you need.
 See the [Python storage plugin template] for how to write a Python storage plugin.
 A complete example can be found in the [Python storage plugin example].
 
+In order for DLite to find the storage plugin, it should be in the search path defined by the `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` environment variable or from Python, in `dlite.python_storage_plugin_path`.
 
-:::{danger}
-**For DLite <0.5.23 storage plugins were executed in the same scope.
-Hence, to avoid confusing and hard-to-find bugs due to interference between your plugins, you should not define any variables or functions outside the `DLiteStorageBase` subclass!**
+
+:::{note}
+**Prior to DLite v0.5.23 all storage plugins were executed in the same scope.**
+This could lead to confusing and hard-to-find bugs due to interference between your plugins.
 :::
 
-Since DLite v0.5.23, plugins are evaluated in separate scopes (which are available in `dlite._plugindict).
-
+However, since DLite v0.5.23, plugins are evaluated in separate scopes (which are available in `dlite._plugindict).
 
 
 
@@ -223,7 +233,7 @@ An example is available in [ex4].
 
 [strategy design pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
 [C reference manual]: https://sintef.github.io/dlite/dlite/storage.html
-[protocol plugins]: https://sintef.github.io/dlite/user_guide/storage_plugins.html
+[protocol plugin]: https://sintef.github.io/dlite/user_guide/storage_plugins.html
 [Python storage plugin template]: https://github.com/SINTEF/dlite/blob/master/doc/user_guide/storage_plugin.py
 [Python storage plugin example]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin
 [ex1]: https://github.com/SINTEF/dlite/tree/master/examples/ex1

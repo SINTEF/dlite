@@ -144,7 +144,9 @@
 
 #if defined WINDOWS && !defined CROSS_TARGET
 /* Get rid of warnings from MSVS about insecure standard library functions */
+#ifndef _CRT_SECURE_NO_WARNINGS
 # define _CRT_SECURE_NO_WARNINGS
+#endif
 
 /* Get rid of warnings about possible loss of data in conversions
    between integers or floats of different size */
