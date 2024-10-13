@@ -680,7 +680,7 @@ set(dlite_PYTHONPATH
 if(dlite_PYTHONPATH)
   list(REMOVE_DUPLICATES dlite_PYTHONPATH)
 endif()
-if(NOT MATCHES dlite_PYTHONPATH "\\\\")
+if(NOT dlite_PYTHONPATH MATCHES "\\\\")
   string(REPLACE "\\" "\\\\" dlite_PYTHONPATH ${dlite_PYTHONPATH})
 endif()
 
