@@ -22,12 +22,12 @@ if(MSVC)
   target_link_libraries(dlite-codegen
     dlite-static
     dlite-utils-static
-    ${extra_link_libraries}
-)
+  )
 else()
   target_link_libraries(dlite-codegen
     dlite-static
     dlite-utils-static
+    ${extra_link_libraries}
   )
 endif()
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)
