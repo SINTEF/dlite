@@ -6,6 +6,10 @@ set(tests
   test_python_mapping
   )
 
+if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
+  unset(extra_link_libraries)
+endif()
+
 add_definitions(
   -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
   -DDLITE_ROOT=${dlite_SOURCE_DIR}

@@ -1,7 +1,6 @@
 # -*- Mode: cmake -*-
 project(dlite-src-tests C)
 
-
 set(tests
   test_misc
   test_errors
@@ -21,6 +20,10 @@ set(tests
   test_ref
   test_getuuid
   )
+
+if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
+  unset(extra_link_libraries)
+endif()
 
 list(APPEND tests test_json_entity)
 list(APPEND tests test_storage_lookup)
