@@ -228,19 +228,19 @@ MU_TEST(test_strput_unquote)
   n = strnput_unquote(&buf, &size, 0, "\"123\"", 4, &consumed, 0);
   mu_assert_int_eq(3, n);
   mu_assert_int_eq(4, consumed);
-  mu_assert_int_eq((size_t)4, size);
+  mu_assert_int_eq(4, (int)size);
   mu_assert_string_eq("123", buf);
 
   n = strnput_unquote(&buf, &size, 2, "\"abc\"", 4, &consumed, 0);
   mu_assert_int_eq(3, n);
   mu_assert_int_eq(4, consumed);
-  mu_assert_int_eq((size_t)6, size);
+  mu_assert_int_eq(6, (int)size);
   mu_assert_string_eq("12abc", buf);
 
   n = strnput_unquote(&buf, &size, 0, "  \"123\" + 4 ", -1, &consumed, 0);
   mu_assert_int_eq(3, n);
   mu_assert_int_eq(7, consumed);
-  mu_assert_int_eq((size_t)6, size);
+  mu_assert_int_eq(6, (int)size);
   mu_assert_string_eq("123", buf);
 
   free(buf);
@@ -397,19 +397,19 @@ MU_TEST(test_strlst)
   char **strlst=NULL;
   size_t n=0;
 
-  mu_assert_int_eq((size_t)0, strlst_count(strlst));
+  mu_assert_int_eq(0, (int)strlst_count(strlst));
 
   strlst = strlst_append(strlst, &n, "first");
-  mu_assert_int_eq((size_t)1, strlst_count(strlst));
+  mu_assert_int_eq(1, (int)strlst_count(strlst));
 
   strlst = strlst_insert(strlst, &n, "second", 1);
-  mu_assert_int_eq((size_t)2, strlst_count(strlst));
+  mu_assert_int_eq(2, (int)strlst_count(strlst));
 
   strlst = strlst_insert(strlst, &n, "insert1", 1);
-  mu_assert_int_eq((size_t)3, strlst_count(strlst));
+  mu_assert_int_eq(3, (int)strlst_count(strlst));
 
   strlst = strlst_insert(strlst, &n, "insert2", -1);
-  mu_assert_int_eq((size_t)4, strlst_count(strlst));
+  mu_assert_int_eq(4, (int)strlst_count(strlst));
 
   mu_assert_string_eq("first",   strlst[0]);
   mu_assert_string_eq("insert1", strlst[1]);
@@ -426,14 +426,14 @@ MU_TEST(test_strlst)
 
   char *s = strlst_pop(strlst, -2);
   mu_assert_string_eq("insert2", s);
-  mu_assert_int_eq((size_t)3, strlst_count(strlst));
+  mu_assert_int_eq(3, (int)strlst_count(strlst));
   free(s);
 
   mu_assert_string_eq(NULL, strlst_pop(strlst, -4));
-  mu_assert_int_eq((size_t)3, strlst_count(strlst));
+  mu_assert_int_eq(3, (int)strlst_count(strlst));
 
   mu_assert_int_eq(0, strlst_remove(strlst, -2));
-  mu_assert_int_eq((size_t)2, strlst_count(strlst));
+  mu_assert_int_eq(2, (int)strlst_count(strlst));
 
   mu_check(strlst_remove(strlst, 3));
 
