@@ -4,6 +4,10 @@ project(dlite-tools C)
 # TODO - It would be preferable to link with the shared libraries.
 # How to do that without breaking the docker build?
 
+if(MSVC)  # XXX
+  unset(extra_link_libraries)
+endif()
+
 # dlite-getuuid
 add_executable(dlite-getuuid dlite-getuuid.c)
 target_link_libraries(dlite-getuuid
@@ -18,7 +22,7 @@ target_include_directories(dlite-getuuid PRIVATE
 
 # dlite-codegen
 add_executable(dlite-codegen dlite-codegen.c)
-if(MSVC)
+if(MSVC)  # XXX
   target_link_libraries(dlite-codegen
     dlite-static
     dlite-utils-static

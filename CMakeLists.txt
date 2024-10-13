@@ -680,6 +680,9 @@ set(dlite_PYTHONPATH
 if(dlite_PYTHONPATH)
   list(REMOVE_DUPLICATES dlite_PYTHONPATH)
 endif()
+if(NOT MATCHES dlite_PYTHONPATH "\\\\")
+  string(REPLACE "\\" "\\\\" dlite_PYTHONPATH ${dlite_PYTHONPATH})
+endif()
 
 # DLITE_STORAGE_PLUGIN_DIRS - search path for DLite storage plugins
 set(dlite_STORAGE_PLUGINS "")

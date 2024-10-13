@@ -159,7 +159,6 @@ int main(int argc, char *argv[])
     env = add_paths(env, "PATH", dlite_PATH, Prepend);
     env = add_paths(env, "LD_LIBRARY_PATH", dlite_LD_LIBRARY_PATH, Prepend);
     env = add_paths(env, "PYTHONPATH", dlite_PYTHONPATH, Prepend);
-    env = add_paths(env, "PYTHONPATHXXX", "C:\Users\john\python", Prepend);
     env = set_envvar(env, "DLITE_USE_BUILD_ROOT", "YES");
     env = add_paths(env, "DLITE_STORAGE_PLUGIN_DIRS",
                     dlite_STORAGE_PLUGINS, Replace);
