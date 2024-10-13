@@ -18,11 +18,18 @@ target_include_directories(dlite-getuuid PRIVATE
 
 # dlite-codegen
 add_executable(dlite-codegen dlite-codegen.c)
-target_link_libraries(dlite-codegen
-  dlite-static
-  dlite-utils-static
-  ${extra_link_libraries}
+if(MSVC)
+  target_link_libraries(dlite-codegen
+    dlite-static
+    dlite-utils-static
+    ${extra_link_libraries}
 )
+else()
+  target_link_libraries(dlite-codegen
+    dlite-static
+    dlite-utils-static
+  )
+endif()
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)
   # Additional link libraries on 32-bit systems
   target_link_libraries(dlite-codegen m -pthread)

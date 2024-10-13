@@ -8,6 +8,7 @@
 /* FIXME: This has no meaning for Windows but ./tools/dlite-env.c expects this and does not like backslashes */
 #define dlite_LD_LIBRARY_PATH         "@dlite_LD_LIBRARY_PATH@"
 #define dlite_PYTHONPATH              "@dlite_PYTHONPATH@"
+#define dlite_PYTHONPATH_NATIVE       "@dlite_PYTHONPATH_NATIVE@"
 
 //#define dlite_BUILD_ROOT              "@dlite_BUILD_ROOT_NATIVE@"
 #define dlite_BUILD_ROOT              "@dlite_BINARY_DIR@"
