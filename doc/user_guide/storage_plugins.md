@@ -204,6 +204,9 @@ In Python the storage plugin should be a Python module defining a subclass of `d
 - **from_bytes()**: Class method that loads an instance from a buffer.
 - **to_bytes()**: Class method that saves an instance to a buffer.
 
+A plugin can be defined with only the `from_bytes` and `to_bytes` methods. This has the advantage that only serialisation/deserialisation of the data and datamodels is considered in the actual plugin. In such cases Instances must
+be instantiated with the dlite.Instance.load method, and the [protocol plugin] must be given.
+
 All methods are optional. You only have to implement the methods providing the functionality you need.
 See the [Python storage plugin template] for how to write a Python storage plugin.
 A complete example can be found in the [Python storage plugin example].
