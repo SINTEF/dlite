@@ -92,6 +92,11 @@ typedef struct _DLiteOpt {
   const char *descr;  /*!< Description of this option */
 } DLiteOpt;
 
+typedef enum {
+  dliteOptDefault=0,  /*!< Default option flags */
+  dliteOptStrict=1    /*!< Stict mode. Its an error if option is unknown */
+} DLiteOptFlag;
+
 /**
   Parses the options string `options` and assign corresponding values
   of the array `opts`.  The options string should be a valid url query
@@ -109,6 +114,8 @@ typedef struct _DLiteOpt {
   `opts` should be a NULL-terminated DLiteOpt array initialised with
   default values.  At return, the values of the provided options are
   updated.
+
+  `flags` should be zero or `dliteOptStrict`.
 
   Returns non-zero on error.
 
@@ -138,7 +145,7 @@ typedef struct _DLiteOpt {
   }
   ```
  */
-int dlite_option_parse(char *options, DLiteOpt *opts);
+int dlite_option_parse(char *options, DLiteOpt *opts, DLiteOptFlag flags);
 
 /** @} */
 
@@ -324,7 +331,7 @@ DLiteErrMask *_dlite_err_mask_get(void);
 void _dlite_err_mask_set(DLiteErrMask mask);
 
 #define DLITE_ERRBIT(code)                                              \
-  (1<<((code >= 0) ? 0 : (code <= dliteLastError) ? -dliteLastError : -code))
+  ((int)1<<(int)((code >= 0) ? 0 : (code <= dliteLastError) ? -dliteLastError : -code))
 
 #define DLITE_NOERR(mask)                                       \
   do {                                                          \

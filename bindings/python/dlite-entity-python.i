@@ -2,7 +2,11 @@
 
 /* Python-specific extensions to dlite-entity.i */
 %pythoncode %{
+import tempfile
 import warnings
+from typing import Sequence
+from pathlib import Path
+from urllib.parse import urlparse
 from uuid import UUID
 
 import numpy as np
@@ -400,22 +404,95 @@ def get_instance(
         # Allow metaid to be an Instance
         if isinstance(metaid, Instance):
             metaid = metaid.uri
-        return Instance(
+        inst = Instance(
             metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
+        return instance_cast(inst)
+
+    @classmethod
+    def load(
+        cls, protocol, driver, location, options=None, id=None, metaid=None
+    ):
+        """Load the instance from storage:
+
+        Arguments:
+            protocol: Name of protocol plugin used for data transfer.
+            driver: Name of storage plugin for data parsing.
+            location: Location of resource.  Typically a URL or file path.
+            options: Options passed to the protocol and driver plugins.
+            id: ID of instance to load.
+            metaid: If given, the instance is tried mapped to this metadata
+                before it is returned.
+
+        Return:
+            Instance loaded from storage.
+        """
+        from dlite.protocol import Protocol
+
+        with Protocol(protocol, location=location, options=options) as pr:
+            buffer = pr.load(uuid=id)
+        try:
+            return cls.from_bytes(
+                driver, buffer, id=id, options=options, metaid=metaid
+            )
+        except _dlite.DLiteUnsupportedError:
+            pass
+        tmpfile = None
+        try:
+            with tempfile.NamedTemporaryFile(delete=False) as f:
+                tmpfile = f.name
+                f.write(buffer)
+            inst = cls.from_location(
+                driver, tmpfile, options=options, id=id, metaid=metaid
+            )
+        finally:
+            Path(tmpfile).unlink()
+        return instance_cast(inst)
 
     @classmethod
     def from_url(cls, url, metaid=None):
-        """Load the instance from `url`.  The URL should be of the form
-        ``driver://location?options#id``.
+        """Load the instance from `url`.  The URL should be of one of the
+        the following forms:
+
+            driver://location?options#id
+            protocol+driver://location?options#id
+            protocol://location?driver=<driver>;options#id
+
+        where `protocol`, `driver`, `location`, `options` and `id are
+        documented in the load() method.
+
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
-        return Instance(
-            url=url, metaid=metaid,
-            dims=(), dimensions=(), properties=()  # arrays
-        )
+        from dlite.protocol import Protocol
+        from dlite.options import parse_query
+
+        p = urlparse(url)
+        if "driver=" in p.query or "+" in p.scheme:
+            if "driver=" in p.query:
+                protocol = p.scheme
+                driver = parse_query(p.query)["driver"]
+            elif "+" in p.scheme:
+                protocol, driver = p.scheme.split("+", 1)
+            elif Path(p.path).suffix:
+                protocol = p.scheme
+                driver = Path(p.path).suffix[1:]
+            else:
+                raise _dlite.DLiteParseError(
+                    f"cannot infer driver from URL: {url}"
+                )
+            location = f"{protocol}://{p.netloc}{p.path}"
+            inst = cls.load(
+                protocol, driver, location, options=p.query, id=p.fragment,
+                metaid=metaid
+            )
+        else:
+            inst = Instance(
+                url=url, metaid=metaid,
+                dims=(), dimensions=(), properties=()  # arrays
+            )
+        return instance_cast(inst)
 
     @classmethod
     def from_storage(cls, storage, id=None, metaid=None):
@@ -425,13 +502,16 @@ def get_instance(
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
-        return Instance(
+        inst = Instance(
             storage=storage, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
-    def from_location(cls, driver, location, options=None, id=None):
+    def from_location(
+        cls, driver, location, options=None, id=None, metaid=None
+    ):
         """Load the instance from storage specified by `driver`, `location`
         and `options`.  `id` is the id of the instance in the storage (not
         required if the storage only contains more one instance).
@@ -439,26 +519,30 @@ def get_instance(
         from dlite.options import make_query
         if options and not isinstance(options, str):
             options = make_query(options)
-        return Instance(
+        inst = Instance(
             driver=driver, location=str(location), options=options, id=id,
+            metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def from_json(cls, jsoninput, id=None, metaid=None):
         """Load the instance from json input."""
-        return Instance(
+        inst = Instance(
             jsoninput=jsoninput, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def from_bson(cls, bsoninput):
         """Load the instance from bson input."""
-        return Instance(
+        inst = Instance(
             bsoninput=bsoninput,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def from_dict(cls, d, id=None, single=None, check_storages=True):
@@ -486,30 +570,35 @@ def get_instance(
             New instance.
         """
         from dlite.utils import instance_from_dict
-        return instance_from_dict(
+        inst = instance_from_dict(
             d, id=id, single=single, check_storages=check_storages,
         )
+        return instance_cast(inst)
 
     @classmethod
-    def from_bytes(cls, driver, buffer, id=None, options=None):
+    def from_bytes(cls, driver, buffer, options=None, id=None, metaid=None):
         """Load the instance with ID `id` from bytes `buffer` using the
         given storage driver.
         """
         from dlite.options import make_query
         if options and not isinstance(options, str):
             options = make_query(options)
-        return _from_bytes(driver, buffer, id=id, options=options)
+        inst = _from_bytes(
+            driver, buffer, id=id, options=options, metaid=metaid
+        )
+        return instance_cast(inst)
 
     @classmethod
     def create_metadata(cls, uri, dimensions, properties, description):
         """Create a new metadata entity (instance of entity schema) casted
         to an instance.
         """
-        return Instance(
+        inst = Instance(
             uri=uri, dimensions=dimensions, properties=properties,
             description=description,
             dims=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def create_from_metaid(cls, metaid, dimensions, id=None):
@@ -525,10 +614,11 @@ def get_instance(
             meta = get_instance(metaid)
             dimensions = [dimensions[dim.name]
                           for dim in meta.properties['dimensions']]
-        return Instance(
+        inst = Instance(
             metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
         )
+        return instance_cast(inst)
 
     @classmethod
     def create_from_url(cls, url, metaid=None):
@@ -556,10 +646,11 @@ def get_instance(
         warnings.warn(
             "create_from_storage() is deprecated, use from_storage() instead.",
             DeprecationWarning, stacklevel=2)
-        return Instance(
+        inst = Instance(
             storage=storage, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def create_from_location(cls, driver, location, options=None, id=None):
@@ -573,29 +664,137 @@ def get_instance(
         from dlite.options import make_query
         if options and not isinstance(options, str):
             options = make_query(options)
-        return Instance(
+        inst = Instance(
             driver=driver, location=str(location), options=options, id=id,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
-    def save(self, dest, location=None, options=None):
+    def save(self, *dest, location=None, options=None):
         """Saves this instance to url or storage.
 
         Call signatures:
+          - save(storage)
           - save(url)
           - save(driver, location, options=None)
-          - save(storage)
+          - save(protocol, driver, location, options=None)
+
+        Arguments:
+            storage: A dlite.Storage instance to store the instance to.
+            url: A URL for the storate to store to.
+            protocol: Name of protocol plugin to use for transferring the
+                serialised data to `location`.
+            driver: Name of storage plugin for serialisation.
+            location: A string describing where to save the instance.
+            options: Options to the protocol and driver plugins. Should be
+                a semicolon- or ampersand-separated string of key=value pairs.
+
+        Notes:
+            The URL may be given in any of the following forms:
+
+                driver://location?options#id
+                protocol+driver://location?options#id
+                protocol://location?driver=<driver>;options#id
+
         """
-        from dlite.options import make_query
+        from dlite.protocol import Protocol
+        from dlite.options import make_query, parse_query
+
         if options and not isinstance(options, str):
             options = make_query(options)
+
+        # Assign arguments from call signature.
+        # Far too complicated, but ensures backward compatibility.
+        storage = url = protocol = driver = None
         if isinstance(dest, Storage):
-            self.save_to_storage(storage=dest)
-        elif location:
-            with Storage(dest, str(location), options) as storage:
-                storage.save(self)
+            storage = dest
         elif isinstance(dest, str):
-            self.save_to_url(dest)
+            if location:
+                driver = dest
+            else:
+                url = dest
+        elif isinstance(dest, Sequence):
+            if len(dest) == 1:
+                if isinstance(dest[0], Storage):
+                    storage, = dest
+                elif location:
+                    driver, = dest
+                else:
+                    url, = dest
+            if len(dest) == 2:
+                if location:
+                    protocol, driver = dest
+                else:
+                    driver, location = dest
+            elif len(dest) == 3:
+                if not location and options is None:
+                     arg1, arg2, arg3 = dest
+                     if arg2 is None and arg3 is None:
+                         url = arg1
+                     else:
+                         driver, location, options = dest
+                elif not location:
+                     protocol, driver, location = dest
+                else:
+                    raise _dlite.DLiteValueError(
+                        "dlite.Instance.save() got `location` both as "
+                        f"positional ({dest[2]}) and keyword ({location}) "
+                        "argument"
+                    )
+            elif len(dest) == 4:
+                if location or options:
+                    raise _dlite.DLiteValueError(
+                        "dlite.Instance.save() got `location` and/or "
+                        "`options` both as positional and keyword arguments"
+                    )
+                protocol, driver, location, options = dest
+
+        # Call lower-level save methods
+        if protocol:
+            try:
+                buf = self.to_bytes(driver, options=options)
+            except (_dlite.DLiteAttributeError, _dlite.DLiteUnsupportedError):
+                buf = None
+            if not buf:
+                try:
+                    with tempfile.NamedTemporaryFile(delete=False) as f:
+                        tmpfile = f.name
+                    self.save(driver, location=tmpfile, options=options)
+                    with open(tmpfile, "rb") as f:
+                        buf = f.read()
+                finally:
+                    Path(tmpfile).unlink()
+            with Protocol(protocol, location=location, options=options) as pr:
+                pr.save(buf)
+        elif driver:
+            with Storage(driver, str(location), options) as storage:
+                storage.save(self)
+        elif url:
+            protocol = driver = None
+            scheme, loc, options, _ = split_url(url)
+            if "+" in scheme:
+                protocol, driver = scheme.split("+", 1)
+            elif scheme in Protocol.loaded_plugins():
+                protocol = scheme
+            else:
+                driver = scheme
+            if "driver=" in options:
+                driver = parse_query(options)["driver"]
+            elif not driver:
+                suffix = Path(loc).suffix
+                if suffix:
+                    driver = suffix[1:]
+                else:
+                    raise _dlite.DLiteParseError(
+                        f"cannot infer driver from URL: {url}"
+                    )
+            if protocol:
+                self.save(protocol, driver, location=loc, options=options)
+            else:
+                opts = f"?{options}" if options else ""
+                self.save_to_url(f"{driver}://{loc}{opts}")
+        elif storage:
+            self.save_to_storage(storage=storage)
         else:
             raise _dlite.DLiteTypeError(
                 'Arguments to save() do not match any of the call signatures'

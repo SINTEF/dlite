@@ -7,7 +7,7 @@
 #
 # Arguments:
 #   SYSTEM: system type. Ex: manylinux, musllinux
-#   SYSTEM_TYPE: Ex: 2010, 2014, _2_24, 2_28 (manylinux), _1_1, _1_2 (musllinux)
+#   SYSTEM_TYPE: Ex: 2010, 2014, _2_24, _2_28 (manylinux), _1_1, _1_2 (musllinux)
 #   ARCH: Ex: x86_64, i686
 set -eu
 

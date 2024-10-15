@@ -40,10 +40,11 @@ typedef enum {
   dliteMissingMetadataError=-30, /*!< No metadata with given id can be found */
   dliteMetadataExistError=-31,   /*!< Metadata with given id already exists */
   dliteMappingError=-32,         /*!< Error in instance mappings */
-  dlitePythonError=-33,          /*!< Error calling Python API */
+  dliteProtocolError=-33,        /*!< Error in a protocol plugin */
+  dlitePythonError=-34,          /*!< Error calling Python API */
 
   /* Should always be the last error */
-  dliteLastError=-34
+  dliteLastError=-35
 } DLiteErrCode;
 
 

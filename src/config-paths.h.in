@@ -3,22 +3,25 @@
 #ifndef _DLITE_CONFIG_PATHS_H
 #define _DLITE_CONFIG_PATHS_H
 
-#define dlite_PATH                   "@dlite_PATH@"
-#define dlite_PATH_EXTRA             "@dlite_PATH_EXTRA@"
+#define dlite_PATH                    "@dlite_PATH@"
+#define dlite_PATH_EXTRA              "@dlite_PATH_EXTRA@"
 /* FIXME: This has no meaning for Windows but ./tools/dlite-env.c expects this and does not like backslashes */
-#define dlite_LD_LIBRARY_PATH        "@dlite_LD_LIBRARY_PATH@"
-#define dlite_PYTHONPATH             "@dlite_PYTHONPATH@"
+#define dlite_LD_LIBRARY_PATH         "@dlite_LD_LIBRARY_PATH@"
+#define dlite_PYTHONPATH              "@dlite_PYTHONPATH@"
+#define dlite_PYTHONPATH_NATIVE       "@dlite_PYTHONPATH_NATIVE@"
 
-#define dlite_BUILD_ROOT             "@dlite_BUILD_ROOT_NATIVE@"
-#define dlite_INSTALL_ROOT           "@CMAKE_INSTALL_PREFIX@"
+//#define dlite_BUILD_ROOT              "@dlite_BUILD_ROOT_NATIVE@"
+#define dlite_BUILD_ROOT              "@dlite_BINARY_DIR@"
+#define dlite_INSTALL_ROOT            "@CMAKE_INSTALL_PREFIX@"
 
 /* hardcoded paths in build tree */
-#define dlite_STORAGE_PLUGINS        "@dlite_STORAGE_PLUGINS@"
-#define dlite_MAPPING_PLUGINS        "@dlite_MAPPING_PLUGINS@"
-#define dlite_PYTHON_STORAGE_PLUGINS "@dlite_PYTHON_STORAGE_PLUGINS@"
-#define dlite_PYTHON_MAPPING_PLUGINS "@dlite_PYTHON_MAPPING_PLUGINS@"
-#define dlite_TEMPLATES              "@dlite_TEMPLATES@"
-#define dlite_STORAGES               "@dlite_STORAGES@"
+#define dlite_STORAGE_PLUGINS         "@dlite_STORAGE_PLUGINS@"
+#define dlite_MAPPING_PLUGINS         "@dlite_MAPPING_PLUGINS@"
+#define dlite_PYTHON_STORAGE_PLUGINS  "@dlite_PYTHON_STORAGE_PLUGINS@"
+#define dlite_PYTHON_MAPPING_PLUGINS  "@dlite_PYTHON_MAPPING_PLUGINS@"
+#define dlite_PYTHON_PROTOCOL_PLUGINS "@dlite_PYTHON_PROTOCOL_PLUGINS@"
+#define dlite_TEMPLATES               "@dlite_TEMPLATES@"
+#define dlite_STORAGES                "@dlite_STORAGES@"
 
 
 #endif /* _DLITE_CONFIG_PATHS_H */

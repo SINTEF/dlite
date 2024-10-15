@@ -182,18 +182,18 @@ static uint64_t rand_digits(uint64_t n)
 
   /* odd random number for low order digit */
   u = (rand_msws32_r(&s) % 8) * 2 + 1;
-  v = (1L<<u);
+  v = (1LL<<u);
 
   /* get rest of digits */
   for (m=60,c=0;m>0;) {
     j = rand_msws32_r(&s);     /* get 8 digit 32-bit random word */
     for (i=0;i<32;i+=4) {
       k = (j>>i) & 0xf;        /* get a digit */
-      if (k!=0 && (c & (1L<<k)) == 0) { /* not 0 and not previous */
-        c |= (1L<<k);
+      if (k!=0 && (c & (1LL<<k)) == 0) { /* not 0 and not previous */
+        c |= (1LL<<k);
         u |= (k<<m);           /* add digit to output */
         m -= 4;
-        if (m==24 || m==28) c = (1L<<k) | v;
+        if (m==24 || m==28) c = (1LL<<k) | v;
         if (m==0) break;
       }
     }

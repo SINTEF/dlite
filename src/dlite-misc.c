@@ -196,7 +196,7 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
 
   Returns non-zero on error.
 */
-int dlite_option_parse(char *options, DLiteOpt *opts)
+int dlite_option_parse(char *options, DLiteOpt *opts, DLiteOptFlag flags)
 {
   char *p = options;
   char *buf = NULL;
@@ -231,9 +231,14 @@ int dlite_option_parse(char *options, DLiteOpt *opts)
       }
     }
     if (!opts[i].key) {
-      int len = strcspn(p, "=;&#");
-      status = errx(dliteValueError, "unknown option key: '%.*s'", len, p);
-      goto fail;
+      if (flags & dliteOptStrict) {
+        int len = strcspn(p, "=;&#");
+        status = errx(dliteValueError, "unknown option key: '%.*s'", len, p);
+        goto fail;
+      } else {
+        p += strcspn(p, ";&#");
+        if (*p && strchr(";&", *p)) p++;
+      }
     }
   }
  fail:
@@ -575,6 +580,8 @@ static void dlite_err_handler(const ErrRecord *record)
 #endif
 }
 
+/* dlite_errname() with correct call signature */
+static const char *_errname(int eval) { return dlite_errname(eval); }
 
 /*
   Initialises dlite. This function may be called several times.
@@ -599,7 +606,7 @@ void dlite_init(void)
 
     /* Set up error handling */
     err_set_handler(dlite_err_handler);
-    err_set_nameconv(dlite_errname);
+    err_set_nameconv(_errname);
   }
 }
 
@@ -733,7 +740,7 @@ int dlite_err_ignored_get(DLiteErrCode code)
   DLiteErrMask *mask = _dlite_err_mask_get();
   if (!mask) return 0;
   if (code > 0 && (*mask & DLITE_ERRBIT(dliteUnknownError))) return 1;
-  return *mask & DLITE_ERRBIT(code);
+  return (int)(*mask) & DLITE_ERRBIT(code);
 }
 
 

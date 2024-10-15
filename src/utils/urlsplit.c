@@ -367,12 +367,6 @@ int pct_decode(char *buf, long size, const char *encoded)
   return pct_ndecode(buf, size, encoded, -1);
 }
 
-
-/* Turn off warning on Windows about sscanf() being unsecure.
- * Our use here is completely safe and legitimate. */
-#define _CRT_SECURE_NO_WARNINGS
-
-
 /*
   Like pct_decode(), but at most `len` bytes are read from `encoded`.
   If `len` is negative, all of `encoded` is read.

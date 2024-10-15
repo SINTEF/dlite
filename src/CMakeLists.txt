@@ -7,9 +7,10 @@ if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
 endif()
 
 
-# Generate config.h
-# -----------------
+# Generate config headers
+# -----------------------
 configure_file(config.h.in config.h)
+configure_file(config-paths.h.in config-paths.h)
 
 include(dliteGenEnv)
 dlite_genenv(${CMAKE_CURRENT_BINARY_DIR}/config-paths.h NATIVE)

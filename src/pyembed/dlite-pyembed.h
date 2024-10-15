@@ -24,6 +24,19 @@
 #endif
 
 
+/* Convenient macros */
+#define PYFAILCODE(code, msg) do { \
+    dlite_pyembed_err(code, msg); goto fail; } while (0)
+#define PYFAILCODE1(code, msg, a1) do { \
+    dlite_pyembed_err(code, msg, a1); goto fail; } while (0)
+#define PYFAILCODE2(code, msg, a1, a2) do { \
+    dlite_pyembed_err(code, msg, a1, a2); goto fail; } while (0)
+#define PYFAILCODE3(code, msg, a1, a2, a3) do { \
+    dlite_pyembed_err(code, msg, a1, a2, a3); goto fail; } while (0)
+#define PYFAILCODE4(code, msg, a1, a2, a3, a4) do { \
+    dlite_pyembed_err(code, msg, a1, a2, a3, a4); goto fail; } while (0)
+
+
 /**
   Initialises the embedded Python environment.
 */

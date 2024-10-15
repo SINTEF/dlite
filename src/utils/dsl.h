@@ -129,7 +129,10 @@ typedef void *dsl_handle;
 #include <windows.h>
 
 /* Get rid of warnings about strerror() being deprecated on VS */
+#ifndef _CRT_SECURE_NO_WARNINGS
 #define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #ifndef CROSS_TARGET
 #pragma warning(disable: 4996)
 #endif

@@ -1,5 +1,20 @@
 name: CI tests
 
+# This CI builds DLite and runs (almost) all tests.
+#
+# The following plugins are not tested here, since they depends on an external service:
+#
+# Protocol plugins:
+#   - sftp
+#
+# Storage plugins:
+#   - postgresql
+#   - mongodb
+#   - redis
+#
+# Please remember to update respective plugin docstring if this list changes.
+#
+
 on: [push]
 
 jobs:

@@ -6,6 +6,7 @@ set(py_sources
   options.py
   utils.py
   mappings.py
+  protocol.py
   datamodel.py
   rdf.py
   dataset.py
@@ -143,11 +144,11 @@ add_custom_target(python_package ALL DEPENDS ${abs_targets} ${package_targets})
 add_custom_command(
   OUTPUT
     ${abs_targets}
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${abs_sources}
     ${pkgdir}
   DEPENDS
-    ${pkgdir}
     ${abs_sources}
     dlite-plugins-json
   )
@@ -186,6 +187,7 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/mapping-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-storage-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-mapping-plugins
+  COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/python-protocol-plugins
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/storages
   COMMAND ${CMAKE_COMMAND} -E make_directory ${pkgdir}/share/dlite/bin
   COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -208,6 +210,11 @@ add_custom_command(
   COMMAND ${CMAKE_COMMAND}
     -DSOURCE_DIR=${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins
     -DDEST_DIR=${pkgdir}/share/dlite/python-mapping-plugins
+    -DPATTERN="*.py"
+    -P ${dlite_SOURCE_DIR}/cmake/CopyDirectory.cmake
+  COMMAND ${CMAKE_COMMAND}
+    -DSOURCE_DIR=${dlite_SOURCE_DIR}/bindings/python/python-protocol-plugins
+    -DDEST_DIR=${pkgdir}/share/dlite/python-protocol-plugins
     -DPATTERN="*.py"
     -P ${dlite_SOURCE_DIR}/cmake/CopyDirectory.cmake
   COMMAND ${CMAKE_COMMAND}
@@ -240,21 +247,24 @@ else()
   set(pyext_ext ".pyd")
 endif()
 
-execute_process(COMMAND
-  ${RUNNER} ${Python3_EXECUTABLE} -c "import site, pathlib; print(pathlib.Path(site.getusersitepackages()).relative_to(site.getuserbase()).as_posix())"
-  OUTPUT_VARIABLE Python3_MODULE_PATH
-  OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
-  DESTINATION ${Python3_MODULE_PATH}
+  DESTINATION "${Python3_SITE}"
+  USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-mapping-plugins
-  DESTINATION share/dlite
+  DESTINATION ${Python3_PREFIX}share/dlite
+  USE_SOURCE_PERMISSIONS
+  PATTERN ".gitignore" EXCLUDE
+  PATTERN "*~" EXCLUDE
+)
+install(
+  DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-protocol-plugins
+  DESTINATION ${Python3_PREFIX}share/dlite
+  USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
