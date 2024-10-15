@@ -1,20 +1,14 @@
 """Template for Python storage plugins."""
 
-# NOTE:
-# Please, do not define any variables or functions outside the scope
-# of the plugin class.
-#
-# The reason for this requirement is that all plugins will be loaded
-# into the same shared scope within the built-in interpreter.
-# Hence, variables or functions outside the plugin class may interfere
-# with other plugins, resulting in hard-to-find bugs.
-
 
 class plugin_driver_name(dlite.DLiteStorageBase):
     """General description of the Python storage plugin."""
 
     def open(self, location, options=None):
-        """Open storage.
+        """Open storage.  Optional.
+
+        Must be defined if any of the methods close(), flush(), load(),
+        save(), delete() or query() are defined.
 
         Arguments:
             location: Path to storage.
@@ -54,7 +48,9 @@ class plugin_driver_name(dlite.DLiteStorageBase):
         """
 
     def query(self, pattern=None):
-        """Generator method that iterates over all UUIDs in the storage
+        """Queries the storage for instance UUIDs.  Optional.
+
+        A generator method that iterates over all UUIDs in the storage
         who"s metadata URI matches glob pattern `pattern`.
 
         Arguments:
@@ -68,7 +64,7 @@ class plugin_driver_name(dlite.DLiteStorageBase):
 
     @classmethod
     def from_bytes(cls, buffer, id=None, options=None):
-        """Load instance with given `id` from `buffer`.
+        """Load instance with given `id` from `buffer`.  Optional.
 
         Arguments:
             buffer: Bytes or bytearray object to load the instance from.
@@ -90,12 +86,4 @@ class plugin_driver_name(dlite.DLiteStorageBase):
 
         Returns:
             The bytes (or bytearray) object that the instance is saved to.
-        """
-
-    def _example_help_method(self, *args):
-        """Example help method.
-
-        If you need a help function, please make it a class method to
-        avoid possible naming conflicts with help functions in other
-        storage plugins.
         """

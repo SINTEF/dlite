@@ -1,23 +1,23 @@
-#!/usr/bin/env python
+"""Test storages."""
 from pathlib import Path
 
 import numpy as np
 
 import dlite
-from dlite.testutils import raises
+from dlite.testutils import importcheck, raises
+from dlite.protocol import Protocol, archive_extract
 
-try:
-    import yaml
-    HAVE_YAML = True
-except ModuleNotFoundError:
-    HAVE_YAML = False
+yaml = importcheck("yaml")
+requests = importcheck("requests")
 
 
 thisdir = Path(__file__).absolute().parent
 outdir = thisdir / "output"
 indir = thisdir / "input"
 entitydir = thisdir / "entities"
+plugindir = thisdir / "plugins"
 dlite.storage_path.append(entitydir / "*.json")
+dlite.python_storage_plugin_path.append(plugindir)
 
 url = f"json://{entitydir}/MyEntity.json"
 
@@ -98,9 +98,6 @@ assert s4.startswith("{\n  \"uri\": \"my-data\",\n  \"uuid\":")
 # FIXME: Add test for the `arrays`, `no-parent` and `compact` options.
 # Should we rename `arrays` to `soft7` for consistency with the Python API?
 
-with raises(dlite.DLiteValueError):
-    inst.to_bytes("json", options="invalid-opt=").decode()
-
 
 # Test json
 print("--- testing json")
@@ -114,7 +111,7 @@ assert rel1 == rel2
 
 
 # Test yaml
-if HAVE_YAML:
+if yaml:
     print('--- testing yaml')
     inst.save(f"yaml://{outdir}/test_storage_inst.yaml?mode=w")
     del inst
@@ -194,7 +191,7 @@ else:
 
 
 # Tests for issue #587
-if HAVE_YAML:
+if yaml:
     bytearr = inst.to_bytes("yaml")
     #print(bytes(bytearr).decode())
 
@@ -225,7 +222,28 @@ iter2 = s.instances()
 for i in range(6):
     print(iter2.next())
 
-print("==========")
 
-for i in range(5):
-    print(iter.next())
+# Test URL versions of dlite.Instance.save()
+Blob = dlite.get_instance("http://onto-ns.com/meta/0.1/Blob")
+blob = Blob([3], id="myblob")
+blob.content = b'abc'
+blob.save(f"file+json://{outdir}/blob1.json?mode=w")
+blob.save(f"file://{outdir}/blob2.txt?driver=json;mode=w")
+blob.save(f"file://{outdir}/blob3.json?mode=w")
+blob.save(f"json://{outdir}/blob4.json?mode=w")
+t1 = (outdir/"blob1.json").read_text()
+t2 = (outdir/"blob2.txt").read_text()
+t3 = (outdir/"blob3.json").read_text()
+t4 = (outdir/"blob4.json").read_text()
+assert t2 == t1
+assert t3 == t1
+assert (
+    t4.replace(" ", "").replace("\n", "") ==
+    t1.replace(" ", "").replace("\n", "")
+)
+
+
+# Test plugin that only defines to_bytes() and from_bytes()
+#print("===================================")
+#dlite.Storage.plugin_help("testbuff")
+#buf = inst.to_bytes("bufftest")

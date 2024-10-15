@@ -37,6 +37,7 @@
 #cmakedefine HAVE_TIME_H
 #cmakedefine HAVE_UNISTD_H
 #cmakedefine HAVE_WINDOWS_H
+#cmakedefine HAVE_IO_H
 
 /* Whether symbols exists. If not, they are defined in compat.c or compat/ */
 #cmakedefine HAVE_STRDUP
@@ -92,6 +93,13 @@
 // #cmakedefine HAVE_VA_COPY
 // #cmakedefine HAVE___VA_COPY
 
+#cmakedefine HAVE_MTX_INIT
+#cmakedefine HAVE_MTX_LOCK
+#cmakedefine HAVE_MTX_TIMEDLOCK
+#cmakedefine HAVE_MTX_TRYLOCK
+#cmakedefine HAVE_MTX_UNLOCK
+#cmakedefine HAVE_MTX_DESTROY
+
 /* Whether types exists */
 #cmakedefine HAVE_CLOCK_T
 
@@ -136,7 +144,9 @@
 
 #if defined WINDOWS && !defined CROSS_TARGET
 /* Get rid of warnings from MSVS about insecure standard library functions */
+#ifndef _CRT_SECURE_NO_WARNINGS
 # define _CRT_SECURE_NO_WARNINGS
+#endif
 
 /* Get rid of warnings about possible loss of data in conversions
    between integers or floats of different size */

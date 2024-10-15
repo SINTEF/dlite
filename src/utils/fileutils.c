@@ -858,6 +858,7 @@ char *fu_paths_string(const FUPaths *paths)
 {
   size_t i, seplen, size=0;
   char *s, *string;
+  if (!paths->n) return strdup("");
   const char *pathsep = (paths->pathsep) ?
     paths->pathsep : fu_pathsep(paths->platform);
   seplen = strlen(pathsep);

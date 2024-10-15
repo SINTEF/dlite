@@ -28,12 +28,14 @@ endfunction()
 
 # Install
 install(
-  CODE "
-   execute_process(
-     COMMAND ${Python3_EXECUTABLE} -m pip install
-       --prefix=${CMAKE_INSTALL_PREFIX} --force .
-     WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
-   )"
+  PROGRAMS dlite-validate
+  DESTINATION bin
+  #CODE "
+  # execute_process(
+  #   COMMAND ${Python3_EXECUTABLE} -m pip install
+  #     --prefix=${CMAKE_INSTALL_PREFIX} --force .
+  #   WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}
+  # )"
 )
 
 

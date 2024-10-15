@@ -94,6 +94,7 @@ PyObject *dlite_pyembed_exception(DLiteErrCode code)
   case dliteMissingMetadataError:  return PyExc_LookupError; // dup
   case dliteMetadataExistError:    break;
   case dliteMappingError:          break;
+  case dliteProtocolError:         break;
   case dlitePythonError:           break;
   case dliteLastError:             break;
   }
@@ -270,7 +271,7 @@ DLiteErrCode dlite_pyembed_errcode(PyObject *type)
   Writes Python error message to `errmsg` (of length `len`) if an
   Python error has occured.
 
-  On return the The Python error indicator is reset.
+  Resets the Python error indicator.
 
   Returns 0 if no error has occured.  Otherwise return the number of
   bytes written to, or would have been written to `errmsg` if it had
@@ -435,14 +436,14 @@ void *dlite_pyembed_get_address(const char *symbol)
   /* Import dlite */
   if (!(dlite_name = PyUnicode_FromString("dlite")) ||
       !(dlite_module = PyImport_Import(dlite_name)))
-    FAIL("cannot import Python package: dlite");
+    PYFAILCODE(dlitePythonError, "cannot import Python package: dlite");
 
   /* Get path to _dlite */
   if (!(dlite_dict = PyModule_GetDict(dlite_module)) ||
       !(_dlite_module = PyDict_GetItemString(dlite_dict, "_dlite")) ||
       !(_dlite_dict = PyModule_GetDict(_dlite_module)) ||
       !(_dlite_file = PyDict_GetItemString(_dlite_dict, "__file__")))
-    FAIL("cannot get path to dlite extension module");
+    PYFAILCODE(dlitePythonError, "cannot get path to dlite extension module");
 
   /* Get C path to _dlite */
   if (!PyUnicode_Check(_dlite_file) ||

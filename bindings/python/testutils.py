@@ -62,13 +62,22 @@ class raises():
         ) from exc_value
 
 
-def importskip(module_name, exitcode=44):
+def importcheck(module_name, package=None):
+    """Import and return the requested module or None if the module can't
+    be imported."""
+    try:
+        return importlib.import_module(module_name, package=package)
+    except ModuleNotFoundError as exc:
+        return None
+
+
+def importskip(module_name, package=None, exitcode=44):
     """Import and return the requested module.
 
     Calls `sys.exit()` with given exitcode if the module cannot be imported.
     """
     try:
-        return importlib.import_module(module_name)
+        return importlib.import_module(module_name, package=package)
     except ModuleNotFoundError as exc:
         print(f"{exc}: skipping test", file=sys.stderr)
         sys.exit(exitcode)

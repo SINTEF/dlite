@@ -1,5 +1,7 @@
+"""DLite storage plugin for MongoDB.
 
-"""DLite storage plugin for MongoDB."""
+Note: Continous testing is not run for this plugin.
+"""
 
 import fnmatch
 import json

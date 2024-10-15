@@ -6,6 +6,10 @@ set(tests
   test_python_mapping
   )
 
+if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
+  unset(extra_link_libraries)
+endif()
+
 add_definitions(
   -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
   -DDLITE_ROOT=${dlite_SOURCE_DIR}
@@ -41,9 +45,8 @@ foreach(test ${tests})
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
   endif()
-  # No need to set PYTHONPATH since we are not importing the package in any test here
-  #set_property(TEST ${test} APPEND PROPERTY
-  #  ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
+  set_property(TEST ${test} APPEND PROPERTY
+    ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
   if (NOT WIN32)
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")

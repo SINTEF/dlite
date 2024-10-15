@@ -12,6 +12,7 @@
 # Depending on how the server is set up, or if you have a ~/.pgpass
 # file, PASSWORD can be left undefined.
 
+
 set(tests
   test_yaml_storage
   test_blob_storage
@@ -25,6 +26,10 @@ add_definitions(
   -DCURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
   -DCURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
 )
+
+if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
+  unset(extra_link_libraries)
+endif()
 
 include(FindPythonModule)
 

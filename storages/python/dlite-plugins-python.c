@@ -75,6 +75,7 @@ opener(const DLiteStoragePlugin *api, const char *location,
                               classname, failmsg()))
     goto fail;
 
+
   /* Check if the open() method has set attribute `writable` */
   if (PyObject_HasAttrString(obj, "readable"))
     readable = PyObject_GetAttrString(obj, "readable");
@@ -553,10 +554,11 @@ get_dlite_storage_plugin_api(void *state, int *iter)
     FAIL1("attribute 'name' (or '__name__') of '%s' is not a string",
           (char *)PyUnicode_AsUTF8(name));
 
-  if (!(open = PyObject_GetAttrString(cls, "open")))
-    FAIL1("'%s' has no method: 'open'", classname);
-  if (!PyCallable_Check(open))
-    FAIL1("attribute 'open' of '%s' is not callable", classname);
+  if (PyObject_HasAttrString(cls, "open")) {
+    open = PyObject_GetAttrString(cls, "open");
+    if (!PyCallable_Check(open))
+      FAIL1("attribute 'open' of '%s' is not callable", classname);
+  }
 
   if (PyObject_HasAttrString(cls, "close")) {
     close = PyObject_GetAttrString(cls, "close");
@@ -581,10 +583,6 @@ get_dlite_storage_plugin_api(void *state, int *iter)
     if (!PyCallable_Check(save))
       FAIL1("attribute 'save' of '%s' is not callable", classname);
   }
-
-  if (!load && !save)
-    FAIL1("expect either method 'load()' or 'save()' to be defined in '%s'",
-	  classname);
 
   if (PyObject_HasAttrString(cls, "delete")) {
     delete = PyObject_GetAttrString(cls, "delete");

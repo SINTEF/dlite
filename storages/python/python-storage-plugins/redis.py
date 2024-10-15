@@ -1,4 +1,7 @@
-"""DLite storage plugin for Redis written in Python."""
+"""DLite storage plugin for Redis written in Python.
+
+Note: Continous testing is not run for this plugin.
+"""
 import re
 
 from redis import Redis

@@ -214,14 +214,14 @@ int dlite_swig_read_python_blob(PyObject *src, uint8_t *dest, size_t n)
     Py_ssize_t len;
     const char *s = PyUnicode_AsUTF8AndSize(src, &len);
     if (!s) FAIL("failed representing string as UTF-8");
-    if (strhex_decode(dest, n, s, len) < 0)
+    if (strhex_decode(dest, n, s, (int)len) < 0)
       FAIL("cannot convert Python string to blob");
-    retval = len/2;
+    retval = (int)len/2;
   } else if (PyObject_CheckBuffer(src)) {
     Py_buffer view;
     if (PyObject_GetBuffer(src, &view, PyBUF_SIMPLE)) goto fail;
     memcpy(dest, view.buf, n);
-    retval = view.len;
+    retval = (int)(view.len);
     PyBuffer_Release(&view);
   } else {
     FAIL("Only Python types supporting the buffer protocol "
@@ -1098,6 +1098,26 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   return status;
 }
 
+
+/* Expose PyRun_File() to python. Returns NULL on error. */
+PyObject *dlite_run_file(const char *path, PyObject *globals, PyObject *locals)
+{
+  char *basename=NULL;
+  FILE *fp=NULL;
+  PyObject *result=NULL;
+  if (!(basename = fu_basename(path)))
+    FAILCODE(dliteMemoryError, "cannot allocate path base name");
+  if (!(fp = fopen(path, "rt")))
+    FAILCODE1(dliteIOError, "cannot open python file: %s", path);
+  if (!(result = PyRun_File(fp, basename, Py_file_input, globals, locals)))
+    dlite_err(dlitePythonError, "cannot run python file: %s", path);
+
+ fail:
+  if (fp) fclose(fp);
+  if (basename) free(basename);
+  return result;
+}
+
 %}
 
 
@@ -1409,7 +1429,13 @@ PyObject *dlite_python_mapping_base(void);
 %rename(errgetexc) dlite_python_module_error;
 %feature("docstring", "Returns DLite exception corresponding to error code.") dlite_python_module_error;
 PyObject *dlite_python_module_error(int code);
+
 int _get_number_of_errors(void);
+
+%rename(run_file) dlite_run_file;
+%feature("docstring", "Exposing PyRun_File from the Python C API.") dlite_run_file;
+PyObject *dlite_run_file(const char *path, PyObject *globals=NULL, PyObject *locals=NULL);
+
 
 %pythoncode %{
 for n in range(_dlite._get_number_of_errors()):
@@ -1418,6 +1444,11 @@ for n in range(_dlite._get_number_of_errors()):
 DLiteStorageBase = _dlite._get_storage_base()
 DLiteMappingBase = _dlite._get_mapping_base()
 del n, exc
+
+
+class DLiteProtocolBase:
+    """Base class for Python protocol plugins."""
+
 
 def instance_cast(inst, newtype=None):
     """Return instance converted to a new instance subclass.

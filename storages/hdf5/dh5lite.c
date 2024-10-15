@@ -430,7 +430,7 @@ dh5_open(const DLiteStoragePlugin *api, const char *uri, const char *options)
   const char **mode = &opts[0].value;
   UNUSED(api);
 
-  if (dlite_option_parse(optcopy, opts)) goto fail;
+  if (dlite_option_parse(optcopy, opts, 0)) goto fail;
 
   H5open();  /* Opens hdf5 library */
 

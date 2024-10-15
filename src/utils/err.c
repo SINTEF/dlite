@@ -20,6 +20,11 @@
 #include <unistd.h>
 #endif
 
+#if defined(HAVE_IO_H) && defined(HAVE__ISATTY)
+#include <io.h>
+#endif
+
+
 /* Thread local storage
  * https://stackoverflow.com/questions/18298280/how-to-declare-a-variable-as-thread-local-portab
  */
