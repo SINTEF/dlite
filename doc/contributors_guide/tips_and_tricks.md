@@ -6,6 +6,39 @@ Setting up a virtual Python environment for building dlite
 See [Build against Python environment] in the installation instructions.
 
 
+Test installation before releasing on PyPI
+------------------------------------------
+If you have updated the installation of the [dlite-python] package, or you get failures on GitHub CI/CD that cannot be reproduced locally, you might want to test installing dlite-python before releasing it on PyPI.
+
+This can be done as follows:
+
+1. Create a new virtual environment and install requirements and the wheel package
+
+       python -m venv ~/.envs/testenv
+       source ~/.envs/testenv/bin/activate
+       pip install -U pip
+       pip install wheel -r requirements.txt
+
+2. Build the wheel
+
+       cd python
+       python setup.py bdist_wheel
+
+3. Install the wheel with pip in a newly created environment (the version numbers may differ for your case)
+
+       pip install dist/DLite_Python-0.5.22-cp311-cp311-linux_x86_64.whl
+
+4. Finally, test by importing dlite in the standard manner
+
+       cd ..
+       python
+       >>> import dlite
+
+   or you can run the python tests
+
+       python bindings/python/tests/test_python_bindings.py
+
+
 Debugging Python storage plugins
 --------------------------------
 Exceptions occurring inside Python storage plugins are not propagated to the calling interpreter, and will therefor not be shown.
@@ -192,6 +225,7 @@ More useful gdb commands:
 
 [virtualenvwrapper]: https://pypi.org/project/virtualenvwrapper/
 [Build against Python environment]: https://sintef.github.io/dlite/getting_started/build/build_against_python_env.html#build-against-python-environment
+[dlite-python]: https://pypi.org/project/DLite-Python/
 [valgrind]: http://valgrind.org/
 [gdb]: https://sourceware.org/gdb/
 [GDB Tutorial]: https://www.gdbtutorial.com/

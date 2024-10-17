@@ -1,27 +1,31 @@
 #include "clp2.h"
-
 #include "minunit/minunit.h"
+
+/* Get rid of MSVC warnings */
+#ifdef _MSC_VER
+# pragma warning(disable: 4267)
+#endif
 
 
 MU_TEST(test_clp2)
 {
-  mu_assert_int_eq(0, clp2(0));
-  mu_assert_int_eq(1, clp2(1));
-  mu_assert_int_eq(2, clp2(2));
-  mu_assert_int_eq(4, clp2(3));
-  mu_assert_int_eq(4, clp2(4));
-  mu_assert_int_eq(8, clp2(5));
+  mu_assert_int_eq(0, (int)clp2(0));
+  mu_assert_int_eq(1, (int)clp2(1));
+  mu_assert_int_eq(2, (int)clp2(2));
+  mu_assert_int_eq(4, (int)clp2(3));
+  mu_assert_int_eq(4, (int)clp2(4));
+  mu_assert_int_eq(8, (int)clp2(5));
 }
 
 
 MU_TEST(test_flp2)
 {
-  mu_assert_int_eq(0, flp2(0));
-  mu_assert_int_eq(1, flp2(1));
-  mu_assert_int_eq(2, flp2(2));
-  mu_assert_int_eq(2, flp2(3));
-  mu_assert_int_eq(4, flp2(4));
-  mu_assert_int_eq(4, flp2(5));
+  mu_assert_int_eq(0, (int)flp2(0));
+  mu_assert_int_eq(1, (int)flp2(1));
+  mu_assert_int_eq(2, (int)flp2(2));
+  mu_assert_int_eq(2, (int)flp2(3));
+  mu_assert_int_eq(4, (int)flp2(4));
+  mu_assert_int_eq(4, (int)flp2(5));
 }
 
 

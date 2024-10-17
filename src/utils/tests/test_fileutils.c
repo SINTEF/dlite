@@ -109,6 +109,22 @@ MU_TEST(test_fu_basename)
   free(s);
 }
 
+MU_TEST(test_fu_stem)
+{
+  char *s;
+  s = fu_stem("a/bb/ccc.txt");
+  mu_assert_string_eq("ccc", s);
+  free(s);
+
+  s = fu_stem("a/bb/ccc");
+  mu_assert_string_eq("ccc", s);
+  free(s);
+
+  s = fu_stem("a/bb/ccc/");
+  mu_assert_string_eq("", s);
+  free(s);
+}
+
 MU_TEST(test_fu_fileext)
 {
   mu_assert_string_eq("txt", fu_fileext("a/bb/ccc.txt"));
@@ -498,6 +514,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_fu_lastsep);
   MU_RUN_TEST(test_fu_dirname);
   MU_RUN_TEST(test_fu_basename);
+  MU_RUN_TEST(test_fu_stem);
   MU_RUN_TEST(test_fu_fileext);
   MU_RUN_TEST(test_fu_friendly_dirsep);
   MU_RUN_TEST(test_fu_nextpath);

@@ -171,7 +171,7 @@ DLiteStorage *rdf_open(const DLiteStoragePlugin *api, const char *uri,
   if (!(s = calloc(1, sizeof(RdfStorage)))) FAILCODE(dliteMemoryError, "allocation failure");
 
   /* parse options */
-  if (dlite_option_parse(optcopy, opts, 1)) goto fail;
+  if (dlite_option_parse(optcopy, opts, 0)) goto fail;
   mode = opts[0].value;
   s->store   =   (opts[1].value) ? strdup(opts[1].value) : NULL;
   s->base_uri =  (opts[2].value) ? strdup(opts[2].value) : NULL;
@@ -738,7 +738,7 @@ static DLiteStoragePlugin rdf_plugin = {
   NULL,                                 /* flush */
   NULL,                                 /* help */
 
-  /* queue api */
+  /* query api */
   rdf_iter_create,                      /* iterCreate */
   rdf_iter_next,                        /* iterNext */
   rdf_iter_free,                        /* iterFree */

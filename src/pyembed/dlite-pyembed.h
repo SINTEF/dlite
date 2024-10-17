@@ -24,6 +24,19 @@
 #endif
 
 
+/* Convenient macros */
+#define PYFAILCODE(code, msg) do { \
+    dlite_pyembed_err(code, msg); goto fail; } while (0)
+#define PYFAILCODE1(code, msg, a1) do { \
+    dlite_pyembed_err(code, msg, a1); goto fail; } while (0)
+#define PYFAILCODE2(code, msg, a1, a2) do { \
+    dlite_pyembed_err(code, msg, a1, a2); goto fail; } while (0)
+#define PYFAILCODE3(code, msg, a1, a2, a3) do { \
+    dlite_pyembed_err(code, msg, a1, a2, a3); goto fail; } while (0)
+#define PYFAILCODE4(code, msg, a1, a2, a3, a4) do { \
+    dlite_pyembed_err(code, msg, a1, a2, a3, a4); goto fail; } while (0)
+
+
 /**
   Initialises the embedded Python environment.
 */
@@ -134,6 +147,26 @@ DLiteInstance *dlite_pyembed_get_instance(PyObject *pyinst);
  */
 PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
                                      char ***failed_paths, size_t *failed_len);
+
+
+/**
+  Return borrowed reference to the `__dict__` object in the dlite
+  module or NULL on error.
+ */
+PyObject *dlite_python_dlitedict(void);
+
+
+/**
+  Return borrowed reference to a dict serving as a namespace for the
+  given plugin.
+
+  The returned dict is accessable from Python as
+  `dlite._plugindict[plugin_name]`.  The dict will be created if it
+  doesn't already exists.
+
+  Returns NULL on error.
+ */
+PyObject *dlite_python_plugindict(const char *plugin_name);
 
 
 #endif /* _DLITE_PYEMBED_H */

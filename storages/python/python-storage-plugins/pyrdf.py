@@ -89,7 +89,7 @@ class pyrdf(dlite.DLiteStorageBase):
             ),
         )
 
-    def queue(self, pattern: "Optional[str]" = None) -> "Generator[str]":
+    def query(self, pattern: "Optional[str]" = None) -> "Generator[str]":
         """Generator method that iterates over all UUIDs in the storage
         who"s metadata URI matches glob pattern `pattern`.
 
@@ -109,18 +109,21 @@ class pyrdf(dlite.DLiteStorageBase):
             yield str(o)
 
     @classmethod
-    def from_bytes(cls, buffer, id=None):
+    def from_bytes(cls, buffer, id=None, options=None):
         """Load instance with given `id` from `buffer`.
 
         Arguments:
             buffer: Bytes or bytearray object to load the instance from.
             id: ID of instance to load.  May be omitted if `buffer` only
                 holds one instance.
+            options: Options:
+                - `format`: File format to read from.
 
         Returns:
             New instance.
         """
-        return from_rdf(data=buffer, id=id, format=self.options.get("format"))
+        opts = Options(options)
+        return from_rdf(data=buffer, id=id, format=opts.get("format"))
 
     @classmethod
     def to_bytes(cls, inst):

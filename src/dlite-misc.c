@@ -15,6 +15,7 @@
 #include "utils/strutils.h"
 #include "utils/session.h"
 #include "utils/rng.h"
+#include "utils/uri_encode.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -182,46 +183,67 @@ int dlite_split_meta_uri(const char *uri, char **name, char **version,
 
       key1=value1;key2=value2...
 
-  where the values are terminated by NUL or any of the characters in ";&#".
-  A hash (#) terminates the options.
+  where the values should be encoded with `uri_encode()` and
+  terminated by NUL or any of the characters in ";&#".  A hash (#)
+  terminates the options.
+
+  At return, `options` is modified. All values in the `options` string
+  will be URI decoded and NUL-terminated.
 
   `opts` should be a NULL-terminated DLiteOpt array initialised with
   default values.  At return, the values of the provided options are
   updated.
 
-  If `modify` is non-zero, `options` is modifies such that all values in
-  `opts` are NUL-terminated.  Otherwise they may be terminated by any of
-  the characters in ";&#".
-
   Returns non-zero on error.
 */
-int dlite_option_parse(char *options, DLiteOpt *opts, int modify)
+int dlite_option_parse(char *options, DLiteOpt *opts, DLiteOptFlag flags)
 {
-  char *q, *p = options;
-  if (!options) return 0;
+  char *p = options;
+  char *buf = NULL;
+  int status = 0;
+  if (!options || !*options) return 0;
+  if (!(buf = malloc(strlen(options)+1))) {
+    status = err(dliteMemoryError, "allocation failure");
+      goto fail;
+  }
   while (*p && *p != '#') {
     size_t i, len = strcspn(p, "=;&#");
-    if (p[len] != '=')
-      return errx(1, "no value for key '%.*s' in option string '%s'",
-                  (int)len, p, options);
+    if (p[len] != '=') {
+      status = errx(dliteValueError,
+                    "no value for key '%.*s' in option string '%s'",
+                    (int)len, p, options);
+      goto fail;
+    }
     for (i=0; opts[i].key; i++) {
       if (strncmp(opts[i].key, p, len) == 0 && strlen(opts[i].key) == len) {
         p += len;
         if (*p == '=') p++;
         opts[i].value = p;
-        p += strcspn(p, ";&#");
-        q = p;
+        size_t n = strcspn(p, ";&#");
+        size_t m = uri_decode(p, n, buf);
+        assert(m <= n);  // decoding should never increase the string length
+        if (m < n) memcpy(p, buf, m);
+        char *q = p + m;
+        p += n;
         if (*p && strchr(";&", *p)) p++;
-        if (modify) q[0] = '\0';
+        *q = '\0';
         break;
       }
     }
     if (!opts[i].key) {
-      int len = strcspn(p, "=;&#");
-      return errx(dliteValueError, "unknown option key: '%.*s'", len, p);
+      if (flags & dliteOptStrict) {
+        int len = strcspn(p, "=;&#");
+        status = errx(dliteValueError, "unknown option key: '%.*s'", len, p);
+        goto fail;
+      } else {
+        p += strcspn(p, ";&#");
+        if (*p && strchr(";&", *p)) p++;
+      }
     }
   }
-  return 0;
+ fail:
+  if (buf) free(buf);
+  return status;
 }
 
 
@@ -558,6 +580,8 @@ static void dlite_err_handler(const ErrRecord *record)
 #endif
 }
 
+/* dlite_errname() with correct call signature */
+static const char *_errname(int eval) { return dlite_errname(eval); }
 
 /*
   Initialises dlite. This function may be called several times.
@@ -582,7 +606,7 @@ void dlite_init(void)
 
     /* Set up error handling */
     err_set_handler(dlite_err_handler);
-    err_set_nameconv(dlite_errname);
+    err_set_nameconv(_errname);
   }
 }
 
@@ -716,7 +740,7 @@ int dlite_err_ignored_get(DLiteErrCode code)
   DLiteErrMask *mask = _dlite_err_mask_get();
   if (!mask) return 0;
   if (code > 0 && (*mask & DLITE_ERRBIT(dliteUnknownError))) return 1;
-  return *mask & DLITE_ERRBIT(code);
+  return (int)(*mask) & DLITE_ERRBIT(code);
 }
 
 

@@ -92,6 +92,11 @@ typedef struct _DLiteOpt {
   const char *descr;  /*!< Description of this option */
 } DLiteOpt;
 
+typedef enum {
+  dliteOptDefault=0,  /*!< Default option flags */
+  dliteOptStrict=1    /*!< Stict mode. Its an error if option is unknown */
+} DLiteOptFlag;
+
 /**
   Parses the options string `options` and assign corresponding values
   of the array `opts`.  The options string should be a valid url query
@@ -99,16 +104,18 @@ typedef struct _DLiteOpt {
 
       key1=value1;key2=value2...
 
-  where the values are terminated by NUL or any of the characters in ";&#".
-  A hash (#) terminates the options.
+  where the values should be encoded with `uri_encode()` and
+  terminated by NUL or any of the characters in ";&#".  A hash (#)
+  terminates the options.
+
+  At return, `options` is modified. All values in the `options` string
+  will be URI decoded and NUL-terminated.
 
   `opts` should be a NULL-terminated DLiteOpt array initialised with
   default values.  At return, the values of the provided options are
   updated.
 
-  If `modify` is non-zero, `options` is modifies such that all values in
-  `opts` are NUL-terminated.  Otherwise they may be terminated by any of
-  the characters in ";&#".
+  `flags` should be zero or `dliteOptStrict`.
 
   Returns non-zero on error.
 
@@ -125,7 +132,7 @@ typedef struct _DLiteOpt {
     {'b', "key2", "default2", "description of key2..."},
     {NULL, NULL}
   };
-  dlite_getopt(options, opts, 0);
+  dlite_getopt(options, opts);
   for (i=0; opts[i].key; i++) {
     switch (opts[i].c) {
     case '1':
@@ -138,7 +145,7 @@ typedef struct _DLiteOpt {
   }
   ```
  */
-int dlite_option_parse(char *options, DLiteOpt *opts, int modify);
+int dlite_option_parse(char *options, DLiteOpt *opts, DLiteOptFlag flags);
 
 /** @} */
 
@@ -324,7 +331,7 @@ DLiteErrMask *_dlite_err_mask_get(void);
 void _dlite_err_mask_set(DLiteErrMask mask);
 
 #define DLITE_ERRBIT(code)                                              \
-  (1<<((code >= 0) ? 0 : (code <= dliteLastError) ? -dliteLastError : -code))
+  ((int)1<<(int)((code >= 0) ? 0 : (code <= dliteLastError) ? -dliteLastError : -code))
 
 #define DLITE_NOERR(mask)                                       \
   do {                                                          \

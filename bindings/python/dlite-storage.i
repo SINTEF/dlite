@@ -8,6 +8,7 @@
 
 char *_storage_plugin_help(const char *name) {
   const DLiteStoragePlugin *api = dlite_storage_plugin_get(name);
+  if (!api) return NULL;
   if (api->help) return api->help(api);
   return dlite_err(dliteUnsupportedError,
                    "\"%s\" storage does not support help", name), NULL;

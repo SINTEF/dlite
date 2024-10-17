@@ -98,7 +98,7 @@ MU_TEST(test_option_parse)
     {0, NULL, NULL, NULL}
   };
 
-  mu_assert_int_eq(0, dlite_option_parse(options, opts, 1));
+  mu_assert_int_eq(0, dlite_option_parse(options, opts, dliteOptStrict));
   for (i=0; opts[i].key; i++) {
     switch (opts[i].c) {
     case 'N':
@@ -117,9 +117,10 @@ MU_TEST(test_option_parse)
   }
   free(options);
 
+  char options2[] = "name=C;mode=append";
   old = err_set_stream(NULL);
   mu_assert_int_eq(dliteValueError,
-                   dlite_option_parse("name=C;mode=append", opts, 0));
+                   dlite_option_parse(options2, opts, dliteOptStrict));
   err_set_stream(old);
 }
 

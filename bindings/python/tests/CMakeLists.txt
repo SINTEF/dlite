@@ -27,6 +27,10 @@ set(tests
   test_iri
   test_dataset1_save
   test_dataset2_load
+  test_protocol
+  test_isolated_plugins
+  test_options
+  test_plugin
 )
 
 foreach(test ${tests})

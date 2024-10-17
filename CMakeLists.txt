@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.5.22
+  VERSION 0.5.23
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -118,6 +118,9 @@ if(MSVC)
   # Do not complain about strdup() and similar POSIX functions to be
   # deprecated in MSVC
   add_definitions("-D_CRT_NONSTDC_NO_DEPRECATE")
+
+  # Do not complain about standard library functions
+  add_definitions("-D_CRT_SECURE_NO_WARNINGS")
 endif()
 
 # Uncomment the lines below to compile with AddressSanitizer
@@ -127,13 +130,6 @@ endif()
 
 # Install paths
 # -------------
-# DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
-set(DLITE_TEMPLATE_DIRS              "share/dlite/templates")
-set(DLITE_STORAGE_PLUGIN_DIRS        "share/dlite/storage-plugins")
-set(DLITE_MAPPING_PLUGIN_DIRS        "share/dlite/mapping-plugins")
-set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS "share/dlite/python-mapping-plugins")
-set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS "share/dlite/python-storage-plugins")
-set(DLITE_STORAGES                   "share/dlite/storages")
 
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
@@ -159,6 +155,7 @@ include(GNUInstallDirs)
 
 # Installation paths
 set(DLITE_ROOT ${CMAKE_INSTALL_PREFIX})
+set(DLITE_BUILD_ROOT ${dlite_BINARY_DIR})
 set(DLITE_INCLUDE_DIRS include/dlite)
 set(DLITE_LIBRARY_DIR  lib)
 set(DLITE_RUNTIME_DIR  bin)
@@ -168,6 +165,7 @@ include(MakePlatformPaths)
 make_platform_paths(
   PATHS
     DLITE_ROOT
+    DLITE_BUILD_ROOT
     DLITE_INCLUDE_DIRS
     DLITE_LIBRARY_DIR
     DLITE_RUNTIME_DIR
@@ -231,7 +229,7 @@ if(WITH_PYTHON)
     set(Python3_USE_STATIC_LIBS TRUE)
   endif()
 
-  #
+  # Find Python version
   if(DEFINED ENV{VIRTUAL_ENV})
     message(STATUS "Detected virtual environment $ENV{VIRTUAL_ENV}")
 
@@ -267,27 +265,83 @@ if(WITH_PYTHON)
   endif()
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
+  # Find Python installation directory (relative to CMAKE_INSTALL_PREFIX)
+  if(NOT Python3_PKGDIR)
+    execute_process(
+      COMMAND ${Python3_EXECUTABLE} -c "import site; print(site.getsitepackages()[0])"
+      OUTPUT_VARIABLE Python3_PKGDIR
+      OUTPUT_STRIP_TRAILING_WHITESPACE
+    )
+  endif()
+
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} -c "import sys; print(sys.prefix)"
+    OUTPUT_VARIABLE Python3_prefix
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+
+  file(RELATIVE_PATH Python3_SITE ${Python3_prefix} ${Python3_PKGDIR})
+  if(Python3_SITE)
+    set(Python3_PREFIX "${Python3_SITE}/dlite/")
+  else()
+    set(Python3_PREFIX "dlite/")
+  endif()
+
+  # Add linker flags for linking against Python
+  execute_process(
+    COMMAND ${Python3_EXECUTABLE} -c "import sysconfig; print(sysconfig.get_config_var('PY_LDFLAGS'))"
+    OUTPUT_VARIABLE Python3_LDFLAGS
+    OUTPUT_STRIP_TRAILING_WHITESPACE
+  )
+  if(Python3_LDFLAGS)
+    list(APPEND extra_link_libraries ${Python3_LDFLAGS})
+  endif()
+
+  # Find python-config
+  find_program(
+    Python3_config
+    NAMES ${Python3_EXECUTABLE}-config python3-config python-config
+    HINTS ${Python3_prefix}/bin
+  )
+
   # Link libraries when compiling against static Python (e.g. manylinux)
   if(WITH_STATIC_PYTHON)
     execute_process(
-      COMMAND ${Python3_EXECUTABLE}-config --ldflags
+      COMMAND ${Python3_config} --ldflags --embed
       OUTPUT_VARIABLE Python3_LDFLAGS
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
 
-    # TODO: find a more portable way to add the "-Xlinker -export-dynamic" options.
-    # They are needed to ensure that the linker include all symbols in
-    # the static Python library.
+    # Linker flags "-Xlinker -export-dynamic" are needed to ensure that
+    # the linker include all symbols in the static Python library.
+    include(CheckLinkerFlag)
+    check_linker_flag(C "-Xlinker -export-dynamic" HAVE_linker_dynexport)
+    if(HAVE_linker_dynexport)
+      list(APPEND Python3_LDFLAGS "-Xlinker" "-export-dynamic")
+    endif()
+
     set(Python3_STATIC_LIBS
       ${Python3_LDFLAGS}
-      -Xlinker -export-dynamic
       ${Python3_LIBRARY}
     )
-
-    list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
+    if(Python3_STATIC_LIBS)
+      list(APPEND extra_link_libraries ${Python3_STATIC_LIBS})
+    endif()
   endif()
 
+  # Link libraries when compiling against static Python (e.g. cibuildwheel)
+  # if(DEFINED ENV{Python3_LIBRARY})
+  #   set(Python3_STATIC_LIBS $ENV{Python3_LIBRARY})
+  #   list(APPEND extra_link_libraries $ENV{Python3_LIBRARY})
+  # endif()
+  # message(STATUS "ENV{Python3_LIBRARY}: $ENV{Python3_LIBRARY}")
 
+
+  message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+  message(STATUS "Python3_prefix = ${Python3_prefix}")
+  message(STATUS "Python3_PKGDIR = ${Python3_PKGDIR}")
+  message(STATUS "Python3_SITE = ${Python3_SITE}")
+  message(STATUS "Python3_PREFIX = ${Python3_PREFIX}")
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
   message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
@@ -324,9 +378,6 @@ else()
   set(Python3_LIBRARIES "")
 endif()
 
-message(STATUS "extra_link_libraries = ${extra_link_libraries}")
-
-
 #
 # Fortran
 # =======
@@ -340,6 +391,22 @@ if(WITH_FORTRAN)
   enable_fortran_compiler_flag_if_supported("-Wpedantic")
   enable_fortran_compiler_flag_if_supported("-Werror")
 endif()
+
+# Unset extra_link_libraries if it is empty
+message(STATUS "extra_link_libraries = ${extra_link_libraries}")
+if(extra_link_libraries MATCHES "^[ \t\n\r;]*$")
+  unset(extra_link_libraries)
+endif()
+
+
+# DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
+set(DLITE_TEMPLATE_DIRS               "${Python3_PREFIX}share/dlite/templates")
+set(DLITE_STORAGE_PLUGIN_DIRS         "${Python3_PREFIX}share/dlite/storage-plugins")
+set(DLITE_MAPPING_PLUGIN_DIRS         "${Python3_PREFIX}share/dlite/mapping-plugins")
+set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS  "${Python3_PREFIX}share/dlite/python-mapping-plugins")
+set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS  "${Python3_PREFIX}share/dlite/python-storage-plugins")
+set(DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS "${Python3_PREFIX}share/dlite/python-protocol-plugins")
+set(DLITE_STORAGES                    "${Python3_PREFIX}share/dlite/storages")
 
 
 
@@ -364,7 +431,8 @@ if(WITH_PYTHON)
     Python3_LIBRARIES
     DLITE_PYTHON_STORAGE_PLUGIN_DIRS
     DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-    )
+    DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS
+  )
 endif()
 
 
@@ -611,9 +679,12 @@ list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 set(dlite_PYTHONPATH
   ${dlite_BINARY_DIR}/bindings/python
   $ENV{PYTHONPATH}
-  )
+)
 if(dlite_PYTHONPATH)
   list(REMOVE_DUPLICATES dlite_PYTHONPATH)
+endif()
+if(NOT dlite_PYTHONPATH MATCHES "\\\\")
+  string(REPLACE "\\" "\\\\" dlite_PYTHONPATH ${dlite_PYTHONPATH})
 endif()
 
 # DLITE_STORAGE_PLUGIN_DIRS - search path for DLite storage plugins
@@ -628,35 +699,35 @@ endif()
 if(WITH_PYTHON)
   build_append(dlite_STORAGE_PLUGINS ${dlite_BINARY_DIR}/storages/python)
 endif()
-list(REMOVE_DUPLICATES dlite_STORAGE_PLUGINS)
 
 # DLITE_MAPPING_PLUGIN_DIRS - search path for DLite mapping plugins
 set(dlite_MAPPING_PLUGINS "")
-list(REMOVE_DUPLICATES dlite_MAPPING_PLUGINS)
 
 # DLITE_PYTHON_STORAGE_PLUGIN_DIRS - search path for Python storage plugins
 set(dlite_PYTHON_STORAGE_PLUGINS
   ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
-  )
-list(REMOVE_DUPLICATES dlite_PYTHON_STORAGE_PLUGINS)
+)
 
 # DLITE_PYTHON_MAPPING_PLUGIN_DIRS - search path for Python mapping plugins
 set(dlite_PYTHON_MAPPING_PLUGINS
   ${dlite_SOURCE_DIR}/bindings/python/python-mapping-plugins
-  )
-list(REMOVE_DUPLICATES dlite_PYTHON_MAPPING_PLUGINS)
+)
+
+# DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS - search path for Python protocol plugins
+set(dlite_PYTHON_PROTOCOL_PLUGINS
+  ${dlite_SOURCE_DIR}/bindings/python/python-protocol-plugins
+)
 
 # DLITE_TEMPLATE_DIRS - search path for DLite templates
 set(dlite_TEMPLATES
   ${dlite_SOURCE_DIR}/tools/templates
-  )
-list(REMOVE_DUPLICATES dlite_TEMPLATES)
+)
 
 # DLITE_STORAGES - DLite storages (inc. metadata)
 set(dlite_STORAGES
   ${dlite_SOURCE_DIR}/examples/storages/*.json
-  )
-list(REMOVE_DUPLICATES dlite_STORAGES)
+)
+
 
 #if(UNIX)
 #  string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
@@ -666,6 +737,7 @@ list(REMOVE_DUPLICATES dlite_STORAGES)
 #  string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
 #  string(REPLACE ";" ":" dlite_PYTHON_STORAGE_PLUGINS  "${dlite_PYTHON_STORAGE_PLUGINS}")
 #  string(REPLACE ";" ":" dlite_PYTHON_MAPPING_PLUGINS  "${dlite_PYTHON_MAPPING_PLUGINS}")
+#  string(REPLACE ";" ":" dlite_PYTHON_PROTOCOL_PLUGINS  "${dlite_PYTHON_PROTOCOL_PLUGINS}")
 #  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
 #endif()
 
@@ -675,6 +747,7 @@ make_platform_paths(
     dlite_PYTHONPATH
     dlite_PYTHON_STORAGE_PLUGINS
     dlite_PYTHON_MAPPING_PLUGINS
+    dlite_PYTHON_PROTOCOL_PLUGINS
     dlite_TEMPLATES
     dlite_STORAGES
   MULTI_CONFIG_PATHS
@@ -727,6 +800,7 @@ set(test_env
   "export DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}"
   "export DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}"
   "export DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}"
+  "export DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS=${dlite_PYTHON_PROTOCOL_PLUGINS}"
   "export DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}"
   "export DLITE_STORAGES='${dlite_STORAGES}'"
   ""

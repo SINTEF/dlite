@@ -7,6 +7,10 @@ set(tests
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
+if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
+  unset(extra_link_libraries)
+endif()
+
 # We are linking to dlite-plugins-json DLL - this require that this
 # DLL is in the PATH on Windows. Copying the DLL to the current
 # BINARY_DIR is a simple way to ensure this.

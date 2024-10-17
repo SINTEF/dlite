@@ -280,7 +280,7 @@ typedef char *(*Help)(const DLiteStoragePlugin *api);
 
 
 /**
- * @name Queue API
+ * @name Query API
  * Function for querying the content of a plugin.  The new IterCreate(),
  * IterNext() and IterFree() are preferred in front of the old GetUUIDs()
  * function.
@@ -557,7 +557,7 @@ struct _DLiteStoragePlugin {
   Flush              flush;            /*!< Flush storage */
   Help               help;             /*!< Returns plugin documentation */
 
-  /* Queue API */
+  /* Query API */
   IterCreate         iterCreate;       /*!< Creates iterator over storage */
   IterNext           iterNext;         /*!< Returns next UUID */
   IterFree           iterFree;         /*!< Free's iterator */

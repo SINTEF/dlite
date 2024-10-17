@@ -26,6 +26,7 @@
   //#include "dlite-macros.h"
 #include "pyembed/dlite-python-storage.h"
 #include "pyembed/dlite-python-mapping.h"
+#include "pyembed/dlite-python-protocol.h"
 
 const char *platforms[] = {"native", "unix", "windows", "apple"};
 %}
@@ -56,6 +57,8 @@ Creates a _Path instance of type `pathtype`.
       return dlite_python_storage_paths();
     } else if (strcmp(pathtype, "python-mapping-plugins") == 0) {
       return dlite_python_mapping_paths();
+    } else if (strcmp(pathtype, "python-protocol-plugins") == 0) {
+      return dlite_python_protocol_paths();
     } else {
       return dlite_err(1, "invalid pathtype: %s", pathtype), NULL;
     }

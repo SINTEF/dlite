@@ -214,14 +214,14 @@ int dlite_swig_read_python_blob(PyObject *src, uint8_t *dest, size_t n)
     Py_ssize_t len;
     const char *s = PyUnicode_AsUTF8AndSize(src, &len);
     if (!s) FAIL("failed representing string as UTF-8");
-    if (strhex_decode(dest, n, s, len) < 0)
+    if (strhex_decode(dest, n, s, (int)len) < 0)
       FAIL("cannot convert Python string to blob");
-    retval = len/2;
+    retval = (int)len/2;
   } else if (PyObject_CheckBuffer(src)) {
     Py_buffer view;
     if (PyObject_GetBuffer(src, &view, PyBUF_SIMPLE)) goto fail;
     memcpy(dest, view.buf, n);
-    retval = view.len;
+    retval = (int)(view.len);
     PyBuffer_Release(&view);
   } else {
     FAIL("Only Python types supporting the buffer protocol "
@@ -1098,6 +1098,26 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   return status;
 }
 
+
+/* Expose PyRun_File() to python. Returns NULL on error. */
+PyObject *dlite_run_file(const char *path, PyObject *globals, PyObject *locals)
+{
+  char *basename=NULL;
+  FILE *fp=NULL;
+  PyObject *result=NULL;
+  if (!(basename = fu_basename(path)))
+    FAILCODE(dliteMemoryError, "cannot allocate path base name");
+  if (!(fp = fopen(path, "rt")))
+    FAILCODE1(dliteIOError, "cannot open python file: %s", path);
+  if (!(result = PyRun_File(fp, basename, Py_file_input, globals, locals)))
+    dlite_err(dlitePythonError, "cannot run python file: %s", path);
+
+ fail:
+  if (fp) fclose(fp);
+  if (basename) free(basename);
+  return result;
+}
+
 %}
 
 
@@ -1108,6 +1128,8 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 /*
  * Input typemaps
  * --------------
+ * const char *INPUT, size_t LEN             <- string
+ *     String (with possible NUL-bytes)
  * int, struct _DLiteDimension *             <- numpy array
  *     Array of dimensions.
  * int, struct _DLiteProperty *              <- numpy array
@@ -1121,6 +1143,11 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  *
  * Argout typemaps
  * ---------------
+ * char **ARGOUT, size_t *LENGTH              -> string
+ *     This assumes that the wrapped function assignes *ARGOUT to
+ *     an malloc'ed buffer.
+ * char **ARGOUT_STRING, size_t *LENGTH       -> string
+ *     Assumes that *ARGOUT_STRING is malloc()'ed by the wrapped function.
  * unsigned char **ARGOUT_BYTES, size_t *LEN  -> bytes
  *     This assumes that the wrapped function assignes *ARGOUT_BYTES to
  *     an malloc'ed buffer.
@@ -1143,6 +1170,14 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
 /* --------------
  * Input typemaps
  * -------------- */
+
+/* String (with possible NUL-bytes) */
+%typemap("doc") (const char *INPUT, size_t LEN)
+  "string"
+%typemap(in, numinputs=1) (const char *INPUT, size_t LEN) (Py_ssize_t tmp) {
+  $1 = (char *)PyUnicode_AsUTF8AndSize($input, &tmp);
+  $2 = tmp;
+}
 
 /* Array of input dimensions */
 %typemap("doc") (struct _DLiteDimension *dimensions, int ndimensions)
@@ -1288,11 +1323,26 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
  * Argout typemaps
  * --------------- */
 
+/* Argout string */
+/* Assumes that *ARGOUT_STRING is malloc()'ed by the wrapped function */
+%typemap("doc") (char **ARGOUT_STRING, size_t *LENGTH) "string"
+%typemap(in,numinputs=0) (char **ARGOUT_STRING, size_t *LENGTH)
+  (char *tmp=NULL, Py_ssize_t n) {
+  $1 = &tmp;
+  $2 = (size_t *)&n;
+}
+%typemap(argout) (char **ARGOUT_STRING, size_t *LENGTH) {
+  $result = PyUnicode_FromStringAndSize((char *)tmp$argnum, n$argnum);
+}
+%typemap(freearg) (char **ARGOUT_STRING, size_t *LENGTH) {
+  if ($1 && *$1) free(*$1);
+}
+
 /* Argout bytes */
 /* Assumes that *ARGOUT_BYTES is malloc()'ed by the wrapped function */
 %typemap("doc") (unsigned char **ARGOUT_BYTES, size_t *LEN) "bytes"
 %typemap(in,numinputs=0) (unsigned char **ARGOUT_BYTES, size_t *LEN)
-  (unsigned char *tmp, size_t n) {
+  (unsigned char *tmp=NULL, size_t n) {
   $1 = &tmp;
   $2 = &n;
 }
@@ -1300,7 +1350,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   $result = PyByteArray_FromStringAndSize((char *)tmp$argnum, n$argnum);
 }
 %typemap(freearg) (unsigned char **ARGOUT_BYTES, size_t *LEN) {
-  free(*($1));
+  if ($1 && *$1) free(*$1);
 }
 
 
@@ -1344,7 +1394,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   if ($1) {
     char **p;
     for (p=$1; *p; p++) {
-      PyList_Append($result, PyString_FromString(*p));
+      PyList_Append($result, PyUnicode_FromString(*p));
       free(*p);
     }
     free($1);
@@ -1361,7 +1411,7 @@ int dlite_swig_set_property_by_index(DLiteInstance *inst, int i, obj_t *obj)
   if ($1) {
     char **p;
     for (p=$1; *p; p++)
-      PyList_Append($result, PyString_FromString(*p));
+      PyList_Append($result, PyUnicode_FromString(*p));
   }
 }
 
@@ -1379,7 +1429,13 @@ PyObject *dlite_python_mapping_base(void);
 %rename(errgetexc) dlite_python_module_error;
 %feature("docstring", "Returns DLite exception corresponding to error code.") dlite_python_module_error;
 PyObject *dlite_python_module_error(int code);
+
 int _get_number_of_errors(void);
+
+%rename(run_file) dlite_run_file;
+%feature("docstring", "Exposing PyRun_File from the Python C API.") dlite_run_file;
+PyObject *dlite_run_file(const char *path, PyObject *globals=NULL, PyObject *locals=NULL);
+
 
 %pythoncode %{
 for n in range(_dlite._get_number_of_errors()):
@@ -1388,6 +1444,11 @@ for n in range(_dlite._get_number_of_errors()):
 DLiteStorageBase = _dlite._get_storage_base()
 DLiteMappingBase = _dlite._get_mapping_base()
 del n, exc
+
+
+class DLiteProtocolBase:
+    """Base class for Python protocol plugins."""
+
 
 def instance_cast(inst, newtype=None):
     """Return instance converted to a new instance subclass.

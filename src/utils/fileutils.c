@@ -316,6 +316,22 @@ char *fu_basename(const char *path)
 }
 
 /*
+  Returns the final component of `path` without extension as a newly
+  allocated string.
+*/
+char *fu_stem(const char *path)
+{
+  char *p;
+  if ((p = fu_lastsep(path)) && *p) {
+    p++;
+    const char *ext = fu_fileext(p);
+    if (ext && *ext) return strndup(p, ext - p - 1);
+    return strdup(p);
+  }
+  return strdup(path);
+}
+
+/*
   Returns a pointer to file extension of `path` (what follows after
   the last ".").
 */
@@ -842,6 +858,7 @@ char *fu_paths_string(const FUPaths *paths)
 {
   size_t i, seplen, size=0;
   char *s, *string;
+  if (!paths->n) return strdup("");
   const char *pathsep = (paths->pathsep) ?
     paths->pathsep : fu_pathsep(paths->platform);
   seplen = strlen(pathsep);

@@ -1,3 +1,7 @@
+"""DLite plugin for PostgreSQL.
+
+Note: Continous testing is not run for this plugin.
+"""
 import os
 import re
 import sys
@@ -211,7 +215,7 @@ class postgresql(dlite.DLiteStorageBase):
         self.cur.execute(q)
         self.conn.commit()
 
-    def queue(self, pattern):
+    def query(self, pattern):
         """Generator method that iterates over all UUIDs in the storage
         who's metadata URI matches glob pattern `pattern`."""
 

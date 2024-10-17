@@ -8,13 +8,14 @@ User Guide
    concepts
    type-system
    exceptions
-   mappings
    collections
+   storage_plugins
+   storage_plugins_mongodb
+   protocol_plugins
+   mappings
    transactions
    tools
    code_generation
-   storage_plugins
-   storage_plugins_mongodb
    configure_behavior_changes
    environment_variables
    features

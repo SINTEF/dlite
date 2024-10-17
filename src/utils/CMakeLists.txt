@@ -22,7 +22,8 @@ check_include_file(byteswap.h   HAVE_BYTESWAP_H)
 check_include_file(locale.h     HAVE_LOCALE_H)
 check_include_file(time.h       HAVE_TIME_H)
 check_include_file(unistd.h     HAVE_UNISTD_H)
-check_include_file(windows.h    HAVE_WINDOWS_H)
+check_include_file(windows.h    HAVE_WINDOWS_H)  # Windows-specific
+check_include_file(io.h         HAVE_IO_H)       # Windows-specific
 
 # -- check for symbols
 set(CMAKE_C_FLAGS_saved ${CMAKE_C_FLAGS})
@@ -97,6 +98,15 @@ check_symbol_exists(localeconv          locale.h     HAVE__LOCALECONV)
 check_symbol_exists(va_copy             stdarg.h     HAVE_VA_COPY)
 check_symbol_exists(__va_copy           stdarg.h     HAVE___VA_COPY)
 
+# C11 mutex
+check_symbol_exists(mtx_init            threads.h    HAVE_MTX_INIT)
+check_symbol_exists(mtx_lock            threads.h    HAVE_MTX_LOCK)
+check_symbol_exists(mtx_timedlock       threads.h    HAVE_MTX_TIMEDLOCK)
+check_symbol_exists(mtx_trylock         threads.h    HAVE_MTX_TRYLOCK)
+check_symbol_exists(mtx_unlock          threads.h    HAVE_MTX_UNLOCK)
+check_symbol_exists(mtx_destroy         threads.h    HAVE_MTX_DESTROY)
+
+
 
 # -- typedefs
 include(CheckTypeSize)
@@ -124,7 +134,7 @@ if(WITH_THREADS)
 
     # On some 32-bit systems (like manylinux2014_i686) we have to
     # explicitly link with the threads library
-    if(CMAKE_SIZEOF_VOID_P EQUAL 4)
+    if(CMAKE_SIZEOF_VOID_P EQUAL 4 AND CMAKE_THREAD_LIBS_INIT)
       list(APPEND extra_link_libraries ${CMAKE_THREAD_LIBS_INIT})
     endif()
 
