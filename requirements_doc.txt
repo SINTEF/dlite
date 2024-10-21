@@ -12,6 +12,6 @@ sphinx-toggleprompt==0.5.2
 sphinx-copybutton==0.5.2  # does not work well with toggleprompt
 
 breathe==4.35.0
-myst-nb==1.1.1
+myst-nb==1.1.2
 nbclient==0.10.0
 docutils==0.21.2
