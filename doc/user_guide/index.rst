@@ -6,6 +6,7 @@ User Guide
    :caption: Contents
 
    concepts
+   entities
    type-system
    exceptions
    collections
