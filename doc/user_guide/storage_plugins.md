@@ -50,6 +50,15 @@ DLite will find these datamodels if the path to their directory is set with the
 environment variable `DLITE_STORAGES` or added within python with `dlite.storage_path.append` similarly to described above for drivers.
 
 
+IMPORTANT:
+Often, during development dlite will fail unexpectedly. This is typically either because of an error in the 
+datamodel or the driver. 
+The variable DLITE_PYDEBUG can be set as `export DLITE_PYDEBUG=` to get python debugging information. 
+This will give information about the driver.
+But is is advisable to first check that the datamodel is valid with the command `dlite-validate datamodelfilename`.
+
+
+
 Using storages implicitly from Python
 -------------------------------------
 For convenience DLite also has an interface for creating storages implicitly.
