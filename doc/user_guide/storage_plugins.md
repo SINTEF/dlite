@@ -1,5 +1,5 @@
-Storage plugins
-===============
+Storage plugins / Drivers
+=========================
 
 Content
 -------
@@ -26,6 +26,28 @@ A generic storage plugin can store and retrieve any type of instance and metadat
 DLite comes with a set of generic storage plugins, like json, yaml, rdf, hdf5, postgresql and mongodb.
 It also comes with a specific `Blob` and `Image` storage plugin, that can load and save instances of `http://onto-ns.com/meta/0.1/Blob` and `http://onto-ns.com/meta/0.1/Image`, respectively.
 Storage plugins can be written in either C or Python.
+
+
+How to make storage plugins available
+------------------------------------
+
+As described below it is possible (and most often advisable) to create specific drivers (storage plugins) for your data.
+Additional storage plugins drivers can be made available by setting the environment variables
+`DLITE_STORAGE_PLUGIN_DIRS` or `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` e.g.:
+```bash
+export DLITE_STORAGE_PLUGIN_DIRS=/path/to/new/folder:$DLITE_STORAGE_PLUGIN_DIRS
+```
+
+Within python, the path to the directory containing plugins can be added as follows:
+
+```python
+import dlite
+dlite.python_storage_plugin_path.append("/path/to/plugins/dir")
+```
+
+Often drivers are connected to very specific datamodel (entities). 
+DLite will find these datamodels if the path to their directory is set with the
+environment variable `DLITE_STORAGES` or added within python with `dlite.storage_path.append` similarly to described above for drivers.
 
 
 Using storages implicitly from Python
