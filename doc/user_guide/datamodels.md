@@ -23,7 +23,7 @@ properties:
     description: What is this property
     type: ref # Can be any on string, float, double, int, ref ....
     unit: unit # can be ommitted, not relevant with type ref
-    shape: [name_of_dimension] # ommit if shape is 1
+    shape: [name_of_dimension]  # Can be omitted if the property is a scalar
     $ref:  http://namespace/version/name_of_referenceddatamodel # only if type is ref
 ```
 
