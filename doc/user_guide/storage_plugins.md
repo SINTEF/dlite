@@ -29,7 +29,7 @@ Storage plugins can be written in either C or Python.
 
 
 How to make storage plugins available
-------------------------------------
+-------------------------------------
 
 As described below it is possible (and most often advisable) to create specific drivers (storage plugins) for your data.
 Additional storage plugins drivers can be made available by setting the environment variables
