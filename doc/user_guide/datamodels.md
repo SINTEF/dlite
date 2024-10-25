@@ -16,7 +16,7 @@ A generic example with some comments for clarity can be seen below.
 ```yaml
 uri: http://namespace/version/name
 description: A description of what this datamodel represents.
-dimensions: # Simplest to represent as a dict, set to {} if no dimensions
+dimensions:  # Named dimensions referred to in the property shapes. Simplest to represent it as a dict, set to {} if there are no dimensions
   name_of_dimension: description of dimension
 properties:
   name_of_property1:
