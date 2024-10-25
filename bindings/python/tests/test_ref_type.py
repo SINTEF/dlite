@@ -6,10 +6,12 @@ import dlite
 thisdir = Path(__file__).resolve().parent
 indir = thisdir / "input"
 
-dlite.storage_path.append(indir / "test_ref_type.json")
+dlite.storage_path.append(indir)
+dlite.storage_path.append(indir/"test_ref_type_middle.yaml")
 
+# Note, we read Middle from yaml file, which contains v0.2
 Top = dlite.get_instance("http://onto-ns.com/meta/0.1/Top")
-Middle = dlite.get_instance("http://onto-ns.com/meta/0.1/Middle")
+Middle = dlite.get_instance("http://onto-ns.com/meta/0.2/Middle")
 Leaf = dlite.get_instance("http://onto-ns.com/meta/0.1/Leaf")
 Linked = dlite.get_instance("http://onto-ns.com/meta/0.1/Linked")
 Tree = dlite.get_instance("http://onto-ns.com/meta/0.1/Tree")
@@ -78,6 +80,8 @@ assert cyclic.subtree[0] == cyclic
 assert cyclic.subtree[0].subtree[0] == cyclic
 assert cyclic.subtree[0].subtree[0].subtree[0] == cyclic
 
-# Instantiate nested from dict
-# For issue #515
-# middle = Middle(properties={"name": "nested", "leaf": {"a": 1, "b": True}})
+# For isue #982: ref-type in yaml
+assert Middle.getprop("leaf").ref == "http://onto-ns.com/meta/0.1/Leaf"
+
+# For issue #515: Instantiate nested from dict
+#middle = Middle(properties={"name": "nested", "leaf": {"a": 1, "b": True}})
