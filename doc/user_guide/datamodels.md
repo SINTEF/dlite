@@ -12,6 +12,7 @@ We choose here to present only one method as mixing repsentation methods might
 be confusing. Note, however that yaml and json representations are interchangable.
 
 A generic example with some comments for clarity can be seen below.
+
 ```yaml
 uri: http://namespace/version/name
 description: This describes how to make a yaml representation of a datamodel
