@@ -6,7 +6,7 @@ User Guide
    :caption: Contents
 
    concepts
-   entities
+   datamodels
    type-system
    exceptions
    collections
