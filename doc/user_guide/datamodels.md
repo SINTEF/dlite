@@ -15,7 +15,7 @@ A generic example with some comments for clarity can be seen below.
 
 ```yaml
 uri: http://namespace/version/name
-description: This describes how to make a yaml representation of a datamodel
+description: A description of what this datamodel represents.
 dimensions: # Simplest to represent as a dict, set to {} if no dimensions
   name_of_dimension: description of dimension
 properties:
