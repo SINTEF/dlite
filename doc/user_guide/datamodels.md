@@ -1,7 +1,7 @@
 Representing a datamodel (entity)
 ----------------------------------
 
-The (concepts)[concepts.md] describes the underlying structure of DLite datamodels.
+The underlying structure of DLite datamodels are described under [concepts].
 
 Here, at set of rules on how to create a datamodel is presented.
 
