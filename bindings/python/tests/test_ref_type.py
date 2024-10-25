@@ -10,7 +10,7 @@ thisdir = Path(__file__).resolve().parent
 indir = thisdir / "input"
 
 dlite.storage_path.append(indir)
-dlite.storage_path.append(indir/"test_ref_type_middle.yaml")
+dlite.storage_path.append(indir / "test_ref_type_middle.yaml")
 
 # If yaml is available, we read Middle v0.2, which is defined in
 # `test_ref_type_middle.yaml`.  Otherwise, we read Middle v0.1, which
