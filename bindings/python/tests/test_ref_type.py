@@ -7,7 +7,7 @@ thisdir = Path(__file__).resolve().parent
 indir = thisdir / "input"
 
 dlite.storage_path.append(indir)
-dlite.storage_path.append(indir/"test_ref_type_middle.yaml")
+dlite.storage_path.append(indir / "test_ref_type_middle.yaml")
 
 # Note, we read Middle from yaml file, which contains v0.2
 Top = dlite.get_instance("http://onto-ns.com/meta/0.1/Top")
