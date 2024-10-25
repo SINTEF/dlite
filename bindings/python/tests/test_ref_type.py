@@ -1,6 +1,9 @@
 from pathlib import Path
 
 import dlite
+from dlite.testutils import importcheck
+
+yaml = importcheck("yaml")
 
 
 thisdir = Path(__file__).resolve().parent
@@ -9,9 +12,13 @@ indir = thisdir / "input"
 dlite.storage_path.append(indir)
 dlite.storage_path.append(indir/"test_ref_type_middle.yaml")
 
-# Note, we read Middle from yaml file, which contains v0.2
+# If yaml is available, we read Middle v0.2, which is defined in
+# `test_ref_type_middle.yaml`.  Otherwise, we read Middle v0.1, which
+# is defined together with the other datamodels in `test_ref_type.json`.
+version = "0.2" if yaml else "0.1"
+
 Top = dlite.get_instance("http://onto-ns.com/meta/0.1/Top")
-Middle = dlite.get_instance("http://onto-ns.com/meta/0.2/Middle")
+Middle = dlite.get_instance(f"http://onto-ns.com/meta/{version}/Middle")
 Leaf = dlite.get_instance("http://onto-ns.com/meta/0.1/Leaf")
 Linked = dlite.get_instance("http://onto-ns.com/meta/0.1/Linked")
 Tree = dlite.get_instance("http://onto-ns.com/meta/0.1/Tree")
