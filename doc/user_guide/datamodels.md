@@ -64,3 +64,6 @@ dlite-validate filename.yaml # or json
 ```
 
 It will then return a list of errors if it is not a valid representation.
+
+
+[concepts]: https://sintef.github.io/dlite/user_guide/concepts.html
