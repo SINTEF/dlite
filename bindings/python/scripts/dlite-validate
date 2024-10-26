@@ -29,10 +29,15 @@ def parse(url, driver=None, options="mode=r", id=None):
 
     # Validate all instances if `id` is None
     if id is None:
-        insts = []
-        for uuid in dlite.Instance.get_uuids(driver, url, options=options):
-            insts.extend(parse(url, driver=driver, options=options, id=uuid))
-        return insts
+        try:
+            uuids = dlite.Instance.get_uuids(driver, url, options=options)
+        except dlite.DLiteUnsupportedError:
+            pass
+        else:
+            insts = []
+            for uuid in uuids:
+                insts.extend(parse(url, driver=driver, options=options, id=uuid))
+            return insts
 
     match = re.match(r'^([a-zA-Z][a-zA-Z0-9+.-]*)://', url)
     if match and match.groups()[0].lower() != 'file':
