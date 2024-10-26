@@ -43,9 +43,7 @@ void jsmn_init(jsmn_parser *parser);
 
 
 /**
- * Run JSON parser.
- *
- * It parses a JSON data string into and array of tokens, each
+ * Parse a JSON data string into and array of tokens, each
  * describing a single JSON object.
  *
  * Arguments
@@ -60,8 +58,9 @@ void jsmn_init(jsmn_parser *parser);
  * Returns
  * -------
  * On success, it returns the number of tokens actually used by the parser.
- * On error, one of the following (negative) codes is returned:
+ * If `tokens` is NULL, the number of needed will be returned.
  *
+ * On error, one of the following (negative) codes is returned:
  *  - JSMN_ERROR_INVAL: bad token, JSON string is corrupted
  *  - JSMN_ERROR_NOMEM: not enough tokens, JSON string is too large
  *  - JSMN_ERROR_PART:  JSON string is too short, expecting more JSON data
