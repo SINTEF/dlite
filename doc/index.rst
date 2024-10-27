@@ -54,7 +54,7 @@ DLite
    :glob:
    :hidden:
 
-   Python API <autoapi/index>
+   Python API <autoapi/dlite>
    C-API <c-api/src>
 
 
