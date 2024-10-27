@@ -5,5 +5,5 @@ API Reference
    :maxdepth: 4
    :caption: API Reference
 
-   Python API <autoapi/index>
+   Python API <autoapi/dlite>
    C-API <c-api/src>
