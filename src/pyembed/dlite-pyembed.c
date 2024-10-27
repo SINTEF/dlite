@@ -141,85 +141,119 @@ void dlite_pyembed_initialise(void)
 {
   PyembedGlobals *g = get_globals();
 
-  if (!g->initialised &&
-      (!Py_IsInitialized() || !dlite_behavior_get("singleInterpreter"))) {
+  if (!g->initialised) {
+      g->initialised = 1;
 
-    /*
-      Python 3.8 and later implements the new Python
-      Initialisation Configuration.
-
-      More features were added in the following releases,
-      like `config.safe_path`, which was added in Python 3.11
-
-      The old Py_SetProgramName() was deprecated in Python 3.11.
-
-      In DLite, we switch to the new Python Initialisation
-      Configuration from Python 3.11.
-    */
-    PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
-#if PY_VERSION_HEX >= 0x030b0000  /* Python >= 3.11 */
-    /* New Python Initialisation Configuration */
-    PyStatus status;
-    PyConfig config;
-
-    PyConfig_InitPythonConfig(&config);
-    config.isolated = 0;
-    config.safe_path = 0;
-    config.use_environment = 1;
-    config.user_site_directory = 1;
-
-    /* If dlite is called from a python, reparse arguments to avoid
-       that they are stripped off... */
     if (Py_IsInitialized()) {
-      int argc=0;
-      wchar_t **argv=NULL;
-      Py_GetArgcArgv(&argc, &argv);
-      config.parse_argv = 1;
-      status = PyConfig_SetArgv(&config, argc, argv);
+      /* Set environment variables from global variables in Python
+         starting with "DLITE_" */
+      PyObject *maindict = dlite_python_maindict();
+      PyObject *key, *value;
+      Py_ssize_t pos = 0;
+
+      while (PyDict_Next(maindict, &pos, &key, &value)) {
+        if (PyUnicode_Check(key)) {
+          const char *ckey = PyUnicode_AsUTF8AndSize(key, NULL);
+          assert(ckey);
+          if (strncmp(ckey, "DLITE_", 6) == 0) {
+            if (PyBool_Check(value)) {
+              if (PyObject_IsTrue(value)) setenv(ckey, "", 1);
+            } else if (PyLong_Check(value)) {
+              long v = PyLong_AsLong(value);
+              char cval[32];
+              snprintf(cval, sizeof(cval), "%ld", v);
+              setenv(ckey, cval, 1);
+            } else if (PyUnicode_Check(value)) {
+              const char *cval = PyUnicode_AsUTF8AndSize(value, NULL);
+              setenv(ckey, cval, 1);
+            } else {
+              dlite_warnx("Unsupported type for value of global variable `%s`. "
+                          "Should be bool, str or int.", ckey);
+            }
+          }
+        }
+      }
+    }
+
+    if (!Py_IsInitialized() || !dlite_behavior_get("singleInterpreter")) {
+      /*
+        Initialise new Python interpreter
+
+        Python 3.8 and later implements the new Python
+        Initialisation Configuration.
+
+        More features were added in the following releases,
+        like `config.safe_path`, which was added in Python 3.11
+
+        The old Py_SetProgramName() was deprecated in Python 3.11.
+
+        In DLite, we switch to the new Python Initialisation
+        Configuration from Python 3.11.
+      */
+      PyObject *sys=NULL, *sys_path=NULL, *path=NULL;
+#if PY_VERSION_HEX >= 0x030b0000  /* Python >= 3.11 */
+      /* New Python Initialisation Configuration */
+      PyStatus status;
+      PyConfig config;
+
+      PyConfig_InitPythonConfig(&config);
+      config.isolated = 0;
+      config.safe_path = 0;
+      config.use_environment = 1;
+      config.user_site_directory = 1;
+
+      /* If dlite is called from a python, reparse arguments to avoid
+         that they are stripped off... */
+      if (Py_IsInitialized()) {
+        int argc=0;
+        wchar_t **argv=NULL;
+        Py_GetArgcArgv(&argc, &argv);
+        config.parse_argv = 1;
+        status = PyConfig_SetArgv(&config, argc, argv);
+        if (PyStatus_Exception(status))
+          FAIL("failed configuring pyembed arguments");
+      }
+
+      status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
       if (PyStatus_Exception(status))
-        FAIL("failed configuring pyembed arguments");
-    }
+        FAIL("failed configuring pyembed program name");
 
-    status = PyConfig_SetBytesString(&config, &config.program_name, "dlite");
-    if (PyStatus_Exception(status))
-      FAIL("failed configuring pyembed program name");
-
-    status = Py_InitializeFromConfig(&config);
-    PyConfig_Clear(&config);
-    if (PyStatus_Exception(status))
-      FAIL("failed clearing pyembed config");
+      status = Py_InitializeFromConfig(&config);
+      PyConfig_Clear(&config);
+      if (PyStatus_Exception(status))
+        FAIL("failed clearing pyembed config");
 #else
-    /* Old Initialisation */
-    wchar_t *progname;
+      /* Old Initialisation */
+      wchar_t *progname;
 
-    Py_Initialize();
+      Py_Initialize();
 
-    if (!(progname = Py_DecodeLocale("dlite", NULL))) {
-      dlite_err(1, "allocation/decoding failure");
-      return;
+      if (!(progname = Py_DecodeLocale("dlite", NULL))) {
+        dlite_err(1, "allocation/decoding failure");
+        return;
+      }
+      Py_SetProgramName(progname);
+      PyMem_RawFree(progname);
+#endif
+
+      if (dlite_use_build_root()) {
+        if (!(sys = PyImport_ImportModule("sys")))
+          FAIL("cannot import sys");
+        if (!(sys_path = PyObject_GetAttrString(sys, "path")))
+          FAIL("cannot access sys.path");
+        if (!PyList_Check(sys_path))
+          FAIL("sys.path is not a list");
+        if (!(path = PyUnicode_FromString(dlite_PYTHONPATH)))
+          FAIL("cannot create python object for dlite_PYTHONPATH");
+        if (PyList_Insert(sys_path, 0, path))
+          FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
+      }
+
+    fail:
+      Py_XDECREF(sys);
+      Py_XDECREF(sys_path);
+      Py_XDECREF(path);
     }
-    Py_SetProgramName(progname);
-    PyMem_RawFree(progname);
- #endif
-
-    if (dlite_use_build_root()) {
-      if (!(sys = PyImport_ImportModule("sys")))
-        FAIL("cannot import sys");
-      if (!(sys_path = PyObject_GetAttrString(sys, "path")))
-        FAIL("cannot access sys.path");
-      if (!PyList_Check(sys_path))
-        FAIL("sys.path is not a list");
-      if (!(path = PyUnicode_FromString(dlite_PYTHONPATH)))
-        FAIL("cannot create python object for dlite_PYTHONPATH");
-      if (PyList_Insert(sys_path, 0, path))
-        FAIL1("cannot insert %s into sys.path", dlite_PYTHONPATH);
-    }
-
-    g->initialised = 1;
-  fail:
-    Py_XDECREF(sys);
-    Py_XDECREF(sys_path);
-    Py_XDECREF(path);
   }
 }
 
