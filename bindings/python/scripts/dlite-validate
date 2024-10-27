@@ -5,7 +5,22 @@ import sys
 import argparse
 import json
 import re
+import ctypes
+from ctypes.util import find_library
 from pathlib import Path
+
+# Silence warning about behavior by setting environment variable
+# DLITE_BEHAVIOR=OFF before importing dlite.
+# This must be done at c-level outside os.environ.
+clib = find_library("c")
+dll = ctypes.CDLL(clib)
+setenv = dll.setenv
+setenv.argtypes = [
+    ctypes.POINTER(ctypes.c_char),  # name
+    ctypes.POINTER(ctypes.c_char),  # value
+    ctypes.c_int,                   # overwrite
+]
+setenv(b"DLITE_BEHAVIOR", b"OFF", 1)
 
 import dlite
 
