@@ -55,7 +55,7 @@ int isuuid(const char *s);
 
 
 /**
-  Returns non-zero if `s` matches <URI>/<UUID>. `len` is the length of `s`.
+  Returns non-zero if `s` matches `[URI]/[UUID]. `len` is the length of `s`.
   An optional final hash or slash will be ignored.
 */
 int isinstanceuri(const char *s, int len);
