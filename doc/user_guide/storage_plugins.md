@@ -222,6 +222,21 @@ This could lead to confusing and hard-to-find bugs due to interference between y
 However, since DLite v0.5.23, plugins are evaluated in separate scopes (which are available in `dlite._plugindict).
 
 
+### Distributing storage plugins
+If you created a python package with new storage plugins, you can make them
+available for users of your package by creating entry points with the paths to the storage plugins.
+
+Add the following section to your `pyproject.toml`:
+
+```toml
+[project.entry-points.dlite]
+python_storage_plugins = "path/to/python_storage_plugins/directory"
+
+```
+
+See [Extending DLite] for more information.
+
+
 
 Working with storages from C and Fortran
 ----------------------------------------

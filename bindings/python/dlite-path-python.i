@@ -55,6 +55,7 @@ def _create_path(name):
 
 # Create DLite search paths objects
 storage_path = _create_path("storages")
+template_path = _create_path("templates")
 storage_plugin_path = _create_path("storage-plugins")
 mapping_plugin_path = _create_path("mapping-plugins")
 python_storage_plugin_path = _create_path("python-storage-plugins")
