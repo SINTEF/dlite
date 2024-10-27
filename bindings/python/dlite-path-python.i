@@ -37,12 +37,30 @@
 
 
 %pythoncode %{
-storage_path = FUPath("storages")
-storage_plugin_path = FUPath("storage-plugins")
-mapping_plugin_path = FUPath("mapping-plugins")
-python_storage_plugin_path = FUPath("python-storage-plugins")
-python_mapping_plugin_path = FUPath("python-mapping-plugins")
-python_protocol_plugin_path = FUPath("python-protocol-plugins")
+import sys
+from importlib.metadata import entry_points
+
+def _create_path(name):
+    """Return new DLite search path object, with given name."""
+    if sys.version_info < (3, 10):  # Fallback for Python < 3.10
+        eps = entry_points().get(f"dlite.{name}", ())
+    else:  # For Python 3.10+
+        eps = entry_points(group=f"dlite.{name}")
+
+    path = FUPath(name)
+    path.name = name
+    for entry_point in eps:
+        path.append(entry_point.value)
+    return path
+
+# Create DLite search paths objects
+storage_path = _create_path("storages")
+storage_plugin_path = _create_path("storage-plugins")
+mapping_plugin_path = _create_path("mapping-plugins")
+python_storage_plugin_path = _create_path("python-storage-plugins")
+python_mapping_plugin_path = _create_path("python-mapping-plugins")
+python_protocol_plugin_path = _create_path("python-protocol-plugins")
+
 
 # Update default search paths
 from pathlib import Path
