@@ -144,7 +144,8 @@ void dlite_pyembed_initialise(void)
   if (!g->initialised) {
       g->initialised = 1;
 
-    if (Py_IsInitialized()) {
+#if defined(HAVE_SETENV) || defined(HAVE__PUTENV_S)
+      if (Py_IsInitialized()) {
       /* Set environment variables from global variables in Python
          starting with "DLITE_" */
       PyObject *maindict = dlite_python_maindict();
@@ -174,6 +175,7 @@ void dlite_pyembed_initialise(void)
         }
       }
     }
+#endif
 
     if (!Py_IsInitialized() || !dlite_behavior_get("singleInterpreter")) {
       /*
