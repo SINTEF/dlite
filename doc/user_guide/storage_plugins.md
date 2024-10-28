@@ -4,10 +4,11 @@ Storage plugins / Drivers
 Content
 -------
   1. [Introduction](#introduction)
-  2. [Working with storages in Python](#working-with-storages-in-python)
-  3. [Using storages implicitely](#using-storages-implicitly)
-  4. [Writing Python storage plugins](#writing-python-storage-plugins)
-  5. [Working with storages from C and Fortran](#working-with-storages-from-c-and-fortran)
+  2. [How to make storage plugins available](#how-to-make-storage-plugins-available)
+  3. [Using storages implicitely from Python](#using-storages-implicitly-from-python)
+  4. [Working with storages in Python](#working-with-storages-in-python)
+  5. [Writing Python storage plugins](#writing-python-storage-plugins)
+  6. [Working with storages from C and Fortran](#working-with-storages-from-c-and-fortran)
 
 
 Introduction
@@ -30,7 +31,6 @@ Storage plugins can be written in either C or Python.
 
 How to make storage plugins available
 -------------------------------------
-
 As described below it is possible (and most often advisable) to create specific drivers (storage plugins) for your data.
 Additional storage plugins drivers can be made available by setting the environment variables
 `DLITE_STORAGE_PLUGIN_DIRS` or `DLITE_PYTHON_STORAGE_PLUGIN_DIRS` e.g.:
@@ -45,15 +45,15 @@ import dlite
 dlite.python_storage_plugin_path.append("/path/to/plugins/dir")
 ```
 
-Often drivers are connected to very specific datamodel (entities). 
+Often drivers are connected to very specific datamodel (entities).
 DLite will find these datamodels if the path to their directory is set with the
 environment variable `DLITE_STORAGES` or added within python with `dlite.storage_path.append` similarly to described above for drivers.
 
 
 ```{attention}
-Often, during development dlite will fail unexpectedly. This is typically either because of an error in the 
-datamodel or the driver. 
-The variable DLITE_PYDEBUG can be set as `export DLITE_PYDEBUG=` to get python debugging information. 
+Often, during development dlite will fail unexpectedly. This is typically either because of an error in the
+datamodel or the driver.
+The variable DLITE_PYDEBUG can be set as `export DLITE_PYDEBUG=` to get python debugging information.
 This will give information about the driver.
 It is advisable to first check that the datamodel is valid with the command `dlite-validate datamodelfilename`.
 ```
