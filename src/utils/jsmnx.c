@@ -54,6 +54,7 @@ int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
     n = jsmn_parse(parser, js, len, *tokens_ptr, *num_tokens_ptr);
     if (n >= 0) return n;
     if (n != JSMN_ERROR_NOMEM) goto fail;
+    // Try to handle JSMN_ERROR_NOMEM by reallocating
     memcpy(parser, &saved_parser, sizeof(saved_parser));
     jsmn_init(&tmp_parser);
     if ((n = jsmn_parse(&tmp_parser, js, len, NULL, 0)) < 0) goto fail;
