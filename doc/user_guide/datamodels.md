@@ -22,7 +22,7 @@ properties:
   name_of_property1:
     description: What is this property
     type: ref # Can be any on string, float, double, int, ref ....
-    unit: unit # can be ommitted, not relevant with type ref
+    unit: unit  # Can be ommitted if the property has no unit
     shape: [name_of_dimension]  # Can be omitted if the property is a scalar
     $ref:  http://namespace/version/name_of_referenceddatamodel # only if type is ref
 ```
