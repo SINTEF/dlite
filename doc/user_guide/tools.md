@@ -3,6 +3,18 @@ Tools
 DLite comes with a small set of tools.
 
 
+dlite-validate
+--------------
+The dlite-validate tool can be used to check if a specific representation (in a file) is a valid DLite datamodel.
+
+This can be run as follows
+```bash
+dlite-validate filename.yaml # or json
+```
+
+It will then return a list of errors if it is not a valid datamodel.
+
+
 dlite-getuuid
 -------------
 This is a handy small tool for generating a random UUID or getting the UUID corresonding to an URI.
