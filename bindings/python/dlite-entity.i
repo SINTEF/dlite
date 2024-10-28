@@ -250,16 +250,20 @@ This is the most central class in DLite.  It has a complex `__init__()`
 method and is intended to be instantiated with one of the following class
 methods:
 
-  - from_metaid(cls, metaid, dimensions, id=None)
-  - from_url(cls, url, metaid=None)
-  - from_storage(cls, storage, id=None, metaid=None)
-  - from_location(cls, driver, location, options=None, id=None)
-  - from_json(cls, jsoninput, id=None, metaid=None)
-  - from_bson(cls, bsoninput)
-  - from_dict(cls, d, id=None, single=None, check_storages=True)
-  - create_metadata(cls, uri, dimensions, properties, description)
+- from_metaid(cls, metaid, dimensions, id=None)
+- from_url(cls, url, metaid=None)
+- from_storage(cls, storage, id=None, metaid=None)
+- from_location(cls, driver, location, options=None, id=None)
+- from_json(cls, jsoninput, id=None, metaid=None)
+- from_bson(cls, bsoninput)
+- from_dict(cls, d, id=None, single=None, check_storages=True)
+- create_metadata(cls, uri, dimensions, properties, description)
 
 For details, see the documentation of the individual class methods.
+
+Attributes:
+    uuid: The UUID of the instance.
+    uri: The URI of the instance.
 
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
