@@ -7,7 +7,7 @@ This include both the README files and documentation found in the `doc/` subdire
 
 Generate documentation locally
 ------------------------------
-When writing documentation it is practically to build and check the documentation locally before submitting a pull request.
+When writing documentation it is practical to build and check the documentation locally before submitting a pull request.
 
 The following steps are needed for building the documentation:
 
@@ -15,11 +15,11 @@ The following steps are needed for building the documentation:
 
    First you need [doxygen]. In Ubuntu it can be installed with
 
-       sudo apt-install doxygen
+       sudo apt install doxygen
 
    Python requirements can be installed with
 
-       pip install --update -r requirements_doc.txt
+       pip install --upgrade -r requirements_doc.txt
 
 2. Ask cmake to build documentation
 
