@@ -190,7 +190,34 @@ Both dimensions and properties can also be provided as arrays using a `dict` wit
             "shape": ["N"],
             "description": "Maximum Power"
         },
-        ...
+        {
+            "name": "impp",
+            "type": "float64",
+            "unit": "A",
+            "shape": ["N"],
+            "description": "Maximum power point current."
+        },
+        {
+            "name": "isc",
+            "type": "float64",
+            "unit": "A",
+            "shape": ["N"],
+            "description": "Short circuit current."
+        },
+        {
+            "name": "vmpp",
+            "type": "float64",
+            "unit": "V",
+            "shape": ["N"],
+            "description": "Maximum power point voltage."
+        },
+        {
+            "name": "voc",
+            "type": "float64",
+            "unit": "V",
+            "shape": ["N"],
+            "description": "Open circuit voltage."
+        }
     ]
 }
 ```
