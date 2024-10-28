@@ -1,0 +1,11 @@
+http://onto-ns.com/meta/0.2/Middle:
+  description: Middle-level nested data structure.
+  dimensions: []
+  properties:
+  - name: name
+    type: string
+    description: Value of this structure.
+  - name: leaf
+    type: ref
+    $ref: http://onto-ns.com/meta/0.1/Leaf
+    description: Reference to low-level structure.

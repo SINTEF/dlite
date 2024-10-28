@@ -1,15 +1,24 @@
 from pathlib import Path
 
 import dlite
+from dlite.testutils import importcheck
+
+yaml = importcheck("yaml")
 
 
 thisdir = Path(__file__).resolve().parent
 indir = thisdir / "input"
 
-dlite.storage_path.append(indir / "test_ref_type.json")
+dlite.storage_path.append(indir)
+dlite.storage_path.append(indir / "test_ref_type_middle.yaml")
+
+# If yaml is available, we read Middle v0.2, which is defined in
+# `test_ref_type_middle.yaml`.  Otherwise, we read Middle v0.1, which
+# is defined together with the other datamodels in `test_ref_type.json`.
+version = "0.2" if yaml else "0.1"
 
 Top = dlite.get_instance("http://onto-ns.com/meta/0.1/Top")
-Middle = dlite.get_instance("http://onto-ns.com/meta/0.1/Middle")
+Middle = dlite.get_instance(f"http://onto-ns.com/meta/{version}/Middle")
 Leaf = dlite.get_instance("http://onto-ns.com/meta/0.1/Leaf")
 Linked = dlite.get_instance("http://onto-ns.com/meta/0.1/Linked")
 Tree = dlite.get_instance("http://onto-ns.com/meta/0.1/Tree")
@@ -78,6 +87,8 @@ assert cyclic.subtree[0] == cyclic
 assert cyclic.subtree[0].subtree[0] == cyclic
 assert cyclic.subtree[0].subtree[0].subtree[0] == cyclic
 
-# Instantiate nested from dict
-# For issue #515
-# middle = Middle(properties={"name": "nested", "leaf": {"a": 1, "b": True}})
+# For isue #982: ref-type in yaml
+assert Middle.getprop("leaf").ref == "http://onto-ns.com/meta/0.1/Leaf"
+
+# For issue #515: Instantiate nested from dict
+#middle = Middle(properties={"name": "nested", "leaf": {"a": 1, "b": True}})
