@@ -120,7 +120,6 @@ Using [Visual Studio Code] (VS Code) it is possible to do development on the sys
 [Python]: https://www.python.org/
 [NumPy]: https://pypi.org/project/numpy/
 [SWIG]: https://www.swig.org/
-[virtualenvwrapper]: https://pypi.org/project/virtualenvwrapper/
 [cppcheck]: http://cppcheck.sourceforge.net/
 [Doxygen]: http://www.doxygen.org/
 [Sphinx]: https://www.sphinx-doc.org/

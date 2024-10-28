@@ -289,7 +289,7 @@ if(NOT (HAVE_SNPRINTF OR HAVE__SNPRINTF) OR
    NOT (HAVE_ASPRINTF OR HAVE__ASPRINTF) OR
    NOT (HAVE_VASPRINTF OR HAVE__VASPRINTF))
   set(WITH_SNPRINTF 1)
-  configure_file(compat/config_snprintf.h.in config_snprintf.h)
+  configure_file(compat-src/config_snprintf.h.in config_snprintf.h)
 endif()
 
 
@@ -328,14 +328,14 @@ set(sources
   uuid4.c
   )
 if(NOT HAVE_GETOPT)
-  list(APPEND sources compat/getopt.c)
+  list(APPEND sources compat-src/getopt.c)
 endif()
 if(WITH_SNPRINTF)
-  list(APPEND sources compat/snprintf.c)
+  list(APPEND sources compat-src/snprintf.c)
   add_definitions(-DHAVE_CONFIG_SNPRINTF_H)
 endif()
 if(NOT HAVE_REALPATH AND UNIX)
-  list(APPEND sources compat/realpath.c)
+  list(APPEND sources compat-src/realpath.c)
 endif()
 
 add_definitions(
@@ -416,8 +416,8 @@ install(
 
 install(
   FILES
-    compat/dirent.h
-    compat/getopt.h
+    compat-src/dirent.h
+    compat-src/getopt.h
   DESTINATION include/dlite/utils/compat
   )
 

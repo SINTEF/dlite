@@ -16,9 +16,10 @@ set(SPHINX_INDEX_FILE "${SPHINX_HTML_DIR}/index.html")
 # Doxygen intput source directory
 set(DOXYGEN_INPUT_DIRS
   ${dlite_SOURCE_DIR}/src/utils
+  ${dlite_SOURCE_DIR}/src/utils/compat-src
   ${dlite_SOURCE_DIR}/src
   ${dlite_SOURCE_DIR}/src/pyembed
-  #${dlite_BINARY_DIR}/bindings/python/dlite
+  ${dlite_SOURCE_DIR}/src/tests/minunit
 )
 string(REPLACE ";" " " DOXYGEN_INPUT "${DOXYGEN_INPUT_DIRS}")
 

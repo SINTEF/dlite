@@ -30,15 +30,16 @@ class mongodb(dlite.DLiteStorageBase):
         An ampersand (&) may be used instead of the semicolon (;).
 
         Options:
+
         - mode: "r" for opening in read-only mode, "w" for read/write mode.
         - database: Name of database to use (default: "test")
         - collection: Name of collection to use (default: "test_coll")
         - options for the constructor of the pymongo.MongoClient could pass by
           using the dlite.Options object, for example:
 
-            opt = Options("mode=r;database=test;collection=testc")
-            opt.update(directConnection=False, maxPoolSize=200)
-            storage = dlite.Storage("mongodb", "localhost", str(opt))
+              opt = Options("mode=r;database=test;collection=testc")
+              opt.update(directConnection=False, maxPoolSize=200)
+              storage = dlite.Storage("mongodb", "localhost", str(opt))
 
         see more details of the pymongo.MongoClient options
         https://pymongo.readthedocs.io/en/stable/api/pymongo/mongo_client.html#pymongo.mongo_client.MongoClient:
