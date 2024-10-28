@@ -1053,7 +1053,6 @@ struct _DLiteJsonIter {
   const jsmntok_t *t;     /*!< Pointer to current token */
   unsigned int n;         /*!< Current token number */
   unsigned int size;      /*!< Size of the root object */
-  //char *metaid;           /*!< Metadata id to match */
   char metauuid[DLITE_UUID_LENGTH+1];  /*!< UUID of metadata */
 };
 
