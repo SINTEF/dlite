@@ -17,7 +17,7 @@
 #define JSMN_STRICT
 #define JSMN_PARENT_LINKS
 #include "jsmn.h"
-
+#include "jsmnx.h"
 
 /*
   Like jsmn_parse(), but realloc's the buffer pointed to by `tokens_ptr`
@@ -32,49 +32,56 @@
 int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
                      jsmntok_t **tokens_ptr, unsigned int *num_tokens_ptr)
 {
-  int n, n_save;
-  jsmntok_t *t=NULL;
-  (void) n_save;  // avoid unused parameter error when assert is turned off
+  int n_tokens;
+  jsmntok_t *tokens=NULL;
   assert(tokens_ptr);
   assert(num_tokens_ptr);
   if (!*num_tokens_ptr) *tokens_ptr = NULL;
   if (!*tokens_ptr) *num_tokens_ptr = 0;
 
   if (!*tokens_ptr) {
-    jsmn_parser tmp_parser;
-    jsmn_init(&tmp_parser);
-    if ((n = jsmn_parse(&tmp_parser, js, len, NULL, 0)) < 0) goto fail;
+    if ((n_tokens = jsmn_required_tokens(js, len)) < 0) return n_tokens;
+
     /* FIXME: there seems to be an issue with the dlite_json_check() that
        looks post the last allocated token. Allocating `n+1` tokens is a
        workaround to avoid memory issues. */
-    if (!(t = calloc(n+1, sizeof(jsmntok_t)))) return JSMN_ERROR_NOMEM;
-  } else {
-    jsmn_parser tmp_parser, saved_parser;
-    memcpy(&saved_parser, parser, sizeof(saved_parser));
-    n = jsmn_parse(parser, js, len, *tokens_ptr, *num_tokens_ptr);
-    if (n >= 0) return n;
-    if (n != JSMN_ERROR_NOMEM) goto fail;
-    // Try to handle JSMN_ERROR_NOMEM by reallocating
-    memcpy(parser, &saved_parser, sizeof(saved_parser));
-    jsmn_init(&tmp_parser);
-    if ((n = jsmn_parse(&tmp_parser, js, len, NULL, 0)) < 0) goto fail;
-    if (!(t = realloc(*tokens_ptr, (n+1)*sizeof(jsmntok_t))))
+    if (!(tokens = calloc(n_tokens+1, sizeof(jsmntok_t))))
       return JSMN_ERROR_NOMEM;
-  }
-  *tokens_ptr = t;
-  *num_tokens_ptr = n;
-  n_save = n;
+  } else {
+    jsmn_parser saved_parser;
+    memcpy(&saved_parser, parser, sizeof(saved_parser));
+    n_tokens = jsmn_parse(parser, js, len, *tokens_ptr, *num_tokens_ptr);
+    if (n_tokens >= 0 || n_tokens != JSMN_ERROR_NOMEM) return n_tokens;
 
-  if ((n = jsmn_parse(parser, js, len, t, n)) < 0) goto fail;
-  assert(n == n_save);
-  return n;
- fail:
-  switch (n) {
-  case JSMN_ERROR_NOMEM: abort();  // this should never happen
-  case JSMN_ERROR_INVAL: return JSMN_ERROR_INVAL;
-  case JSMN_ERROR_PART: return JSMN_ERROR_INVAL;
+    // Try to handle JSMN_ERROR_NOMEM by reallocating
+    if ((n_tokens = jsmn_required_tokens(js, len)) < 0) return n_tokens;
+    if (!(tokens = realloc(*tokens_ptr, (n_tokens+1)*sizeof(jsmntok_t))))
+      return JSMN_ERROR_NOMEM;
+
+    // Resetting parser - is this really needed?
+    memcpy(parser, &saved_parser, sizeof(saved_parser));
   }
-  abort();  // should never be reached
+  *tokens_ptr = tokens;
+  *num_tokens_ptr = n_tokens;
+
+  n_tokens = jsmn_parse(parser, js, len, tokens, n_tokens);
+  assert(n_tokens != JSMN_ERROR_NOMEM);
+  return n_tokens;
+}
+
+
+/*
+  Returns number of tokens required to parse JSON string `js` of length `len`.
+  On error, JSMN_ERROR_INVAL or JSMN_ERROR_PART is retuned.
+ */
+int jsmn_required_tokens(const char *js, size_t len)
+{
+  int n_tokens;
+  jsmn_parser parser;
+  jsmn_init(&parser);
+  n_tokens = jsmn_parse(&parser, js, len, NULL, 0);
+  assert(n_tokens != JSMN_ERROR_NOMEM);
+  return n_tokens;
 }
 
 
