@@ -129,8 +129,7 @@ class postgresql(dlite.DLiteStorageBase):
 
         # The uuid will be wrong for data instances, so override it
         if not inst.is_metameta:
-            d = inst.asdict()
-            d["uuid"] = uuid
+            d = inst.asdict(single=True, uuid=True)
             inst = instance_from_dict(d)
         return inst
 
