@@ -55,7 +55,7 @@ Often, during development dlite will fail unexpectedly. This is typically either
 datamodel or the driver. 
 The variable DLITE_PYDEBUG can be set as `export DLITE_PYDEBUG=` to get python debugging information. 
 This will give information about the driver.
-But is is advisable to first check that the datamodel is valid with the command `dlite-validate datamodelfilename`.
+It is advisable to first check that the datamodel is valid with the command `dlite-validate datamodelfilename`.
 
 
 
