@@ -69,10 +69,5 @@ dlite-validate
 ==============
 The [dlite-validate tool][./tools.md#dlite_validate] can be used to check if a specific representation (in a file) is a valid DLite datamodel
 
-<<<<<<< Updated upstream
-It will then return a list of errors if it is not a valid representation.
-
 
 [concepts]: https://sintef.github.io/dlite/user_guide/concepts.html
-=======
->>>>>>> Stashed changes
