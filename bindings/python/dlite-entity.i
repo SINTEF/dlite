@@ -244,24 +244,22 @@ struct _Triple {
  * Instance
  * -------- */
 %feature("docstring", "\
-Returns a new instance.
+Represents a DLite instance.
 
-Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None,
-         location=None, options=None, dimensions=None, properties=None,
-         description=None)
+This is the most central class in DLite.  It has a complex `__init__()`
+method and is intended to be instantiated with one of the following class
+methods:
 
-    Is called from one of the following class methods defined in dlite.py:
+  - from_metaid(cls, metaid, dimensions, id=None)
+  - from_url(cls, url, metaid=None)
+  - from_storage(cls, storage, id=None, metaid=None)
+  - from_location(cls, driver, location, options=None, id=None)
+  - from_json(cls, jsoninput, id=None, metaid=None)
+  - from_bson(cls, bsoninput)
+  - from_dict(cls, d, id=None, single=None, check_storages=True)
+  - create_metadata(cls, uri, dimensions, properties, description)
 
-      - from_metaid(cls, metaid, dimensions, id=None)
-      - from_url(cls, url, metaid=None)
-      - from_storage(cls, storage, id=None, metaid=None)
-      - from_location(cls, driver, location, options=None, id=None)
-      - from_json(cls, jsoninput, id=None, metaid=None)
-      - from_bson(cls, bsoninput)
-      - from_dict(cls, d, id=None, single=None, check_storages=True)
-      - create_metadata(cls, uri, dimensions, properties, description)
-
-      For details, see the documentation for the class methods.
+For details, see the documentation of the individual class methods.
 
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};
