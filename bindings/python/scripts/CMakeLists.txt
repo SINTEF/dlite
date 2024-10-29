@@ -82,10 +82,10 @@ test_success(
 # Test valid yaml
 test_success(
   dlite-validate-valid1-yaml
-  dlite-validate ../tests/entities/Valid1.yaml
+  dlite-validate ../tests/entities/ValidYaml1.yaml
 )
 # Test invalid yaml
 test_failure(
   dlite-validate-invalid1-yaml
-  dlite-validate ../tests/entities/Invalid1.yaml
+  dlite-validate ../tests/entities/InvalidYaml1.yaml
 )
