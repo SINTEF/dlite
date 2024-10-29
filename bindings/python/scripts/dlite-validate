@@ -21,7 +21,7 @@ def parse(url, driver=None, options="mode=r", id=None):
             The default is to load all instances.
 
     Returns:
-        List of new instance.
+        List of new instances.
     """
     loc = url.split("#", 1)[0].split("?",1)[0]
     if driver is None:
