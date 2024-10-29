@@ -244,6 +244,7 @@ assert (
 
 
 # Test plugin that only defines to_bytes() and from_bytes()
-#print("===================================")
-#dlite.Storage.plugin_help("testbuff")
-#buf = inst.to_bytes("bufftest")
+txt = dlite.Storage.plugin_help("bufftest")
+assert txt == "Test plugin that represents instances as byte-encoded json."
+buf = inst.to_bytes("bufftest")
+assert buf == str(inst).encode()

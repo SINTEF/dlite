@@ -14,7 +14,14 @@ set(SPHINX_HTML_DIR "${CMAKE_CURRENT_BINARY_DIR}/html")
 set(SPHINX_INDEX_FILE "${SPHINX_HTML_DIR}/index.html")
 
 # Doxygen intput source directory
-set(DOXYGEN_INPUT_DIR ${dlite_SOURCE_DIR}/src)
+set(DOXYGEN_INPUT_DIRS
+  ${dlite_SOURCE_DIR}/src/utils
+  ${dlite_SOURCE_DIR}/src
+  ${dlite_SOURCE_DIR}/src/pyembed
+  #${dlite_BINARY_DIR}/bindings/python/dlite
+)
+string(REPLACE ";" " " DOXYGEN_INPUT "${DOXYGEN_INPUT_DIRS}")
+
 
 # Doxygen output directory
 set(DOXYGEN_OUTPUT_XML_DIR "${CMAKE_CURRENT_BINARY_DIR}/xml")
@@ -53,8 +60,8 @@ configure_file(
 # Doxygen command
 add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
                    DEPENDS ${DLITE_PUBLIC_HEADERS}
-                   COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_IN} ${DOXYFILE_OUT}
-                   MAIN_DEPENDENCY ${DOXYFILE_OUT} ${DOXYFILE_IN}
+                   COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
+                   MAIN_DEPENDENCY ${DOXYFILE_OUT}
 		   WORKING_DIRECTORY ${BINARY_BUILD_DIR}
                    COMMENT "Generating docs"
                    VERBATIM)

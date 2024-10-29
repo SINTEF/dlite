@@ -404,6 +404,7 @@ def get_instance(
         # Allow metaid to be an Instance
         if isinstance(metaid, Instance):
             metaid = metaid.uri
+        errclr()  # Clear internal error before calling Instance()
         inst = Instance(
             metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
@@ -459,7 +460,7 @@ def get_instance(
             protocol+driver://location?options#id
             protocol://location?driver=<driver>;options#id
 
-        where `protocol`, `driver`, `location`, `options` and `id are
+        where `protocol`, `driver`, `location`, `options` and `id` are
         documented in the load() method.
 
         If `metaid` is provided, the instance is tried mapped to this
@@ -488,6 +489,7 @@ def get_instance(
                 metaid=metaid
             )
         else:
+            errclr()  # Clear internal error before calling Instance()
             inst = Instance(
                 url=url, metaid=metaid,
                 dims=(), dimensions=(), properties=()  # arrays
@@ -502,6 +504,7 @@ def get_instance(
         If `metaid` is provided, the instance is tried mapped to this
         metadata before it is returned.
         """
+        errclr()  # Clear internal error before calling Instance()
         inst = Instance(
             storage=storage, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
@@ -519,6 +522,7 @@ def get_instance(
         from dlite.options import make_query
         if options and not isinstance(options, str):
             options = make_query(options)
+        errclr()  # Clear internal error before calling Instance()
         inst = Instance(
             driver=driver, location=str(location), options=options, id=id,
             metaid=metaid,
@@ -529,6 +533,7 @@ def get_instance(
     @classmethod
     def from_json(cls, jsoninput, id=None, metaid=None):
         """Load the instance from json input."""
+        errclr()  # Clear internal error before calling Instance()
         inst = Instance(
             jsoninput=jsoninput, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
@@ -538,6 +543,7 @@ def get_instance(
     @classmethod
     def from_bson(cls, bsoninput):
         """Load the instance from bson input."""
+        errclr()  # Clear internal error before calling Instance()
         inst = Instance(
             bsoninput=bsoninput,
             dims=(), dimensions=(), properties=()  # arrays
@@ -593,6 +599,7 @@ def get_instance(
         """Create a new metadata entity (instance of entity schema) casted
         to an instance.
         """
+        errclr()  # Clear internal error before calling Instance()
         inst = Instance(
             uri=uri, dimensions=dimensions, properties=properties,
             description=description,
@@ -614,6 +621,7 @@ def get_instance(
             meta = get_instance(metaid)
             dimensions = [dimensions[dim.name]
                           for dim in meta.properties['dimensions']]
+        errclr()  # Clear internal error before calling Instance()
         inst = Instance(
             metaid=metaid, dims=dimensions, id=id,
             dimensions=(), properties=()  # arrays must not be None
@@ -630,10 +638,12 @@ def get_instance(
         warnings.warn(
             "create_from_url() is deprecated, use from_url() instead.",
             DeprecationWarning, stacklevel=2)
-        return Instance(
+        errclr()  # Clear internal error before calling Instance()
+        inst = Instance(
             url=url, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
         )
+        return instance_cast(inst)
 
     @classmethod
     def create_from_storage(cls, storage, id=None, metaid=None):
@@ -646,6 +656,7 @@ def get_instance(
         warnings.warn(
             "create_from_storage() is deprecated, use from_storage() instead.",
             DeprecationWarning, stacklevel=2)
+        errclr()  # Clear internal error before calling Instance()
         inst = Instance(
             storage=storage, id=id, metaid=metaid,
             dims=(), dimensions=(), properties=()  # arrays
@@ -664,11 +675,29 @@ def get_instance(
         from dlite.options import make_query
         if options and not isinstance(options, str):
             options = make_query(options)
+        errclr()  # Clear internal error before calling Instance()
         inst = Instance(
             driver=driver, location=str(location), options=options, id=id,
             dims=(), dimensions=(), properties=()  # arrays
         )
         return instance_cast(inst)
+
+    @classmethod
+    def get_uuids(cls, driver, location, options=None, pattern=None):
+        """Returns a iterator over matching UUIDs in storage.
+
+          Arguments:
+              driver: Name of storage plugin for data parsing.
+              location: Location of resource.  Typically a URL or file path.
+              options: Options passed to the protocol and driver plugins.
+              pattern: A glob pattern matching metadata UUIDs.  If given,
+                  only matching UUIDs will be returned.
+
+          Return:
+              Iterator over all matching UUIDs in storage.
+        """
+        with Storage(driver, location, options=options) as s:
+             return s.get_uuids(pattern=pattern)
 
     def save(self, *dest, location=None, options=None):
         """Saves this instance to url or storage.

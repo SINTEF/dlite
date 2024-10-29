@@ -343,10 +343,37 @@ else:
     assert item.q.f.m.tolist() == [0., 1., 0.001]
     assert item.q.f.to("1/hour").m.tolist() == [0, 3600, 3.6]
 
-    
+
 # For issue #750 - test instance_cast()
 with raises(dlite.DLiteTypeError):
     dlite.instance_cast(inst, dlite.Metadata)
 castinst = dlite.instance_cast(inst.meta, dlite.Instance)
 assert type(castinst) == dlite.Instance
 assert type(dlite.instance_cast(castinst)) == dlite.Metadata
+
+
+# Test storage query
+uuids = {
+    '850637b9-1d21-573c-91b6-477530e4bf58',
+    '020e411b-f349-5689-8657-f82b709369c3',
+    '570611f5-96b3-5b0d-90ad-f3a4c19a78b2',
+    '5e378ac7-83c9-5d77-ab20-b5bb32c695da',
+    'e5efe084-27f2-5fec-9b1c-fa1a692e1434',
+}
+with dlite.Storage("json", indir / "test_ref_type.json") as s:
+    assert set(s.get_uuids()) == uuids
+    assert set(s.get_uuids("http://onto-ns.com/meta/0.3/EntitySchema")) == uuids
+    assert s.get_uuids("xxx") == []
+assert set(
+    dlite.Instance.get_uuids("json", indir / "test_ref_type.json")
+) == uuids
+assert set(
+    dlite.Instance.get_uuids(
+        "json", indir / "test_ref_type.json",
+        pattern="http://onto-ns.com/meta/0.3/EntitySchema",
+    )
+) == uuids
+assert dlite.Instance.get_uuids(
+    "json", indir / "test_ref_type.json",
+    pattern="xxx",
+) == []
