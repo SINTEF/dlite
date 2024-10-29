@@ -32,41 +32,40 @@
 int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
                      jsmntok_t **tokens_ptr, unsigned int *num_tokens_ptr)
 {
-  int n_tokens;
+  int ntokens;
   jsmntok_t *tokens=NULL;
   assert(tokens_ptr);
   assert(num_tokens_ptr);
-  if (!*num_tokens_ptr) *tokens_ptr = NULL;
-  if (!*tokens_ptr) *num_tokens_ptr = 0;
+  assert(!((*tokens_ptr == NULL) ^ (*num_tokens_ptr == 0)));
 
   if (!*tokens_ptr) {
-    if ((n_tokens = jsmn_required_tokens(js, len)) < 0) return n_tokens;
+    if ((ntokens = jsmn_required_tokens(js, len)) < 0) return ntokens;
 
     /* FIXME: there seems to be an issue with the dlite_json_check() that
        looks post the last allocated token. Allocating `n+1` tokens is a
        workaround to avoid memory issues. */
-    if (!(tokens = calloc(n_tokens+1, sizeof(jsmntok_t))))
+    if (!(tokens = calloc(ntokens+1, sizeof(jsmntok_t))))
       return JSMN_ERROR_NOMEM;
   } else {
     jsmn_parser saved_parser;
     memcpy(&saved_parser, parser, sizeof(saved_parser));
-    n_tokens = jsmn_parse(parser, js, len, *tokens_ptr, *num_tokens_ptr);
-    if (n_tokens >= 0 || n_tokens != JSMN_ERROR_NOMEM) return n_tokens;
+    ntokens = jsmn_parse(parser, js, len, *tokens_ptr, *num_tokens_ptr);
+    if (ntokens != JSMN_ERROR_NOMEM) return ntokens;
 
     // Try to handle JSMN_ERROR_NOMEM by reallocating
-    if ((n_tokens = jsmn_required_tokens(js, len)) < 0) return n_tokens;
-    if (!(tokens = realloc(*tokens_ptr, (n_tokens+1)*sizeof(jsmntok_t))))
+    if ((ntokens = jsmn_required_tokens(js, len)) < 0) return ntokens;
+    if (!(tokens = realloc(*tokens_ptr, (ntokens+1)*sizeof(jsmntok_t))))
       return JSMN_ERROR_NOMEM;
 
     // Resetting parser - is this really needed?
     memcpy(parser, &saved_parser, sizeof(saved_parser));
   }
   *tokens_ptr = tokens;
-  *num_tokens_ptr = n_tokens;
+  *num_tokens_ptr = ntokens;
 
-  n_tokens = jsmn_parse(parser, js, len, tokens, n_tokens);
-  assert(n_tokens != JSMN_ERROR_NOMEM);
-  return n_tokens;
+  ntokens = jsmn_parse(parser, js, len, tokens, ntokens);
+  assert(ntokens != JSMN_ERROR_NOMEM);
+  return ntokens;
 }
 
 
@@ -76,12 +75,12 @@ int jsmn_parse_alloc(jsmn_parser *parser, const char *js, const size_t len,
  */
 int jsmn_required_tokens(const char *js, size_t len)
 {
-  int n_tokens;
+  int ntokens;
   jsmn_parser parser;
   jsmn_init(&parser);
-  n_tokens = jsmn_parse(&parser, js, len, NULL, 0);
-  assert(n_tokens != JSMN_ERROR_NOMEM);
-  return n_tokens;
+  ntokens = jsmn_parse(&parser, js, len, NULL, 0);
+  assert(ntokens != JSMN_ERROR_NOMEM);
+  return ntokens;
 }
 
 
