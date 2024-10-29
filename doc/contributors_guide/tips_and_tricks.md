@@ -172,6 +172,11 @@ to rerun valgrind on that issue, you can run
 
 Both of the above commands will write the output to `<BUILD_DIR>/Testing/Temporary/MemoryChecker.<#>.log`, where `<#>` is the test number.
 
+```note
+The first time you run `make memcheck`, a supression file will be created, suppressing issues that does not comes from DLite.
+Generating a suppression file may take long time, but it will only be generated once unless you manually add more suppressions to one of the `cmake/valgrind-*.supp` files.
+```
+
 ---
 
 Alternatively, you can run valgrind manually, with

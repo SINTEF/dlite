@@ -35,9 +35,22 @@
    fun:calloc
    fun:register_plugin
    fun:plugin_load
-   fun:plugin_get_api
-   fun:dlite_storage_plugin_get
-   fun:dlite_storage_open
+}
+
+
+# ------------------------------------
+# rdflib
+# ------------------------------------
+
+{
+   rdflib-model
+   Memcheck:Leak
+   match-leak-kinds: indirect
+   fun:calloc
+   ...
+   fun:librdf_new_storage_from_factory
+   fun:triplestore_create_with_world
+   fun:triplestore_create
 }
 
 
