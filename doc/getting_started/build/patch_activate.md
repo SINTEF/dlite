@@ -1,3 +1,5 @@
+Patch activate
+==============
 By default, [virtualenv] does not set `LD_LIBRARY_PATH`.
 This will result in errors when running applications that links to libdlite, like for example, `dlite-codegen`.
 To fix this, `$VIRTUAL_ENV/lib/` needs to be appended/prepended to `LD_LIBRARY_PATH`.

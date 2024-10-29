@@ -10,7 +10,7 @@ from pathlib import Path
 import dlite
 
 
-def parse(url, driver=None, options=None, id=None):
+def parse(url, driver=None, options="mode=r", id=None):
     """Loads an instance from storage.
 
     Arguments:
