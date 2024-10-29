@@ -1,15 +1,13 @@
-
-""" Define the singleton QuantityHelper to work with pint Quantity and dlite 
-    instance properties.
+"""Define the singleton QuantityHelper to work with pint Quantity and dlite
+instance properties.
 """
 
 from typing import Any
 import numpy as np
-HAS_PINT = True
-try:
-    import pint
-except Exception:
-    HAS_PINT = False
+from dlite.testutils import importcheck
+
+pint = importcheck("pint")
+
 
 DLITE_QUANTITY_TYPES = [
     'int', 'float', 'double', 'uint',
@@ -21,8 +19,16 @@ quantity_helper = None
 
 
 class QuantityHelper:
+    """Singleton class for working with pint Quantity and dlite instance
+    properties.
+    """
 
     def __init__(self):
+        if not pint:
+            raise RuntimeError(
+                'you must install "pint" to work with quantities, '
+                'try: pip install pint'
+            )
         self.__dict__['_instance'] = None
         self.__dict__['_registry'] = None
 
@@ -46,7 +52,7 @@ class QuantityHelper:
             unit_string = str(unit)
         return unit_string.replace('%', 'percent')
 
-    def __getitem__(self, name: str) -> pint.Quantity:
+    def __getitem__(self, name: str) -> "pint.Quantity":
         p = self._get_property(name)
         u = self._get_unit_as_string(p.unit)
         return self.quantity(self._instance[name], u)
@@ -105,15 +111,15 @@ class QuantityHelper:
         return None
 
     @property
-    def unit_registry(self) -> pint.UnitRegistry:
+    def unit_registry(self) -> "pint.UnitRegistry":
         """ Returns the current pint UnitRegistry object """
         return self._registry.get()
 
-    def quantity(self, magnitude, unit) -> pint.Quantity:
+    def quantity(self, magnitude, unit) -> "pint.Quantity":
         """ Return a pint.Quantity object """
         return self._registry.Quantity(magnitude, unit)
 
-    def parse(self, value: Any) -> pint.Quantity:
+    def parse(self, value: Any) -> "pint.Quantity":
         """ Parse the given value and return a pint.Quantity object """
         if isinstance(value, (pint.Quantity, self._registry.Quantity)):
             return value
@@ -129,8 +135,8 @@ class QuantityHelper:
         else:
             return self.quantity(value, '')
 
-    def parse_expression(self, value: str) -> pint.Quantity:
-        """ Parse an expression (str) and return a pint.Quantity object """
+    def parse_expression(self, value: str) -> "pint.Quantity":
+        """Parse an expression (str) and return a pint.Quantity object """
         result = None
         if value:
             value_str = self._get_unit_as_string(value)
@@ -171,12 +177,6 @@ class QuantityHelper:
 
 def get_quantity_helper(instance):
     global quantity_helper
-    if HAS_PINT:
-        if quantity_helper is None:
-            quantity_helper = QuantityHelper()
-        return quantity_helper(instance)
-    else:
-        raise RuntimeError(
-            'you must install "pint" to work with quantities, '
-            'try: pip install pint'
-        )
+    if quantity_helper is None:
+        quantity_helper = QuantityHelper()
+    return quantity_helper(instance)

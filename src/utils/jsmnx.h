@@ -82,6 +82,13 @@ int jsmn_parse_alloc(jsmn_parser *parser, const char *js,
 
 
 /**
+  Returns number of tokens required to parse JSON string `js` of length `len`.
+  On error, JSMN_ERROR_INVAL or JSMN_ERROR_PART is retuned.
+ */
+int jsmn_required_tokens(const char *js, size_t len);
+
+
+/**
  * Returns number of sub-tokens contained in `t` or -1 on error.
  */
 int jsmn_count(const jsmntok_t *t);

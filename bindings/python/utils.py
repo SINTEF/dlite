@@ -136,8 +136,16 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
     if meta.is_metameta:
         if "uri" in d:
             uri = d["uri"]
-        else:
+        elif "identity" in d:
+            uri = d["identity"]
+        elif "name" in d and "version" in d and "namespace" in d:
             uri = dlite.join_meta_uri(d["name"], d["version"], d["namespace"])
+        elif id and dlite.urlparse(id).scheme:
+            uri = id
+        else:
+            raise TypeError(
+                "`id` required for metadata when the URI is not in the dict"
+            )
 
         if check_storages:
             try:
@@ -169,6 +177,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
                     dlite.Property(
                         name=p["name"],
                         type=p["type"],
+                        ref=p.get("$ref", p.get("ref")),
                         shape=p.get("shape", p.get("dims")),
                         unit=p.get("unit"),
                         description=p.get("description"),
@@ -180,6 +189,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
                     dlite.Property(
                         name=k,
                         type=v["type"],
+                        ref=v.get("$ref", v.get("ref")),
                         shape=v.get("shape", v.get("dims")),
                         unit=v.get("unit"),
                         description=v.get("description"),

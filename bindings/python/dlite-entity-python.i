@@ -460,7 +460,7 @@ def get_instance(
             protocol+driver://location?options#id
             protocol://location?driver=<driver>;options#id
 
-        where `protocol`, `driver`, `location`, `options` and `id are
+        where `protocol`, `driver`, `location`, `options` and `id` are
         documented in the load() method.
 
         If `metaid` is provided, the instance is tried mapped to this

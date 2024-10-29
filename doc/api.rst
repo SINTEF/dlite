@@ -2,8 +2,8 @@ API Reference
 =============
 
 .. toctree::
-   :maxdepth: 4
+   :maxdepth: 2
    :caption: API Reference
 
-   Python API <autoapi/index>
+   Python API <autoapi/dlite/index>
    C-API <c-api/src>

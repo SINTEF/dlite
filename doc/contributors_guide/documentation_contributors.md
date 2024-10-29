@@ -4,7 +4,45 @@ Guideline for contributing documentation
 The DLite documentation is written in [Markdown].
 This include both the README files and documentation found in the `doc/` subdirectory.
 
+
+Generate documentation locally
+------------------------------
+When writing documentation it is practical to build and check the documentation locally before submitting a pull request.
+
+The following steps are needed for building the documentation:
+
+1. Install dependencies.
+
+   First you need [doxygen]. In Ubuntu it can be installed with
+
+       sudo apt install doxygen
+
+   Python requirements can be installed with
+
+       pip install --upgrade -r requirements_doc.txt
+
+2. Ask cmake to build documentation
+
+   ```
+   cd <build_directory>
+   cmake -DWITH_DOC=YES .
+   ```
+
+   If you haven't build dlite before, you should replace the final dot with the
+   path to the root of the DLite source directory.
+
+3. Build the documentation
+
+       cmake --build .
+
+   Check and fix possible error and warning messages from doxygen and sphinx.
+   The generated documentation can be found in `<build_directory>/doc/html/index.html`.
+
+
+Style recommendations and guidelines
+------------------------------------
 Common to both is that the text should be as easy and natural as possible to read and write both from the terminal, in an editor and rendered in a web browser.
+
 Hence, the following recommendations:
 
 * Write one sentence per line, in order to get an easier to read output from `git diff`.
@@ -97,6 +135,7 @@ If you click that button, it will toggle the prompt and output on or off, making
 
 
 
+[doxygen]: https://www.doxygen.nl/
 [Markdown]: https://en.wikipedia.org/wiki/Markdown
 [setext]: https://github.com/DavidAnson/markdownlint/blob/main/doc/md003.md
 [CommonMark]: https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet
