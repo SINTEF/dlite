@@ -24,9 +24,9 @@ class yaml(dlite.DLiteStorageBase):
             location: Path to YAML file.
             options: Supported options:
             - `mode`: Mode for opening.  Valid values are:
-                - `a`: Append to existing file or create new file (default).
-                - `r`: Open existing file for read-only.
-                - `w`: Truncate existing file or create new file.
+                - `a`: Open for writing, add to existing `location` (default).
+                - `r`: Open existing `location` for reading.
+                - `w`: Open for writing. If `location` exists, it is truncated.
             - `soft7`: Whether to save using SOFT7 format.
             - `single`: Whether the input is assumed to be in single-entity form.
               If "auto" (default) the form will be inferred automatically.
@@ -35,13 +35,13 @@ class yaml(dlite.DLiteStorageBase):
         self.options = Options(
             options, defaults="mode=a;soft7=true;single=auto;with_uuid=false"
         )
-        self.readable = "r" in self.options.mode
-        self.writable = "r" != self.options.mode
+        mode = self.options.mode
+        self.writable = "w" in mode or "a" in mode
         self.generic = True
         self.location = location
-        self.flushed = False  # whether buffered data has been written to file
+        self.flushed = True  # whether buffered data has been written to file
         self._data = {}  # data buffer
-        if self.options.mode in ("r", "a", "append"):
+        if "r" in mode or "a" in mode:
             with open(location, "r") as f:
                 data = pyyaml.safe_load(f)
             if data:
