@@ -44,7 +44,7 @@ MU_TEST(test_save)
   double age = 42.;
   const char *skills[] = {"jumping", "hopping"};
   int n, i;
-  char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests/*.json";
+  char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests-c/*.json";
 
   mu_check(dlite_storage_plugin_path_append(paths) >= 0);
   mu_check((meta = dlite_instance_load_url("json://Person.json?mode=r")));

@@ -28,9 +28,9 @@ class errctl():
             shown/hidden.
         filename: Filename to redirect errors to.  The following values
             are handled specially:
-              - "None" or empty: No output is written.
-              - "<stderr>": Write errors to stderr (default).
-              - "<stdout>": Write errors to stdout.
+            - "None" or empty: No output is written.
+            - "<stderr>": Write errors to stderr (default).
+            - "<stdout>": Write errors to stdout.
 
     """
     def __init__(self, hide=(), show=(), filename="<stderr>"):
