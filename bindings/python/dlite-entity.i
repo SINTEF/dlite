@@ -141,7 +141,7 @@ All metadata must have one or more properties that define the instances
 of the metadata.
 
 Arguments:
-    name: Name of the property.
+    name: Property name.
     type: Property type. Ex: 'int', 'blob14', 'float64', 'ref'...
     ref: Optional. URL to metadata. Only needed for `type='ref'`.
     shape: Optional. Specifies the dimensionality of property.  If `shape`
