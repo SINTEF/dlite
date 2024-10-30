@@ -102,8 +102,8 @@ Metadata can define a set of common dimensions for its properties that
 are referred to by the shape of each property.
 
 Arguments:
-    name: Name that of dimension.
-    description: Description of the dimension.
+    name: Dimension name.
+    description: Dimension description.
 
 Attributes:
     name: Dimension name.
