@@ -4,16 +4,16 @@
  *
  * Distributed under terms of the MIT license.
  */
+#ifndef _COMPAT_H
+#define _COMPAT_H
 
 /**
   @file
   @brief auxiliary compatibility functions
 
-  Note that the declarations for the functions found in the compat/
+  Note that the declarations for the functions found in the compat-src/
   subdirectory are provided in config.h.in.
 */
-#ifndef _COMPAT_H
-#define _COMPAT_H
 
 #include <stdlib.h>
 #ifdef WIN32
@@ -36,7 +36,7 @@
 #endif
 
 /*
- * compat/setenv.c
+ * compat-src/setenv.c
  */
 
 /** setenv() - change or add an environment variable */
@@ -56,7 +56,7 @@ char *realpath(const char *path, char *resolved);
 
 
 /*
- * compat/snprintf.c
+ * compat-src/snprintf.c
  */
 
 /** snprintf() - write formatted output to sized buffer */

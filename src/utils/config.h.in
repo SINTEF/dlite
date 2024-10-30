@@ -39,7 +39,7 @@
 #cmakedefine HAVE_WINDOWS_H
 #cmakedefine HAVE_IO_H
 
-/* Whether symbols exists. If not, they are defined in compat.c or compat/ */
+/* Whether symbols exists. If not, they are defined in compat.c or compat-src/ */
 #cmakedefine HAVE_STRDUP
 #cmakedefine HAVE__STRDUP
 #cmakedefine HAVE_STRNDUP
