@@ -21,7 +21,7 @@ Let us write an Entity representing our solar panel measurement.
 We start by creating a `json` file called `myEntity.json`.
 
 ### **Step 1**: Giving it a unique identifier
-Firstly, we must provide a unique identifier for our Entity.
+First, we must provide a unique identifier for our Entity.
 There are several ways of doing this:
 
 #### **1.  Uniform Resource Identifier (URI)**
