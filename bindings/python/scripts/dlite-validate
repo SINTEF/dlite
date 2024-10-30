@@ -11,7 +11,7 @@ DLITE_BEHAVIOR = True  # Turn off warnings about behavior changes
 import dlite
 
 
-def parse(url, driver=None, options=None, id=None):
+def parse(url, driver=None, options="mode=r", id=None):
     """Loads an instance from storage.
 
     Arguments:

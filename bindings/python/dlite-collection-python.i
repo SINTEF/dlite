@@ -64,6 +64,7 @@ class Collection(Instance):
     Relations are (s, p, o, d=None)-triples with an optional fourth field
     `d`, specifying the datatype of the object.  The datatype may have the
     following values:
+
       - None: object is an IRI.
       - Starts with '@': object is a language-tagged plain literal.
         The language identifier follows the '@'-sign.
@@ -85,7 +86,7 @@ class Collection(Instance):
 
         Arguments:
             src: Storage instance | url | driver
-            location: str
+            location:
                 File path to load from when `src` is a driver.
             options: str
                 Options passed to the storage plugin when `src` is a driver.

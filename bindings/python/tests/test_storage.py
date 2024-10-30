@@ -127,9 +127,9 @@ Opens `location`.
             location: Path to YAML file.
             options: Supported options:
             - `mode`: Mode for opening.  Valid values are:
-                - `a`: Append to existing file or create new file (default).
-                - `r`: Open existing file for read-only.
-                - `w`: Truncate existing file or create new file.
+                - `a`: Open for writing, add to existing `location` (default).
+                - `r`: Open existing `location` for reading.
+                - `w`: Open for writing. If `location` exists, it is truncated.
             - `soft7`: Whether to save using SOFT7 format.
             - `single`: Whether the input is assumed to be in single-entity form.
               If "auto" (default) the form will be inferred automatically.
@@ -244,6 +244,7 @@ assert (
 
 
 # Test plugin that only defines to_bytes() and from_bytes()
-#print("===================================")
-#dlite.Storage.plugin_help("testbuff")
-#buf = inst.to_bytes("bufftest")
+txt = dlite.Storage.plugin_help("bufftest")
+assert txt == "Test plugin that represents instances as byte-encoded json."
+buf = inst.to_bytes("bufftest")
+assert buf == str(inst).encode()
