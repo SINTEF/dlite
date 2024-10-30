@@ -45,15 +45,15 @@ import dlite
 dlite.python_storage_plugin_path.append("/path/to/plugins/dir")
 ```
 
-Often drivers are connected to very specific datamodel (entities). 
+Often drivers are connected to very specific datamodel (entities).
 DLite will find these datamodels if the path to their directory is set with the
 environment variable `DLITE_STORAGES` or added within python with `dlite.storage_path.append` similarly to described above for drivers.
 
 
 ```{attention}
-Often, during development dlite will fail unexpectedly. This is typically either because of an error in the 
-datamodel or the driver. 
-The variable DLITE_PYDEBUG can be set as `export DLITE_PYDEBUG=` to get python debugging information. 
+Often, during development dlite will fail unexpectedly. This is typically either because of an error in the
+datamodel or the driver.
+The variable DLITE_PYDEBUG can be set as `export DLITE_PYDEBUG=` to get python debugging information.
 This will give information about the driver.
 It is advisable to first check that the datamodel is valid with the command `dlite-validate datamodelfilename`.
 ```
@@ -252,6 +252,21 @@ This could lead to confusing and hard-to-find bugs due to interference between y
 However, since DLite v0.5.23, plugins are evaluated in separate scopes (which are available in `dlite._plugindict).
 
 
+### Distributing storage plugins
+If you created a python package with new storage plugins, you can make them
+available for users of your package by creating entry points with the paths to the storage plugins.
+
+Add the following section to your `pyproject.toml`:
+
+```toml
+[project.entry-points.dlite]
+python_storage_plugins = "path/to/python_storage_plugins/directory"
+
+```
+
+See [Search paths] for more information about entry points.
+
+
 
 Working with storages from C and Fortran
 ----------------------------------------
@@ -271,3 +286,4 @@ An example is available in [ex4].
 [Python storage plugin example]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin
 [ex1]: https://github.com/SINTEF/dlite/tree/master/examples/ex1
 [ex4]: https://github.com/SINTEF/dlite/tree/master/examples/ex4
+[Search paths]: https://sintef.github.io/dlite/user_guide/search_paths.html

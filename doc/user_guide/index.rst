@@ -13,6 +13,7 @@ User Guide
    storage_plugins
    storage_plugins_mongodb
    protocol_plugins
+   search_paths
    mappings
    transactions
    tools
