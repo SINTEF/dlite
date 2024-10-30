@@ -86,11 +86,11 @@ class Metadata(Instance):
         return inst
 
     # For convenience. Easier to use than self.properties["properties"]
-    props = property(
-        fget=lambda self: {p.name: p for p in self.properties["properties"]},
-        doc="A dict mapping property name to the `Property` object for the "
-        "described metadata.",
-    )
+    @property
+    def props(self):
+        """A dict mapping property name to the `Property` object for the
+        described metadata."""
+        return {p.name: p for p in self.properties["properties"]}
 
     def getprop(self, name):
         """Returns the metadata property object with the given name."""
@@ -248,9 +248,24 @@ def get_instance(
                 '' if self.unit is None else self.unit,
                 '' if self.description is None else self.description)
 
-    type = property(get_type, doc='Type name.')
-    dtype = property(get_dtype, doc='Type number.')
-    shape = property(get_shape, set_shape, doc='Array of dimension indices.')
+    @property
+    def type(self):
+        """Type name."""
+        return self.get_type()
+
+    @property
+    def dtype(self):
+        """Type number."""
+        return self.get_dtype()
+
+    @property
+    def shape(self):
+        """Array of dimension indices."""
+        return self.get_shape()
+
+    @shape.setter
+    def shape(self, value):
+        return self.set_shape(value)
 
     # Too be removed...
     def _get_dims_depr(self):
@@ -376,19 +391,38 @@ def get_instance(
             f'"{self.uri if self.uri else self.meta.uri}"'
         )
 
-    meta = property(get_meta, doc="Reference to the metadata of this instance.")
-    dimensions = property(
-        lambda self: dict((d.name, int(v))
-                          for d, v in zip(self.meta['dimensions'],
-                                          self.get_dimensions())),
-        doc='Dictionary with dimensions name-value pairs.')
-    properties = property(lambda self:
-        {p.name: self[p.name] for p in self.meta['properties']},
-        doc='Dictionary with property name-value pairs.')
-    is_data = property(_is_data, doc='Whether this is a data instance.')
-    is_meta = property(_is_meta, doc='Whether this is a metadata instance.')
-    is_metameta = property(_is_metameta,
-                           doc='Whether this is a meta-metadata instance.')
+    @property
+    def meta(self):
+        """Reference to the metadata of this instance."""
+        return self.get_meta()
+
+    @property
+    def dimensions(self):
+        """Dictionary with dimensions name-value pairs."""
+        return dict(
+            (d.name, int(v))
+            for d, v in zip(self.meta['dimensions'], self.get_dimensions())
+        )
+
+    @property
+    def properties(self):
+        """Dictionary with property name-value pairs."""
+        return {p.name: self[p.name] for p in self.meta['properties']}
+
+    @property
+    def is_data(self):
+        """Whether this is a data instance."""
+        return self._is_data()
+
+    @property
+    def is_meta(self):
+        """Whether this is a metadata instance."""
+        return self._is_meta()
+
+    @property
+    def is_metameta(self):
+        """Whether this is a meta-metadata instance."""
+        return self._is_metameta()
 
     @classmethod
     def from_metaid(cls, metaid, dimensions, id=None):

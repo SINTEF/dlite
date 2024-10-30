@@ -59,7 +59,7 @@ extensions = [
     "sphinx.ext.napoleon",  # API ref Google and NumPy style
     "sphinx.ext.viewcode",
     "sphinxcontrib.plantuml",  # PlantUml
-    #"sphinx_toggleprompt",  # Add button for show/hide example prompts
+    "sphinx_toggleprompt",  # Add button for show/hide example prompts
     "sphinx_copybutton",  # Copy button for codeblocks
     "sphinx_design",  # Create panels in a grid layout or as drop-downs and more
 ]
@@ -186,3 +186,15 @@ def autoapi_prepare_jinja_env(jinja_env: "Environment") -> None:
     jinja_env.filters["remove_plugin_path"] = lambda name: ".".join(
         name.split(".")[1:]
     ) if name.split(".")[0] in dlite_share_plugins else name
+
+
+
+def skip_dlite_dlite_members(app, what, name, obj, skip, options):
+    """Skip class and function whos names contains 'dlite.dlite.'."""
+    if "dlite.dlite." in name:
+        return True
+    return None
+
+
+def setup(sphinx):
+   sphinx.connect("autoapi-skip-member", skip_dlite_dlite_members)

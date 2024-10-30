@@ -32,6 +32,9 @@ class errctl():
             - "<stderr>": Write errors to stderr (default).
             - "<stdout>": Write errors to stdout.
 
+    Attributes:
+        filename: Filename to redirect errors to.
+
     """
     def __init__(self, hide=(), show=(), filename="<stderr>"):
         allcodes = [-i for i in range(1, _dlite._get_number_of_errors())]
@@ -79,6 +82,7 @@ class errctl():
 
 
 silent = errctl(filename="None")
+"""Context manager for a silent code block.  Same as `errctl(filename="None")`."""
 
 # A set for keeping track of already issued deprecation warnings
 _deprecation_warning_record = set()

@@ -10,6 +10,7 @@
   typically is code that will be written to file and compiled.
 */
 
+#include "utils/tgen.h"
 #include "utils/fileutils.h"
 
 

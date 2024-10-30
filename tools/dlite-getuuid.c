@@ -5,7 +5,7 @@
 
 #include "config.h"
 
-#include "utils/compat/getopt.h"
+#include "utils/compat-src/getopt.h"
 #include "utils/err.h"
 #include "getuuid.h"
 
