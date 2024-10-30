@@ -61,7 +61,7 @@ Adding the sub-directory `datamodels` to the search path for datamodels, can be 
 Using entry points
 ------------------
 How to use entry points is easiest described with an example.
-Lets assume you have a package with the following directory layout:
+Let us assume you have a package with the following directory layout:
 
 ```
 project_root
