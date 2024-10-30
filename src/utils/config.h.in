@@ -50,6 +50,7 @@
 #cmakedefine HAVE__STRNICMP
 
 #cmakedefine HAVE_SETENV
+#cmakedefine HAVE__PUTENV_S
 #cmakedefine HAVE_UNSETENV
 
 #cmakedefine HAVE_REALPATH
