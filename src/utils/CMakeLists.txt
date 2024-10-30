@@ -43,6 +43,7 @@ check_symbol_exists(strncasecmp         string.h     HAVE_STRNCASECMP)
 check_symbol_exists(_strnicmp           string.h     HAVE__STRNICMP)
 
 check_symbol_exists(setenv              stdlib.h     HAVE_SETENV)
+check_symbol_exists(_putenv_s           stdlib.h     HAVE__PUTENV_S)
 check_symbol_exists(unsetenv            stdlib.h     HAVE_UNSETENV)
 
 check_symbol_exists(realpath            stdlib.h     HAVE_REALPATH)

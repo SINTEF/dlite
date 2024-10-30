@@ -7,8 +7,6 @@ import json
 import re
 from pathlib import Path
 
-import dlite
-
 
 def parse(url, driver=None, options="mode=r", id=None):
     """Loads an instance from storage.
@@ -22,6 +20,8 @@ def parse(url, driver=None, options="mode=r", id=None):
     Returns:
         A new instance.
     """
+    import dlite
+
     loc = url.split("#", 1)[0].split("?",1)[0]
     if driver is None:
         driver = Path(loc).suffix.lstrip('.').lower()
@@ -101,6 +101,15 @@ def main():
     )
 
     args = parser.parse_args()
+
+    if not args.debug:
+        # Turn off DLite warnings about behavior changes
+        import __main__
+        __main__.DLITE_BEHAVIOR = True
+
+    # Delay importing dlite to after options are processed such that it is
+    # possible to configure DLite by settings variables in __main__.
+    import dlite
 
     for path in args.storage_path:
         dlite.storage_path.append(Path(path).resolve())

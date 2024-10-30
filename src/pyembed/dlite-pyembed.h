@@ -7,6 +7,7 @@
 
  */
 
+//#define Py_LIMITED_API 0x03080000
 #include <Python.h>
 
 /* Python pulls in a lot of defines that conflicts with utils/config.h */
