@@ -99,7 +99,7 @@ char** dlite_swig_istore_get_uuids()
 %feature("docstring", "\
 A dimension represented by its name and description.
 Metadata can define a set of common dimensions for its properties that
-are referred to by the property shapes.
+are referred to by the shape of each property.
 
 Arguments:
     name: Name that of dimension.
