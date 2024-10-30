@@ -146,7 +146,7 @@ Arguments:
     ref: Optional. URL to metadata. Only needed for `type='ref'`.
     shape: Optional. Specifies the dimensionality of property.  If `shape`
         is not given, the property is a scalar (dimensionality zero).
-        It should be an sequence of dimension names.
+        It should be a sequence of dimension names.
     unit: Optional. The unit for properties with a unit. The unit should
          be a valid unit label defined by EMMO or a custom ontology.
     description: Optional: A human description of the property.
