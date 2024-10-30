@@ -2,15 +2,15 @@ Search paths
 ============
 It is possible to extend DLite with new datamodels, code generation templates and plugins, by appending to corresponding search path.  The table below lists the different types of search paths that are available in DLite.
 
-| Search path type        | Description                                           |
-|-------------------------|-------------------------------------------------------|
-| storages                | Storage URLs or directory paths to datamodels         |
-| templates               | Directory paths to code generator templates           |
-| storage_plugins         | Directory paths to storage plugins written in C       |
-| mapping-plugins         | Directory paths to mapping plugins written in C       |
-| python-storage-plugins  | Directory paths to storage plugins written in Python  |
-| python-mapping-plugins  | Directory paths to mapping plugins written in Python  |
-| python-protocol-plugins | Directory paths to protocol plugins written in Python |
+| Search path type        | Description                                                           |
+|-------------------------|---------------------------------------------------------------|
+| storages                | Storage URLs or directory paths to datamodels                |
+| templates               | Directory paths to code generator templates                     |
+| storage_plugins         | Directory paths to storage plugins (drivers) written in C       |
+| mapping-plugins         | Directory paths to mapping plugins written in C                  |
+| python-storage-plugins  | Directory paths to storage plugins (drivers) written in Python  |
+| python-mapping-plugins  | Directory paths to mapping plugins written in Python           |
+| python-protocol-plugins | Directory paths to protocol plugins written in Python        |
 
 Search paths can be extended in different three ways:
 * setting [environment variables]
