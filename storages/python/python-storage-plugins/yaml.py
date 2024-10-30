@@ -124,10 +124,16 @@ class yaml(dlite.DLiteStorageBase):
             storage.
 
         """
-        for uuid, inst_as_dict in self._data.items():
-            if pattern and dlite.globmatch(pattern, inst_as_dict["meta"]):
-                continue
-            yield uuid
+        with open("/tmp/xxx", "wt") as f:
+            f.write("hello\n")
+            for uuid, inst_as_dict in self._data.items():
+
+                f.write(f"{uuid}\n{inst_as_dict}\n\n");
+
+                if pattern and dlite.globmatch(pattern, inst_as_dict["meta"]):
+                    continue
+                #yield uuid
+                yield "abc"
 
     @classmethod
     def from_bytes(cls, buffer, id=None, options=None):

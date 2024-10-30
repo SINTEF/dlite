@@ -31,6 +31,7 @@ def parse(url, driver=None, options="mode=r", id=None):
     if id is None:
         try:
             uuids = dlite.Instance.get_uuids(driver, url, options=options)
+        #except dlite.DLiteError:
         except dlite.DLiteUnsupportedError:
             pass
         else:
