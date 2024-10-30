@@ -1,0 +1,14 @@
+# An valid version of datamodel Invalid1.yaml
+uri: http://onto-ns.com/meta/0.1/ValidYaml1
+description: An datamodel for an item with float type and invalid shape name.
+dimensions:
+  nf: Number of eigen-frequencies.
+properties:
+  name:
+    type: str
+    description: Name of the item.
+  f:
+    type: float64
+    shape: [nf]
+    unit: Hz
+    description: The magic eigen-frequencies of the item.

@@ -87,7 +87,7 @@ typedef struct jsmn_parser {
 } jsmn_parser;
 
 /**
- * Create JSON parser over an array of tokens
+ * Initializes a JSON parser.
  */
 JSMN_API void jsmn_init(jsmn_parser *parser);
 
