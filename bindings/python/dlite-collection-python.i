@@ -67,7 +67,7 @@ class Collection(Instance):
 
     - None: object is an IRI.
     - Starts with '@': object is a language-tagged plain literal.
-      The language identifier follows the '@'-sign. e.g. `text@en`
+      The language identifier follows the '@'-sign. e.g. `@en`
     - Otherwise: object is a literal with datatype `d`.
 
     Arguments:
