@@ -137,7 +137,7 @@ struct _DLiteDimension {
  * -------- */
 %feature("docstring", "\
 Represents a property.
-All metadata must have one or more properties that defines the instances
+All metadata must have one or more properties that define the instances
 of the metadata.
 
 Arguments:
