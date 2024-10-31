@@ -62,19 +62,21 @@ class postgresql(dlite.DLiteStorageBase):
         An ampersand (&) may be used instead of the semicolon (;).
 
         Typical options supported by most drivers include:
+
         - database : Name of database to connect to (default: dlite)
         - user : User name.
         - password : Password.
         - mode : append | r
-            Valid values are:
-            - append   Append to existing file or create new file (default)
-            - r        Open existing file for read-only
+          Valid values are:
+
+          - `a`, `append`: Append to existing file or create new file (default)
+          - `r`: Open existing file for read-only
 
         After the options are passed, this method may set attribute
         `writable` to true if it is writable and to false otherwise.
         If `writable` is not set, it is assumed to be true.
         """
-        self.options = Options(options, defaults="database=dlite;mode=append")
+        self.options = Options(options, defaults="database=dlite;mode=a")
         opts = self.options
         opts.setdefault("password", None)
         self.writable = False if opts.mode == "r" else True

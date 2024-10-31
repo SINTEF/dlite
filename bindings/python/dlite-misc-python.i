@@ -28,9 +28,12 @@ class errctl():
             shown/hidden.
         filename: Filename to redirect errors to.  The following values
             are handled specially:
-              - "None" or empty: No output is written.
-              - "<stderr>": Write errors to stderr (default).
-              - "<stdout>": Write errors to stdout.
+            - "None" or empty: No output is written.
+            - "<stderr>": Write errors to stderr (default).
+            - "<stdout>": Write errors to stdout.
+
+    Attributes:
+        filename: Filename to redirect errors to.
 
     """
     def __init__(self, hide=(), show=(), filename="<stderr>"):
@@ -79,6 +82,7 @@ class errctl():
 
 
 silent = errctl(filename="None")
+"""Context manager for a silent code block.  Same as `errctl(filename="None")`."""
 
 # A set for keeping track of already issued deprecation warnings
 _deprecation_warning_record = set()

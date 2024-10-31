@@ -15,6 +15,7 @@ class image(dlite.DLiteStorageBase):
     Arguments:
         location: Path to YAML file.
         options: Supported options:
+
             - `plugin`: Name of scikit image io plugin to use for loading
               the image.  By default, the different plugins are tried
               (starting with imageio) until a suitable candidate is found.
@@ -34,6 +35,7 @@ class image(dlite.DLiteStorageBase):
             - `order`: Order of spline interpolation for resize. Default
               to zero for binary images and 1 otherwise.  Should be in the
               range 0-5.
+
     """
     meta = "http://onto-ns.com/meta/0.1/Image"
 

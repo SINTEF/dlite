@@ -22,9 +22,11 @@ class http(dlite.DLiteStorageBase):
         Arguments:
             location: web address to access
             options: Supported options:
+
                 - `single`: Whether the input is assumed to be in single-
-                      entity form.  The default (`"auto"`) will try to infer
-                      it automatically.
+                  entity form.  The default (`"auto"`) will try to infer
+                  it automatically.
+
         """
         self.options = Options("single=auto")
 

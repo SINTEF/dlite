@@ -9,7 +9,7 @@
 
 #include "dlite.h"
 #include "utils/compat.h"
-#include "utils/compat/getopt.h"
+#include "utils/compat-src/getopt.h"
 #include "utils/err.h"
 #include "utils/execprocess.h"
 #include "dlite-macros.h"

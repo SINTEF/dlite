@@ -23,5 +23,12 @@
 #define dlite_TEMPLATES               "@dlite_TEMPLATES@"
 #define dlite_STORAGES                "@dlite_STORAGES@"
 
+/* dlite-pyembed.c does not imports config.h to avoid conflicts with Python .h
+   Include configurations needed by dlite-pyembed.c here */
+#cmakedefine HAVE_SETENV
+#cmakedefine HAVE__PUTENV_S
+#cmakedefine HAVE_UNSETENV
+
+
 
 #endif /* _DLITE_CONFIG_PATHS_H */

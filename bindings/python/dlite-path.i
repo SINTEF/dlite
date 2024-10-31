@@ -24,6 +24,7 @@
   //#include "utils/compat.h"
 #include "utils/fileutils.h"
   //#include "dlite-macros.h"
+#include "dlite-codegen.h"
 #include "pyembed/dlite-python-storage.h"
 #include "pyembed/dlite-python-mapping.h"
 #include "pyembed/dlite-python-protocol.h"
@@ -49,6 +50,8 @@ Creates a _Path instance of type `pathtype`.
   _FUPaths(const char *pathtype) {
     if (strcmp(pathtype, "storages") == 0) {
       return dlite_storage_paths();
+    } else if (strcmp(pathtype, "templates") == 0) {
+      return dlite_codegen_path_get();
     } else if (strcmp(pathtype, "storage-plugins") == 0) {
       return dlite_storage_plugin_paths_get();
     } else if (strcmp(pathtype, "mapping-plugins") == 0) {

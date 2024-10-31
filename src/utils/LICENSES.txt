@@ -91,8 +91,8 @@ Copyright (c) 2012-16 David Ireland, DI Management Services Pty Ltd
 <http://www.di-mgt.com.au/contact/>.
 
 
-License for compat/realpath.c
------------------------------
+License for compat-src/realpath.c
+---------------------------------
 Copyright (c) 2003 Constantin S. Svintsoff <kostik@iclub.nsu.ru>
 
 Redistribution and use in source and binary forms, with or without
@@ -120,8 +120,8 @@ OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
 SUCH DAMAGE.
 
 
-Lisense for compat/snprintf.c
------------------------------
+Lisense for compat-src/snprintf.c
+---------------------------------
 Copyright (c) 1995 Patrick Powell.
 
 This code is based on code written by Patrick Powell <papowell@astart.com>.
