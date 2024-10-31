@@ -1099,7 +1099,7 @@ static const jsmntok_t *nexttok(DLiteJsonIter *iter, int *length)
 DLiteJsonIter *dlite_json_iter_create(const char *src, int length,
                                       const char *metaid)
 {
-  int r, ok=0;
+  int r;
   DLiteJsonIter *iter=NULL;
   jsmn_parser parser;
 
@@ -1116,10 +1116,10 @@ DLiteJsonIter *dlite_json_iter_create(const char *src, int length,
   iter->size = iter->tokens->size;
   if (metaid && dlite_get_uuid(iter->metauuid, metaid) < 0) goto fail;
 
-  ok=1;
- fail:
-  if (!ok) dlite_json_iter_free(iter);
   return iter;
+ fail:
+  if (iter) dlite_json_iter_free(iter);
+  return NULL;
 }
 
 /*
@@ -1308,11 +1308,15 @@ const char *dlite_jstore_iter_next(DLiteJStoreIter *iter)
     if (iter->metauuid[0]) {
       char metauuid[DLITE_UUID_LENGTH+1];
       const char *val = jstore_get(js, iid);
+      int r;
 
       jsmn_init(&parser);
-      if (jsmn_parse_alloc(&parser, val, strlen(val),
-                           &iter->tokens, &iter->ntokens) < 0) {
-        err(dliteParseError, "invalid json input: \"%s\"", val);
+      if ((r = jsmn_parse_alloc(&parser, val, strlen(val),
+                                &iter->tokens, &iter->ntokens)) < 0) {
+        if (r == JSMN_ERROR_INVAL)
+          err(dliteParseError, "invalid json input: \"%s\"", val);
+        else
+          err(dliteParseError, "json parse error: \"%s\"", jsmn_strerror(r));
         continue;
       }
       if (get_meta_uuid(metauuid, val, iter->tokens)) {

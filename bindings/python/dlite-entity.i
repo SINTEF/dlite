@@ -93,10 +93,23 @@ char** dlite_swig_istore_get_uuids()
 %}
 
 
-
 /* ---------
  * Dimension
  * --------- */
+%feature("docstring", "\
+A dimension represented by its name and description.
+Metadata can define a set of common dimensions for its properties that
+are referred to by the shape of each property.
+
+Arguments:
+    name: Dimension name.
+    description: Dimension description.
+
+Attributes:
+    name: Dimension name.
+    description: Dimension description.
+
+") _DLiteDimension;
 %rename(Dimension) _DLiteDimension;
 struct _DLiteDimension {
   char *name;
@@ -123,7 +136,31 @@ struct _DLiteDimension {
  * Property
  * -------- */
 %feature("docstring", "\
-Creates a new property with the provided attributes.
+Represents a property.
+All metadata must have one or more properties that define the instances
+of the metadata.
+
+Arguments:
+    name: Property name.
+    type: Property type. Ex: 'int', 'blob14', 'float64', 'ref'...
+    ref: Optional. URL to metadata. Only needed for `type='ref'`.
+    shape: Optional. Specifies the dimensionality of property.  If `shape`
+        is not given, the property is a scalar (dimensionality zero).
+        It should be a sequence of dimension names.
+    unit: Optional. The unit for properties with a unit. The unit should
+         be a valid unit label defined by EMMO or a custom ontology.
+    description: Optional: A human description of the property.
+
+Attributes:
+    name: Property name.
+    size: Number of bytes needed to represent a single instance of `type`
+        in memory.
+    ref: Value of the `ref` argument.
+    ndims: Number of dimensions of the property. A scalar has `ndims=0`.
+    unit: The unit of the property.
+    description: Property description.
+    dims: Deprecated alias for shape.
+
 ") _DLiteProperty;
 %rename(Property) _DLiteProperty;
 struct _DLiteProperty {
@@ -193,18 +230,20 @@ struct _DLiteProperty {
  * Relation
  * -------- */
 %feature("docstring", "\
-Relations in DLite corresponds to RDF-triples, but are internally 4 fields:
-  - s: subject
-  - p: predicate
-  - o: object
-  - d: datatype
+A DLite relation representing an RDF triple.
 
-The datatype is the datatype for literal objects. It may have three forms:
-  - None: object is an IRI (rdfs:Resource).
-  - Starts with '@': object is a language-tagged plain literal
-    (rdf:langString). The language identifier follows the '@'-sign.
-    Ex: '@en' for english.
-  - Otherwise: object is a literal with datatype `d`. Ex: 'xsd:int'.
+Arguments:
+    s: Subject IRI.
+    p: Predicate IRI.
+    o: Either an IRI for non-literal objects or the literal value for
+        literal objects.
+    d: The datatype IRI for literal objects.  It may have three forms:
+
+        - None: object is an IRI (rdfs:Resource).
+        - Starts with '@': object is a language-tagged plain literal
+          (rdf:langString). The language identifier follows the '@'-sign.
+          Ex: '@en' for english.
+        - Otherwise: object is a literal with datatype `d`. Ex: 'xsd:int'.
 
 As an internal implementation detail, relations also have an `id` field.
 It may change in the future, so please don't rely on it.
@@ -244,24 +283,26 @@ struct _Triple {
  * Instance
  * -------- */
 %feature("docstring", "\
-Returns a new instance.
+Represents a DLite instance.
 
-Instance(metaid=None, dims=None, id=None, url=None, storage=None, driver=None,
-         location=None, options=None, dimensions=None, properties=None,
-         description=None)
+This is the most central class in DLite.  It has a complex `__init__()`
+method and is intended to be instantiated with one of the following class
+methods:
 
-    Is called from one of the following class methods defined in dlite.py:
+- from_metaid(cls, metaid, dimensions, id=None)
+- from_url(cls, url, metaid=None)
+- from_storage(cls, storage, id=None, metaid=None)
+- from_location(cls, driver, location, options=None, id=None)
+- from_json(cls, jsoninput, id=None, metaid=None)
+- from_bson(cls, bsoninput)
+- from_dict(cls, d, id=None, single=None, check_storages=True)
+- create_metadata(cls, uri, dimensions, properties, description)
 
-      - from_metaid(cls, metaid, dimensions, id=None)
-      - from_url(cls, url, metaid=None)
-      - from_storage(cls, storage, id=None, metaid=None)
-      - from_location(cls, driver, location, options=None, id=None)
-      - from_json(cls, jsoninput, id=None, metaid=None)
-      - from_bson(cls, bsoninput)
-      - from_dict(cls, d, id=None, single=None, check_storages=True)
-      - create_metadata(cls, uri, dimensions, properties, description)
+For details, see the documentation of the individual class methods.
 
-      For details, see the documentation for the class methods.
+Attributes:
+    uuid: The UUID of the instance.
+    uri: The URI of the instance.
 
 ") _DLiteInstance;
 %apply(int *IN_ARRAY1, int DIM1) {(int *dims, int ndims)};

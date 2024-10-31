@@ -51,15 +51,7 @@ exclude_patterns = [
 ]
 
 extensions = [
-    # Temporary disable autoapi since it leads to the following error during
-    # build of HTML documentation
-    #
-    # Extension error (autoapi.extension):
-    # Handler <function run_autoapi at 0x7f1ac734be50> for event
-    # 'builder-inited' threw an exception (exception: 'Module' object has no
-    # attribute 'doc')
-    #
-    #"autoapi.extension",
+    "autoapi.extension",
     "breathe",  # Doxygen bridge
     "myst_nb",  # markdown source support & support for Jupyter notebooks
     "sphinx.ext.graphviz",  # Graphviz
@@ -67,7 +59,7 @@ extensions = [
     "sphinx.ext.napoleon",  # API ref Google and NumPy style
     "sphinx.ext.viewcode",
     "sphinxcontrib.plantuml",  # PlantUml
-    #"sphinx_toggleprompt",  # Add button for show/hide example prompts
+    "sphinx_toggleprompt",  # Add button for show/hide example prompts
     "sphinx_copybutton",  # Copy button for codeblocks
     "sphinx_design",  # Create panels in a grid layout or as drop-downs and more
 ]
@@ -84,12 +76,13 @@ dlite_share_plugins = [
     if plugin_dir.is_dir()
 ]
 
-autoapi_dirs = [
-    "@CMAKE_BINARY_DIR@/bindings/python/dlite"
-] + [
-    f"@CMAKE_BINARY_DIR@/bindings/python/dlite/share/dlite/{plugin_dir}"
-    for plugin_dir in dlite_share_plugins
-]
+#autoapi_dirs = [
+#    "@CMAKE_BINARY_DIR@/bindings/python/dlite"
+#] + [
+#    f"@CMAKE_BINARY_DIR@/bindings/python/dlite/share/dlite/{plugin_dir}"
+#    for plugin_dir in dlite_share_plugins
+#]
+autoapi_dirs = ["@CMAKE_BINARY_DIR@/bindings/python/dlite"]
 autoapi_type = "python"
 autoapi_file_patterns = ["*.py", "*.pyi"]
 autoapi_template_dir = "_templates/autoapi"
@@ -103,7 +96,10 @@ autoapi_options = [
     "imported-members",
 ]
 autoapi_keep_files = True  # Should be False in production
+#autoapi_keep_files = False  # Should be False in production
 autoapi_python_use_implicit_namespaces = True  # True to avoid namespace being `python.dlite`
+#autoapi_ignore = ["@CMAKE_BINARY_DIR@/doc/_build/autoapi/dlite/dlite"]
+
 
 autodoc_typehints = "description"
 autodoc_typehints_format = "short"
@@ -127,7 +123,7 @@ html_theme_options = {
     "use_issues_button": True,
     "use_fullscreen_button": True,
     "use_repository_button": True,
-    "logo_only": True,
+    #"logo_only": True,
     "show_navbar_depth": 1,
     "announcement": "This documentation is under development!",
 }
@@ -190,3 +186,15 @@ def autoapi_prepare_jinja_env(jinja_env: "Environment") -> None:
     jinja_env.filters["remove_plugin_path"] = lambda name: ".".join(
         name.split(".")[1:]
     ) if name.split(".")[0] in dlite_share_plugins else name
+
+
+
+def skip_dlite_dlite_members(app, what, name, obj, skip, options):
+    """Skip class and function whos names contains 'dlite.dlite.'."""
+    if "dlite.dlite." in name:
+        return True
+    return None
+
+
+def setup(sphinx):
+   sphinx.connect("autoapi-skip-member", skip_dlite_dlite_members)
