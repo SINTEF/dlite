@@ -28,5 +28,5 @@ d9910bde-6028-524c-9e0f-e8f0db734bc8:
     description: An unsigned short integer.
   - name: myarray
     type: int32
-    dims: [L, M, N]
+    shape: [L, M, N]
     description: An array string pointer.

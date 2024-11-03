@@ -123,6 +123,12 @@ char *jstore_to_string(JStore *js);
     Returns non-zero on error. */
 int jstore_to_file(JStore *js, const char *filename);
 
+/** Return number of elements in the store. */
+int jstore_count(JStore *js);
+
+/** If there is one item in the store, return its key.  Otherwise return NULL. */
+const char *jstore_get_single_key(JStore *js);
+
 
 /** Initialise iterator.  Return non-zero on error. */
 int jstore_iter_init(JStore *js, JStoreIter *iter);

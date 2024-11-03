@@ -145,7 +145,9 @@ if HAVE_YAML:
 
     print("Test saving metadata...")
     with dlite.Storage(
-            "yaml", meta_outfile, "mode=w;uuid=false;single=true"
+            "yaml",
+            meta_outfile,
+            "mode=w;uuid=false;single=false;with_uuid=false;with_meta=true"
     ) as s:
         s.save(meta)
     with open(meta_infile, "r") as f:
@@ -163,7 +165,7 @@ if HAVE_YAML:
     print("...Loading data ok!")
 
     print("Test saving data...")
-    with dlite.Storage("yaml", data_outfile, "mode=w;single=true") as s:
+    with dlite.Storage("yaml", data_outfile, "mode=w;with_uuid=false") as s:
         s.save(inst1)
         s.save(inst2)
     with open(data_infile, "r") as f:
