@@ -152,13 +152,10 @@ MU_TEST(test_append)
 
 MU_TEST(test_decref)
 {
-  /* Completely deallocate instances shared between tests */
-  int ncref = coll->_refcount;
-  int niref = inst->_refcount;
-  int nmref = meta->_refcount - 1;  // metadata, refcount increased by one
-  while (ncref--) dlite_instance_decref(coll);
-  while (niref--) dlite_instance_decref(inst);
-  while (nmref--) dlite_meta_decref(meta);
+  int n;
+  for (n=coll->_refcount; n>0; n--) dlite_instance_decref(coll);
+  for (n=inst->_refcount; n>0; n--) dlite_instance_decref(inst);
+  for (n=meta->_refcount-1; n>0; n--) dlite_meta_decref(meta);  // metadata
   coll = NULL;
   inst = NULL;
   meta = NULL;
