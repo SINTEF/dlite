@@ -30,8 +30,8 @@ class pyrdf(dlite.DLiteStorageBase):
               - `w`: Truncate existing file or create new file.
 
             * `format`: File format. For a complete list of valid formats, see
-               https://rdflib.readthedocs.io/en/stable/intro_to_parsing.html
-               A sample list of valid format values: "turtle", "xml", "n3",
+              https://rdflib.readthedocs.io/en/stable/intro_to_parsing.html.
+              A sample list of valid format values: "turtle", "xml", "n3",
               "nt", "json-ld", "nquads".
 
             * `base_uri`: Base URI that is prepended to the instance UUID or
@@ -41,6 +41,7 @@ class pyrdf(dlite.DLiteStorageBase):
 
             * `include_meta`: Whether to also serialise metadata. The default
               is to only include metadata if `inst` is a data object.
+
         """
         self.options = Options(options, defaults="mode=a")
         self.writable = "r" not in self.options.mode

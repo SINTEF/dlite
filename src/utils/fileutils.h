@@ -40,7 +40,7 @@ enum {
 # ifndef WINDOWS
 #  define WINDOWS
 # endif
-# include "compat/dirent.h"
+# include "compat-src/dirent.h"
 # ifndef PATHSEP
 #  define PATHSEP ";"
 # endif

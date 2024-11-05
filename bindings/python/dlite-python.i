@@ -1477,6 +1477,7 @@ def instance_cast(inst, newtype=None):
 
 # Deprecated exceptions
 class DLiteSearchError(_dlite.DLiteLookupError):
+    """Deprecated.  Has been renamed to DLiteLookupError."""
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         deprecation_warning(

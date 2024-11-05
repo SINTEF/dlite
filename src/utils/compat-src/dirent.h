@@ -1231,4 +1231,4 @@ dirent_set_errno(
 #ifdef __cplusplus
 }
 #endif
-#endif /*DIRENT_H*/
+#endif /* DIRENT_H */

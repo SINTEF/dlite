@@ -92,7 +92,7 @@ Using [Visual Studio Code] (VS Code) it is possible to do development on the sys
 
 1. Download and install [Visual Studio Code].
 2. Install the extension **Remote Development**.
-3. [Clone DLite](#installing-from-source)
+3. [Clone DLite](#build-from-source)
 4. Open the DLite folder with VS Code.
 5. Start VS Code, run the _Remote-Containers: Open Folder in Container..._ command from the Command Palette (F1) or quick actions Status bar item.
    This will build the container and restart VS Code in it.
@@ -120,7 +120,6 @@ Using [Visual Studio Code] (VS Code) it is possible to do development on the sys
 [Python]: https://www.python.org/
 [NumPy]: https://pypi.org/project/numpy/
 [SWIG]: https://www.swig.org/
-[virtualenvwrapper]: https://pypi.org/project/virtualenvwrapper/
 [cppcheck]: http://cppcheck.sourceforge.net/
 [Doxygen]: http://www.doxygen.org/
 [Sphinx]: https://www.sphinx-doc.org/

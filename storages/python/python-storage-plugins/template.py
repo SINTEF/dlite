@@ -13,12 +13,14 @@ class template(dlite.DLiteStorageBase):
         Arguments:
             location: Path to file to generate.
             options: Supported options:
+
             - `template`: Path to template file.
             - `engine`: Template engine to use.  One of:
-                 - "format": Use format() function from the standard library.
-                   See https://docs.python.org/3/library/string.html#formatspec
-                   for specifications.  This is the default.
-                 - "jinja": Use jinja.  See https://jinja.palletsprojects.com/
+
+              - "format": Use format() function from the standard library.
+                See https://docs.python.org/3/library/string.html#formatspec
+                for specifications.  This is the default.
+              - "jinja": Use jinja.  See https://jinja.palletsprojects.com/
 
         """
         self.options = Options(options, defaults="engine=format")

@@ -27,6 +27,7 @@ class sftp(dlite.DLiteProtocolBase):
                 qualified as `username:password@host:port`.  In the latter
                 case the port/username/password takes precedence over `options`.
             options: Supported options:
+
                 - `username`: User name.
                 - `password`: Password.
                 - `hostname`: Host name.
@@ -47,14 +48,15 @@ class sftp(dlite.DLiteProtocolBase):
                   For compresison "bzip2"; 1 to 9 are valid.
 
         Example:
+            Here is an example of how you can use a private ssh-key
 
-            # For key-based authorisation, you may get the `key_type` and
-            # `key_bytes` arguments as follows:
-            pkey = paramiko.Ed25519Key.from_private_key_file(
-                "/home/john/.ssh/id_ed25519"
-            )
-            key_type = pkey.name
-            key_bytes = pkey.asbytes().hex()
+                >>> # For key-based authorisation, you may get the `key_type`
+                >>> # and `key_bytes` arguments as follows:
+                >>> pkey = paramiko.Ed25519Key.from_private_key_file(
+                ...     "/home/john/.ssh/id_ed25519"
+                ... )
+                >>> key_type = pkey.name
+                >>> key_bytes = pkey.asbytes().hex()
 
         """
         options = Options(options, "port=22;compression=lzma")

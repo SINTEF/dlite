@@ -17,6 +17,7 @@ class file(dlite.DLiteProtocolBase):
         Arguments:
             location: A URL or path to a file or directory.
             options: Supported options:
+
                 - `mode`: Combination of "r" (read), "w" (write) or "a" (append)
                   Defaults to "r" if `location` exists and "w" otherwise.
                   This default avoids accidentially overwriting an existing

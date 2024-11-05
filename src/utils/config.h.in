@@ -39,7 +39,7 @@
 #cmakedefine HAVE_WINDOWS_H
 #cmakedefine HAVE_IO_H
 
-/* Whether symbols exists. If not, they are defined in compat.c or compat/ */
+/* Whether symbols exists. If not, they are defined in compat.c or compat-src/ */
 #cmakedefine HAVE_STRDUP
 #cmakedefine HAVE__STRDUP
 #cmakedefine HAVE_STRNDUP
@@ -50,6 +50,7 @@
 #cmakedefine HAVE__STRNICMP
 
 #cmakedefine HAVE_SETENV
+#cmakedefine HAVE__PUTENV_S
 #cmakedefine HAVE_UNSETENV
 
 #cmakedefine HAVE_REALPATH

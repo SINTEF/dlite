@@ -16,9 +16,10 @@ set(SPHINX_INDEX_FILE "${SPHINX_HTML_DIR}/index.html")
 # Doxygen intput source directory
 set(DOXYGEN_INPUT_DIRS
   ${dlite_SOURCE_DIR}/src/utils
+  ${dlite_SOURCE_DIR}/src/utils/compat-src
   ${dlite_SOURCE_DIR}/src
   ${dlite_SOURCE_DIR}/src/pyembed
-  #${dlite_BINARY_DIR}/bindings/python/dlite
+  ${dlite_SOURCE_DIR}/src/tests/minunit
 )
 string(REPLACE ";" " " DOXYGEN_INPUT "${DOXYGEN_INPUT_DIRS}")
 
@@ -32,9 +33,10 @@ set(DOXYGEN_DOXYFILE_OUT "${BINARY_BUILD_DIR}/Doxyfile")
 set(DOXYGEN_INDEX_FILE ${DOXYGEN_OUTPUT_XML_DIR}/index.xml)
 
 configure_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
-    "${BINARY_BUILD_DIR}/conf.py"
-    @ONLY)
+  "${CMAKE_CURRENT_SOURCE_DIR}/conf.py.in"
+  "${BINARY_BUILD_DIR}/conf.py"
+  @ONLY
+)
 
 file(COPY
   "${CMAKE_SOURCE_DIR}/LICENSE"
@@ -47,24 +49,28 @@ file(COPY
   "${CMAKE_CURRENT_SOURCE_DIR}/contributors_guide"
   "${CMAKE_CURRENT_SOURCE_DIR}/getting_started"
   "${CMAKE_CURRENT_SOURCE_DIR}/user_guide"
-  DESTINATION
-  "${BINARY_BUILD_DIR}"
+  DESTINATION "${BINARY_BUILD_DIR}"
 )
 
 configure_file(
-    ${DOXYGEN_DOXYFILE_IN}
-    ${DOXYGEN_DOXYFILE_OUT}
-    @ONLY)
+  ${DOXYGEN_DOXYFILE_IN}
+  ${DOXYGEN_DOXYFILE_OUT}
+  @ONLY
+)
 
 
 # Doxygen command
-add_custom_command(OUTPUT ${DOXYGEN_INDEX_FILE}
-                   DEPENDS ${DLITE_PUBLIC_HEADERS}
-                   COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
-                   MAIN_DEPENDENCY ${DOXYFILE_OUT}
-		   WORKING_DIRECTORY ${BINARY_BUILD_DIR}
-                   COMMENT "Generating docs"
-                   VERBATIM)
+add_custom_command(
+  OUTPUT ${DOXYGEN_INDEX_FILE}
+  COMMAND ${DOXYGEN_EXECUTABLE} ${DOXYFILE_OUT}
+  MAIN_DEPENDENCY ${DOXYGEN_DOXYFILE_OUT}
+  DEPENDS
+    ${DLITE_PUBLIC_HEADERS}
+    dlitepy
+  WORKING_DIRECTORY ${BINARY_BUILD_DIR}
+  COMMENT "Generating docs"
+  VERBATIM
+)
 
 # Named constom target
 add_custom_target(Doxygen ALL DEPENDS ${DOXYGEN_INDEX_FILE})
@@ -73,15 +79,16 @@ add_custom_target(Doxygen ALL DEPENDS ${DOXYGEN_INDEX_FILE})
 add_custom_command(OUTPUT ${SPHINX_INDEX_FILE}
   COMMAND
   ${SPHINX_EXECUTABLE}
-        -q -b html
-        -c "${BINARY_BUILD_DIR}"
-        -d "${SPHINX_CACHE_DIR}"
-        ${BINARY_BUILD_DIR}
-        "${SPHINX_HTML_DIR}"
+    -q -b html
+    -c "${BINARY_BUILD_DIR}"
+    -d "${SPHINX_CACHE_DIR}"
+    ${BINARY_BUILD_DIR}
+    "${SPHINX_HTML_DIR}"
   DEPENDS
-  ${DOXYGEN_INDEX_FILE}
-  ${BINARY_BUILD_DIR}/respirator.py
+    ${DOXYGEN_INDEX_FILE}
+    ${BINARY_BUILD_DIR}/respirator.py
   MAIN_DEPENDENCY ${BINARY_BUILD_DIR}/conf.py
-  COMMENT "Building HTML documentation with Sphinx")
+  COMMENT "Building HTML documentation with Sphinx"
+)
 
 add_custom_target(Sphinx ALL DEPENDS ${SPHINX_INDEX_FILE})

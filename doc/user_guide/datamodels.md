@@ -1,14 +1,14 @@
 Representing a datamodel (entity)
-----------------------------------
+=================================
 
 The underlying structure of DLite datamodels are described under [concepts].
 
 Here, at set of rules on how to create a datamodel is presented.
 
 Note that several other possibilities are avilable, and this can be seen in the
-examples and tests present in the repository. 
+examples and tests present in the repository.
 
-We choose here to present only one method as mixing reprentation methods might 
+We choose here to present only one method as mixing reprentation methods might
 be confusing. Note, however that yaml and json representations are interchangable.
 
 A generic example with some comments for clarity can be seen below.
@@ -31,8 +31,8 @@ The keywords in the datamodel have the following meaning:
 * `uri`: A URI that uniquely identifies the datamodel.
 * `description`: A human description that describes what this datamodel represents.
 * `dimensions`: Dimensions of the properties (referred to by the property shape). Properties can have the same dimensions, but not necessarily. Each dimension is described by:
-  - name of the dimension 
-  - a human description of the dimension 
+  - name of the dimension
+  - a human description of the dimension
   In the below example there is one dimension with name "N" and description "Number of skills."
 * `properties`: Sub-parts of the datamodel that describe the individual data fields. A property has a name and is further specified by the following keywords:
   - `description`: Human description of the property.
@@ -48,7 +48,7 @@ A slightly more realistic example is the "Person" entity, where we want to descr
 ```yaml
 uri: http://onto-ns.com/meta/0.1/Person
 description: A person.
-dimensions: 
+dimensions:
   N: Number of skills.
 properties:
   name:
@@ -66,7 +66,7 @@ properties:
 
 
 dlite-validate
-==============
+--------------
 The [dlite-validate tool][./tools.md#dlite_validate] can be used to check if a specific representation (in a file) is a valid DLite datamodel
 
 
