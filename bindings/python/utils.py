@@ -72,7 +72,7 @@ def instance_from_dict(d, id=None, single=None, check_storages=True):
             Whether to check if the instance already exists in storages
             specified in `dlite.storage_path`.
     """
-    if single:
+    if single is not None:
         dlite.deprecation_warning(
             "0.7.0",
             "Argument `single` is deprecated and not used. Single/multi-"
