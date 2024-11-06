@@ -45,8 +45,8 @@ int dlite_collection_deinit(DLiteInstance *inst)
   while ((r=dlite_collection_find(coll,&state, NULL, "_has-uuid", NULL,
                                   NULL))) {
     if ((inst2 = dlite_instance_get(r->o))) {
-      dlite_instance_decref(inst2);
-      dlite_instance_decref(inst2);
+      dlite_instance_decref(inst2);  // remove ref from collection
+      dlite_instance_decref(inst2);  // remove local ref to inst2
     } else {
       warnx("cannot remove missing instance: %s", r->o);
     }

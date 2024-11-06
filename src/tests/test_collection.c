@@ -263,7 +263,6 @@ MU_TEST(test_collection_load)
   //dlite_json_print((DLiteInstance *)inst);
   //printf("----------------------\n");
 
-  dlite_instance_decref((DLiteInstance *)inst);
   dlite_collection_decref(coll2);
 }
 
