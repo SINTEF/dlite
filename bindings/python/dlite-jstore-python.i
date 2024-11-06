@@ -31,7 +31,7 @@ def format_dict(
 
     Notes:
         This method works with the dict-representation and does not
-        access instances.  The only exception is when `d` correspond to
+        access instances.  The only exception is when `d` corresponds to
         a data instance who's dimensions is a list of dimension lengths.
         In this case is the metadata needed to get dimension names.
 

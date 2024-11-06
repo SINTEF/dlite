@@ -14,7 +14,7 @@ dlite.storage_path.append(entitydir)
 
 
 # Test format_dict(), arg: soft7
-D1 = {
+D1 = {  # soft7 representation
     "uri": "http://onto-ns.com/meta/ex/0.2/Test",
     "dimensions": {"n": "number of something"},
     "properties": {
@@ -22,7 +22,7 @@ D1 = {
         "b": {"type": "float64", "shape": ["n"]},
     },
 }
-D2 = {
+D2 = {  # old (array) representation
     "uri": "http://onto-ns.com/meta/ex/0.2/Test",
     "dimensions": [{"name": "n", "description": "number of something"}],
     "properties": [
@@ -35,6 +35,8 @@ assert dlite.format_dict(D1, soft7=False) == D2
 assert dlite.format_dict(D2, soft7=True) == D1
 assert dlite.format_dict(D2, soft7=False) == D2
 
+# soft7 representation.  This is identical to the old representation for
+# data instances
 d1 = {
     "uuid": "d6a1c1db-44b6-5b87-b815-83f1127395b6",
     "meta": "http://onto-ns.com/meta/ex/0.2/Test",
@@ -44,7 +46,7 @@ d1 = {
         "b": [1.1, 2.2, 3.3],
     },
 }
-d2 = {
+d2 = {  # old representation
     "uuid": "d6a1c1db-44b6-5b87-b815-83f1127395b6",
     "meta": "http://onto-ns.com/meta/ex/0.2/Test",
     "dimensions": {"n": 3},
