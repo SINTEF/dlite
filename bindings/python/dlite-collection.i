@@ -53,8 +53,7 @@ const struct _Triple *
 int dlite_collection_add(struct _DLiteCollection *coll, const char *label,
                          struct _DLiteInstance *inst);
 int dlite_collection_remove(struct _DLiteCollection *coll, const char *label);
-//const struct _DLiteInstance *
-//  dlite_collection_get(const struct _DLiteCollection *coll, const char *label);
+%newobject dlite_collection_get_new;
 struct _DLiteInstance *
 dlite_collection_get_new(const struct _DLiteCollection *coll,
                          const char *label, const char *metaid);
