@@ -291,6 +291,7 @@ DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
 
   /* Add new instance to `instances` */
   assert(strcmp(inst->meta->uri, m->output_uri) == 0);
+  dlite_instance_incref(inst);  // TODO: is this correct?
   map_set(instances, inst->meta->uri, inst);
 
  fail:
@@ -347,8 +348,8 @@ int set_inputs(Instances *inputs, const DLiteInstance **instances, int n)
     const char *uri = instances[i]->meta->uri;
     if (map_get(inputs, uri)) {
       while (--i >= 0) {
-        dlite_instance_decref((DLiteInstance *)instances[i]);
         map_remove(inputs, instances[i]->meta->uri);
+        dlite_instance_decref((DLiteInstance *)instances[i]);
       }
       return err(1, "more than one instance of the same metadata: %s", uri);
     }
@@ -357,6 +358,20 @@ int set_inputs(Instances *inputs, const DLiteInstance **instances, int n)
   }
   return 0;
 }
+
+/* Decrease the refcount on each instance in inputs. */
+int decref_inputs(Instances *inputs)
+{
+  const char *uri;
+  map_iter_t iter = map_iter(inputs);
+  while ((uri = map_next(inputs, &iter))) {
+    DLiteInstance **instp = map_get(inputs, uri);
+    if (instp) dlite_instance_decref(*instp);
+  }
+  return 0;
+}
+
+
 
 /* Recursive help function that removes all references to input instances
    found in `m`, from `inputs`. */
@@ -430,12 +445,19 @@ DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
 DLiteInstance *dlite_mapping(const char *output_uri,
                              const DLiteInstance **instances, int n)
 {
-  int i;
+  //int i;
   DLiteInstance *inst=NULL;
   DLiteMapping *m=NULL;
   Instances inputs;
 
   map_init(&inputs);
+
+  //int i;
+  //printf("\n");
+  //printf("<== dlite_mapping: in refcounts:\n");
+  //for (i=0; i<n; i++)
+  //  printf("    - %s: refcount=%d\n",
+  //         instances[i]->uuid, instances[i]->_refcount);
 
   /* Increases refcount on each input instance */
   if (set_inputs(&inputs, instances, n)) goto fail;
@@ -443,9 +465,27 @@ DLiteInstance *dlite_mapping(const char *output_uri,
   inst = dlite_mapping_map(m, instances, n);
 
  fail:
-  map_deinit(&inputs);
   if (m) dlite_mapping_free(m);
+
+  //printf("  * inputs:\n");
+  //map_iter_t iter = map_iter(&inputs);
+  //const char *key;
+  //while ((key = map_next(&inputs, &iter))) {
+  //  DLiteInstance *ins = *map_get(&inputs, key);
+  //  printf("    - %s: %s: refcount=%d\n", key, ins->uuid, ins->_refcount);
+  //}
+
   /* Decrease refcount */
-  for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
+  // FIXME: Are all added refcounts removed again
+  //for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
+  decref_inputs(&inputs);
+  map_deinit(&inputs);
+
+  //printf("==> dlite_mapping: out refcounts:\n");
+  //for (i=0; i<n; i++)
+  //  printf("    - %s: refcount=%d\n",
+  //         instances[i]->uuid, instances[i]->_refcount);
+  //printf("    inst (%s): refcount=%d\n", inst->uuid, inst->_refcount);
+
   return inst;
 }

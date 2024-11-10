@@ -602,10 +602,12 @@ DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
   if (!inst) return NULL;
   if (metaid) {
     if (!(inst = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1)))
-      errx(dliteMappingError,
-           "cannot map instance labeled '%s' to '%s'", label, metaid);
-  } else
+      return errx(dliteMappingError,
+                  "cannot map instance labeled '%s' to '%s'",
+                  label, metaid), NULL;
+  } else {
     dlite_instance_incref(inst);
+  }
   return inst;
 }
 
