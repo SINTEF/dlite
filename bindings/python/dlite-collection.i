@@ -57,6 +57,7 @@ int dlite_collection_remove(struct _DLiteCollection *coll, const char *label);
 struct _DLiteInstance *
 dlite_collection_get_new(const struct _DLiteCollection *coll,
                          const char *label, const char *metaid);
+%newobject dlite_collection_get_id;
 const struct _DLiteInstance *
   dlite_collection_get_id(const struct _DLiteCollection *coll, const char *id);
 int dlite_collection_has(const struct _DLiteCollection *coll,
