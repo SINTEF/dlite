@@ -31,6 +31,7 @@ set(tests
   test_isolated_plugins
   test_options
   test_plugin
+  test_memory
 )
 
 foreach(test ${tests})
