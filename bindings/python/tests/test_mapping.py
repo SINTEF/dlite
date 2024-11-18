@@ -27,9 +27,8 @@ assert simple.age == person.age
 
 print(f"*** person: {person.uuid}: refcount: {person._refcount}")
 print(f"*** simple: {simple.uuid}: refcount: {simple._refcount}")
-
-import sys
-sys.exit()
+#import sys
+#sys.exit()
 
 # Add the instance of SimplePerson to a collection
 coll = dlite.Collection()
