@@ -14,7 +14,8 @@ def format_dict(
     """Return a copy of `d` formatted according to the given options.
 
     Arguments:
-        d: Input dict.
+        d: Input dict. This should be a dict-representation of a DLite
+            instance.
         id: If given, return dict-representation of this id.
             Otherwise, return dict-representation of the store.
         soft7: Whether to use soft7 formatting.
