@@ -146,9 +146,9 @@ def main():
             for prop in inst.properties['properties']:
                 if prop.type == 'ref':
                     if prop.ref == 'ref':
-                        print(f'Property {prop.name} is a reference, but a '
-                                'uri is not given. Check that the property '
-                                '$ref is given, the $ is needed.')
+                        print(f'Property "{prop.name}" is of type "ref", the value '
+                                'is ref and not a uri. Check that the property '
+                                '"$ref" is given, the "$" is a strict requirement.')
                         sys.exit(1)
                     # Add the path of the original url to storage_path
                     # since it is likely that referenced data models are 
