@@ -33,7 +33,7 @@ def format_dict(
         This method works with the dict-representation and does not
         access instances.  The only exception is when `d` corresponds to
         a data instance who's dimensions is a list of dimension lengths.
-        In this case is the metadata needed to get dimension names.
+        In this case the metadata is needed to get dimension names.
 
     """
     if not id and single and "properties" not in d and len(d) != 1:
