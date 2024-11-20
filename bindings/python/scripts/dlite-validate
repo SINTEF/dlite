@@ -22,10 +22,10 @@ def parse(url, driver=None, options="mode=r", id=None):
         List of new instances.
     """
     import dlite
-
     loc = url.split("#", 1)[0].split("?",1)[0]
     if driver is None:
         driver = Path(loc).suffix.lstrip('.').lower()
+    
 
     # Validate all instances if `id` is None
     if id is None:
@@ -140,6 +140,22 @@ def main():
     for inst in insts:
         if inst.is_meta:
             check_dimensions(args.url, inst)
+            # Check that datamodels for properties that refer to
+            # a specific datamodel can be loaded.
+            for prop in inst.properties['properties']:
+                if prop.type == 'ref':
+                    if prop.ref == 'ref':
+                        print(f'Property {prop.name} is a reference, but a '
+                                'uri is not given. Check that the property '
+                                '$ref is given, the $ is needed.')
+                        sys.exit(1)
+                    # Add the path of the original url to storage_path
+                    # since it is likely that referenced data models are 
+                    # in the same folder.
+                    dlite.storage_path.append(Path(args.url).resolve().parent)
+                    propmeta = dlite.get_instance(prop.ref)
+                    print(f"Datamodel for property '{prop.name}' was loaded successfully, and "
+                        " not further validated.")
 
     print(f'{args.url}: validated')
 
