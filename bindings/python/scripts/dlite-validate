@@ -102,8 +102,9 @@ def main():
     parser.add_argument(
         '--storage-path', '-p', action='append', default=[],
         help='URL or path to storage path to look up metadata. '
-        'Only needed when validating data instances. '
-        'This option can be given multiple times.'
+        'Only needed when validating data instances, or datamodels '
+        'referring to other datamodels as properties. '
+        'This option can be given multiple times.' 
     )
     parser.add_argument(
         '--show', '-s', action='store_true',
