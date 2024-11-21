@@ -14,7 +14,8 @@ def format_dict(
     """Return a copy of `d` formatted according to the given options.
 
     Arguments:
-        d: Input dict.
+        d: Input dict. This should be a dict-representation of a DLite
+            instance.
         id: If given, return dict-representation of this id.
             Otherwise, return dict-representation of the store.
         soft7: Whether to use soft7 formatting.
@@ -33,7 +34,7 @@ def format_dict(
         This method works with the dict-representation and does not
         access instances.  The only exception is when `d` corresponds to
         a data instance who's dimensions is a list of dimension lengths.
-        In this case is the metadata needed to get dimension names.
+        In this case the metadata is needed to get dimension names.
 
     """
     if not id and single and "properties" not in d and len(d) != 1:
@@ -169,7 +170,6 @@ class _JSONEncoder(json.JSONEncoder):
         else:
             return str(o)
 
-
 %}
 
 
@@ -232,7 +232,6 @@ class _JSONEncoder(json.JSONEncoder):
           d.setdefault("uuid", uuid)
           if id and id != uuid:
               d.setdefault("uri", id)
-
 
           self.load_json(json.dumps(d, cls=_JSONEncoder))
 

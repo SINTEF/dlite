@@ -60,6 +60,103 @@ def uncaught_exception_hook(exetype, value, trace):
 sys.excepthook, oldhook = uncaught_exception_hook, sys.excepthook
 
 
+class DictStore(dict):
+    """A dict subclass providing a simple store for dict-representations
+    of instances (including metadata).
+
+    The internal layout follows the multi-instance representation,
+    where each top-level key-value pair is an UUID mapped to a
+    dict-representation of an instance.  Metadata is represented in
+    soft7 format.
+
+    Arguments:
+        args: One or more to initialise the store with.
+
+    """
+    def __init__(self, *args):
+        for arg in args:
+            self.add(arg)
+
+    def add(self, d, id=None):
+        """Add dict-representation `d` of an instance to the store.
+
+        Arguments:
+            d: A dict to add to the store.
+            id: Optional `id` of `d`.  The `id` must be consistent with
+                any 'uuid', 'uri' or 'identity' key.  This option is
+                useful in the case `d` doesn't have an 'uuid', 'uri' or
+                'identity' key.
+
+        Notes:
+            The layout of `d` may be any of the supported representations
+            for data instances or metadata, including any combination of
+            single/multi-instance and soft7 representations.  The internal
+            layout is always multi-instance soft7.
+        """
+        if "properties" not in d:
+            # `d` is in multi-instance format, add values separately
+            for v in d.values():
+                self.add(v)
+            return
+
+        if "uuid" in d:
+            uuid = d["uuid"]
+        else:
+            uuid = dlite.get_uuid(d.get("uri", d.get("identiry")))
+
+        if id and uuid and dlite.get_uuid(id) != uuid:
+            raise dlite.DLiteInconsistentDataError(
+                f"id '{id}' is not consistent with existing uuid: {uuid}"
+            )
+        elif not id and not uuid:
+            raise dlite.DLiteValueError(
+                "`id` argument is required when dict has no 'uuid', 'uri' "
+                "or 'identity' key"
+            )
+        elif not uuid:
+            uuid = dlite.get_uuid(id)
+
+        ismeta = (
+            "meta" not in d
+            or d["meta"] in (dlite.ENTITY_SCHEMA, dlite.BASIC_METADATA_SCHEMA)
+            or "properties" in d.get("properties", ())
+        )
+
+        dct = {}
+        dct["dimensions"] = {}
+        if "dimensions" in d:
+            if isinstance(d["dimensions"], Mapping):
+                dct["dimensions"].update(d["dimensions"])
+            elif isinstance(d["dimensions"], Sequence):
+                meta = dlite.get_instance(d.get("meta", dlite.ENTITY_SCHEMA))
+                for name, v in zip(meta.dimnames(), d["dimensions"]):
+                    dct["dimensions"][name] = v
+            else:
+                raise dlite.DLiteValueError(
+                    "'dimensions' must be a mapping or sequence, got: "
+                    f"{type(d['dimensions'])}"
+                )
+
+        dct["properties"] = {}
+        if isinstance(d["properties"], Mapping):
+            dct["properties"].update(d["properties"])
+        elif isinstance(d["properties"], Sequence):
+            if not ismeta:
+                raise dlite.DLiteValueError("properties can only metadata ")
+            for k, v in d["properties"]:
+                dct["properties"][k] = v
+        else:
+            raise dlite.DLiteValueError(
+                "'properties' must be a mapping or sequence, got: "
+                f"{type(d['properties'])}"
+            )
+
+        if "relations" in d:
+            dct["relations"] = d["repations"].copy()
+
+        self[uuid] = dct
+
+
 def instance_from_dict(d, id=None, single=None, check_storages=True):
     """Returns a new DLite instance created from dict.
 

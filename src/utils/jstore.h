@@ -126,7 +126,7 @@ int jstore_to_file(JStore *js, const char *filename);
 /** Return number of elements in the store. */
 int jstore_count(JStore *js);
 
-/** If there is one item in the store, return a borrowed reference to its key.
+/** If there is one item in the store, return a borrowed pointer to its key.
    Otherwise return NULL. */
 const char *jstore_get_single_key(JStore *js);
 
