@@ -23,6 +23,7 @@
     myfixstring: Si
     myshort: 13
     mystring: '...'
+
 2f8ba28c-add6-5718-a03c-ea46961d6ca7:
   uri: my_test_instance_1
   meta: http://onto-ns.com/meta/0.1/TestEntity

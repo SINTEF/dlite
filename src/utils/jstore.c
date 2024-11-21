@@ -318,6 +318,24 @@ int jstore_to_file(JStore *js, const char *filename)
   return (n == 1) ? 0 : 1;
 }
 
+/* Return number of elements in the store. */
+int jstore_count(JStore *js)
+{
+  int n=0;
+  map_iter_t iter = map_iter(&js->store);
+  while (map_next(&js->store, &iter)) n++;
+  return n;
+}
+
+/* If there is one item in the store, return its key.  Otherwise return NULL. */
+const char *jstore_get_single_key(JStore *js)
+{
+  map_iter_t iter = map_iter(&js->store);
+  const char *key = map_next(&js->store, &iter);
+  if (key && !map_next(&js->store, &iter)) return key;
+  return NULL;
+}
+
 /* Initialise iterator.  Return non-zero on error. */
 int jstore_iter_init(JStore *js, JStoreIter *iter)
 {

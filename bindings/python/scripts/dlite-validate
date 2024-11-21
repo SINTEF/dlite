@@ -16,9 +16,10 @@ def parse(url, driver=None, options="mode=r", id=None):
         driver: The name of storage plugin to use.
         options: Options passed to the storage plugin.
         id: ID of instance to load if the storage contains multiple instances.
+            The default is to load all instances.
 
     Returns:
-        A new instance.
+        List of new instances.
     """
     import dlite
 
@@ -26,13 +27,26 @@ def parse(url, driver=None, options="mode=r", id=None):
     if driver is None:
         driver = Path(loc).suffix.lstrip('.').lower()
 
+    # Validate all instances if `id` is None
+    if id is None:
+        try:
+            uuids = dlite.Instance.get_uuids(driver, url, options=options)
+        #except dlite.DLiteError:
+        except dlite.DLiteUnsupportedError:
+            pass
+        else:
+            insts = []
+            for uuid in uuids:
+                insts.extend(parse(url, driver=driver, options=options, id=uuid))
+            return insts
+
     match = re.match(r'^([a-zA-Z][a-zA-Z0-9+.-]*)://', url)
     if match and match.groups()[0].lower() != 'file':
         if options:
             url += f"?{options}"
         if id:
             url += f"#{id}"
-        return dlite.Instance.from_url(url)
+        return [dlite.Instance.from_url(url)]
     else:
         path = Path(loc.split(":", 1)[1] if match else loc).resolve()
 
@@ -42,9 +56,9 @@ def parse(url, driver=None, options="mode=r", id=None):
             with open(path, 'rt') as f:
                 json.load(f)
 
-        return dlite.Instance.from_location(
+        return [dlite.Instance.from_location(
             driver, path, options=options, id=id,
-        )
+        )]
 
 
 def check_dimensions(url, meta):
@@ -115,7 +129,7 @@ def main():
         dlite.storage_path.append(Path(path).resolve())
 
     try:
-        inst = parse(args.url, args.driver, args.options, args.id)
+        insts = parse(args.url, args.driver, args.options, args.id)
     except Exception as exc:
         if args.debug:
             raise
@@ -123,13 +137,17 @@ def main():
             print(f'{args.url}: {exc.__class__.__name__}: {exc}')
             sys.exit(1)
 
-    if inst.is_meta:
-        check_dimensions(args.url, inst)
+    for inst in insts:
+        if inst.is_meta:
+            check_dimensions(args.url, inst)
 
     print(f'{args.url}: validated')
 
     if (args.show):
-        print(inst)
+        for inst in insts:
+            if len(insts) > 1:
+                print("="*79)
+            print(inst)
 
 
 if __name__ == '__main__':

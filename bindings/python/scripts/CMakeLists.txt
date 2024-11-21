@@ -44,6 +44,7 @@ test_success(
   dlite-validate-Person
   dlite-validate ../tests/entities/Person.json
 )
+# Storage with multiple instances
 test_success(
   dlite-validate-persons
   dlite-validate
@@ -58,14 +59,17 @@ test_success(
     --id=Ada
     --show
     ../tests/input/persons.json
-  )
-
-# No --id for storage with multiple instances
-test_failure(
-  dlite-validate-persons-fail2
+)
+test_success(
+  dlite-validate-persons3
   dlite-validate
-    --storage-path ../tests/entities/Person.json
-    --show ../tests/input/persons.json
+    --storage-path ../tests/entities
+    --show
+    ../tests/input/persons.json
+)
+test_success(
+  dlite-validate-multiple-instances
+  dlite-validate ../tests/input/test_ref_type.json
 )
 
 # The "dimensions" keyword is required
