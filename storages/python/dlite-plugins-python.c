@@ -502,7 +502,8 @@ int iterNext(void *iter, char *buf)
     if (!PyUnicode_Check(next))
       FAIL1("generator method %s.query() should return a string", i->classname);
     if (!(uuid = PyUnicode_AsUTF8(next)) || strlen(uuid) != DLITE_UUID_LENGTH)
-      FAIL1("generator method %s.query() should return a uuid", i->classname);
+      FAIL2("generator method %s.query() should return an UUID, got: '%s'",
+            i->classname, uuid);
     memcpy(buf, uuid, DLITE_UUID_LENGTH+1);
     retval = 0;
   } else {

@@ -34,7 +34,7 @@ try:
 
     # Test saving YAML metadata
     yaml_inst2 = yaml_mod.yaml()
-    yaml_inst2.open('yaml_test_save.yaml', 'mode=w;soft7=false')
+    yaml_inst2.open('yaml_test_save.yaml', 'mode=w;soft7=false;with_meta=true')
     yaml_inst2.save(inst)
     yaml_inst2.flush()
     with open(input_path / 'test_meta.yaml', "r") as f:
@@ -53,7 +53,7 @@ try:
 
     # Test saving YAML data
     yaml_inst4 = yaml_mod.yaml()
-    yaml_inst4.open('yaml_test_save2.yaml', 'mode=w')
+    yaml_inst4.open('yaml_test_save2.yaml', 'mode=w;with_uuid=false')
     yaml_inst4.save(inst1)
     yaml_inst4.save(inst2)
     yaml_inst4.flush()

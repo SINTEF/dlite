@@ -32,6 +32,7 @@ set(tests
   test_options
   test_plugin
   test_memory
+  test_jstore
 )
 
 foreach(test ${tests})
