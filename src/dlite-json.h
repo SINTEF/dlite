@@ -295,6 +295,11 @@ int dlite_jstore_add(JStore *js, const DLiteInstance *inst,
 int dlite_jstore_remove(JStore *js, const char *id);
 
 /**
+  Returns instance with given id from json store `js` or NULL on error.
+*/
+DLiteInstance *dlite_jstore_get(JStore *js, const char *id);
+
+/**
   Initiate iterator `init` from json store `js`.
   If `metaid` is provided, the iterator will only iterate over instances
   of this metadata.

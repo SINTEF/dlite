@@ -131,9 +131,12 @@ Opens `location`.
                 - `r`: Open existing `location` for reading.
                 - `w`: Open for writing. If `location` exists, it is truncated.
             - `soft7`: Whether to save using SOFT7 format.
-            - `single`: Whether the input is assumed to be in single-entity form.
-              If "auto" (default) the form will be inferred automatically.
+            - `single`: Whether to save in single-instance form.
             - `with_uuid`: Whether to include UUID when saving.
+            - with_meta: Whether to always include "meta" (even for metadata)
+            - with_parent: Whether to include parent info for transactions.
+            - urikey: Whether the URI is the preferred keys in multi-instance
+                format.
 """
     s = dlite.Storage(
         "yaml", outdir / "test_storage_inst.yaml", options="mode=a"

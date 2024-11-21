@@ -28,38 +28,48 @@ class yaml(dlite.DLiteStorageBase):
                 - `r`: Open existing `location` for reading.
                 - `w`: Open for writing. If `location` exists, it is truncated.
             - `soft7`: Whether to save using SOFT7 format.
-            - `single`: Whether the input is assumed to be in single-entity form.
-              If "auto" (default) the form will be inferred automatically.
+            - `single`: Whether to save in single-instance form.
             - `with_uuid`: Whether to include UUID when saving.
+            - with_meta: Whether to always include "meta" (even for metadata)
+            - with_parent: Whether to include parent info for transactions.
+            - urikey: Whether the URI is the preferred keys in multi-instance
+                format.
         """
-        self.options = Options(
-            options, defaults="mode=a;soft7=true;single=auto;with_uuid=false"
-        )
+        df = "mode=a;soft7=true;with_meta=false;with_parent=true;urikey=false"
+        self.options = Options(options, defaults=df)
         mode = self.options.mode
         self.writable = "w" in mode or "a" in mode
         self.generic = True
         self.location = location
         self.flushed = True  # whether buffered data has been written to file
-        self._data = {}  # data buffer
+        self._store = dlite.JStore()  # data buffer
         if "r" in mode or "a" in mode:
             with open(location, "r") as f:
                 data = pyyaml.safe_load(f)
             if data:
-                self._data = data
+                self._store.load_dict(data)
 
-        self.single = (
-            "properties" in self._data
-            if self.options.single == "auto"
-            else dlite.asbool(self.options.single)
-        )
-        self.with_uuid = dlite.asbool(self.options.with_uuid)
+        self.with_uuid = None
+        if "with_uuid" in self.options:
+            self.with_uuid = dlite.asbool(self.options.with_uuid)
+
+        self.single = None
+        if "single" in self.options:
+            self.single = dlite.asbool(self.options.single)
 
     def flush(self):
         """Flush cached data to storage."""
         if self.writable and not self.flushed:
             with open(self.location, "w") as f:
                 self._pyyaml.safe_dump(
-                    self._data,
+                    self._store.get_dict(
+                        soft7=dlite.asbool(self.options.soft7),
+                        single=self.single,
+                        with_uuid=self.with_uuid,
+                        with_meta=dlite.asbool(self.options.with_meta),
+                        with_parent=dlite.asbool(self.options.with_parent),
+                        urikey=dlite.asbool(self.options.urikey),
+                    ),
                     f,
                     default_flow_style=False,
                     sort_keys=False,
@@ -70,22 +80,15 @@ class yaml(dlite.DLiteStorageBase):
         """Loads `uuid` from current storage and return it as a new instance.
 
         Arguments:
-            id: A UUID representing a DLite Instance to return from the
-                storage.
+            id: UUID or URI of DLite Instance to return from the storage.
 
         Returns:
-            A DLite Instance corresponding to the given `id` (UUID).
+            A DLite Instance corresponding to the given `id`.
         """
-        inst = instance_from_dict(
-            self._data,
-            id,
-            single=self.options.single,
-            check_storages=False,
-        )
-        # Ensure metadata in single-entity form is always read-only
+        inst = self._store.get(id)
+        # Ensure metadata in single-instance form is always read-only
         if inst.is_meta and self.single:
             self.writable = False
-
         return inst
 
     def save(self, inst: dlite.Instance):
@@ -95,20 +98,16 @@ class yaml(dlite.DLiteStorageBase):
             inst: A DLite Instance to store in the storage.
 
         """
-        self._data[inst.uuid] = inst.asdict(
-            soft7=dlite.asbool(self.options.soft7),
-            single=True,
-            uuid=self.with_uuid,
-        )
+        self._store.add(inst)
         self.flushed = False
 
-    def delete(self, uuid):
+    def delete(self, id):
         """Delete instance with given `uuid` from storage.
 
         Arguments:
-            uuid: UUID of instance to delete.
+            id: UUID or URI of instance to delete.
         """
-        del self._data[uuid]
+        self._store.remove(id)
         self.flushed = False
 
     def query(self, pattern=None):
@@ -124,10 +123,8 @@ class yaml(dlite.DLiteStorageBase):
             storage.
 
         """
-        for uuid, inst_as_dict in self._data.items():
-            if pattern and dlite.globmatch(pattern, inst_as_dict["meta"]):
-                continue
-            yield uuid
+        for id in self._store.get_ids(pattern):
+            yield id
 
     @classmethod
     def from_bytes(cls, buffer, id=None, options=None):
@@ -137,6 +134,7 @@ class yaml(dlite.DLiteStorageBase):
             buffer: Bytes or bytearray object to load the instance from.
             id: ID of instance to load.  May be omitted if `buffer` only
                 holds one instance.
+            options: Unused.
 
         Returns:
             New instance.

@@ -6,6 +6,11 @@
   @brief Main header file for dlite which import main headers
 */
 
+#ifdef HAVE_CONFIG
+#include "config.h"
+#endif
+
+
 #ifndef HAVE_DLITE
 #define HAVE_DLITE
 #endif

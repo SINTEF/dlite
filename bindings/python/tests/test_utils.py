@@ -5,6 +5,7 @@ from pathlib import Path
 
 import dlite
 from dlite.utils import (
+    DictStore,
     instance_from_dict,
     to_metadata,
     infer_dimensions,
@@ -190,3 +191,12 @@ ref.items = item1, item2
 ref.refs = [ref]
 dims = infer_dimensions(meta=Ref, values=ref.asdict(single=True)["properties"])
 assert dims == {"nitems": 2, "nrefs": 1}
+
+
+# Test DictStore
+ds = DictStore()
+ds.add({
+    "meta": "http://onto-ns.com/meta/0.1/Collection",
+    "dimensions": [0],
+    "properties": {"relations": []},
+})

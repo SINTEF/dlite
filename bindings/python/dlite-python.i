@@ -1175,8 +1175,11 @@ PyObject *dlite_run_file(const char *path, PyObject *globals, PyObject *locals)
 %typemap("doc") (const char *INPUT, size_t LEN)
   "string"
 %typemap(in, numinputs=1) (const char *INPUT, size_t LEN) (Py_ssize_t tmp) {
-  $1 = (char *)PyUnicode_AsUTF8AndSize($input, &tmp);
+  PyObject *str = PyObject_Str($input);
+  if (!str) SWIG_exception(SWIG_TypeError, "Cannot get string representation");
+  $1 = (char *)PyUnicode_AsUTF8AndSize(str, &tmp);
   $2 = tmp;
+  Py_DECREF(str);
 }
 
 /* Array of input dimensions */
