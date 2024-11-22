@@ -93,3 +93,21 @@ test_failure(
   dlite-validate-invalid1-yaml
   dlite-validate ../tests/entities/InvalidYaml1.yaml
 )
+
+# Test invalid yaml with ref-type
+test_failure(
+  dlite-validate-ref-invalid1-yaml
+  dlite-validate ../tests/entities/Ref_invalid1.json
+)
+
+# Test valid yaml with invalid ref-type
+test_failure(
+  dlite-validate-invalidref-yaml
+  dlite-validate ../tests/entities/ValidYaml_invalidref.yaml
+)
+
+# Test invalid yaml
+test_failure(
+  dlite-validate-invalid2-yaml
+  dlite-validate ../tests/entities/InvalidYaml2.yaml
+)
