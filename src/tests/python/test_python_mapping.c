@@ -58,6 +58,7 @@ MU_TEST(test_map)
   dlite_instance_save_url("json://inst3.json", inst3);
 
   dlite_instance_decref(inst3);
+  dlite_instance_decref(ent3);
   //dlite_instance_decref((DLiteInstance *)instances[0]);
 }
 

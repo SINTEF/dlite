@@ -16,7 +16,6 @@ person = Person(dimensions=[2])
 person.name = "Neil Armstrong"
 person.age = 39
 person.skills = ["keping the head cold", "famous quotes"]
-# person.incref()
 
 # Map person to an instance of SimplePerson
 simple = dlite.mapping("http://onto-ns.com/meta/0.1/SimplePerson", [person])

@@ -99,7 +99,6 @@ assert coll.get("inst1") == inst2
 coll.add("inst1", inst1, force=True)  # revert
 assert coll.get("inst1") == inst1
 
-
 # Test convinience functions
 i1 = coll.get_id(inst1.uuid)
 assert i1 == inst1

@@ -152,9 +152,10 @@ MU_TEST(test_append)
 
 MU_TEST(test_decref)
 {
-  dlite_instance_decref(coll);
-  dlite_instance_decref(inst);
-  dlite_meta_decref(meta);
+  int n;
+  for (n=coll->_refcount; n>0; n--) dlite_instance_decref(coll);
+  for (n=inst->_refcount; n>0; n--) dlite_instance_decref(inst);
+  for (n=meta->_refcount; n>1; n--) dlite_meta_decref(meta);  // metadata
   coll = NULL;
   inst = NULL;
   meta = NULL;

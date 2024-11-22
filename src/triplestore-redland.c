@@ -466,8 +466,8 @@ TripleStore *triplestore_create()
 void triplestore_free(TripleStore *ts)
 {
   Globals *g = get_globals();
- assert(g->nmodels > 0);
- g->nmodels--;
+  assert(g->nmodels > 0);
+  g->nmodels--;
   librdf_free_storage(ts->storage);
   librdf_free_model(ts->model);
   if (ts->storage_name)  free((char *)ts->storage_name);

@@ -45,7 +45,8 @@ int dlite_collection_deinit(DLiteInstance *inst)
   while ((r=dlite_collection_find(coll,&state, NULL, "_has-uuid", NULL,
                                   NULL))) {
     if ((inst2 = dlite_instance_get(r->o))) {
-      dlite_instance_decref(inst2);
+      dlite_instance_decref(inst2);  // remove ref from collection
+      dlite_instance_decref(inst2);  // remove local ref to inst2
     } else {
       warnx("cannot remove missing instance: %s", r->o);
     }
@@ -601,10 +602,12 @@ DLiteInstance *dlite_collection_get_new(const DLiteCollection *coll,
   if (!inst) return NULL;
   if (metaid) {
     if (!(inst = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1)))
-      errx(dliteMappingError,
-           "cannot map instance labeled '%s' to '%s'", label, metaid);
-  } else
+      return errx(dliteMappingError,
+                  "cannot map instance labeled '%s' to '%s'",
+                  label, metaid), NULL;
+  } else {
     dlite_instance_incref(inst);
+  }
   return inst;
 }
 

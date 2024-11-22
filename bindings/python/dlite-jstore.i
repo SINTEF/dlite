@@ -102,6 +102,7 @@ struct _JStore {};
   }
 
   %feature("docstring", "Iterate over all id's matching pattern.") get_ids;
+  %newobject get_ids;
   struct _DLiteJStoreIter *get_ids(const char *pattern=NULL) {
     return dlite_jstore_iter_create($self, pattern);
   }

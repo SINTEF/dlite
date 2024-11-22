@@ -81,8 +81,8 @@ class errctl():
         return [_dlite._err_getcode(errname) for errname in errnames]
 
 
-silent = errctl(filename="None")
-"""Context manager for a silent code block.  Same as `errctl(filename="None")`."""
+silent = errctl(hide=True)
+"""Context manager for a silent code block.  Same as `errctl(hide=True)`."""
 
 # A set for keeping track of already issued deprecation warnings
 _deprecation_warning_record = set()
