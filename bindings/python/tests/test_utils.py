@@ -65,6 +65,7 @@ d = {
         ],
     },
 }
+
 inst = instance_from_dict(d)
 print(inst)
 
