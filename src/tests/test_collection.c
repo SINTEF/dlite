@@ -238,30 +238,11 @@ MU_TEST(test_collection_load)
 {
   DLiteCollection *coll2;
   char *collpath = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/coll.json";
-  //DLiteStoragePathIter *iter;
-  //const char *path;
-
-  dlite_storage_paths_append(STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json");
-
-  //printf("\n\nStorage paths:\n");
-  //iter = dlite_storage_paths_iter_start();
-  //while ((path = dlite_storage_paths_iter_next(iter)))
-  //  printf("  - %s\n", path);
-  //printf("\n");
-  //dlite_storage_paths_iter_stop(iter);
-
   FILE *fp = fopen(collpath, "r");
+  dlite_storage_paths_append(STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json");
   coll2 = (DLiteCollection *)
     dlite_json_fscan(fp, NULL, "http://onto-ns.com/meta/0.1/Collection");
   fclose(fp);
-  //printf("\n\n--- coll2: %p ---\n", (void *)coll2);
-  //dlite_json_print((DLiteInstance *)coll2);
-  //printf("----------------------\n");
-
-  const DLiteInstance *inst = dlite_collection_get(coll2, "inst");
-  //printf("\n--- inst: %p ---\n", (void *)inst);
-  //dlite_json_print((DLiteInstance *)inst);
-  //printf("----------------------\n");
 
   dlite_collection_decref(coll2);
 }
