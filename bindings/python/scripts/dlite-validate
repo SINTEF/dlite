@@ -40,6 +40,19 @@ def parse(url, driver=None, options="mode=r", id=None):
                 insts.extend(parse(url, driver=driver, options=options, id=uuid))
             return insts
 
+    # Validate all instances if `id` is None
+    if id is None:
+        try:
+            uuids = dlite.Instance.get_uuids(driver, url, options=options)
+        #except dlite.DLiteError:
+        except dlite.DLiteUnsupportedError:
+            pass
+        else:
+            insts = []
+            for uuid in uuids:
+                insts.extend(parse(url, driver=driver, options=options, id=uuid))
+            return insts
+
     match = re.match(r'^([a-zA-Z][a-zA-Z0-9+.-]*)://', url)
     if match and match.groups()[0].lower() != 'file':
         if options:
@@ -157,6 +170,7 @@ def main():
                     propmeta = dlite.get_instance(prop.ref)
                     print(f"Datamodel for property '{prop.name}' was loaded successfully, and "
                         " not further validated.")
+
 
     print(f'{args.url}: validated')
 
