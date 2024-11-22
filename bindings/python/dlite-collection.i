@@ -53,13 +53,17 @@ const struct _Triple *
 int dlite_collection_add(struct _DLiteCollection *coll, const char *label,
                          struct _DLiteInstance *inst);
 int dlite_collection_remove(struct _DLiteCollection *coll, const char *label);
-//const struct _DLiteInstance *
-//  dlite_collection_get(const struct _DLiteCollection *coll, const char *label);
+%newobject dlite_collection_get_new;
 struct _DLiteInstance *
 dlite_collection_get_new(const struct _DLiteCollection *coll,
                          const char *label, const char *metaid);
+
+// Although dlite_collection_get_id() returns a borrowed reference in C,
+// we create a new object in Python that must be properly deallocated.
+%newobject dlite_collection_get_id;
 const struct _DLiteInstance *
   dlite_collection_get_id(const struct _DLiteCollection *coll, const char *id);
+
 int dlite_collection_has(const struct _DLiteCollection *coll,
                          const char *label);
 int dlite_collection_has_id(const struct _DLiteCollection *coll,
