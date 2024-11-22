@@ -160,6 +160,16 @@ def format_dict(
     return {uri if uri and urikey else uuid: dct}
 
 
+class _JSONEncoder(json.JSONEncoder):
+    """JSON encoder that also handle bytes object."""
+    def default(self, o):
+        if isinstance(o, bytes):
+            return "".join(f"{c:x}" for c in o)
+        elif (isinstance(o, (str, bool, int, float, list, dict)) or o is None):
+            return super().default(o)
+        else:
+            return str(o)
+
 %}
 
 
@@ -203,7 +213,7 @@ def format_dict(
           if "uuid" in d:
               uuid = d["uuid"]
           elif "uri" in d or "identity" in d:
-              uuid = _dlite.get_uuid(d.get("uri", d.get("identity")))
+              uuid = _dlite.get_uuid(str(d.get("uri", d.get("identity"))))
 
           if id and uuid and _dlite.get_uuid(id) != uuid:
               raise _dlite.DLiteInconsistentDataError(
@@ -223,7 +233,7 @@ def format_dict(
           if id and id != uuid:
               d.setdefault("uri", id)
 
-          self.load_json(json.dumps(d))
+          self.load_json(json.dumps(d, cls=_JSONEncoder))
 
       def get_dict(self, id=None, soft7=True, single=None, with_uuid=None,
                    with_meta=False, with_parent=True, urikey=False):

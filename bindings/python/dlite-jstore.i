@@ -5,8 +5,8 @@
 #include "dlite-errors.h"
 #include "dlite-json.h"
 
-  /* If store `js` only has one instance, return its id, otherwise raise a
-     DLiteLookupError. */
+  /* If store `js` only has one instance, return borrowed reference to its id,
+     otherwise raise a DLiteLookupError. */
   static const char *_single_id(JStore *js)
   {
     const char *key = jstore_get_single_key(js);
@@ -97,7 +97,6 @@ struct _JStore {};
   %feature("docstring",
            "If there is one instance in storage, return its id. "
            "Otherwise, raise an DLiteLookupError exception.") get_single_id;
-  %newobject get_single_id;
   const char *get_single_id(void) {
     return _single_id($self);
   }
