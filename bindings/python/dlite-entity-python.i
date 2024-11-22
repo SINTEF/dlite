@@ -168,8 +168,26 @@ def get_instance(
             metaid = str(metaid).rstrip("#/")
         inst = _dlite.get_instance(id, metaid, check_storages)
 
+    if inst is None and id.startswith("http://onto-ns.com/"):
+        try:
+            import requests
+        except ModuleNotFoundError as e:
+            import warnings
+            warnings.warn(f"{e}: skip trying to fetch from entity service")
+        else:
+            import json
+            r = requests.get(id)
+            if r.ok:
+                d = json.loads(r.content.decode())
+                # Workaround for bugs in the entity service
+                if "meta" not in d or d["meta"] == dlite.ENTITY_SCHEMA:
+                    if "dimensions" not in d:
+                        d["dimensions"] = {}
+            inst = Instance.from_dict(d)
+
     if inst is None:
         raise _dlite.DLiteMissingInstanceError(f"no such instance: {id}")
+
     return instance_cast(inst)
 
 %}
