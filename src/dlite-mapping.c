@@ -445,19 +445,11 @@ DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
 DLiteInstance *dlite_mapping(const char *output_uri,
                              const DLiteInstance **instances, int n)
 {
-  //int i;
   DLiteInstance *inst=NULL;
   DLiteMapping *m=NULL;
   Instances inputs;
 
   map_init(&inputs);
-
-  int i;
-  printf("\n");
-  printf("<== dlite_mapping: in refcounts:\n");
-  for (i=0; i<n; i++)
-    printf("    - %s: refcount=%d\n",
-           instances[i]->uuid, instances[i]->_refcount);
 
   /* Increases refcount on each input instance */
   if (set_inputs(&inputs, instances, n)) goto fail;
@@ -467,25 +459,9 @@ DLiteInstance *dlite_mapping(const char *output_uri,
  fail:
   if (m) dlite_mapping_free(m);
 
-  printf("  * inputs:\n");
-  map_iter_t iter = map_iter(&inputs);
-  const char *key;
-  while ((key = map_next(&inputs, &iter))) {
-    DLiteInstance *ins = *map_get(&inputs, key);
-    printf("    - %s: %s: refcount=%d\n", key, ins->uuid, ins->_refcount);
-  }
-
   /* Decrease refcount */
-  // FIXME: Are all added refcounts removed again
-  //for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
   decref_inputs(&inputs);
   map_deinit(&inputs);
-
-  printf("==> dlite_mapping: out refcounts:\n");
-  for (i=0; i<n; i++)
-    printf("    - %s: refcount=%d\n",
-           instances[i]->uuid, instances[i]->_refcount);
-  printf("    inst (%s): refcount=%d\n", inst->uuid, inst->_refcount);
 
   return inst;
 }
