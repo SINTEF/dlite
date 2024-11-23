@@ -34,7 +34,6 @@ assert s == simple
 s2 = coll.get("simple")
 assert s2 == s
 
-
 # Get the added person instance from the collection mapped to a new
 # instance of Person (with no skills)
 p = coll.get("simple", "http://onto-ns.com/meta/0.1/Person")
