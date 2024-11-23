@@ -209,9 +209,8 @@ setup(
         "Programming Language :: Python :: 3.12",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires="numpy>=1.14.5,<1.27.0",
-    #install_requires=requirements,
-    #extras_require=extra_requirements,
+    install_requires="numpy>=1.14.5",
+    build_requires="numpy>=2.0.0",
     packages=["DLite-Python"],
     scripts=[
         str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),

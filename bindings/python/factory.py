@@ -120,7 +120,7 @@ class BaseExtension(metaclass=MetaExtension):
             if prop.ndims:
                 value = getter(prop.name)
                 array = (
-                    np.array(value, copy=False)
+                    np.asarray(value)
                     if value is not None
                     else np.zeros([0] * prop.ndims)
                 )
