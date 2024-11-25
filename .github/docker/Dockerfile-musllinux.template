@@ -35,8 +35,6 @@
 #
 FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
-ARG PY_MINORS="{{ PY_MINORS }}"
-
 COPY requirements_full.txt requirements_dev.txt /tmp/
 
 {{ EXTRA_PRE }}
@@ -70,8 +68,12 @@ RUN \
     -e '/scikit-image/d' \
     -e '/ncempy/d' \
     -e '/h5py/d' \
-    -i /tmp/requirements_full.txt && \
+    -i /tmp/requirements_full.txt
     #-e 's/^pydantic.*/pydantic<2/' \
+
+ARG PY_MINORS="{{ PY_MINORS }}"
+
+RUN \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \

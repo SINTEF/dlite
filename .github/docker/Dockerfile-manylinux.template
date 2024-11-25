@@ -38,9 +38,7 @@
 # Reference: https://github.com/pypa/manylinux#manylinux2014-centos-7-based
 FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 
-ARG PY_MINORS="{{ PY_MINORS }}"
-
-COPY requirements_full.txt requirements_dev.txt /tmp/
+COPY requirements.txt requirements_full.txt requirements_dev.txt /tmp/
 
 {{ EXTRA_PRE }}
 
@@ -81,7 +79,11 @@ RUN \
     -e '/scikit-image/d' \
     -e '/ncempy/d' \
     -e '/h5py/d' \
-    -i /tmp/requirements_full.txt && \
+    -i /tmp/requirements_full.txt
+
+ARG PY_MINORS="{{ PY_MINORS }}"
+
+RUN \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
@@ -89,7 +91,7 @@ RUN \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -U setuptools wheel && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
-      oldest-supported-numpy \
+      -r /tmp/requirements.txt \
       -r /tmp/requirements_dev.txt \
       -r /tmp/requirements_full.txt; \
   done && \
