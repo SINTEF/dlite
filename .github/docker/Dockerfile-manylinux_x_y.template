@@ -5,8 +5,11 @@
 # Usage:
 #
 # Copy this template file and replace:
-# - `{{ TYPE }}` major glibc version, ex: _2_24, _2_28
-# - `{{ ARCH }}` with a valid arch, ex:  x86_64, i686
+# - `{{ TYPE }}` major glibc version, ex: _2_24, _2_28, _2_34
+# - `{{ ARCH }}` architecture, ex:  x86_64, i686
+# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "8 9 10 11 12 13"
+# - `{{ EXTRA_PRE }}` extra commands before installation
+# - `{{ EXTRA_POST }}` extra commands after installation
 # Remove the `.template` suffix from the copy.
 #
 # Examples
@@ -14,28 +17,28 @@
 #
 # Generate dockerfile:
 #
-#     .github/docker/gen_dockerfile.sh manylinux _2_24 x86_64 > \
-#         .github/docker/dockerfiles/Dockerfile-manylinux_2_24_x86_64
+#     .github/docker/gen_dockerfile.sh manylinux _2_34 x86_64 > \
+#         .github/docker/dockerfiles/Dockerfile-manylinux_2_34_x86_64
 #
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker build -t dlite-manylinux \
-#         -f .github/docker/dockerfiles/Dockerfile-manylinux_2_24_x86_64 .
+#     docker build -t dlite-manylinux_2_34_x86_64 \
+#         -f .github/docker/dockerfiles/Dockerfile-manylinux_2_34_x86_64 .
 #
 # Run (for debugging):
 #
 #     docker run --rm -it \
 #         --volume $PWD:/io \
 #         --user $(id -u):$(id -g) \
-#         dlite-manylinux_2_24_x86_64 \
+#         dlite-manylinux_2_34_x86_64 \
 #         /bin/bash
 #
 
 # Reference: https://github.com/pypa/manylinux
 FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 
-ARG PY_MINORS="8 9 10 11 12"
+ARG PY_MINORS="{{ PY_MINORS }}"
 
 {{ EXTRA_PRE }}
 

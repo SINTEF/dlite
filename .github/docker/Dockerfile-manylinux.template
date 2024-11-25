@@ -6,7 +6,10 @@
 #
 # Copy this template file and replace:
 # - `{{ TYPE }}` major glibc version, ex: _2_24, _2_28
-# - `{{ ARCH }}` with a valid arch, ex:  x86_64, i686
+# - `{{ ARCH }}` architecture, ex:  x86_64, i686
+# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "8 9 10"
+# - `{{ EXTRA_PRE }}` extra commands before installation
+# - `{{ EXTRA_POST }}` extra commands after installation
 # Remove the `.template` suffix from the copy.
 #
 # Examples
@@ -14,28 +17,28 @@
 #
 # Generate dockerfile:
 #
-#     .github/docker/gen_dockerfile.sh manylinux 2014 i686 > \
-#         .github/docker/dockerfiles/Dockerfile-manylinux2014_i686
+#     .github/docker/gen_dockerfile.sh manylinux 2014 x86_64 > \
+#         .github/docker/dockerfiles/Dockerfile-manylinux2014_x86_64
 #
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker build -t dlite-manylinux2014_i686 \
-#         -f .github/docker/dockerfiles/Dockerfile-manylinux2014_i686 .
+#     docker build -t dlite-manylinux2014_x86_64 \
+#         -f .github/docker/dockerfiles/Dockerfile-manylinux2014_x86_64 .
 #
 # Run (for debugging):
 #
 #     docker run --rm -it \
 #         --volume $PWD:/io \
 #         --user $(id -u):$(id -g) \
-#         dlite-manylinux2014_i686 \
+#         dlite-manylinux2014_x86_64 \
 #         /bin/bash
 #
 
 # Reference: https://github.com/pypa/manylinux#manylinux2014-centos-7-based
 FROM quay.io/pypa/manylinux{{ TYPE }}_{{ ARCH }}:latest
 
-ARG PY_MINORS="8 9 10 11 12"
+ARG PY_MINORS="{{ PY_MINORS }}"
 
 COPY requirements_full.txt requirements_dev.txt /tmp/
 

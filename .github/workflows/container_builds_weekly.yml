@@ -22,45 +22,61 @@ jobs:
       fail-fast: false
       matrix:
         include:
-        # 64-bit linux
+        # 64-bit manylinux
         - system: "manylinux"
-          type: "2010"
+          type: "_2_34"
           arch: "x86_64"
-          py_minors: "8 9"
-        - system: "manylinux"
-          type: "2014"
-          arch: "x86_64"
+          #py_minors: "8 9 10 11 12 13"
           py_minors: "8 9 10 11 12"
-        - system: "manylinux"
-          type: "_2_28"
-          arch: "x86_64"
-          py_minors: "8 9 10 11 12"
-        - system: "musllinux"
-          type: "_1_1"
-          arch: "x86_64"
-          py_minors: "8 9 10 11"
-        - system: "musllinux"
-          type: "_1_2"
-          arch: "x86_64"
-          py_minors: "8 9 10 11"
+        #- system: "manylinux"
+        #  type: "_2_28"
+        #  arch: "x86_64"
+        #  py_minors: "8 9 10 11 12"
+        #- system: "manylinux"
+        #  type: "2014"
+        #  arch: "x86_64"
+        #  py_minors: "8 9 10 11 12"
+        #- system: "manylinux"
+        #  type: "2010"
+        #  arch: "x86_64"
+        #  py_minors: "8 9"
 
-        # 32-bit linux
-        - system: "manylinux"
-          type: "2010"
-          arch: "i686"
-          py_minors: "8 9"
+        # 64-bit musllinux
+        - system: "musllinux"
+          type: "_1_2"
+          arch: "x86_64"
+          #py_minors: "8 9 10 11 12 13"
+          py_minors: "8 9 10 11"
+        #- system: "musllinux"
+        #  type: "_1_1"
+        #  arch: "x86_64"
+        #  py_minors: "8 9 10 11"
+        #- system: "musllinux"
+        #  type: "_1_2"
+        #  arch: "x86_64"
+        #  py_minors: "8 9 10 11"
+
+        # 32-bit manylinux
         - system: "manylinux"
           type: "2014"
           arch: "i686"
+          #py_minors: "8 9 10 11 12 13"
           py_minors: "8 9 10 11 12"
-        - system: "musllinux"
-          type: "_1_1"
-          arch: "i686"
-          py_minors: "8 9 10 11"
+        #- system: "manylinux"
+        #  type: "2010"
+        #  arch: "i686"
+        #  py_minors: "8 9"
+
+        # 32-bit musllinux
         - system: "musllinux"
           type: "_1_2"
           arch: "i686"
+          #py_minors: "8 9 10 11 12 13"
           py_minors: "8 9 10 11"
+        #- system: "musllinux"
+        #  type: "_1_1"
+        #  arch: "i686"
+        #  py_minors: "8 9 10 11"
 
     steps:
       - name: Checkout repository
@@ -95,7 +111,7 @@ jobs:
         if: env.BUILD_NEW_IMAGE == 'true'
         run: |
           mkdir -p docker_build_wheel
-          bash .github/docker/gen_dockerfile.sh ${{ matrix.system }} ${{ matrix.type }} ${{ matrix.arch }} \
+          bash .github/docker/gen_dockerfile.sh ${{ matrix.system }} ${{ matrix.type }} ${{ matrix.arch }} "${{ matrix.py_minors }}" \
             > docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
 
       - name: Login to GitHub Container Registry
