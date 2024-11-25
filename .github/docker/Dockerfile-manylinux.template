@@ -55,7 +55,9 @@ RUN \
     libcurl-devel \
     libxslt-devel \
     libxml2-devel \
-    libffi-devel && \
+    libffi-devel \
+    rust \
+    cargo && \
   # hdf5-devel is needed for building the hdf5 plugin
   yum install -y hdf5-devel || true && \
   # Unpack static libraries

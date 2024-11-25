@@ -13,7 +13,7 @@
 set -eu
 
 if [[ $# -lt 3 ]]; then
-    echo "Usage: gen_dockerfile.sh SYSTEM SYSTEM_TYPE ARCH"
+    echo "Usage: gen_dockerfile.sh SYSTEM SYSTEM_TYPE ARCH [PY_MINORS]"
     exit 1
 fi
 SYSTEM=$1
