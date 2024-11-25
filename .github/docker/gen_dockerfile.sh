@@ -20,19 +20,20 @@ SYSTEM_TYPE=$2
 ARCH=$3
 
 
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P )
+REL_DIR=${SCRIPT_DIR##*/dlite/}
 
 
 if [ $SYSTEM = "manylinux" -a ${SYSTEM_TYPE:0:1} = "_" ]; then
-    template=${SCRIPT_DIR}/Dockerfile-${SYSTEM}_x_y.template
+    template=${REL_DIR}/Dockerfile-${SYSTEM}_x_y.template
 else
-    template=${SCRIPT_DIR}/Dockerfile-${SYSTEM}.template
+    template=${REL_DIR}/Dockerfile-${SYSTEM}.template
 fi
 
 EXTRA_PRE=""
 EXTRA_POST=""
 if [ ${SYSTEM_TYPE} == "2010" ]; then
-    EXTRA_PRE="COPY ${SCRIPT_DIR}/pgdg-91_${ARCH}.repo /etc/yum.repos.d/pgdg-91.repo"
+    EXTRA_PRE="COPY ${REL_DIR}/pgdg-91_${ARCH}.repo /etc/yum.repos.d/pgdg-91.repo"
     EXTRA_POST="ENV PATH=\$PATH:/usr/pgsql-9.1/bin"
 fi
 
