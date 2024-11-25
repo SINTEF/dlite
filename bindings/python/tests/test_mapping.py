@@ -16,7 +16,6 @@ person = Person(dimensions=[2])
 person.name = "Neil Armstrong"
 person.age = 39
 person.skills = ["keping the head cold", "famous quotes"]
-# person.incref()
 
 # Map person to an instance of SimplePerson
 simple = dlite.mapping("http://onto-ns.com/meta/0.1/SimplePerson", [person])
@@ -34,7 +33,6 @@ s = coll.get("simple", "http://onto-ns.com/meta/0.1/SimplePerson")
 assert s == simple
 s2 = coll.get("simple")
 assert s2 == s
-
 
 # Get the added person instance from the collection mapped to a new
 # instance of Person (with no skills)

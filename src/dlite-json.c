@@ -624,7 +624,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   /* Parse dimensions */
   if (dlite_meta_is_metameta(meta)) {
     /* For metadata, dimension sizes are inferred from the size of
-       "dimensions", "propertis" and "relations". */
+       "dimensions", "properties" and "relations". */
     size_t n=0;
     if ((t = jsmn_item(src, obj, "dimensions"))) dims[n++] = t->size;
     if ((t = jsmn_item(src, obj, "properties"))) dims[n++] = t->size;
@@ -722,11 +722,8 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
           if (dlite_property_jscan(src, t, NULL, ptr, p, pdims, 0) < 0)
             goto fail;
         } else if (t->type == JSMN_OBJECT) {
-          if (dlite_instance_is_meta(inst)) {
-            if (dlite_property_jscan(src, t, p->name, ptr, p, pdims, 0) < 0)
-              goto fail;
-          } else
-            FAIL1("missing key \"%s\" in JSON object", p->name);
+          if (dlite_property_jscan(src, t, p->name, ptr, p, pdims, 0) < 0)
+            goto fail;
         } else {
           if (!ptr)
             FAIL1("cannot assign property with NULL destination: %s", p->name);
