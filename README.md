@@ -34,7 +34,7 @@ The official documentation for DLite can be found on https://sintef.github.io/dl
 
 Installation
 ------------
-DLite is available on PyPI and can be installed with pip
+DLite is available on PyPI and can be installed with pip as follows:
 
 ```shell
 pip install dlite-python[full]
