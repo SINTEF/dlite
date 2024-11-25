@@ -51,7 +51,9 @@ RUN \
     hdf5-dev \
     openssl-dev \
     openblas-dev \
-    swig && \
+    swig \
+    rust \
+    cargo && \
   # Unpack static libraries
   # It's necessary to be in /opt/_internal because the internal libraries
   # exist here.
