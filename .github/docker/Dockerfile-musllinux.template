@@ -35,7 +35,7 @@
 #
 FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
-COPY requirements_full.txt requirements_dev.txt /tmp/
+COPY requirements.txt requirements_full.txt requirements_dev.txt /tmp/
 
 {{ EXTRA_PRE }}
 
@@ -81,7 +81,7 @@ RUN \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -U setuptools wheel && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
-      oldest-supported-numpy \
+      -r /tmp/requirements.txt \
       -r /tmp/requirements_dev.txt \
       -r /tmp/requirements_full.txt; \
   done && \
