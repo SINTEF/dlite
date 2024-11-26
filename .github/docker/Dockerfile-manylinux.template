@@ -81,6 +81,9 @@ RUN \
     -e '/scikit-image/d' \
     -e '/ncempy/d' \
     -e '/h5py/d' \
+    -e '/pymongo/d' \
+    -e '/redis/d' \
+    -e '/minio/d' \
     -i /tmp/requirements_full.txt
 
 ARG PY_MINORS="{{ PY_MINORS }}"
