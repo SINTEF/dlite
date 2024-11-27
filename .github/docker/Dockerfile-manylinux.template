@@ -80,7 +80,7 @@ RUN \
       -U setuptools wheel && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -r /tmp/requirements.txt \
-      -r /tmp/requirements_dev.txt \
+      -r /tmp/requirements_dev.txt; \
   done && \
   rm -rf /ci/pip_cache
 
