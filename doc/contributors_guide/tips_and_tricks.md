@@ -63,7 +63,7 @@ Debugging tests failing inside docker on GitHub
 3. To list all manylinux images for Python 3.12, do
 
         cd dlite  # Root of DLite source directory
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_34_x86_64:latest \
         CIBW_BUILD=cp312-manylinux_* \
         python -m cibuildwheel \
         --print-build-identifiers \
@@ -77,7 +77,7 @@ Debugging tests failing inside docker on GitHub
 
 4. Run image.  For example, to run the image `cp312-manylinux_x86_64` do
 
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_34_x86_64:latest \
         CIBW_BUILD=cp312-manylinux_x86* \
         python -m cibuildwheel \
         --output-dir wheelhouse \
@@ -92,7 +92,7 @@ Debugging tests failing inside docker on GitHub
    the previous command:
 
         CIBW_BEFORE_TEST=cat \
-        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+        CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_34_x86_64:latest \
         CIBW_BUILD=cp312-manylinux_x86* \
         python -m cibuildwheel \
         --output-dir wheelhouse \
@@ -146,7 +146,7 @@ and get its IP with
 You can then rerun `cibuildwheel` with the
 
      CIBW_BUILD_FRONTEND="pip; args: --index-url http://$ip:3141/root/pypi/" \
-     CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_28_x86_64:latest \
+     CIBW_MANYLINUX_X86_64_IMAGE=ghcr.io/sintef/dlite-python-manylinux_2_34_x86_64:latest \
      CIBW_BUILD=cp312-manylinux_x86* \
      python -m cibuildwheel \
      --output-dir wheelhouse \
