@@ -48,7 +48,6 @@ RUN \
     https://mirrors.rpmfusion.org/free/el/rpmfusion-free-release-$(rpm --eval %{centos_ver}).noarch.rpm \
     https://mirrors.rpmfusion.org/nonfree/el/rpmfusion-nonfree-release-$(rpm --eval %{centos_ver}).noarch.rpm && \
   yum install -y \
-    swig \
     redland-devel \
     rasqal-devel \
     libcurl-devel \

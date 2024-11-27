@@ -127,7 +127,7 @@ Debugging tests failing inside docker on GitHub
 
         ls /tmp/cibuildwheel/repaired_wheel/DLite_Python-*.whl
 
-        pip install /tmp/cibuildwheel/repaired_wheel/DLite_Python-0.3.18-cp312-cp312m-manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl
+        pip install /tmp/cibuildwheel/repaired_wheel/DLite_Python-*.whl
 
 8. Now we can run the Python tests with
 

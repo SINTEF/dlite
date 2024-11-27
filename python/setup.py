@@ -67,6 +67,12 @@ else:
     raise NotImplementedError(f"Unsupported platform: {platform.system()}")
 
 
+requirements = [line.strip() for line in open("requirements.txt", "rt")]
+requirements_dev = [
+    line.strip() for line in open("requirements_dev.txt", "rt")
+]
+
+
 class CMakeExtension(Extension):
     """
     setuptools.Extension for cmake
@@ -209,8 +215,8 @@ setup(
         "Programming Language :: Python :: 3.12",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
-    install_requires="numpy>=1.14.5,<1.27.0",
-    #install_requires=requirements,
+    build_requires=requirements_dev,
+    install_requires=requirements,
     #extras_require=extra_requirements,
     packages=["DLite-Python"],
     scripts=[
