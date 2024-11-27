@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 # Based on
 # https://github.com/galois-advertising/cmake_setup/blob/master/cmake_setup/cmake/__init__.py
 
-SETUP_DIR = Path(__file__).parent.resolve()
+SETUP_DIR = Path(__file__).resolve().parent
 SOURCE_DIR = SETUP_DIR.parent
 
 if platform.system() == "Linux":
@@ -67,9 +67,11 @@ else:
     raise NotImplementedError(f"Unsupported platform: {platform.system()}")
 
 
-requirements = [line.strip() for line in open("requirements.txt", "rt")]
+requirements = [
+    line.strip() for line in open(SOURCE_DIR/"requirements.txt", "rt")
+]
 requirements_dev = [
-    line.strip() for line in open("requirements_dev.txt", "rt")
+    line.strip() for line in open(SOURCE_DIR/"requirements_dev.txt", "rt")
 ]
 
 
