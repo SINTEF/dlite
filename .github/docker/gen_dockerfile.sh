@@ -19,7 +19,11 @@ fi
 SYSTEM=$1
 SYSTEM_TYPE=$2
 ARCH=$3
-PY_MINORS="${4:=8 9 10 11 12}"
+if [[ $# -ge 4 ]]; then
+    PY_MINORS="$4"
+else
+    PY_MINORS="8 9 10 11 12"
+fi
 
 
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd -P )
