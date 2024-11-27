@@ -1,6 +1,8 @@
 # -*- Mode: Dockerfile -*-
-# Template Dockerfile for building Python pypi package.  Going to be
-# superseeded by Dockerfile-manylinux_x_y.template
+# Template Dockerfile for manylinux 2010 and 2014 for building Python pypi package.
+# Is superseeded by the Dockerfile-manylinux_x_y.template, but will continue to be used to support i686 architectures.
+#
+# On these old systems we do not install requirements_full.txt
 #
 # Usage:
 #
@@ -17,21 +19,21 @@
 #
 # Generate dockerfile:
 #
-#     .github/docker/gen_dockerfile.sh manylinux 2014 x86_64 > \
-#         .github/docker/dockerfiles/Dockerfile-manylinux2014_x86_64
+#     .github/docker/gen_dockerfile.sh manylinux 2014 i686 > \
+#         .github/docker/dockerfiles/Dockerfile-manylinux2014_i686
 #
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker build -t dlite-manylinux2014_x86_64 \
-#         -f .github/docker/dockerfiles/Dockerfile-manylinux2014_x86_64 .
+#     docker build -t dlite-manylinux2014_i686 \
+#         -f .github/docker/dockerfiles/Dockerfile-manylinux2014_i686 .
 #
 # Run (for debugging):
 #
 #     docker run --rm -it \
 #         --volume $PWD:/io \
 #         --user $(id -u):$(id -g) \
-#         dlite-manylinux2014_x86_64 \
+#         dlite-manylinux2014_i686 \
 #         /bin/bash
 #
 
@@ -54,9 +56,7 @@ RUN \
     libcurl-devel \
     libxslt-devel \
     libxml2-devel \
-    libffi-devel \
-    rust \
-    cargo && \
+    libffi-devel && \
   # hdf5-devel is needed for building the hdf5 plugin
   yum install -y hdf5-devel || true && \
   # Unpack static libraries
@@ -67,23 +67,7 @@ RUN \
   # Filter out challenging packages from requirements
   sed \
     -e '/mongomock/d' \
-    -i  /tmp/requirements_dev.txt && \
-  sed \
-    -e '/pandas/d' \
-    -e '/pyarrow/d' \
-    -e '/tables/d' \
-    -e '/openpyxl/d' \
-    -e '/jinja2/d' \
-    -e '/pydantic/d' \
-    -e '/fortran-language-server/d' \
-    -e '/matplotlib/d' \
-    -e '/scikit-image/d' \
-    -e '/ncempy/d' \
-    -e '/h5py/d' \
-    -e '/pymongo/d' \
-    -e '/redis/d' \
-    -e '/minio/d' \
-    -i /tmp/requirements_full.txt
+    -i  /tmp/requirements_dev.txt
 
 ARG PY_MINORS="{{ PY_MINORS }}"
 
@@ -97,7 +81,6 @@ RUN \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -r /tmp/requirements.txt \
       -r /tmp/requirements_dev.txt \
-      -r /tmp/requirements_full.txt; \
   done && \
   rm -rf /ci/pip_cache
 
