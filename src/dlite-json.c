@@ -725,6 +725,8 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
           if (dlite_property_jscan(src, t, p->name, ptr, p, pdims, 0) < 0)
             goto fail;
         } else {
+          if (!ptr)
+            FAIL1("cannot assign property with NULL destination: %s", p->name);
           if (dlite_type_scan(src+t->start, t->end - t->start, ptr, p->type,
                               p->size, 0) < 0)
             goto fail;

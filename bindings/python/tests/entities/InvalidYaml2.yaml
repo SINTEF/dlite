@@ -1,0 +1,8 @@
+# An invalid version of datamodel Valid1.yaml
+uri: http://onto-ns.com/meta/0.1/InvalidYaml2
+description: A datamodel wiht invalid dimension (empty).
+dimensions:
+properties:
+  name:
+    type: str
+    description: Name of the item.
