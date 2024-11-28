@@ -46,7 +46,6 @@ jobs:
             libxml2-dev \
             libxslt-dev \
             libhdf5-dev \
-            swig4.0 \
             doxygen \
             graphviz \
             python3 \
@@ -56,18 +55,19 @@ jobs:
             python3-yaml
           #python3 -m pip install psycopg2-binary==2.9.5
 
-      - name: Available version of installed programs
-        run: |
-          python --version
-          swig -version
-          doxygen --version
-          dot -V
-
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
           pip install -U setuptools wheel
-          pip install -r requirements.txt -r requirements_doc.txt
+          pip install -r requirements.txt -r requirements_doc.txt -r requirements_dev.txt
+
+      - name: Available version of installed programs
+        run: |
+          python --version
+          swig -version
+          cmake -version
+          doxygen --version
+          dot -V
 
       - name: Run CMAKE
         run: |
