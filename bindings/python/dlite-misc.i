@@ -10,18 +10,24 @@
     return dlite_get_uuid(buff, id);
   }
 
-  status_t split_url(char *url, char **driver, char **location,
+  void split_meta_uri(const char *uri, char **name, char **version,
+                      char **namespace) {
+    dlite_split_meta_uri(uri, name, version, namespace);
+  }
+
+  void split_url(char *url, char **driver, char **location,
                            char **options, char **fragment) {
-    status_t retval=0;
+
     char *url2, *drv=NULL, *loc=NULL, *opt=NULL, *frg=NULL;
-    if (!(url2 = strdup(url))) return dlite_err(1, "allocation failure");
-    retval = dlite_split_url(url, &drv, &loc, &opt, &frg);
+    if ((url2 = strdup(url)))
+      dlite_split_url(url2, &drv, &loc, &opt, &frg);
+    else
+      dlite_err(dliteMemoryError, "allocation failure");
     if (driver)   *driver   = strdup((drv) ? drv : "");
     if (location) *location = strdup((loc) ? loc : "");
     if (options)  *options  = strdup((opt) ? opt : "");
     if (fragment) *fragment = strdup((frg) ? frg : "");
-    free(url2);
-    return retval;
+    if (url2) free(url2);
   }
 
   bool asbool(const char *str) {
@@ -115,8 +121,8 @@ Returns (name, version, namespace)-tuplet from valid metadata `uri`.
 %cstring_output_allocate(char **name,      if (*$1) free(*$1));
 %cstring_output_allocate(char **version,   if (*$1) free(*$1));
 %cstring_output_allocate(char **namespace, if (*$1) free(*$1));
-status_t dlite_split_meta_uri(const char *uri, char **name, char **version,
-			      char **namespace);
+void split_meta_uri(const char *uri, char **name, char **version,
+                    char **namespace);
 
 //int dlite_option_parse(char *options, DLiteOpt *opts, int modify);
 
@@ -139,11 +145,12 @@ Returns a (driver, location, options, fragment)-tuplet by splitting
 
 into four parts.
 ") split_url;
+%feature("numoutputs", "0") split_url;
 %cstring_output_allocate(char **driver,   if (*$1) free(*$1));
 %cstring_output_allocate(char **location, if (*$1) free(*$1));
 %cstring_output_allocate(char **options,  if (*$1) free(*$1));
 %cstring_output_allocate(char **fragment, if (*$1) free(*$1));
-status_t split_url(char *url, char **driver, char **location,
+void split_url(char *url, char **driver, char **location,
                    char **options, char **fragment);
 
 

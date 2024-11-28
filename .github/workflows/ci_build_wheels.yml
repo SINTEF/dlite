@@ -17,62 +17,60 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          # 32-bit linux
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "2010"]
-            arch: i686
-            py_minors: 8,9
-            # Python 3.12 often fails with segfault during shutdown for
-            # manylinux2014_i686 - should be debugged
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "2014"]
-            arch: i686
-            py_minors: 8,11
-            # Python 3.12 fails since cibuildwheel still depends on distutils
-            # for musllinux
-          - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_1"]
-            arch: i686
-            py_minors: 8,11
-            # Python 3.12 fails since cibuildwheel still depends on distutils
-            # for musllinux
-          - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_2"]
-            arch: i686
-            py_minors: 8,11
 
-          # 64-bit linux
+          # 64-bit manylinux
           - os: ubuntu-20.04
-            system_type: ["manylinux", "2010"]
-            arch: x86_64
-            py_minors: 8,9
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "2014"]
+            system_type: ["manylinux", "_2_34"]
             arch: x86_64
             py_minors: 8,12
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "_2_28"]
-            arch: x86_64
-            py_minors: 8,12
-            # Python 3.12 fails since cibuildwheel still depends on distutils
-            # for musllinux
-          - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_1"]
-            arch: x86_64
-            py_minors: 8,11
-            # Python 3.12 fails since cibuildwheel still depends on distutils
-            # for musllinux
+          #- os: ubuntu-20.04
+          #  system_type: ["manylinux", "_2_28"]
+          #  arch: x86_64
+          #  py_minors: 8,12
+          #- os: ubuntu-20.04
+          #  system_type: ["manylinux", "2014"]
+          #  arch: x86_64
+          #  py_minors: 8,12
+          #- os: ubuntu-20.04
+          #  system_type: ["manylinux", "2010"]
+          #  arch: x86_64
+          #  py_minors: 8,9
+
+          # 64-bit musllinux
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_2"]
             arch: x86_64
             py_minors: 8,11
+          # Python 3.12 fails since cibuildwheel still depends on distutils
+          # for musllinux
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_1"]
+          #  arch: x86_64
+          #  py_minors: 8,11
 
-          # See issue #220: https://github.com/SINTEF/dlite/issues/220
-          # # 32-bit Windows
-          # - os: windows-2019
-          #   system_type: ["win32", ""]
-          #   arch: ""
-          #   py_minors: 7,10
+          # 32-bit manylinux
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2014"]
+            arch: i686
+            py_minors: 8,12
+          # Python 3.12 fails since cibuildwheel still depends on distutils
+          # for musllinux
+          #- os: ubuntu-20.04
+          #  system_type: ["manylinux", "2010"]
+          #  arch: i686
+          #  py_minors: 8,9
+
+          # 32-bit musllinux
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_2"]
+            arch: i686
+            py_minors: 8,11
+          # Python 3.12 fails since cibuildwheel still depends on distutils
+          # for musllinux
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_1"]
+          #  arch: i686
+          #  py_minors: 8,11
 
           # 64-bit Windows
           - os: windows-2019
@@ -80,8 +78,15 @@ jobs:
             arch: amd64
             py_minors: 8,12
 
+          # 32-bit Windows
+          # See issue #220: https://github.com/SINTEF/dlite/issues/220
+          # - os: windows-2019
+          #   system_type: ["win32", ""]
+          #   arch: ""
+          #   py_minors: 7,10
+
+          # 64-bit (Intel) macOS
           # See issue #221: https://github.com/SINTEF/dlite/issues/221
-          # # 64-bit (Intel) macOS
           # - os: macos-10.15
           #   system_type: ["macosx", ""]
           #   arch: x86_64
