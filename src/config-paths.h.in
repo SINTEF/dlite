@@ -25,9 +25,17 @@
 
 /* dlite-pyembed.c does not imports config.h to avoid conflicts with Python .h
    Include configurations needed by dlite-pyembed.c here */
+#ifndef HAVE_SETENV
 #cmakedefine HAVE_SETENV
+#endif
+
+#ifndef HAVE__PUTENV_S
 #cmakedefine HAVE__PUTENV_S
+#endif
+
+#ifndef HAVE_UNSETENV
 #cmakedefine HAVE_UNSETENV
+#endif
 
 
 

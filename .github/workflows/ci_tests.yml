@@ -42,7 +42,6 @@ jobs:
           libxml2-dev \
           libxslt-dev \
           libhdf5-dev \
-          swig4.0 \
           doxygen \
           graphviz \
           python3 \
