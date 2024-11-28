@@ -5,7 +5,10 @@
 #
 # Copy this template file and replace:
 # - `{{ TYPE }}` with a valid musllinux type, e.g. '_1_1' or '_1_2'
-# - `{{ ARCH }}` with a valid arch, e.g., x86_64 or i686
+# - `{{ ARCH }}` architecture, ex:  x86_64, i686
+# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "8 9 10 11 12"
+# - `{{ EXTRA_PRE }}` extra commands before installation
+# - `{{ EXTRA_POST }}` extra commands after installation
 # Remove the `.template` suffix from the copy.
 #
 # Examples
@@ -32,9 +35,7 @@
 #
 FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
-ARG PY_MINORS="8 9 10 11 12"
-
-COPY requirements_full.txt requirements_dev.txt /tmp/
+COPY requirements.txt requirements_full.txt requirements_dev.txt /tmp/
 
 {{ EXTRA_PRE }}
 
@@ -50,13 +51,16 @@ RUN \
     hdf5-dev \
     openssl-dev \
     openblas-dev \
-    swig && \
+    swig \
+    rust \
+    cargo && \
   # Unpack static libraries
   # It's necessary to be in /opt/_internal because the internal libraries
   # exist here.
   cd /opt/_internal && \
   tar -Jxvf static-libs-for-embedding-only.tar.xz && \
   # Filter out challenging packages from requirements_full.txt
+    #-e 's/^pydantic.*/pydantic<2/' \
   sed \
     -e '/pandas/d' \
     -e '/pyarrow/d' \
@@ -67,8 +71,16 @@ RUN \
     -e '/scikit-image/d' \
     -e '/ncempy/d' \
     -e '/h5py/d' \
+    -e '/pymongo/d' \
+    -e '/fortran-language-server/d' \
     -i /tmp/requirements_full.txt && \
-    #-e 's/^pydantic.*/pydantic<2/' \
+  sed \
+    -e '/mongomock/d' \
+    -i /tmp/requirements_dev.txt
+
+ARG PY_MINORS="{{ PY_MINORS }}"
+
+RUN \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
@@ -76,7 +88,7 @@ RUN \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -U setuptools wheel && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
-      oldest-supported-numpy \
+      -r /tmp/requirements.txt \
       -r /tmp/requirements_dev.txt \
       -r /tmp/requirements_full.txt; \
   done && \
