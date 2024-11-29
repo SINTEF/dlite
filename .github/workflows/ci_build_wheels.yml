@@ -22,7 +22,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "_2_34"]
             arch: x86_64
-            py_minors: 8,12
+            py_minors: 8,13
           #- os: ubuntu-20.04
           #  system_type: ["manylinux", "_2_28"]
           #  arch: x86_64
@@ -40,7 +40,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_2"]
             arch: x86_64
-            py_minors: 8,11
+            py_minors: 8,13
           # Python 3.12 fails since cibuildwheel still depends on distutils
           # for musllinux
           #- os: ubuntu-20.04
@@ -52,7 +52,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 8,12
+            py_minors: 8,13
           # Python 3.12 fails since cibuildwheel still depends on distutils
           # for musllinux
           #- os: ubuntu-20.04
@@ -64,7 +64,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_2"]
             arch: i686
-            py_minors: 8,11
+            py_minors: 8,13
           # Python 3.12 fails since cibuildwheel still depends on distutils
           # for musllinux
           #- os: ubuntu-20.04
@@ -76,14 +76,14 @@ jobs:
           - os: windows-2019
             system_type: ["win", ""]
             arch: amd64
-            py_minors: 8,12
+            py_minors: 8,13
 
           # 32-bit Windows
           # See issue #220: https://github.com/SINTEF/dlite/issues/220
-          # - os: windows-2019
-          #   system_type: ["win32", ""]
-          #   arch: ""
-          #   py_minors: 7,10
+          - os: windows-2019
+            system_type: ["win32", ""]
+            arch: ""
+            py_minors: 8,10
 
           # 64-bit (Intel) macOS
           # See issue #221: https://github.com/SINTEF/dlite/issues/221
