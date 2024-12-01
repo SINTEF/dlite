@@ -304,7 +304,7 @@ def metadata_to_rdf(
                 (prop_iri, RDFS.subClassOf, EMMO.Array),
                 (prop_iri, RDFS.subClassOf, restriction_iri),
                 (restriction_iri, RDF.type, OWL.Restriction),
-                (restriction_iri, OWL.onProperty, EMMO.hasDimension),
+                (restriction_iri, OWL.onProperty, OTEIO.hasDimension),
             ])
             for i, dim in enumerate(prop.shape):
                 dim_iri = f"{iri}#{prop.name}_dimension{i}"
@@ -450,7 +450,7 @@ def get_dataset(
                             unit = get_unit_symbol(oncls)
                         elif onprop == EMMO.hasScalarData:
                             emmotype = emmotypes[someval]
-                        elif onprop == EMMO.hasDimension:
+                        elif onprop == OTEIO.hasDimension:
                             shape = get_shape(
                                 ts, onval, dimensions, mappings, uri
                             )
