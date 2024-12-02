@@ -105,7 +105,6 @@ jobs:
           echo "CACHE_DIR=.buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}" >> "$GITHUB_ENV"
 
       - name: Create docker file
-        if: env.BUILD_NEW_IMAGE == 'true'
         run: |
           mkdir -p docker_build_wheel
           bash .github/docker/gen_dockerfile.sh ${{ matrix.system }} ${{ matrix.type }} ${{ matrix.arch }} "${{ matrix.py_minors }}" \
