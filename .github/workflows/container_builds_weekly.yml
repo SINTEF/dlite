@@ -93,26 +93,36 @@ jobs:
           key: buildx-cache-${{ matrix.system }}${{ matrix.type }}-${{ matrix.arch }}-${{ github.sha }}
           restore-keys: buildx-cache-${{ matrix.system }}${{ matrix.type }}-${{ matrix.arch }}-
 
-      - name: Check 'latest' parent image SHA
+      - name: Define environment variables
         run: |
-          IMAGE=quay.io/pypa/${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest
-          SHA_FILENAME=${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest.sha.txt
-          docker pull ${IMAGE}
-          docker images --no-trunc --quiet ${IMAGE} > ${SHA_FILENAME}
+          # Relative path to Dockerfile to build
+          echo "DOCKERFILE=docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}" >> "$GITHUB_ENV"
+          # Filename to store SHA hash of the Dockerfile
+          echo "SHA_FILENAME=${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest.sha.txt" >> "$GITHUB_ENV"
+          # The base image to use when building the docker container
+          echo "IMAGE=quay.io/pypa/${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}:latest" >> "$GITHUB_ENV"
+          # Cache directory for checking whether to (re)build docker container
+          echo "CACHE_DIR=.buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}" >> "$GITHUB_ENV"
 
-          CACHE_DIR=.buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
+      - name: Create docker file
+        run: |
+          mkdir -p docker_build_wheel
+          bash .github/docker/gen_dockerfile.sh ${{ matrix.system }} ${{ matrix.type }} ${{ matrix.arch }} "${{ matrix.py_minors }}" \
+            > ${DOCKERFILE}
+
+      - name: Create file with SHA hashes
+        run: |
+          sha256sum ${DOCKERFILE} > ${SHA_FILENAME}
+
+      - name: Check whether to build new image
+        run: |
+          docker pull ${IMAGE}
+          docker images --no-trunc --quiet ${IMAGE} >> ${SHA_FILENAME}
           if [ -f "${CACHE_DIR}/${SHA_FILENAME}" ] && [ "$( cat ${SHA_FILENAME} )" == "$( cat ${CACHE_DIR}/${SHA_FILENAME} )" ]; then
             echo "BUILD_NEW_IMAGE=false" >> $GITHUB_ENV
           else
             echo "BUILD_NEW_IMAGE=true" >> $GITHUB_ENV
           fi
-
-      - name: Create docker file
-        if: env.BUILD_NEW_IMAGE == 'true'
-        run: |
-          mkdir -p docker_build_wheel
-          bash .github/docker/gen_dockerfile.sh ${{ matrix.system }} ${{ matrix.type }} ${{ matrix.arch }} "${{ matrix.py_minors }}" \
-            > docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
 
       - name: Login to GitHub Container Registry
         if: env.BUILD_NEW_IMAGE == 'true'
