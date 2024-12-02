@@ -2,12 +2,12 @@ import sys
 from pathlib import Path
 
 import numpy as np
-import dlite
 
-try:
-    import skimage
-except ImportError:
-    sys.exit(44)  # skip test
+import dlite
+from dlite.testutils import importskip
+
+importskip("scipy")
+importskip("skimage")
 
 
 thisdir = Path(__file__).absolute().parent
