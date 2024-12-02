@@ -1,7 +1,7 @@
 from pathlib import Path
 
 import dlite
-from dlite import importskip
+from dlite.testutils import importskip
 
 importskip("pandas")
 importskip("tables")
