@@ -110,9 +110,10 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
   if (!(info = get_storage_plugin_info())) return NULL;
 
   /* Return plugin if it is loaded */
- ErrTry:  // silence errors
-  api = (const DLiteStoragePlugin *)plugin_get_api(info, name);
- ErrOther:  // hmm, we should update plugins.c to produce more specific errors
+ ErrTry:  // silence dliteStorageLoadError
+  api = (const DLiteStoragePlugin *)plugin_get_api(info, name,
+                                                   dliteStorageLoadError);
+ ErrCatch(dliteStorageLoadError):
   break;
  ErrEnd;
   if (api) return api;
@@ -125,9 +126,10 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       plugin_load_all(info);
       memcpy(g->storage_plugin_path_hash, hash, sizeof(hash));
 
-     ErrTry:  // silence errors
-      api = (const DLiteStoragePlugin *)plugin_get_api(info, name);
-     ErrOther:  // update plugins.c to produce more specific errors
+     ErrTry:  // silence dliteStorageLoadError
+      api = (const DLiteStoragePlugin *)plugin_get_api(info, name,
+                                                       dliteStorageLoadError);
+      ErrCatch(dliteStorageLoadError):
       break;
      ErrEnd;
       if (api) return api;

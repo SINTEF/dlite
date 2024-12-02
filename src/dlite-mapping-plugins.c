@@ -132,11 +132,12 @@ const DLiteMappingPlugin *dlite_mapping_plugin_get(const char *name)
 {
   const DLiteMappingPlugin *api;
   PluginInfo *info;
+  int code = dliteMappingError;
 
   if (!(info = get_mapping_plugin_info())) return NULL;
-  if ((api = (DLiteMappingPlugin *)plugin_get_api(info, name))) return api;
+  if ((api = (DLiteMappingPlugin *)plugin_get_api(info, name, code))) return api;
   load_mapping_plugins();
-  if ((api = (DLiteMappingPlugin *)plugin_get_api(info, name))) return api;
+  if ((api = (DLiteMappingPlugin *)plugin_get_api(info, name, code))) return api;
 #ifdef WITH_PYTHON
   if ((api = dlite_python_mapping_get_api(name))) return api;
 #endif
