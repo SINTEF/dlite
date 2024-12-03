@@ -208,13 +208,10 @@ jobs:
     - name: Install Python dependencies
       run: |
         python -m pip install -U pip
-        pip install -U setuptools wheel
-
-        # Build package/tool
-        pip install -U build
+        pip install -U setuptools wheel build
 
         # Build requirements
-        pip install -U oldest-supported-numpy cmake
+        pip install -U -r requirements.txt -r requirements_dev.txt
 
     - name: Build source distribution
       run: python -m build --no-isolation --sdist python
