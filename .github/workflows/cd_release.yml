@@ -76,61 +76,61 @@ jobs:
         include:
           # See ci_build_wheel.yml for a tested matrix of working combinations
 
-          # 32-bit linux
+          # 64-bit manylinux
           - os: ubuntu-20.04
-            system_type: ["manylinux", "2010"]
-            arch: i686
-            py_minors: 8,9
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "2014"]
-            arch: i686
-            py_minors: 8,9,10,11
-          - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_1"]
-            arch: i686
-            py_minors: 8,9,10,11
+            system_type: ["manylinux", "_2_34"]
+            arch: x86_64
+            py_minors: 8,9,10,11,12
+          #- os: ubuntu-20.04
+          #  system_type: ["manylinux", "2014"]
+          #  arch: x86_64
+          #  py_minors: 8,9,10,11,12
+          #- os: ubuntu-20.04
+          #  system_type: ["manylinux", "2010"]
+          #  arch: x86_64
+          #  py_minors: 8,9
+          #- os: ubuntu-20.04
+          #  system_type: ["manylinux", "_2_28"]
+          #  arch: x86_64
+          #  py_minors: 8,9,10,11,12
 
-          # 64-bit linux
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "2010"]
-            arch: x86_64
-            py_minors: 8,9
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "2014"]
-            arch: x86_64
-            py_minors: 8,9,10,11,12
-          - os: ubuntu-20.04
-            system_type: ["manylinux", "_2_28"]
-            arch: x86_64
-            py_minors: 8,9,10,11,12
+          # 64-bit musllinux
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_1"]
             arch: x86_64
             py_minors: 8,9,10,11
+          #- os: ubuntu-20.04
+          #  system_type: ["musllinux", "_1_1"]
+          #  arch: x86_64
+          #  py_minors: 8,9,10,11
 
-          # 32-bit Windows
+          # 32-bit manylinux
+          - os: ubuntu-20.04
+            system_type: ["manylinux", "2014"]
+            arch: i686
+            py_minors: 10,11
+          #- os: ubuntu-20.04
+          #  system_type: ["manylinux", "2014"]
+          #  arch: i686
+          #  py_minors: 8,9,10,11
+          #- os: ubuntu-20.04
+          #  system_type: ["manylinux", "2010"]
+          #  arch: i686
+          #  py_minors: 8,9
+
+          # 32-bit musllinux
+          - os: ubuntu-20.04
+            system_type: ["musllinux", "_1_1"]
+            arch: i686
+            py_minors: 8,9,10,11
 
           # 64-bit Windows
           - os: windows-2019
             system_type: ["win", ""]
             arch: amd64
-            py_minors: '8'
-          - os: windows-2019
-            system_type: ["win", ""]
-            arch: amd64
-            py_minors: '9'
-          - os: windows-2019
-            system_type: ["win", ""]
-            arch: amd64
-            py_minors: '10'
-          - os: windows-2019
-            system_type: ["win", ""]
-            arch: amd64
-            py_minors: '11'
-          - os: windows-2019
-            system_type: ["win", ""]
-            arch: amd64
-            py_minors: '12'
+            py_minors: '8,9,10,11,12'
+
+          # 32-bit Windows
 
     steps:
     - name: Checkout repository
