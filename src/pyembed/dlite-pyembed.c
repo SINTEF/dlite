@@ -321,6 +321,7 @@ int dlite_pyembed_errmsg(char *errmsg, size_t errlen)
   PyErr_Fetch(&type, &value, &tb);
   if (!type) return 0;
   PyErr_NormalizeException(&type, &value, &tb);
+  if (!tb) PyException_SetTraceback(value, tb);
 
   /* Try to create a error message from Python using the treaceback package */
   if (errmsg) {
@@ -624,6 +625,8 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
   PyObject *subclassnames=NULL;
   FUIter *iter;
   int i;
+  FILE *fp=NULL;
+  size_t errors_pos=0;
   char errors[4098] = "";
 
   dlite_errclr();
@@ -655,12 +658,9 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
 
     if ((stem = fu_stem(path))) {
       int stat;
-      FILE *fp=NULL;
       PyObject *plugindict;
 
       if (!(plugindict = dlite_python_plugindict(stem))) goto fail;
-      //if (!(plugindict = dlite_python_dlitedict())) goto fail;
-
       if (!(ppath = PyUnicode_FromString(path)))
         FAIL1("cannot create Python string from path: '%s'", path);
       stat = PyDict_SetItemString(plugindict, "__file__", ppath);
@@ -679,17 +679,29 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
           PyObject *ret = PyRun_File(fp, path, Py_file_input, plugindict,
                                      plugindict);
           if (!ret) {
-
             if (failed_paths && failed_len) {
               char **new = strlst_append(*failed_paths, failed_len, path);
               if (!new) FAIL("allocation failure");
               *failed_paths = new;
             }
 
-            dlite_pyembed_errmsg(NULL, 0);
-            fclose(fp);
+            int m;
+            if (errors_pos < sizeof(errors) &&
+                (m = snprintf(errors+errors_pos, sizeof(errors)-errors_pos,
+                              "  - %s: (%s): ", stem, path)) > 0)
+              errors_pos += m;
+            if (errors_pos < sizeof(errors) &&
+                (m = dlite_pyembed_errmsg(errors+errors_pos,
+                                          sizeof(errors)-errors_pos)) > 0)
+              errors_pos += m;
+            if (errors_pos < sizeof(errors) &&
+                (m = snprintf(errors+errors_pos, sizeof(errors)-errors_pos,
+                              "\n")) > 0)
+              errors_pos += m;
           }
           Py_XDECREF(ret);
+          fclose(fp);
+          fp = NULL;
         }
       }
       free(stem);
@@ -698,11 +710,13 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
   }
   if (fu_pathsiter_deinit(iter)) goto fail;
 
-  if (errors[0])
+  if (errors[0]) {
     dlite_warn("Could not load the following Python plugins:\n%s"
-               "   You might have to install corresponding python "
-               "package(s).\n",
+               "You may have to install missing python package(s).\n",
                errors);
+  }
+
+
 
   /* Append new subclasses to the list of Python plugins that will be
      returned */
@@ -729,6 +743,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
  fail:
   Py_XDECREF(lst);
   Py_XDECREF(subclassnames);
+  if (fp) fclose(fp);
   return subclasses;
 }
 

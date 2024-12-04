@@ -287,8 +287,9 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   if (errlevel >= errLevelError && tls->err_record->state)
     tls->err_record->reraise = eval;
 
-  /* If we are not within a ErrTry...ErrEnd clause */
+  /* Call error handler */
   if (!tls->err_record->prev) {
+    /* If we are not within a ErrTry...ErrEnd clause */
 
     /* ...call the error handler */
     if (handler) handler(tls->err_record);
@@ -309,6 +310,11 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
       if (!handler) err_default_handler(tls->err_record);
       exit(eval);
     }
+
+  } else if (errlevel == errLevelWarn) {
+    /* Handle warnings within a ErrTry...ErrEnd clause */
+
+    if (handler) handler(tls->err_record);
   }
 
   /* Clear errno */

@@ -180,13 +180,13 @@ static int register_plugin(PluginInfo *info, const PluginAPI *api,
   If `name` is NULL, all plugins matching `pattern` are registered and a
   pointer to latest successfully loaded API is returned.
 
-  If `emit_err` is non-zero, an error message will be emitted in case a
+  If `errcode` is non-zero, an error with this code will be emitted in case a
   named plugin cannot be loaded.
 
   Returns a pointer to the plugin API or NULL on error.
  */
 const PluginAPI *plugin_load(PluginInfo *info, const char *name,
-                             const char *pattern, int emit_err)
+                             const char *pattern, int errcode)
 {
   FUIter *iter=NULL;
   const char *filepath;
@@ -255,7 +255,7 @@ const PluginAPI *plugin_load(PluginInfo *info, const char *name,
     }
   }
   if (name) {
-    if (emit_err) errx(1, "no such api: \"%s\"", name);
+    if (errcode) errx(errcode, "no such plugin: \"%s\"", name);
     retval = NULL;
   } else {
     retval = loaded_api;
@@ -308,9 +308,11 @@ int plugin_has_api(PluginInfo *info, const char *name)
   any shared library.  If a plugin with the provided name is found, it
   is loaded, registered and returned.
 
+  If the plugin is not found, `err()` is called with `eval` set to `errcode`.
+
   Otherwise NULL is returned.
  */
-const PluginAPI *plugin_get_api(PluginInfo *info, const char *name)
+const PluginAPI *plugin_get_api(PluginInfo *info, const char *name, int errcode)
 {
   const PluginAPI *api=NULL;
   PluginAPI **p;
@@ -322,12 +324,11 @@ const PluginAPI *plugin_get_api(PluginInfo *info, const char *name)
 
   /* Load plugin from search path */
   if (!(pattern = malloc(strlen(name) + strlen(DSL_EXT) + 1)))
-    return err(1, "allocation failure"), NULL;
+    return err(pluginMemoryError, "allocation failure"), NULL;
   strcpy(pattern, name);
   strcat(pattern, DSL_EXT);
-  if (!(api = plugin_load(info, name, pattern, 0)) &&
-      !(api = plugin_load(info, name, "*" DSL_EXT, 1)))
-    err(1, "cannot find api: '%s'", name);
+  if (!(api = plugin_load(info, name, pattern, 0)))
+    api = plugin_load(info, name, "*" DSL_EXT, errcode);
 
   if (pattern) free(pattern);
   return api;

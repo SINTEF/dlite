@@ -26,7 +26,7 @@ MU_TEST(test_info_create)
 MU_TEST(test_get_api)
 {
   const TestAPI *api;
-  mu_check((api = (const TestAPI *)plugin_get_api(info, "testapi")));
+  mu_check((api = (const TestAPI *)plugin_get_api(info, "testapi", -2)));
   mu_assert_string_eq("testapi", api->name);
   mu_assert_int_eq(4, api->fun1(1, 3));
   mu_assert_double_eq(6.28, api->fun2(3.14));
