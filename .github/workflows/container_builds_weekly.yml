@@ -68,7 +68,7 @@ jobs:
         - system: "musllinux"
           type: "_1_2"
           arch: "i686"
-          py_minors: "8 9 10 11 12 13"
+          py_minors: "8 9 10 11 12"
         #- system: "musllinux"
         #  type: "_1_1"
         #  arch: "i686"
