@@ -16,8 +16,9 @@ How to use this script:
   1. Make sure that environment variable VIRTUAL_ENV is set to the
      root directory of your virtual environments.
   2. Activate your virtual environment.
-  3. Run `patch-activate.sh`
-  4. Deactivate and reactivate your virtual environment to ensure that
+  3. Install dlite
+  4. Run `patch-activate.sh`
+  5. Deactivate and reactivate your virtual environment to ensure that
      LD_LIBRARY_PATH is properly set.
 EOF
 }
@@ -42,7 +43,8 @@ if [ -z "$VIRTUAL_ENV" ]; then
    exit 1
 fi
 
-libdirs="\$VIRTUAL_ENV/lib"
+#libdirs=$(python -c 'import pathlib, site; print(":".join([f"{p}/dlite" for p in site.getsitepackages() if pathlib.Path(f"{p}/dlite").exists()] + [str(pathlib.Path(p).parent.parent) for p in site.getsitepackages()]))')
+libdirs=$(python -c 'import pathlib, site; print(":".join(str(pathlib.Path(p).parent.parent) for p in site.getsitepackages()))')
 
 # Parse options
 while true; do

@@ -1,5 +1,6 @@
 dlite-python>=0.4.1,<1
-tripper>=0.3.1,<0.3.2
+#tripper>=0.3.1,<0.3.6
+tripper @ git+https://github.com/EMMC-ASBL/tripper.git@master
 rdflib>=6,<8
 #oteapi-dlite>=0.1.5,<1
 -e git+https://github.com/EMMC-ASBL/oteapi-dlite.git@fa1b820383eb54a1c37f32f7b8ac9406b556dace#egg=oteapi_dlite
@@ -9,6 +10,6 @@ matplotlib>=3,<4
 scikit-image>=0.21,<1
 ncempy>=1.10,<2
 h5py>=3.9,<4
-pydantic>=1.1,<2
+pydantic>=1.10.0,<2.9.3
 pyyaml>=6.0.1,<7
 pandas>=2.1.1,<3
