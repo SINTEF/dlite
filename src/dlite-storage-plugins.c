@@ -181,12 +181,25 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name)
       }
     }
 
-    if (n <= 1)
+    if (n <= 1) {
       m += asnpprintf(&buf, &size, m,
-                      "   Are the required Python packages installed or %s\n"
-                      "   DLITE_STORAGE_PLUGIN_DIRS or "
-                      "DLITE_PYTHON_STORAGE_PLUGIN_DIRS\n"
-                      "   environment variables set?", submsg);
+                      "   If the plugin is listed above, but could not be "
+                      "loaded, it may be an\n"
+                      "   error in the plugin. Are the required Python "
+                      "packages installed?\n");
+    }
+    if (!getenv("DLITE_PYDEBUG")) {
+      r = asnpprintf(&buf, &size, m,
+                     "   Please rerun with the DLITE_PYDEBUG environment "
+                     "variable set.\n");
+      if (r >= 0) m += r;
+    }
+    r = asnpprintf(&buf, &size, m,
+                   "   If the plugin is not listed above, it may not be "
+                   "in the search path.\n"
+                   "   Are the %sDLITE_STORAGE_PLUGIN_DIRS or "
+                   "DLITE_PYTHON_STORAGE_PLUGIN_DIRS\n"
+                   "   environment variables set?", submsg);
     errx(dliteStorageOpenError, "%s", buf);
 #endif
     free(buf);
