@@ -230,12 +230,15 @@ add_custom_command(
     "$<TARGET_FILE:dlite-env>"
     "$<TARGET_FILE:dlite-getuuid>"
     ${pkgdir}/share/dlite/bin
-  DEPENDS
-    python_package
-    dlite-codegen
-    dlite-env
-    dlite-getuuid
-  )
+)
+add_dependencies(
+  dlitepy
+  python_package
+  dlite-codegen
+  dlite-env
+  dlite-getuuid
+)
+
 
 #
 # Install

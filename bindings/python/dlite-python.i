@@ -20,13 +20,14 @@
 
 #define SWIG_FILE_WITH_INIT  /* tell numpy that we initialize it in %init */
 
-  /* Set this to an exception object (e.g. PyExc_StopIteration) to raise
-     another exceptions than DLiteError.  No need to increase the reference
-     count. */
-  PyObject *dlite_swig_exception = NULL;
 
-  /* forward declarations */
-  char *strndup(const char *s, size_t n);
+/* Set this to an exception object (e.g. PyExc_StopIteration) to raise
+   another exceptions than DLiteError.  No need to increase the reference
+   count. */
+PyObject *dlite_swig_exception = NULL;
+
+/* forward declarations */
+char *strndup(const char *s, size_t n);
 %}
 
 /* Some cross-target language typedef's and definitions */
@@ -56,7 +57,20 @@ int dlite_swig_set_scalar(void *ptr, DLiteType type, size_t size, obj_t *obj);
  * https://github.com/numpy/numpy/blame/master/tools/swig/numpy.i
  */
 
-%include "numpy.i"  // slightly changed to fit out needs, search for "XXX"
+%include "numpy.i"
+
+%{
+/* Macros for compatibility with numpy<2.0.0 */
+#if NPY_ABI_VERSION < 0x02000000
+  typedef int elsize_t;
+# define PyDataType_ELSIZE(descr) ((descr)->elsize)
+# define PyDataType_SET_ELSIZE(descr, size) ((descr)->elsize = (elsize_t)size)
+
+#else
+  typedef npy_intp elsize_t;
+#endif
+%}
+
 
 %init %{
   dlite_init();     /* make sure that dlite is initialised */
@@ -162,22 +176,22 @@ PyArray_Descr *npy_dtype(DLiteType type, size_t size)
   switch (type) {
   case dliteBlob:
   case dliteBool:
-    dtype->elsize = (int)size;
+    PyDataType_SET_ELSIZE(dtype, size);
     break;
   case dliteInt:
   case dliteUInt:
   case dliteFloat:
-    assert(dtype->elsize == (int)size);
+    assert(PyDataType_ELSIZE(dtype) == (elsize_t)size);
     break;
   case dliteFixString:
-    dtype->elsize = (int)size;
+    PyDataType_SET_ELSIZE(dtype, size);
     break;
   case dliteStringPtr:
   case dliteRef:
   case dliteDimension:
   case dliteProperty:
   case dliteRelation:
-    assert(dtype->elsize == 0 || sizeof(void *));
+    assert(PyDataType_ELSIZE(dtype) == 0 || sizeof(void *));
     break;
   }
   return dtype;
@@ -510,7 +524,7 @@ void *dlite_swig_copy_array(int ndims, int *shape, DLiteType type,
   case dliteFixString:
     for (i=0; i<PyArray_SIZE(arr); i++)
       strncpy((char *)ptr + i*size,
-              (char *)(PyArray_DATA(arr)) + i*dtype->elsize,
+              (char *)(PyArray_DATA(arr)) + i*PyDataType_ELSIZE(dtype),
               size);
     break;
   case dliteStringPtr:

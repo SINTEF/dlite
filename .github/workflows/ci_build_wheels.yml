@@ -52,7 +52,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 8,12
+            py_minors: 10,12
           # Python 3.12 fails since cibuildwheel still depends on distutils
           # for musllinux
           #- os: ubuntu-20.04
