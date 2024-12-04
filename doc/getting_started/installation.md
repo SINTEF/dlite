@@ -37,8 +37,8 @@ wheels are shown in the following table.
 |------------------|--------|-----|-----|------|------|------|
 | [manylinux_2_34] | x86_64 | x   | x   | x    | x    | x    |
 | [manylinux2014]  | i686   |     |     | x    | x    | x    |
-| [musllinux_1_2]  | x86_64 | x   | x   | x    | x    |      |
-| [musllinux_1_2]  | i686   | x   | x   | x    | x    |      |
+| [musllinux_1_2]  | x86_64 | x   | x   | x    | x    | x    |
+| [musllinux_1_2]  | i686   |     | x   | x    | x    | x    |
 | windows          | x86_64 | x   | x   | x    | x    | x    |
 
 
