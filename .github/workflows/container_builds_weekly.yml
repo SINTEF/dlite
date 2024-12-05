@@ -65,10 +65,11 @@ jobs:
         #  py_minors: "8 9"
 
         # 32-bit musllinux
+        # Seems that pyyaml depends on distutils, which is only available on Python 3.11 and below
         - system: "musllinux"
           type: "_1_2"
           arch: "i686"
-          py_minors: "9 10 11 12"
+          py_minors: "9 10 11"
         #- system: "musllinux"
         #  type: "_1_1"
         #  arch: "i686"

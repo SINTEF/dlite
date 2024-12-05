@@ -96,7 +96,7 @@ jobs:
 
           # 64-bit musllinux
           - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_1"]
+            system_type: ["musllinux", "_1_2"]
             arch: x86_64
             py_minors: 8,9,10,11
           #- os: ubuntu-20.04
@@ -120,7 +120,7 @@ jobs:
 
           # 32-bit musllinux
           - os: ubuntu-20.04
-            system_type: ["musllinux", "_1_1"]
+            system_type: ["musllinux", "_1_2"]
             arch: i686
             py_minors: 8,9,10,11
 

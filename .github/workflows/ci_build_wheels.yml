@@ -40,7 +40,7 @@ jobs:
           - os: ubuntu-20.04
             system_type: ["musllinux", "_1_2"]
             arch: x86_64
-            py_minors: 8,11
+            py_minors: 8,12
           # Python 3.12 fails since cibuildwheel still depends on distutils
           # for musllinux
           #- os: ubuntu-20.04
