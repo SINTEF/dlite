@@ -13,13 +13,13 @@ build-frontend = "pip"
 build-verbosity = 1
 
 [tool.cibuildwheel.windows]
-before-test = "python -m pip install -r {project}\\requirements.txt"
+before-test = "python -m pip install -r {project}\\requirements.txt -r {project}\\requirements_dev.txt"
 test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
 
 [tool.cibuildwheel.linux]
 environment-pass = ["CI_BUILD_CMAKE_ARGS", "CI_PIP_CACHE_DIR"]
 before-build = [
-  "python -m pip install --cache-dir /ci/pip_cache --prefer-binary -r {project}/requirements.txt",
+  "python -m pip install --cache-dir /ci/pip_cache --prefer-binary -r {project}/requirements.txt -r {project}/requirements_dev.txt",
   "rm -rf {project}/python/build/temp*",
   "export PYVER=$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")",
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
