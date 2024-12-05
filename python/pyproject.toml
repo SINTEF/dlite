@@ -1,11 +1,11 @@
 [build-system]
-  requires = [
-    "setuptools>=58",
-    "wheel>=0.37",
-    "numpy>=1.14.5,<2.1.3",
-    "cmake==3.31.1",
-    "swig==4.1.1",
-  ]
+#requires = [
+#  "numpy>=1.14.5,<2.1.3",
+#  #"setuptools>=58",
+#  #"wheel>=0.37",
+#  #"cmake==3.31.1",
+#  #"swig==4.1.1",
+#]
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
@@ -19,11 +19,12 @@ test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindi
 [tool.cibuildwheel.linux]
 environment-pass = ["CI_BUILD_CMAKE_ARGS", "CI_PIP_CACHE_DIR"]
 before-build = [
+  "python -m pip install --cache-dir /ci/pip_cache --prefer-binary -r {project}/requirements.txt",
   "rm -rf {project}/python/build/temp*",
   "export PYVER=$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")",
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
 ]
-before-test = "python -m pip install --cache-dir /ci/pip_cache --prefer-binary -r {project}/requirements.txt"
+#before-test = "python -m pip install --cache-dir /ci/pip_cache --prefer-binary -r {project}/requirements.txt"
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
 
 [tool.cibuildwheel.linux.environment]
