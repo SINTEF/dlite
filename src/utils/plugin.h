@@ -43,6 +43,11 @@
 #include "globmatch.h"
 #include "map.h"
 
+/* SWIG-compatible error codes */
+typedef enum {
+  pluginMemoryError=-12        /*!< Out of memory */
+} PluginErrCodes;
+
 
 /** Initial fields in all plugin APIs. */
 #define PluginAPI_HEAD                                                  \
@@ -138,9 +143,11 @@ int plugin_has_api(PluginInfo *info, const char *name);
   any shared library.  If a plugin with the provided name is found, it
   is loaded, registered and returned.
 
+  If the plugin is not found, err() is called with `eval` set to `errcode`.
+
   Otherwise NULL is returned.
  */
-const PluginAPI *plugin_get_api(PluginInfo *info, const char *name);
+const PluginAPI *plugin_get_api(PluginInfo *info, const char *name, int errcode);
 
 /**
   Load all plugins that can be found in the plugin search path.
