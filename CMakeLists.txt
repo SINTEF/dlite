@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.14)
 
 project(dlite
-  VERSION 0.5.23
+  VERSION 0.5.24
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -345,6 +345,7 @@ if(WITH_PYTHON)
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
   message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
+  message(STATUS "Python3_NumPy_VERSION=${Python3_NumPy_VERSION}")
   message(STATUS "Python3_NumPy_INCLUDE_DIRS = ${Python3_NumPy_INCLUDE_DIRS}")
   message(STATUS "Python3_STATIC_LIBS = ${Python3_STATIC_LIBS}")
 

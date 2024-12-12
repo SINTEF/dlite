@@ -1,0 +1,27 @@
+{
+  "uri": "http://onto-ns.com/meta/0.2/Ref",
+  "description": "A datamodel with ref-types...",
+  "dimensions": {
+    "nitems": "Number of items.",
+    "nrefs": "Number of references to Ref datamodels."
+  },
+  "properties": {
+    "item": {
+      "type": "ref",
+      "ref": "http://onto-ns.com/meta/0.1/Item",
+      "description": "Single item."
+    },
+    "items": {
+      "type": "ref",
+      "$ref": "http://onto-ns.com/meta/0.1/Item",
+      "shape": ["nitems"],
+      "description": "List of items."
+    },
+    "refs": {
+      "type": "ref",
+      "$ref": "http://onto-ns.com/meta/0.1/Ref",
+      "shape": ["nrefs"],
+      "description": "List of references to Ref datamodels.  This may become very cyclic, but DLite should cope with it..."
+    }
+  }
+}
