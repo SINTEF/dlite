@@ -27,7 +27,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # XXX TODO - Make a local cache of EMMO such that we only download it once
 TS_EMMO = Triplestore("rdflib")
-TS_EMMO.parse("https://w3id.org/emmo/1.0.0-rc1")
+TS_EMMO.parse("https://w3id.org/emmo/1.0.0-rc3")
 
 EMMO_VERSIONIRI = TS_EMMO.value("https://w3id.org/emmo", OWL.versionIRI)
 
@@ -37,6 +37,12 @@ EMMO = Namespace(
     check=True,
     triplestore=TS_EMMO,
 )
+
+# XXX TODO: Switch to EMMO.hasDimension when this relation is in EMMO.
+#           Please don't change the IRI when adding it.
+#hasDimension = EMMO.hasDimension
+hasDimension = "https://w3id.org/emmo#EMMO_0a9ae0cb_526d_4377_9a11_63d1ce5b3499"
+
 
 EMMO_TYPES = {
     "blob": "BinaryData",
@@ -304,7 +310,7 @@ def metadata_to_rdf(
                 (prop_iri, RDFS.subClassOf, EMMO.Array),
                 (prop_iri, RDFS.subClassOf, restriction_iri),
                 (restriction_iri, RDF.type, OWL.Restriction),
-                (restriction_iri, OWL.onProperty, OTEIO.hasDimension),
+                (restriction_iri, OWL.onProperty, hasDimension),
             ])
             for i, dim in enumerate(prop.shape):
                 dim_iri = f"{iri}#{prop.name}_dimension{i}"
@@ -450,7 +456,7 @@ def get_dataset(
                             unit = get_unit_symbol(oncls)
                         elif onprop == EMMO.hasScalarData:
                             emmotype = emmotypes[someval]
-                        elif onprop == OTEIO.hasDimension:
+                        elif onprop == hasDimension:
                             shape = get_shape(
                                 ts, onval, dimensions, mappings, uri
                             )
