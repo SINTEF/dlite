@@ -40,9 +40,12 @@ EMMO = Namespace(
 
 # XXX TODO: Switch to EMMO.hasDimension when this relation is in EMMO.
 #           Please don't change the IRI when adding it.
+#Dimension = EMMO.Dimension
+Dimension = "https://w3id.org/emmo#EMMO_b4c97fa0_d82c_406a_bda7_597d6e190654"
 #hasDimension = EMMO.hasDimension
 hasDimension = "https://w3id.org/emmo#EMMO_0a9ae0cb_526d_4377_9a11_63d1ce5b3499"
-
+#hasScalarData = EMMO.hasScalarData
+hasScalarData = "https://w3id.org/emmo#EMMO_e5a34647_a955_40bc_8d81_9b784f0ac527"
 
 EMMO_TYPES = {
     "blob": "BinaryData",
@@ -139,7 +142,7 @@ def get_shape(ts, dimiri, dimensions=None, mappings=None, uri=None):
                 label = str(obj)
             elif pred == EMMO.elucidation:
                 descr = str(obj)
-            elif pred == RDF.type and obj not in (EMMO.Dimension,):
+            elif pred == RDF.type and obj not in (Dimension,):
                 mapsto.append(obj)
         if not label:
             raise KBError("dimension has no prefLabel:", dimiri)
@@ -295,7 +298,7 @@ def metadata_to_rdf(
             triples.extend([
                 (prop_iri, RDFS.subClassOf, restriction_iri),
                 (restriction_iri, RDF.type, OWL.Restriction),
-                (restriction_iri, OWL.onProperty, EMMO.hasScalarData),
+                (restriction_iri, OWL.onProperty, hasScalarData),
                 (restriction_iri, OWL.someValuesFrom, EMMO[emmotype]),
             ])
         else:
@@ -316,7 +319,7 @@ def metadata_to_rdf(
                 dim_iri = f"{iri}#{prop.name}_dimension{i}"
                 addmap(f"{meta.uri}#{dim}", dim_iri)
                 triples.extend([
-                    (dim_iri, RDF.type, EMMO.Dimension),
+                    (dim_iri, RDF.type, Dimension),
                     (dim_iri, EMMO.hasSymbolValue,
                      Literal(dim, datatype=XSD.string)),
                     (dim_iri, EMMO.elucidation, en(dim_descr[dim])),
@@ -454,7 +457,7 @@ def get_dataset(
                         someval = po.get(OWL.someValuesFrom)
                         if onprop == EMMO.hasMeasurementUnit:
                             unit = get_unit_symbol(oncls)
-                        elif onprop == EMMO.hasScalarData:
+                        elif onprop == hasScalarData:
                             emmotype = emmotypes[someval]
                         elif onprop == hasDimension:
                             shape = get_shape(
