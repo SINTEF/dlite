@@ -169,7 +169,7 @@ def get_unit_symbol(iri):
     symbol = TS_EMMO.value(iri, EMMO.unitSymbol)
     if symbol:
         return str(symbol)
-    for r in TS_EMMO.restrictions(iri, EMMO.hasSymbolValue, type="value"):
+    for r in TS_EMMO.restrictions(iri, EMMO.unitSymbolValue, type="value"):
         symbol = r["value"]
         if symbol:
             return str(symbol)
@@ -198,7 +198,7 @@ def get_unit_iri(unit):
         for r, _, o in ts.triples(predicate=OWL.hasValue):
             if (
                     ts.has(r, RDF.type, OWL.Restriction) and
-                    ts.has(r, OWL.onProperty, EMMO.hasSymbolValue)
+                    ts.has(r, OWL.onProperty, EMMO.unitSymbolValue)
             ):
                 s = ts.value(predicate=RDFS.subClassOf, object=r)
                 unit_cache[o.value] = s
