@@ -1,5 +1,5 @@
 # Requirements building
-swig==4.1.1
+swig==4.3.0
 cmake==3.31.1
 
 # Requirements for running tests
