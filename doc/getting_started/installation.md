@@ -32,7 +32,6 @@ DLite uses [cibuildwheel] for providing binary releases for Linux and
 Windows on various platforms and versions of Python.  The provided
 wheels are shown in the following table.
 
-
 | Platform         | Arch   | 3.8 | 3.9 | 3.10 | 3.11 | 3.12 | 3.13 |
 |------------------|--------|-----|-----|------|------|------|------|
 | [manylinux_2_34] | x86_64 | x   | x   | x    | x    | x    | x    |
@@ -40,7 +39,6 @@ wheels are shown in the following table.
 | [musllinux_1_2]  | x86_64 | x   | x   | x    | x    | x    | x    |
 | [musllinux_1_2]  | i686   |     | x   | x    | x    |      |      |
 | windows          | x86_64 | x   | x   | x    | x    | x    | x    |
-
 
 
 Development installation

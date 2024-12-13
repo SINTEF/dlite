@@ -1,6 +1,8 @@
 # Requirements building
-swig==4.1.1
+swig==4.3.0
 cmake==3.31.1
+setuptools==67.6.1; python_version<"3.9"
+setuptools>=68.2.1; python_version>="3.9"
 
 # Requirements for running tests
 mongomock>=4.1.2,<5
