@@ -42,7 +42,7 @@ COPY requirements.txt requirements_full.txt requirements_dev.txt /tmp/
 # Do not use distutils distributed with setuptools
 # This is due to base changes in the distutils API, removing msvccompiler,
 # which is necessary for building the numpy wheel.
-ENV SETUPTOOLS_USE_DISTUTILS="stdlib"
+#ENV SETUPTOOLS_USE_DISTUTILS="stdlib"
 
 RUN \
   apk add -u \
