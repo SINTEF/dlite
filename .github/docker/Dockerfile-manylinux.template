@@ -7,7 +7,7 @@
 # Usage:
 #
 # Copy this template file and replace:
-# - `{{ TYPE }}` major glibc version, ex: _2_24, _2_28
+# - `{{ TYPE }}` major glibc version, ex: 1, 2010, 2014
 # - `{{ ARCH }}` architecture, ex:  x86_64, i686
 # - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "8 9 10"
 # - `{{ EXTRA_PRE }}` extra commands before installation
