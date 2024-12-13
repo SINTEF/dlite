@@ -7,8 +7,10 @@ import dlite
 from dlite.options import Options
 from dlite.testutils import importskip
 
-importskip("pymongo")
-mongomock = importskip("mongomock")
+importskip("pymongo", env_exitcode=None)
+mongomock = importskip("mongomock", env_exitcode=None)
+
+from dlite.testutils import importskip
 
 
 @mongomock.patch(servers=(('localhost', 27017),))

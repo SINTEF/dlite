@@ -5,14 +5,14 @@ import sys
 from pathlib import Path
 
 sys.dont_write_bytecode = True
-try:
-    import psycopg2
-except ImportError:
-    sys.exit(44)
-from psycopg2 import sql
 
 import dlite
 from dlite.utils import instance_from_dict
+from dlite.testutils import importskip
+
+psycopg2 = importskip("psycopg2", env_exitcode=None)
+from psycopg2 import sql
+
 from run_python_storage_tests import print_test_exception
 
 

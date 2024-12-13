@@ -63,14 +63,6 @@ jobs:
       run: |
         python3 -c 'import numpy as np; print(np.get_include())'
 
-    - name: Workaround - install CMake 3.25.2 since 3.26.0 doesn't work
-      # Normally we would install cmake with the package manager, but
-      # ubuntu 20.04 doesn't seems to keep older versions of cmake around...
-      # Fortunately, there exists a pip package
-      run: |
-        python3 -m pip install cmake==3.25.2
-        cmake --version
-
     - name: List installed Python packages
       run: |
         uname -a
@@ -78,6 +70,8 @@ jobs:
         pip freeze
 
     - name: Configure
+      env:
+        DLITE_IMPORTSKIP_EXITCODE: 1
       run: |
         Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
         CFLAGS='-Wno-missing-field-initializers' \
