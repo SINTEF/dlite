@@ -53,10 +53,10 @@ jobs:
 
           # 32-bit Windows
           # See issue #220: https://github.com/SINTEF/dlite/issues/220
-          - os: windows-2019
-            system_type: ["win32", ""]
-            arch: ""
-            py_minors: 8,13
+          # - os: windows-2019
+          #   system_type: ["win32", ""]
+          #   arch: ""
+          #   py_minors: 8,13
 
           # 64-bit (Intel) macOS
           # See issue #221: https://github.com/SINTEF/dlite/issues/221
