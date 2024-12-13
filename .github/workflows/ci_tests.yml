@@ -85,6 +85,12 @@ jobs:
       run: cmake --install .
       working-directory: build
 
+    - name: Test mappings
+      env:
+        DLITE_PYDEBUG: ""
+      working-directory: build
+      run: ctest -V -R mappings
+
     - name: Test
       env:
         DLITE_PYDEBUG: ""

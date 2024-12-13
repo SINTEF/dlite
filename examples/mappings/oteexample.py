@@ -7,7 +7,7 @@ from dlite.testutils import importskip
 importskip("tripper")
 from tripper import EMMO, MAP, Triplestore
 
-importskip("otelib")
+importskip("otelib", env_exitcode=None)
 from otelib import OTEClient
 
 oteapi_dlite = importskip("oteapi_dlite", env_exitcode=None)
