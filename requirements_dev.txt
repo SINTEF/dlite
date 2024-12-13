@@ -2,7 +2,8 @@
 swig==4.3.0
 cmake==3.31.1
 setuptools==67.6.1; python_version<"3.9"
-setuptools>=68.2.1; python_version>="3.9"
+setuptools==68.2.2; python_version>="3.9"
+wheel==0.41.3
 
 # Requirements for running tests
-mongomock>=4.1.2,<5
+mongomock==4.2.0.post1
