@@ -62,7 +62,7 @@ mappings = [
     (FLUID.LJPotential,      EMMO.isDescriptionFor, EMMO.MolecularEntity),
     (FLUID.TemperatureField, MAP.mapsTo, EMMO.ThermodynamicTemperature),
     (FLUID.ntimes,           MAP.mapsTo, EMMO.Time),
-    (FLUID.npositions,       MAP.mapsTo, EMMO.Position),
+    (FLUID.npositions,       MAP.mapsTo, EMMO.PositionVector),
 ]
 #add_dataset(ts, chem.meta, base_iri=base_iri)
 add_dataset(ts, Fluid, iri=EX.FluidData, mappings=mappings)

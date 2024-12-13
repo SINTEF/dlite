@@ -27,7 +27,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # XXX TODO - Make a local cache of EMMO such that we only download it once
 TS_EMMO = Triplestore("rdflib")
-TS_EMMO.parse("https://w3id.org/emmo/1.0.0-rc1")
+TS_EMMO.parse("https://w3id.org/emmo/1.0.0-rc3")
 
 EMMO_VERSIONIRI = TS_EMMO.value("https://w3id.org/emmo", OWL.versionIRI)
 
@@ -37,6 +37,15 @@ EMMO = Namespace(
     check=True,
     triplestore=TS_EMMO,
 )
+
+# XXX TODO: Switch to EMMO.hasDimension when this relation is in EMMO.
+#           Please don't change the IRI when adding it.
+#Dimension = EMMO.Dimension
+Dimension = "https://w3id.org/emmo#EMMO_b4c97fa0_d82c_406a_bda7_597d6e190654"
+#hasDimension = EMMO.hasDimension
+hasDimension = "https://w3id.org/emmo#EMMO_0a9ae0cb_526d_4377_9a11_63d1ce5b3499"
+#hasScalarData = EMMO.hasScalarData
+hasScalarData = "https://w3id.org/emmo#EMMO_e5a34647_a955_40bc_8d81_9b784f0ac527"
 
 EMMO_TYPES = {
     "blob": "BinaryData",
@@ -133,7 +142,7 @@ def get_shape(ts, dimiri, dimensions=None, mappings=None, uri=None):
                 label = str(obj)
             elif pred == EMMO.elucidation:
                 descr = str(obj)
-            elif pred == RDF.type and obj not in (EMMO.Dimension,):
+            elif pred == RDF.type and obj not in (Dimension,):
                 mapsto.append(obj)
         if not label:
             raise KBError("dimension has no prefLabel:", dimiri)
@@ -160,7 +169,7 @@ def get_unit_symbol(iri):
     symbol = TS_EMMO.value(iri, EMMO.unitSymbol)
     if symbol:
         return str(symbol)
-    for r in TS_EMMO.restrictions(iri, EMMO.hasSymbolValue, type="value"):
+    for r in TS_EMMO.restrictions(iri, EMMO.unitSymbolValue, type="value"):
         symbol = r["value"]
         if symbol:
             return str(symbol)
@@ -189,7 +198,7 @@ def get_unit_iri(unit):
         for r, _, o in ts.triples(predicate=OWL.hasValue):
             if (
                     ts.has(r, RDF.type, OWL.Restriction) and
-                    ts.has(r, OWL.onProperty, EMMO.hasSymbolValue)
+                    ts.has(r, OWL.onProperty, EMMO.unitSymbolValue)
             ):
                 s = ts.value(predicate=RDFS.subClassOf, object=r)
                 unit_cache[o.value] = s
@@ -289,7 +298,7 @@ def metadata_to_rdf(
             triples.extend([
                 (prop_iri, RDFS.subClassOf, restriction_iri),
                 (restriction_iri, RDF.type, OWL.Restriction),
-                (restriction_iri, OWL.onProperty, EMMO.hasScalarData),
+                (restriction_iri, OWL.onProperty, hasScalarData),
                 (restriction_iri, OWL.someValuesFrom, EMMO[emmotype]),
             ])
         else:
@@ -304,13 +313,13 @@ def metadata_to_rdf(
                 (prop_iri, RDFS.subClassOf, EMMO.Array),
                 (prop_iri, RDFS.subClassOf, restriction_iri),
                 (restriction_iri, RDF.type, OWL.Restriction),
-                (restriction_iri, OWL.onProperty, EMMO.hasDimension),
+                (restriction_iri, OWL.onProperty, hasDimension),
             ])
             for i, dim in enumerate(prop.shape):
                 dim_iri = f"{iri}#{prop.name}_dimension{i}"
                 addmap(f"{meta.uri}#{dim}", dim_iri)
                 triples.extend([
-                    (dim_iri, RDF.type, EMMO.Dimension),
+                    (dim_iri, RDF.type, Dimension),
                     (dim_iri, EMMO.hasSymbolValue,
                      Literal(dim, datatype=XSD.string)),
                     (dim_iri, EMMO.elucidation, en(dim_descr[dim])),
@@ -448,9 +457,9 @@ def get_dataset(
                         someval = po.get(OWL.someValuesFrom)
                         if onprop == EMMO.hasMeasurementUnit:
                             unit = get_unit_symbol(oncls)
-                        elif onprop == EMMO.hasScalarData:
+                        elif onprop == hasScalarData:
                             emmotype = emmotypes[someval]
-                        elif onprop == EMMO.hasDimension:
+                        elif onprop == hasDimension:
                             shape = get_shape(
                                 ts, onval, dimensions, mappings, uri
                             )
