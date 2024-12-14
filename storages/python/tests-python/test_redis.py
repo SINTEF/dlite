@@ -7,7 +7,7 @@ from pathlib import Path
 import dlite
 from dlite.testutils import importskip, serverskip
 
-importskip("redis")  # skip this test if redis is not available
+importskip("redis", env_exitcode=None)  # skip this test if redis is not available
 serverskip("localhost", 6379)  # skip test if redis is down
 
 

@@ -1,6 +1,11 @@
 from pathlib import Path
 
 import dlite
+from dlite.testutils import importskip
+
+importskip("pandas")
+importskip("tables")
+importskip("yaml")
 
 
 # Set up some paths
