@@ -70,8 +70,10 @@ option(WITH_STATIC_PYTHON "Whether to compile with static python libraries" NO)
 # Append our cmake-modules to CMAKE_MODULE_PATH
 list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
 
-# Enable C99
-set(CMAKE_C_STANDARD 99)
+# Enable C11
+# DLite was developed with C99, but since Python 3.12 started to require
+# C11, DLite has switched to C11 too
+set(CMAKE_C_STANDARD 11)
 
 # Set default cmake configurations
 include(SetDefaults)
