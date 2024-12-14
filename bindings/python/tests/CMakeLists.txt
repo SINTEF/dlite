@@ -54,6 +54,8 @@ foreach(test ${tests})
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
 
   # Skip tests that exit with return code 44
+  set_property(TEST ${name} APPEND PROPERTY
+    ENVIRONMENT "DLITE_IMPORTSKIP_EXITCODE=$ENV{DLITE_IMPORTSKIP_EXITCODE}")
   set_property(TEST ${name} PROPERTY SKIP_RETURN_CODE 44)
 
 endforeach()

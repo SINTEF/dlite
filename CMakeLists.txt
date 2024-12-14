@@ -338,6 +338,13 @@ if(WITH_PYTHON)
   # endif()
   # message(STATUS "ENV{Python3_LIBRARY}: $ENV{Python3_LIBRARY}")
 
+  add_custom_target(wheel
+    COMMAND ${Python3_EXECUTABLE} -m pip wheel -w dist
+        ${dlite_SOURCE_DIR}/python
+    DEPENDS ${dlite}
+    COMMENT "Build Python wheels"
+  )
+
 
   message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
   message(STATUS "Python3_prefix = ${Python3_prefix}")
@@ -943,6 +950,7 @@ configure_package_config_file(
   INSTALL_DESTINATION "${DLITE_INSTALL_CMAKE_DIR}"
   PATH_VARS ${DLITE_CONFIG_VARS}
   )
+
 
 #################################################################
 

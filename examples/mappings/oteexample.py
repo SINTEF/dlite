@@ -1,16 +1,17 @@
 """Mapping example using OTELib."""
 from pathlib import Path
 
-try:
-    from tripper import EMMO, MAP, Triplestore
-    from otelib import OTEClient
-    import oteapi_dlite  # To check that it is installed
-except ModuleNotFoundError as exc:
-    print(f"Skipping OTE example because of missing module: {exc}")
-    import sys
-    sys.exit(44)  # Exit code 44 -> skip test because of missing dependencies
-
 import dlite
+from dlite.testutils import importskip
+
+importskip("tripper")
+from tripper import EMMO, MAP, Triplestore
+
+importskip("otelib", env_exitcode=None)
+from otelib import OTEClient
+
+oteapi_dlite = importskip("oteapi_dlite", env_exitcode=None)
+
 
 
 # Paths

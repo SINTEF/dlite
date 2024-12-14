@@ -96,6 +96,11 @@ DLITE_USE_BUILD_ROOT is set).
       - a glob pattern (/path/to/*.json)
     In the two last cases, the file extension must match the driver name.
 
+  - **DLITE_IMPORTSKIP_EXITCODE**: Exit code from tests that fail to
+    load a python module with `importskip()`.  Define this to 1 at
+    configure time if you want the tests not to be skipped if they
+    cannot import a needed module.
+
 
 Environment variables for controlling error handling
 ----------------------------------------------------

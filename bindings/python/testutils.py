@@ -1,5 +1,6 @@
 """Some utilities for testing."""
 import importlib
+import os
 import socket
 import sys
 
@@ -71,15 +72,44 @@ def importcheck(module_name, package=None):
         return None
 
 
-def importskip(module_name, package=None, exitcode=44):
+def importskip(module_name, package=None, exitcode=44,
+               env_exitcode="DLITE_IMPORTSKIP_EXITCODE"):
     """Import and return the requested module.
 
     Calls `sys.exit()` with given exitcode if the module cannot be imported.
+
+    Arguments:
+        module_name: Name of module to try to import.
+        package: Optional package name that the module might reside in.
+        exitcode: The default exit code of `sys.exit()` if the module cannot
+            be imported.
+        env_exitcode: Name of environment variable containing an exitcode
+            to call `sys.exit()` with if the module cannot be imported.
+            This overrides `exitcode`.
+
+    Notes:
+        If you want to run the tests and get an error if a module
+        cannot be imported, set environment variable
+        `DLITE_IMPORTSKIP_EXITCODE=1` before running the tests (if you
+        run with ctest, set `DLITE_IMPORTSKIP_EXITCODE` at configure
+        time).
+
+        For packages that depend on external services like postgresql,
+        call `importskip()` with `env_exitcode=None` to skip the test
+        regardless of whether `DLITE_IMPORTSKIP_EXITCODE` is set or not.
+
     """
     try:
         return importlib.import_module(module_name, package=package)
     except ModuleNotFoundError as exc:
-        print(f"{exc}: skipping test", file=sys.stderr)
+        if env_exitcode and env_exitcode in os.environ:
+            try:
+                exitcode = int(os.environ[env_exitcode])
+            except:
+                pass
+        else:
+            print(f"{exc}: skipping test", file=sys.stderr)
+
         sys.exit(exitcode)
 
 

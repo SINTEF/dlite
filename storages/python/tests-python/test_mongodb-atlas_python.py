@@ -1,7 +1,12 @@
 import sys
 import os
 from pathlib import Path
+
 import dlite
+from dlite.testutils import importskip
+
+importskip("pymongo", env_exitcode=None)
+
 
 # Get the current file path
 current_file = Path(__file__).resolve()
