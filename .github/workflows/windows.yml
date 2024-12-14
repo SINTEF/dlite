@@ -1,0 +1,61 @@
+name: Build on Windows
+
+on: [push]
+
+jobs:
+  msvc:
+    name: Build dlite with MS Visual Studio
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        #os: [windows-2019, windows-latest]
+        #python-version: [ '3.8', '3.9' ]
+        os: [windows-2019]
+        python-version: ['3.9', '3.10', '3.11', '3.12', '3.13']
+
+    steps:
+    - name: Fetch Sources
+      uses: actions/checkout@v2
+
+    - name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: ${{ matrix.python-version }}
+
+    - name: Install Python Dependencies
+      run: pip install -r requirements.txt
+
+    - name: Install SWIG
+      uses: crazy-max/ghaction-chocolatey@v1
+      with:
+        args: install swig -y
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.9
+      with:
+        cmake-version: '3.20.x'
+
+    - name: Prepare MSVC
+      uses: bus1/cabuild/action/msdevshell@v1
+
+    - name: Make build folder
+      run: mkdir build
+
+    - name: Check for NumPy
+      run: python -c "import numpy; print(numpy.get_include())"
+
+    - name: Use cmake
+      run: cmake -A x64 -DWITH_DOC=OFF -DWITH_HDF5=OFF -DCMAKE_CONFIGURATION_TYPES:STRING="Release" ..
+      working-directory: build
+
+    - name: Build
+      run: cmake --build . --config Release
+      working-directory: build
+
+    - name: Check dlite config settings
+      run: cmake --build . --config Release --target show
+      working-directory: build
+
+    - name: Test
+      run: ctest -C Release
+      working-directory: build
