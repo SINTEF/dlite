@@ -94,9 +94,9 @@ def importskip(module_name, package=None, exitcode=44,
         run with ctest, set `DLITE_IMPORTSKIP_EXITCODE` at configure
         time).
 
-        For packages that depends on external services like postgresql,
+        For packages that depend on external services like postgresql,
         call `importskip()` with `env_exitcode=None` to skip the test
-        regardless of `DLITE_IMPORTSKIP_EXITCODE` is set.
+        regardless of whether `DLITE_IMPORTSKIP_EXITCODE` is set or not.
 
     """
     try:
