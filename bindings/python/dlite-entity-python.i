@@ -183,7 +183,7 @@ def get_instance(
                 if "meta" not in d or d["meta"] == dlite.ENTITY_SCHEMA:
                     if "dimensions" not in d:
                         d["dimensions"] = {}
-            inst = Instance.from_dict(d)
+                inst = Instance.from_dict(d)
 
     if inst is None:
         raise _dlite.DLiteMissingInstanceError(f"no such instance: {id}")
