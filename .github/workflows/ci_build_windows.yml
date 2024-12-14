@@ -57,5 +57,5 @@ jobs:
       working-directory: build
 
     - name: Test
-      run: ctest -C Release
+      run: ctest -C Release --rerun-failed --output-on-failure -V
       working-directory: build
