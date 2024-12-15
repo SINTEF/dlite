@@ -21,5 +21,6 @@ assert Coll["dimensions"].size
 
 # Check that we can load collection from dict
 d = json.load(open(indir / "coll.json", "r"))
-coll = instance_from_dict(d)
+with dlite.HideDLiteWarnings():
+    coll = instance_from_dict(d)
 assert coll.nrelations == 6

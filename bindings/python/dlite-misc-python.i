@@ -84,6 +84,29 @@ class errctl():
 silent = errctl(hide=True)
 """Context manager for a silent code block.  Same as `errctl(hide=True)`."""
 
+class HideDLiteWarnings():
+    """Context manager for hiding warnings.
+
+    Arguments:
+        hide: If true, hide warnings if `pattern` is None or `pattern`
+            matches the warning message.
+            If false, hide warnings if `pattern` is given and don't
+            match the warning message.
+        pattern: Optional glob pattern matching the warning message.
+
+    """
+    def __init__(self, hide=True, pattern=None):
+        self.hide = int(hide)
+        self.pattern = pattern
+
+    def __enter__(self):
+        self._oldstate = get_warnings_hide()
+        set_warnings_hide(self.hide, self.pattern)
+
+    def __exit__(self, *exc):
+        set_warnings_hide(*self._oldstate)
+
+
 # A set for keeping track of already issued deprecation warnings
 _deprecation_warning_record = set()
 

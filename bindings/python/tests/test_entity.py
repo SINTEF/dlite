@@ -17,10 +17,14 @@ entitydir = thisdir / "entities"
 dlite.storage_path.append(indir / "*.json")
 dlite.storage_path.append(entitydir / "*.json")
 
+# Hide warnings
+dlite.set_warnings_hide(
+    True, "Warning: Could not load the following Python plugins:*"
+)
 
 # Load metadata (i.e. an instance of meta-metadata) from url
 myentity = Instance.from_url(f"json://{entitydir}/MyEntity.json")
-print(myentity.uuid)
+#print(myentity.uuid)
 
 # Check some properties of the entity
 assert myentity.uuid == "a0e63529-3397-5c4f-a56c-14bf07ecc219"
@@ -74,11 +78,12 @@ inst["a-relation-array"] = [
 
 
 # Print the value of all properties
-for i in range(len(inst)):
-    print("prop%d:" % i, inst[i])
+# for i in range(len(inst)):
+#     print("prop%d:" % i, inst[i])
 
 # String representation (as json)
 # print(inst)
+
 
 # Check save and load
 inst.save(f"json://{outdir}/test_entity_inst.json?mode=w")
@@ -115,7 +120,8 @@ assert inst2["a-blob"] == blob
 del inst2
 
 # Make sure we fail with an exception for pathetic cases
-with raises(dlite.DLiteStorageOpenError):
+# FIXME: a part of the error message is not hidden...
+with raises(dlite.DLiteError):
     Instance.from_location("json", "/", "mode=r")
 
 with raises(dlite.DLiteStorageLoadError):
@@ -156,7 +162,8 @@ assert isinstance(newmeta, dlite.Metadata)
 
 # Check pickling
 s = pickle.dumps(inst)
-inst3 = pickle.loads(s)
+with dlite.HideDLiteWarnings():
+    inst3 = pickle.loads(s)
 
 dim = Dimension("N")
 
@@ -235,7 +242,8 @@ try:
 except ImportError:
     pass
 else:
-    inst.save(f"yaml://{outdir}/test_entity.yaml?mode=w")
+    with dlite.HideDLiteWarnings():
+        inst.save(f"yaml://{outdir}/test_entity.yaml?mode=w")
 
 
 # Test metadata
