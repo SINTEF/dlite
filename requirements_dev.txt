@@ -1,10 +1,13 @@
-# Requirements building
+# Requirements for building
+
+# DLite must be build with NumPy 2.x, but can be used with any version of
+# NumPy specified in requirements.txt
+numpy>=2.0.0
+
+# Other build dependencies
 swig==4.3.0
 cmake==3.31.1
 #setuptools==67.5.0; python_version<"3.9"
 #setuptools==75.3.0; python_version>="3.9"
 setuptools==75.3.0
 wheel==0.41.3
-
-# Requirements for running tests
-mongomock==4.2.0.post1

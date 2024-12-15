@@ -21,16 +21,15 @@ This can be done as follows:
 
 2. Build the wheel
 
-       cd python
-       python setup.py bdist_wheel
+       cd dlite  # root of source directory
+       pip wheel -w python/dist ./python
 
 3. Install the wheel with pip in a newly created environment (the version numbers may differ for your case)
 
-       pip install dist/DLite_Python-0.5.22-cp311-cp311-linux_x86_64.whl
+       pip install python/dist/DLite_Python-0.5.26-cp311-cp311-linux_x86_64.whl
 
 4. Finally, test by importing dlite in the standard manner
 
-       cd ..
        python
        >>> import dlite
 
