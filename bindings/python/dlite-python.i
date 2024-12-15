@@ -1341,6 +1341,19 @@ PyObject *dlite_run_file(const char *path, PyObject *globals, PyObject *locals)
  * --------------- */
 
 /* Argout string */
+/* Assumes that *ARGOUT is const buffer owned by the wrapped function */
+%typemap("doc") (const char **ARGOUT) "string"
+%typemap(in,numinputs=0) (const char **ARGOUT) (char *tmp=NULL) {
+  $1 = &tmp;
+}
+%typemap(argout) (const char **ARGOUT) {
+  PyObject *argout;
+  argout = (tmp$argnum) ? PyUnicode_FromString(tmp$argnum) : Py_NewRef(Py_None);
+  $result = SWIG_Python_AppendOutput($result, argout, 0);
+}
+
+
+/* Argout string */
 /* Assumes that *ARGOUT_STRING is malloc()'ed by the wrapped function */
 %typemap("doc") (char **ARGOUT_STRING, size_t *LENGTH) "string"
 %typemap(in,numinputs=0) (char **ARGOUT_STRING, size_t *LENGTH)

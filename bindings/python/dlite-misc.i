@@ -72,7 +72,6 @@
     return 0;
   }
 
-
 %}
 
 %include <stdint.i>
@@ -240,6 +239,17 @@ void _dlite_err_mask_set(int64_t mask);
 
 %feature("docstring", "Just check for errors, do nothing else.") errcheck;
 void errcheck(void);
+
+
+%feature("docstring", "\
+Return a list with the `[hide, pattern]` parameters for controlling whether
+warnings are shown.
+") dlite_get_warnings_hide;
+int dlite_get_warnings_hide(const char **ARGOUT);
+
+%feature("docstring", "Sets parameters controlling whether to hide warnings.")
+  dlite_set_warnings_hide;
+void dlite_set_warnings_hide(int hide, char *pattern=NULL);
 
 
 /* ------------------------------
