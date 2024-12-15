@@ -1348,7 +1348,12 @@ PyObject *dlite_run_file(const char *path, PyObject *globals, PyObject *locals)
 }
 %typemap(argout) (const char **ARGOUT) {
   PyObject *argout;
-  argout = (tmp$argnum) ? PyUnicode_FromString(tmp$argnum) : Py_NewRef(Py_None);
+  if (tmp$argnum) {
+    argout = PyUnicode_FromString(tmp$argnum);
+  } else {
+    argout = Py_None;
+    Py_INCREF(argout);
+  }
   $result = SWIG_Python_AppendOutput($result, argout, 0);
 }
 
