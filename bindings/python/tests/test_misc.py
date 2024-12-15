@@ -49,7 +49,8 @@ assert dlite.split_url("loc#fragment") == ["", "loc", "", "fragment"]
 print("No DLite error message is printed to screen:")
 try:
     with dlite.errctl(hide=(dlite.DLiteStorageOpenError, dlite.DLiteError)):
-        dlite.Instance.from_location("-", "__non-existing__")
+        with dlite.HideDLiteWarnings():
+            dlite.Instance.from_location("-", "__non-existing__")
 except dlite.DLiteStorageOpenError:
     pass
 

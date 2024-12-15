@@ -309,6 +309,43 @@ void dlite_globals_set_atexit(void);
 
 
 /**
+  @name Functions controlling whether to hide warnings
+
+  Warning parameters:
+    - `warnings_hide`: whether to hide warnings (see below).
+    - `warnings_pattern`: glob pattern matching the warning message.
+
+  If `warnings_pattern` is NULL, warnings are hidden if `warnings_hide`
+  is non-zero.
+
+  If `warnings_pattern` is not NULL, then warnings are hidden if:
+    - `warnings_pattern` match the warning message and `warnings_hide` is
+      non-zero.
+    - `warnings_pattern` don't match the warning message and `warnings_hide`
+      is zero.
+  @{
+*/
+
+/**
+  Return parameters controlling whether warnings should be hidden.
+
+  If `*pattern` is not NULL, it is assigned to a static pointer to
+  `warnings_pattern` (owned by DLite).
+
+  Returns `warnings_hide`.
+ */
+
+int dlite_get_warnings_hide(const char **pattern);
+
+/**
+  Set parameters controlling whether warnings should be hidden.
+ */
+void dlite_set_warnings_hide(int hide, char *pattern);
+
+/** @} */
+
+
+/**
   @name Wrappers around error functions
   The `DLITE_NOERR()` and `DLITE_NOERR_END` macros are intended to
   mark a code block in which the specified errors will not be printed.
