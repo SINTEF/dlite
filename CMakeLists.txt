@@ -70,8 +70,13 @@ option(WITH_STATIC_PYTHON "Whether to compile with static python libraries" NO)
 # Append our cmake-modules to CMAKE_MODULE_PATH
 list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
 
-# Enable C99
-set(CMAKE_C_STANDARD 99)
+# Select C standard to be consistent with Python.  Default to c11
+if(WIN32 OR (PYTHON_VERSION AND PYTHON_VERSION VERSION_LESS "3.11"))
+  set(CMAKE_C_STANDARD 99)
+else()
+  set(CMAKE_C_STANDARD 11)
+endif()
+message(STATUS "CMAKE_C_STANDARD=${CMAKE_C_STANDARD}")
 
 # Set default cmake configurations
 include(SetDefaults)
