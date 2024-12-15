@@ -2,7 +2,9 @@
 
 # DLite must be build with NumPy 2.x, but can be used with any version of
 # NumPy specified in requirements.txt
-numpy>=2.0.0
+numpy>=2.0.0,<2.2.1; python_version<'3.13'
+numpy>=2.0.0,<2.1.0; python_version>='3.13'
+
 
 # Other build dependencies
 swig==4.3.0
