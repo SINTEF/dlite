@@ -104,7 +104,7 @@ jobs:
           - os: windows-2019
             system_type: ["win", ""]
             arch: amd64
-            py_minors: '9,10,11,12,13'
+            py_minors: '8,9,10,11,12,13'
 
           # 32-bit Windows
 
