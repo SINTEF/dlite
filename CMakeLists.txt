@@ -73,7 +73,11 @@ list(APPEND CMAKE_MODULE_PATH ${dlite_SOURCE_DIR}/cmake)
 # Enable C11
 # DLite was developed with C99, but since Python 3.12 started to require
 # C11, DLite has switched to C11 too
-set(CMAKE_C_STANDARD 11)
+if(WIN32)
+  set(CMAKE_C_STANDARD 99)
+else()
+  set(CMAKE_C_STANDARD 11)
+endif()
 
 # Set default cmake configurations
 include(SetDefaults)
