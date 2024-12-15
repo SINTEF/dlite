@@ -16,6 +16,7 @@
 #include "utils/session.h"
 #include "utils/rng.h"
 #include "utils/uri_encode.h"
+#include "utils/globmatch.h"
 #include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
@@ -487,8 +488,13 @@ int dlite_add_dll_path(void)
 
 /* Local state for this module. */
 typedef struct {
-  int in_atexit;
-  int finalizing;
+  int in_atexit;           // whether we are in atexit()
+  int finalizing;          // whether dlite is finalising
+  int warnings_hide;       // whether to hide warnings
+  char *warnings_pattern;  // If given and `warnings_hide` is true, hide
+                           // warnings matching the glob pattern.  Otherwise,
+                           // if `warnings_hide` is false, show only
+                           // warnings matching the glob pattern.
 } Locals;
 
 
@@ -501,6 +507,7 @@ Locals *_locals=NULL;
 /* Free variables in local state. */
 static void free_locals()
 {
+  if (_locals && _locals->warnings_pattern) free(_locals->warnings_pattern);
   _locals = NULL;
 }
 
@@ -561,6 +568,47 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
     err_set_state(g);
 }
 
+/*
+  Return parameters controlling whether warnings should be hidden.
+
+  See dlite_set_warnings_hide() for a description of these parameters.
+
+  If `*pattern` is not NULL, it is assigned to a static pointer to
+  `warnings_pattern` (owned by DLite).
+
+  Returns `warnings_hide`.
+ */
+int dlite_get_warnings_hide(const char **pattern)
+{
+  Locals *locals = get_locals();
+  if (pattern) *pattern = locals->warnings_pattern;
+  return locals->warnings_hide;
+}
+
+/*
+  Set parameters controlling whether warnings should be hidden.
+
+  Warning parameters:
+    - `warnings_hide`: whether to hide warnings (see below).
+    - `warnings_pattern`: glob pattern matching the warning message.
+
+  If `warnings_pattern` is NULL, warnings are hidden if `warnings_hide`
+  is non-zero.
+
+  If `warnings_pattern` is given, then warnings are hidden if:
+    - `warnings_pattern` match the warning message and `warnings_hide` is
+      non-zero.
+    - `warnings_pattern` don't match the warning message and `warnings_hide`
+      is zero.
+ */
+void dlite_set_warnings_hide(int hide, char *pattern)
+{
+  Locals *locals = get_locals();
+  locals->warnings_hide = hide;
+  if (locals->warnings_pattern) free(locals->warnings_pattern);
+  locals->warnings_pattern = (pattern) ? strdup(pattern) : NULL;
+}
+
 
 /* Error handler for DLite.
 
@@ -569,15 +617,39 @@ void dlite_globals_set(DLiteGlobals *globals_handler)
  */
 static void dlite_err_handler(const ErrRecord *record)
 {
+  Locals *locals = get_locals();
+
+  if (getenv("DLITE_DEBUG")
 #ifdef WITH_PYTHON
-  if (record->level != errLevelError ||
-      getenv("DLITE_PYDEBUG") ||
-      !dlite_err_ignored_get(record->eval))
-    err_default_handler(record);
-#else  /* WITH_PYTHON */
-  if (!dlite_err_ignored_get(record->eval))
-    err_default_handler(record);
+      || getenv("DLITE_PYDEBUG")
 #endif
+      ) {
+    err_default_handler(record);
+    return;
+  }
+
+  switch (record->level) {
+  case errLevelSuccess:
+    break;
+  case errLevelWarn:
+    if (locals->warnings_pattern) {
+      int match = !globmatch(locals->warnings_pattern, record->msg);
+      if ((match && !locals->warnings_hide) ||
+          (!match && locals->warnings_hide))
+        err_default_handler(record);
+    } else if (!locals->warnings_hide) {
+        err_default_handler(record);
+    }
+    break;
+  case errLevelError:
+    if (!dlite_err_ignored_get(record->eval))
+      err_default_handler(record);
+    break;
+  case errLevelException:
+  case errLevelFatal:
+    err_default_handler(record);
+    break;
+  }
 }
 
 /* dlite_errname() with correct call signature */

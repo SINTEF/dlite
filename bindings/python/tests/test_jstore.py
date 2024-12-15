@@ -72,7 +72,8 @@ assert dlite.format_dict(d2, soft7=False, single=True) == d2
 # Test format_dict(), dimension as list of numbers - need metadata
 js = dlite.JStore()
 js.load_dict(D1)
-meta = js.get()
+with dlite.HideDLiteWarnings():
+    meta = js.get()
 assert dlite.format_dict(d3, soft7=True, single=True) == d1
 assert dlite.format_dict(d3, soft7=False, single=True) == d2
 
@@ -200,9 +201,8 @@ dct = js2.get_dict()
 assert len(dct) == 2
 
 
-
-
 key1 = next(js.get_ids())
 # d1 = js.get_dict(key1)
 s1 = js.get_json(key1)
-inst1 = js.get(key1)
+with dlite.HideDLiteWarnings():
+    inst1 = js.get(key1)
