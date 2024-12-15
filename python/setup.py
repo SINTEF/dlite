@@ -13,6 +13,8 @@ from setuptools import Extension, setup
 from setuptools.command.build_ext import build_ext
 from setuptools.command.install import install
 
+import numpy as np
+
 if TYPE_CHECKING:
     from typing import Union
 
@@ -23,10 +25,10 @@ if TYPE_CHECKING:
 SETUP_DIR = Path(__file__).resolve().parent
 SOURCE_DIR = SETUP_DIR.parent
 
+# Set platform-specific CMAKE_ARGS
 if platform.system() == "Linux":
     dlite_compiled_ext = "_dlite.so"
     dlite_compiled_dll_suffix = "*.so"
-
     CMAKE_ARGS = [
         "-DWITH_DOC=OFF",
         "-DWITH_HDF5=OFF",
@@ -45,12 +47,11 @@ if platform.system() == "Linux":
                 f"{site.USER_BASE if '--user' in sys.argv else sys.prefix}",
             ]
         )
-
-
 elif platform.system() == "Windows":
     dlite_compiled_ext = "_dlite.pyd"
     dlite_compiled_dll_suffix = "*.dll"
     is_64bits = sys.maxsize > 2**32
+    arch = 'x64' if is_64bits else 'x86'
     v = sys.version_info
     CMAKE_ARGS = [
         #"-G", "Visual Studio 15 2017",
@@ -59,10 +60,9 @@ elif platform.system() == "Windows":
         "-DWITH_HDF5=OFF",
         f"-DPYTHON_VERSION={v.major}.{v.minor}",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
-        f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={'x64' if is_64bits else 'x86'}",
+        f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={arch}",
         "-DPython3_FIND_VIRTUALENV=STANDARD",
     ]
-
 else:
     raise NotImplementedError(f"Unsupported platform: {platform.system()}")
 
@@ -125,43 +125,50 @@ class CMakeBuildExt(build_ext):
             self.get_ext_fullpath(ext.name)))
 
         environment_cmake_args = os.getenv("CI_BUILD_CMAKE_ARGS", "")
-        environment_cmake_args = environment_cmake_args.split(",") if environment_cmake_args else []
+        environment_cmake_args = (
+            environment_cmake_args.split(",") if environment_cmake_args else []
+        )
+
+        # Remove old CMakeCache if it exists in build directory
+        cachefile = Path(self.build_temp) / "CMakeCache.txt"
+        if cachefile.exists():
+            cachefile.unlink()
+
+        # Find cmake executable (using os.path for Python 3.7 compatibility)
+        stem, fileext = os.path.splitext(sys.executable)
+        cmake_exe = os.path.join(os.path.dirname(stem), "cmake" + fileext)
+        if "CMAKE_EXECUTABLE" in os.environ:
+            cmake_exe = os.environ["CMAKE_EXECUTABLE"]
+        elif not os.path.exists(cmake_exe):
+            cmake_exe = shutil.which("cmake" + fileext)
 
         build_type = "Debug" if self.debug else "Release"
         cmake_args = [
-            "cmake",
-            f"-DCMAKE_CONFIGURATION_TYPES:STRING={build_type}",
+            cmake_exe,
             str(ext.sourcedir),
+            f"-DCMAKE_CONFIGURATION_TYPES:STRING={build_type}",
+            f"-DPython3_NumPy_INCLUDE_DIRS={np.get_include()}",
         ]
         cmake_args.extend(CMAKE_ARGS)
         cmake_args.extend(environment_cmake_args)
 
         env = os.environ.copy()
 
-        try:
-            subprocess.run(
-                cmake_args,
-                cwd=self.build_temp,
-                env=env,
-                capture_output=True,
-                check=True,
-            )
-        except subprocess.CalledProcessError as e:
-            print("stdout:", e.stdout.decode("utf-8"), "\n\nstderr:",
-                  e.stderr.decode("utf-8"))
-            raise
-        try:
-            subprocess.run(
-                ["cmake", "--build", ".", "--config", build_type, "--verbose"],
-                cwd=self.build_temp,
-                env=env,
-                capture_output=True,
-                check=True,
-            )
-        except subprocess.CalledProcessError as e:
-            print("stdout:", e.stdout.decode("utf-8"), "\n\nstderr:",
-                  e.stderr.decode("utf-8"))
-            raise
+        subprocess.run(
+            cmake_args,
+            cwd=self.build_temp,
+            env=env,
+            #capture_output=True,
+            check=True,
+        )
+
+        subprocess.run(
+            ["cmake", "--build", ".", "--config", build_type, "--verbose"],
+            cwd=self.build_temp,
+            env=env,
+            #capture_output=True,
+            check=True,
+        )
 
         cmake_bdist_dir = Path(self.build_temp) / Path(ext.python_package_dir)
         shutil.copytree(
