@@ -41,14 +41,30 @@
 #cmakedefine HAVE_STDINT_H
 #endif
 
+#ifndef HAVE_UINT8_T
 #cmakedefine HAVE_UINT8_T
+#endif
+#ifndef HAVE_UINT16_T
 #cmakedefine HAVE_UINT16_T
+#endif
+#ifndef HAVE_UINT32_T
 #cmakedefine HAVE_UINT32_T
+#endif
+#ifndef HAVE_UINT64_T
 #cmakedefine HAVE_UINT64_T
+#endif
+#ifndef HAVE_UINT128_T
 #cmakedefine HAVE_UINT128_T
+#endif
+#ifndef HAVE___UINT128_T
 #cmakedefine HAVE___UINT128_T
+#endif
+#ifndef HAVE_INT128_T
 #cmakedefine HAVE_INT128_T
+#endif
+#ifndef HAVE___INT128_T
 #cmakedefine HAVE___INT128_T
+#endif
 
 #cmakedefine HAVE_LONG_LONG
 #cmakedefine HAVE_INTMAX_T
