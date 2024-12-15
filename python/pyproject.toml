@@ -1,7 +1,8 @@
 [build-system]
 requires = [
   # numpy>=2.1.0 fails with with "undefined symbol: PyMutex_Unlock" on Python 3.13
-  "numpy==2.0.2",
+  "numpy>=1.14.5",
+  "numpy<2.1.0; python_version>='3.13'",
   "swig==4.3.0",
   "cmake==3.31.1",
   "setuptools==75.3.0",
