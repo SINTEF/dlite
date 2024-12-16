@@ -16,6 +16,8 @@ if int(pydantic_version.split(".")[0]) != 2:
     print("This example requires pydantic v2")
     raise SystemExit(44)
 
+HostlessAnyUrl = Annotated[AnyUrl, UrlConstraints(host_required=False)]
+
 
 class ResourceConfig(BaseModel):
     """Resource Strategy Data Configuration.
@@ -25,21 +27,17 @@ class ResourceConfig(BaseModel):
         `accessUrl`/`accessService` MUST be specified.
     """
 
-    downloadUrl: Annotated[
-        Optional[AnyUrl],
-        UrlConstraints(host_required=False),
-        Field(
-            None,
-            description=(
-                """Definition: The URL of the downloadable file in a given
-                format. E.g. CSV " "file or RDF file.
+    downloadUrl: Optional[HostlessAnyUrl] = Field(
+        None,
+        description=(
+            """Definition: The URL of the downloadable file in a given
+            format. E.g. CSV " "file or RDF file.
 
-                Usage: `downloadURL` *SHOULD* be used for the URL at which
-                this distribution is available directly, typically through a
-                HTTPS GET request or SFTP."""
-            ),
+            Usage: `downloadURL` *SHOULD* be used for the URL at which
+            this distribution is available directly, typically through a
+            HTTPS GET request or SFTP."""
         ),
-    ]
+    )
     mediaType: Annotated[
         Optional[str],
         Field(
@@ -55,25 +53,21 @@ class ResourceConfig(BaseModel):
             ),
         ),
     ]
-    accessUrl: Annotated[
-        Optional[AnyUrl],
-        UrlConstraints(host_required=False),
-        Field(
-            None,
-            description=(
-                """A URL of the resource that gives access to a distribution of
-                the dataset. E.g. landing page, feed, SPARQL endpoint.
+    accessUrl: Optional[HostlessAnyUrl] = Field(
+        None,
+        description=(
+            """A URL of the resource that gives access to a distribution of
+            the dataset. E.g. landing page, feed, SPARQL endpoint.
 
-                Usage: `accessURL` *SHOULD* be used for the URL of a
-                service or location that can provide access to this
-                distribution, typically through a Web form, query or API
-                call.
+            Usage: `accessURL` *SHOULD* be used for the URL of a
+            service or location that can provide access to this
+            distribution, typically through a Web form, query or API
+            call.
 
-                `downloadURL` is preferred for direct links to downloadable
-                resources."""
-            ),
+            `downloadURL` is preferred for direct links to downloadable
+            resources."""
         ),
-    ]
+    )
     accessService: Annotated[
         Optional[str],
         Field(
