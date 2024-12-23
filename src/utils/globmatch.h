@@ -9,6 +9,8 @@
  *
  * ChangeLog:
  * - Changed function name from jam_glob() to globmatch() - Jesper Friis, 2011
+ * - Added correct function declaration for globchars() in header file. Removed
+ *   incomplete declaration to silence compiler warning - Sam Coleman, 2024
  */
 #ifndef _GLOBMATCH_H
 #define _GLOBMATCH_H
@@ -28,6 +30,8 @@
  *      [^a-z]  any single character not in the range a-z
  *      \x      match x
  */
+static void globchars(char *s, char *e, char *b);
+
 int globmatch(const char *pattern, const char *s);
 
 #endif /* _GLOBMATCH_H */

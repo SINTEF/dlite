@@ -9,6 +9,8 @@
  *
  * ChangeLog:
  * - Changed function name from jam_glob() to globmatch() - Jesper Friis, 2011
+ * - Added correct function declaration for globchars() in header file. Removed
+ *   incomplete declaration to silence compiler warning - Sam Coleman, 2024
  */
 
 /*
@@ -37,8 +39,6 @@
 
 # define CHECK_BIT( tab, bit ) ( tab[ (bit)/8 ] & (1<<( (bit)%8 )) )
 # define BITLISTSIZE 16 /* bytes used for [chars] in compiled expr */
-
-static void globchars();
 
 /*
  * globmatch() - match a string against a simple pattern
@@ -125,10 +125,7 @@ int globmatch(const char *pattern, const char *string)
 /*
  * globchars() - build a bitlist to check for character group match
  */
-
-static void
-globchars( s, e, b )
-char *s, *e, *b;
+static void globchars(char *s, char *e, char *b)
 {
         int neg = 0;
 
