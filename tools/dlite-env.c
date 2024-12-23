@@ -117,7 +117,7 @@ int main(int argc, char *argv[])
     switch (c) {
     case 'b':  with_build=1; with_install=0; break;
     case 'e':  with_env = 0; break;
-    case 'h':  help(stdout); exit(0);
+    case 'h':  help(); exit(0);
     case 'i':  with_install = 0; break;
     case 'p':  print = 1; break;
     case 'P':  set_platform(optarg); break;
