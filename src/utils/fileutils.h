@@ -22,7 +22,7 @@ enum {
 };
 
 
-#if defined __unix__ || (defined __APPLE__ && defined __MARCH__)
+#if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))
 /* POSIX */
 # ifndef POSIX
 #  define POSIX
@@ -65,7 +65,7 @@ typedef enum _FUPlatform {
   fuNative=0,            /*!< Platform we are compiling on */
   fuUnix,                /*!< Unix-like platforms; POSIX complient */
   fuWindows,             /*!< Windows */
-  fuApple,               /*!< Apple - not yet supported... */
+  fuApple,               /*!< Apple */
   fuLastPlatform         /*!< Must always be the last */
 } FUPlatform;
 

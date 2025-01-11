@@ -71,11 +71,11 @@ static char *_platform_names[] = {"Native", "Unix", "Windows", "Apple", NULL};
 */
 FUPlatform fu_native_platform(void)
 {
-#if defined POSIX
+#if defined POSIX && !defined(__APPLE__)
   return fuUnix;
 #elif defined WINDOWS
   return fuWindows;
-#elif defined __APPLE__
+#elif (defined __APPLE__ && defined __MACH__)
   return fuApple;
 #else
   return fuUnknownPlatform;
@@ -91,6 +91,7 @@ int fu_supported_platform(FUPlatform platform)
   switch (platform) {
   case fuUnix:
   case fuWindows:
+  case fuApple:
     return 1;
   default:
     return 0;
@@ -127,8 +128,11 @@ const char *fu_dirsep(FUPlatform platform)
 {
   if (platform == fuNative) platform = fu_native_platform();
   switch (platform) {
-  case fuUnix: return "/";
-  case fuWindows: return "\\";
+  case fuUnix:
+  case fuApple:
+    return "/";
+  case fuWindows:
+    return "\\";
   default: return err(1, "unsupported platform: %d", platform), NULL;
   }
 }
@@ -140,8 +144,11 @@ const char *fu_pathsep(FUPlatform platform)
 {
   if (platform == fuNative) platform = fu_native_platform();
   switch (platform) {
-  case fuUnix: return ":";
-  case fuWindows: return ";";
+  case fuUnix:
+  case fuApple:
+    return ":";
+  case fuWindows:
+    return ";";
   default: return err(1, "unsupported platform: %d", platform), NULL;
   }
 }
@@ -590,6 +597,7 @@ char *fu_nativepath(const char *path, char *dest, size_t size,
 {
   switch (fu_native_platform()) {
   case fuUnix:
+  case fuApple:
     return fu_unixpath(path, dest, size, pathsep);
   case fuWindows:
     return fu_winpath(path, dest, size, pathsep);
@@ -811,7 +819,7 @@ FUPlatform fu_paths_set_platform(FUPaths *paths, FUPlatform platform)
 
   for (i=0; i < paths->n; i++) {
     const char *p = paths->paths[i];
-    if (platform == fuUnix)
+    if (platform == fuUnix || platform == fuApple)
       paths->paths[i] = fu_unixpath(p, NULL, 0, ":");
     else if (platform == fuWindows)
       paths->paths[i] = fu_winpath(p, NULL, 0, ";");
@@ -942,7 +950,10 @@ int fu_paths_insertn(FUPaths *paths, const char *path, size_t len, int n)
   if (!fu_supported_platform(platform))
     FAIL1("unsupported platform: %d", platform);
   switch (platform) {
-  case fuUnix:     p = fu_unixpath(path, NULL, 0, paths->pathsep);  break;
+  case fuUnix:
+  case fuApple:
+    p = fu_unixpath(path, NULL, 0, paths->pathsep);
+    break;
   case fuWindows:  p = fu_winpath(path, NULL, 0, paths->pathsep);   break;
   default: assert(0);  // should never happen
   }
@@ -1292,7 +1303,7 @@ FUIter *fu_pathsiter_init(const FUPaths *paths, const char *pattern)
 }
 
 /*
-  Help function for fu_paths_iter_nextfile(), which does not take `pattern`
+  Help function for fu_pathsiter_next(), which does not take `pattern`
   into account.
  */
 const char *_fu_pathsiter_next(FUIter *iter)
@@ -1394,7 +1405,7 @@ const char *fu_pathsiter_next(FUIter *iter)
 }
 
 /*
-  Deallocates iterator created with fu_paths_iter_init().
+  Deallocates iterator created with fu_pathsiter_init().
   Returns non-zero on error.
  */
 int fu_pathsiter_deinit(FUIter *iter)

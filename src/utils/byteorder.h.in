@@ -1,3 +1,5 @@
+/* .h file GENERATED FROM byterorder.h.in */
+
 /* byteorder.h - cross-platform header for byte ordering
  *
  * Copyright (C) 2017 SINTEF Materials and Chemistry
@@ -60,10 +62,10 @@
 #cmakedefine HAVE_BSWAP_64        /* Whether function bswap_64 exists */
 #cmakedefine HAVE_BSWAP_128       /* Whether function bswap_128 exists */
 
-#cmakedefine HAVE_BYTESWAP_USHORT /* Whether function _byteswap_ushort exists */
-#cmakedefine HAVE_BYTESWAP_ULONG  /* Whether function _byteswap_ulong exists */
-#cmakedefine HAVE_BYTESWAP_UINT64 /* Whether function _byteswap_uint64 exists */
-#cmakedefine HAVE_BYTESWAP_UINT128/* Whether function _byteswap_uint128 exists*/
+#cmakedefine HAVE__BYTESWAP_USHORT /* Whether function _byteswap_ushort exists */
+#cmakedefine HAVE__BYTESWAP_ULONG  /* Whether function _byteswap_ulong exists */
+#cmakedefine HAVE__BYTESWAP_UINT64 /* Whether function _byteswap_uint64 exists */
+#cmakedefine HAVE__BYTESWAP_UINT128/* Whether function _byteswap_uint128 exists*/
 
 #cmakedefine HAVE_HTOBE16         /* Whether function htobe16 exists */
 #cmakedefine HAVE_HTOBE32         /* Whether function htobe32 exists */
@@ -74,11 +76,43 @@
 #include "integers.h"
 
 #ifdef HAVE_ENDIAN_H
-# include <endian.h>
-#endif
+  #if defined(__APPLE__) && defined(__MACH__)
+    #include <machine/endian.h>
+  #else
+    #include <endian.h>
+  #endif /* defined(__APPLE__) && defined(__MACH__) */
+#endif /* ifdef HAVE_ENDIAN_H */
 
 #ifdef HAVE_BYTESWAP_H
-# include <byteswap.h>
+  #if defined(__APPLE__) && defined(__MACH__)
+    #include <libkern/OSByteOrder.h>
+    #ifdef HAVE_BSWAP_16
+      #define bswap_16(x) OSSwapInt16(x)
+    #endif
+    #ifdef HAVE_BSWAP_32
+      #define bswap_32(x) OSSwapInt32(x)
+    #endif
+    #ifdef HAVE_BSWAP_64
+      #define bswap_64(x) OSSwapInt64(x)
+    #endif
+    #ifdef HAVE_BSWAP_128
+      #define bswap_128(x) OSSwapInt128(x)
+    #endif
+    #ifdef HAVE_HTOBE16
+      #define htobe16(x) OSSwapHostToBigInt16(x)
+    #endif
+    #ifdef HAVE_HTOBE32
+      #define htobe32(x) OSSwapHostToBigInt32(x)
+    #endif
+    #ifdef HAVE_HTOBE64
+      #define htobe64(x) OSSwapHostToBigInt64(x)
+    #endif
+    #ifdef HAVE_HTOBE128
+      #define htobe128(x) OSSwapHostToBigInt128(x)
+    #endif
+  #else
+    #include <byteswap.h>
+  #endif /* defined(__APPLE__) && defined(__MACH__) */
 #endif
 
 
@@ -161,6 +195,10 @@
 # else
 #  error "Byte order not supported: " # BYTE_ORDER
 # endif
+#elif (defined(__APPLE__) && defined(__MACH__) && defined(HAVE_HTOBE16))
+# define htole16(x) (uint16_t)(x)
+# define be16toh(x) bswap_16(x)
+# define le16toh(x) (uint16_t)(x)
 #endif
 
 #ifndef HAVE_HTOBE32
@@ -177,6 +215,10 @@
 # else
 #  error "Byte order not supported: " # BYTE_ORDER
 # endif
+#elif (defined(__APPLE__) && defined(__MACH__) && defined(HAVE_HTOBE32))
+# define htole32(x) (uint32_t)(x)
+# define be32toh(x) bswap_32(x)
+# define le32toh(x) (uint32_t)(x)
 #endif
 
 #ifndef HAVE_HTOBE64
@@ -193,6 +235,10 @@
 # else
 #  error "Byte order not supported: " # BYTE_ORDER
 # endif
+#elif (defined(__APPLE__) && defined(__MACH__) && defined(HAVE_HTOBE64))
+# define htole64(x) (uint64_t)(x)
+# define be64toh(x) bswap_64(x)
+# define le64toh(x) (uint64_t)(x)
 #endif
 
 #ifdef bswap128
@@ -210,6 +256,10 @@
 #  else
 #  error "Byte order not supported: " # BYTE_ORDER
 #  endif
+# elif (defined(__APPLE__) && defined(__MACH__) && defined(HAVE_HTOBE128))
+#  define htole128(x) (uint128_t)(x)
+#  define be128toh(x) bswap_128(x)
+#  define le128toh(x) (uint128_t)(x)
 # endif
 #endif
 
