@@ -17,11 +17,11 @@ This can be done as follows:
        python -m venv ~/.envs/testenv
        source ~/.envs/testenv/bin/activate
        pip install -U pip
-       pip install wheel -r requirements.txt
 
 2. Build the wheel
 
        cd dlite  # root of source directory
+       pip install wheel -r requirements.txt
        pip wheel -w python/dist ./python
 
 3. Install the wheel with pip in a newly created environment (the version numbers may differ for your case)
