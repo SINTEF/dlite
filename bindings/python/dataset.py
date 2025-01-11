@@ -27,7 +27,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # XXX TODO - Make a local cache of EMMO such that we only download it once
 TS_EMMO = Triplestore("rdflib")
-TS_EMMO.parse("https://w3id.org/emmo/1.0.0-rc3")
+TS_EMMO.parse("https://w3id.org/emmo/1.0.0")
 
 EMMO_VERSIONIRI = TS_EMMO.value("https://w3id.org/emmo", OWL.versionIRI)
 
@@ -64,7 +64,7 @@ EMMO_TYPES = {
     "float32": "FloatData",
     "float64": "DoubleData",
     "string": "StringData",
-    "ref": "DataSet",
+    "ref": "Dataset",
     #"dimension": "Dimension",
     #"property": "Datum",
     #"relation": NotImplemented,
@@ -258,13 +258,13 @@ def metadata_to_rdf(
     # Start populating triples
     triples = []
 
-    # Add datamodel (emmo:DataSet)
+    # Add datamodel (emmo:Dataset)
     if iri is None:
         iri = meta.uri
     iri = str(iri).rstrip("#/")
     triples.extend([
         (iri, RDF.type, OWL.Class),
-        (iri, RDFS.subClassOf, EMMO.DataSet),
+        (iri, RDFS.subClassOf, EMMO.Dataset),
         (iri, SKOS.prefLabel, en(title(meta.name))),
         (iri, OTEIO.hasURI, Literal(meta.uri, datatype=XSD.anyURI)),
     ])
@@ -428,7 +428,7 @@ def get_dataset(
                     mappings.append((uri, onprop, oncls))
                 elif onprop and someval:
                     mappings.append((uri, onprop, someval))
-            elif obj not in (EMMO.DataSet, ):
+            elif obj not in (EMMO.Dataset, ):
                 mappings.append((uri, MAP.mapsTo, obj))
         elif prop == EMMO.elucidation:
             description = str(obj)
@@ -493,7 +493,7 @@ def add_data(
     """Save DLite instance as an EMMO dataset to a triplestore.
 
     Data instances are represented as individuals of the corresponding
-    EMMO DataSet. The corresponding metadata is also stored if it not
+    EMMO Dataset. The corresponding metadata is also stored if it not
     already exists in the triplestore.
 
     Arguments:
@@ -565,7 +565,7 @@ def get_data(
 
     if not metairi:
         # `iri` does not correspond to a data instance, check for metadata
-        if ts.has(iri, RDFS.subClassOf, EMMO.DataSet):
+        if ts.has(iri, RDFS.subClassOf, EMMO.Dataset):
             return get_dataset(ts, iri), mappings
         raise KBError(
             f"Cannot find neither a data instance nor metadata with IRI: {iri}"
