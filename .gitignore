@@ -5,9 +5,13 @@
 /dist/
 /wheelhouse/
 /local/
-.vscode/
 .gdb_history
 dlite.egg-info
+
+# Ignore Python Files
+/.venv
+/venv
+*.pyc
 
 # Ignore personal modified bootstrap files
 /bootstrap-win-*.sh
@@ -15,6 +19,13 @@ dlite.egg-info
 # For Visual Studio
 /.vs
 /CMakeSettings.json
+
+# For VS Code
+/.vscode
+*.code-workspace
+
+# For CTest
+/Testing/*
 
 # For qtcreator
 /CMakeLists.txt.user
