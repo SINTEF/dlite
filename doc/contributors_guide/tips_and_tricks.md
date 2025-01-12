@@ -22,6 +22,7 @@ This can be done as follows:
 
        cd dlite  # root of source directory
        pip install wheel -r requirements.txt
+       pip install wheel -r requirements.txt
        pip wheel -w python/dist ./python
 
 3. Install the wheel with pip in a newly created environment (the version numbers may differ for your case)
