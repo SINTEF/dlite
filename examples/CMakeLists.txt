@@ -114,17 +114,19 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
       SKIP_RETURN_CODE 44)
   endforeach()
 
+
+  # Special properties on minio_storage for not hanging when the MinIO
+  # playground is not responding or when the storage is full
+  set_property(TEST minio_storage APPEND PROPERTY
+    ENVIRONMENT "TIMEOUT=5"
+  )
+  set_property(TEST minio_storage PROPERTY
+    SKIP_REGULAR_EXPRESSION "(XMinioStorageFull)|(subprocess.TimeoutExpired)"
+  )
+
 endif()
 
 
-# Special properties on minio_storage for not hanging when the MinIO
-# playground is not responding or when the storage is full
-set_property(TEST minio_storage APPEND PROPERTY
-  ENVIRONMENT "TIMEOUT=5"
-)
-set_property(TEST minio_storage PROPERTY
-  SKIP_REGULAR_EXPRESSION "(XMinioStorageFull)|(subprocess.TimeoutExpired)"
-)
 
 
 
