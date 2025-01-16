@@ -85,3 +85,9 @@ foreach(test ${python-tests})
   set_property(TEST ${test} PROPERTY SKIP_RETURN_CODE 44)
 
 endforeach()
+
+
+# Skip minio test if the minio playground storage is full
+set_property(TEST minio_storage PROPERTY
+  SKIP_REGULAR_EXPRESSION "XMinioStorageFull"
+)

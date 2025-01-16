@@ -117,6 +117,17 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
 endif()
 
 
+# Special properties on minio_storage for not hanging when the MinIO
+# playground is not responding or when the storage is full
+set_property(TEST minio_storage APPEND PROPERTY
+  ENVIRONMENT "TIMEOUT=5"
+)
+set_property(TEST minio_storage PROPERTY
+  SKIP_REGULAR_EXPRESSION "(XMinioStorageFull)|(subprocess.TimeoutExpired)"
+)
+
+
+
 install(
   DIRECTORY ex1 ex2 ex3 ex4 ex5d read-csv dehydrogenation
   DESTINATION share/dlite/examples

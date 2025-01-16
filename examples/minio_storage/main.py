@@ -1,3 +1,4 @@
+import os
 import sys
 import subprocess
 from pathlib import Path
@@ -10,5 +11,10 @@ importskip("minio")  # skip this test if minio is not available
 
 thisdir = Path(__file__).resolve().parent
 
-subprocess.check_call(args=[sys.executable, f"{thisdir}/store.py"])
-subprocess.check_call(args=[sys.executable, f"{thisdir}/fetch.py"])
+# Get timeout from the environment
+timeout_str = os.getenv("TIMEOUT", None)
+timeout = float(timeout_str) if timeout_str else None
+
+subprocess.check_call([sys.executable, f"{thisdir}/store.py"], timeout=timeout)
+subprocess.check_call([sys.executable, f"{thisdir}/fetch.py"], timeout=timeout)
+print(f"=== timeout={timeout} ===")
