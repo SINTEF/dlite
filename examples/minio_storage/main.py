@@ -17,4 +17,3 @@ timeout = float(timeout_str) if timeout_str else None
 
 subprocess.check_call([sys.executable, f"{thisdir}/store.py"], timeout=timeout)
 subprocess.check_call([sys.executable, f"{thisdir}/fetch.py"], timeout=timeout)
-print(f"=== timeout={timeout} ===")
