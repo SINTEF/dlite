@@ -88,6 +88,6 @@ endforeach()
 
 
 # Skip minio test if the minio playground storage is full
-set_property(TEST minio_storage PROPERTY
+set_property(TEST test_minio PROPERTY
   SKIP_REGULAR_EXPRESSION "XMinioStorageFull"
 )
