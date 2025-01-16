@@ -1,6 +1,6 @@
 # -*- Mode: cmake -*-
 #
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.16)
 
 project(dlite
   VERSION 0.5.26
