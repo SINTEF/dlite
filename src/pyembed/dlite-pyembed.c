@@ -96,7 +96,7 @@ PyObject *dlite_pyembed_exception(DLiteErrCode code)
   case dliteMappingError:          break;
   case dliteProtocolError:         break;
   case dlitePythonError:           break;
-  case dliteTimeoutError:          break;
+  case dliteTimeoutError:          return PyExc_TimeoutError;
   case dliteLastError:             break;
   }
   return PyExc_Exception;
