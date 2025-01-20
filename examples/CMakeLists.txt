@@ -75,7 +75,6 @@ macro(test_example example)
   # Currently the tests fails on GitHub with the message
   #
   # error while loading shared libraries: libpython3.10.so.1.0: cannot open shared object file: No such file or directory
-335
   #
   set_property(TEST ${example}-test    PROPERTY DISABLED)
 endmacro()
