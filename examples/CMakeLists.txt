@@ -61,7 +61,7 @@ macro(test_example example)
     )
   add_test(
     NAME ${example}-test
-    COMMAND ${CMAKE_COMMAND} --build . --target test -v
+    COMMAND ${CMAKE_CTEST_COMMAND} --rerun-failed --output-on-failure
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${example}
     )
   set_property(TEST ${example}-config  PROPERTY DEPENDS ${example}-mkdir)
