@@ -88,25 +88,19 @@ jobs:
     - name: Test
       env:
         DLITE_PYDEBUG: ""
-      run: |
-        ctest || ctest --rerun-failed --output-on-failure -V || \
-          ( cat Testing/Temporary/LastTest.log && false )
+      run: ctest || ctest --rerun-failed --output-on-failure -V
       working-directory: build
 
     - name: Test with all behavior changes disabled
       env:
         DLITE_BEHAVIOR: OFF
-      run: |
-        ctest || ctest --rerun-failed --output-on-failure -V || \
-          ( cat Testing/Temporary/LastTest.log && false )
+      run: ctest || ctest --rerun-failed --output-on-failure -V
       working-directory: build
 
     - name: Test with all behavior changes enabled
       env:
         DLITE_BEHAVIOR: ON
-      run: |
-        ctest || ctest --rerun-failed --output-on-failure -V || \
-          ( cat Testing/Temporary/LastTest.log && false )
+      run: ctest || ctest --rerun-failed --output-on-failure -V
       working-directory: build
 
     - name: Build Linux wheel
