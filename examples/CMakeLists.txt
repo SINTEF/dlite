@@ -67,6 +67,9 @@ macro(test_example example)
   set_property(TEST ${example}-config  PROPERTY DEPENDS ${example}-mkdir)
   set_property(TEST ${example}-build   PROPERTY DEPENDS ${example}-config)
   set_property(TEST ${example}-test    PROPERTY DEPENDS ${example}-build)
+  set_property(TEST ${example}-test
+    PROPERTY ENVIRONMENT LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}
+  )
 endmacro()
 
 
