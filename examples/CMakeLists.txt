@@ -68,7 +68,7 @@ macro(test_example example)
   set_property(TEST ${example}-build   PROPERTY DEPENDS ${example}-config)
   set_property(TEST ${example}-test    PROPERTY DEPENDS ${example}-build)
   set_property(TEST ${example}-test
-    PROPERTY ENVIRONMENT LD_LIBRARY_PATH=$ENV{LD_LIBRARY_PATH}
+    PROPERTY ENVIRONMENT LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}
   )
 endmacro()
 
