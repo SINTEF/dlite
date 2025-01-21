@@ -49,10 +49,10 @@
 
 
 /* Determine platform */
-#if defined __APPLE__ && defined __MARCH__
+#if defined __APPLE__ && defined __MACH__
 # define DSL_PLATFORM DSL_Posix
 # ifndef DSL_PREFIX
-#  define DSL_PREFIX ""
+#  define DSL_PREFIX "lib"
 # endif
 # ifndef DSL_EXT
 #  define DSL_EXT ".dylib"

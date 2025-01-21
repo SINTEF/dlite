@@ -6,8 +6,6 @@
  * Released under the MIT license
  * https://github.com/takamin/win-c/blob/master/LICENSE
  */
-#ifndef _GETOPT_H_
-#define _GETOPT_H_
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,6 +14,8 @@ extern "C" {
 #ifdef HAVE_GETOPT
 #include <getopt.h>
 #else
+#ifndef _GETOPT_H_
+#define _GETOPT_H_
 
     int getopt(int argc, char* const argv[],
             const char* optstring);
