@@ -42,9 +42,10 @@ typedef enum {
   dliteMappingError=-32,         /*!< Error in instance mappings */
   dliteProtocolError=-33,        /*!< Error in a protocol plugin */
   dlitePythonError=-34,          /*!< Error calling Python API */
+  dliteTimeoutError=-35,         /*!< Raised when a function times out */
 
   /* Should always be the last error */
-  dliteLastError=-35
+  dliteLastError=-36
 } DLiteErrCode;
 
 
