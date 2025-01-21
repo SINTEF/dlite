@@ -271,6 +271,14 @@ install(
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
+install(
+  DIRECTORY ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
+  DESTINATION ${Python3_PREFIX}share/dlite
+  USE_SOURCE_PERMISSIONS
+  PATTERN ".gitignore" EXCLUDE
+  PATTERN "*.json" EXCLUDE
+  PATTERN "*~" EXCLUDE
+)
 
 add_subdirectory(scripts)
 
