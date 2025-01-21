@@ -18,6 +18,7 @@ requests>=2.10,<3
 redis>=5.0,<6
 minio>=6.0,<8
 pymongo>=4.4.0,<5
+urllib3>=1.0.0,<2
 #psycopg2>=2,<3
 
 # Utilities

@@ -24,6 +24,7 @@ class minio(dlite.DLiteStorageBase):
             - `session_token`: Session token of your account in S3 service.
             - `secure`: Whether to use secure (TLS) connection to S3 service.
             - `region`: Region name of buckets in S3 service.
+            - `timeout`: Timeout for connecting to minio service. Requires urllib3
 
         Currently unsupported Minio arguments:
             - `http_client`: Customized HTTP client.
@@ -34,9 +35,16 @@ class minio(dlite.DLiteStorageBase):
         # Pop out bucket-related options
         self.bucket_name = opts.pop("bucket_name", "dlite")
 
-        # Fix option types and create MinIO connection
+        # Remove timeout from opts and fix types
+        timeout = opts.pop("timeout", None)
         opts.secure = dlite.asbool(opts.secure)
-        self.client = Minio(endpoint=location, **opts)
+
+        # Handle timeout and create MinIO connection
+        kwargs = opts.copy()
+        if timeout is not None:
+            import urllib3
+            kwargs["http_client"] = urllib3.PoolManager(timeout=float(timeout))
+        self.client = Minio(endpoint=location, **kwargs)
 
         if not self.client.bucket_exists(self.bucket_name):
             kw = {"region": opts.region} if "region" in opts else {}
