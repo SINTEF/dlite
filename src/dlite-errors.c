@@ -47,6 +47,7 @@ const char *dlite_errname(DLiteErrCode code)
   case dliteMappingError:           return "DLiteMapping";
   case dliteProtocolError:          return "DLiteProtocol";
   case dlitePythonError:            return "DLitePython";
+  case dliteTimeoutError:           return "DLiteTimeout";
 
   case dliteLastError:              return "DLiteUndefined";
   }
@@ -97,6 +98,7 @@ const char *dlite_errdescr(DLiteErrCode code)
   case dliteMappingError:           return "Error in instance mappings";
   case dliteProtocolError:          return "Error in a protocol plugin";
   case dlitePythonError:            return "Error calling Python API";
+  case dliteTimeoutError:           return "Raised when a function times out";
   case dliteLastError:              return NULL;
   }
   return NULL;
