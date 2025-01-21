@@ -96,20 +96,37 @@ include(SetCompilerFlags)
 
 enable_c_compiler_flag_if_supported("-m64")
 
-# Enable compiler warnings
-if(CMAKE_COMPILER_IS_GNUCC)
+
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   add_definitions(-D_GNU_SOURCE)
+  execute_process(COMMAND gcc -dumpfullversion OUTPUT_VARIABLE gcc_version)
+endif()
+
+# Enable compiler warnings
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
+  CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
+  CMAKE_C_COMPILER_ID STREQUAL "AppleClang"
+)
   enable_c_compiler_flag_if_supported("-Wall")
   enable_c_compiler_flag_if_supported("-Wextra")
   enable_c_compiler_flag_if_supported("-Wpedantic")
-  execute_process(COMMAND gcc -dumpfullversion OUTPUT_VARIABLE gcc_version)
   if(NOT ALLOW_WARNINGS AND "${gcc_version}" VERSION_GREATER_EQUAL 9.0)
     enable_c_compiler_flag_if_supported("-Werror")
+  endif()
+
+  # Remove optimisations for Debug / allow debug info
+  # FIXME: Doesn't deal with multi-config generators
+  # Sets CMAKE_C_FLAGS
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    enable_c_compiler_flag_if_supported("-g")
+    enable_c_compiler_flag_if_supported("-O0")
+    # enable_c_compiler_flag_if_supported("-Og")
+    # add_definitions(-DWITH_DEBUG -D_DEBUG)
   endif()
 endif()
 
 # Define MINGW if we are running a GNU compiler on a Windows system
-if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(MINGW TRUE)
   enable_c_compiler_flag_if_supported("-Wno-pragmas")
   enable_c_compiler_flag_if_supported("-Wno-unknown-pragmas")
