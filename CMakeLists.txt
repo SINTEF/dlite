@@ -676,23 +676,35 @@ endif()
 
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
 set(dlite_LD_LIBRARY_PATH "")
-build_append(dlite_LD_LIBRARY_PATH
+set(dlite_TEMP_LIBRARY_PATH "") 
+build_append(dlite_TEMP_LIBRARY_PATH
   ${dlite_BINARY_DIR}/src
   ${dlite_BINARY_DIR}/src/utils
   )
 if(WITH_PYTHON)
-  build_append(dlite_LD_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
+  build_append(dlite_TEMP_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
 endif()
+
 #list(APPEND dlite_LD_LIBRARY_PATH
 #  ${HDF5_RUNTIME_DIR}
 #  )
-list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 
 # PYTHONPATH - Python search path for modules and packages
 set(dlite_PYTHONPATH
   ${dlite_BINARY_DIR}/bindings/python
   $ENV{PYTHONPATH}
 )
+
+# MacOS cannot use LD_LIBRARY_PATH on versions with System Integrity Protection (SIP)
+# so add to PYTHONPATH instead
+if(APPLE)
+  list(APPEND dlite_PYTHONPATH ${dlite_TEMP_LIBRARY_PATH})
+elseif(UNIX)
+  set(dlite_LD_LIBRARY_PATH dlite_TEMP_LIBRARY_PATH)
+  list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
+endif()
+unset(dlite_TEMP_LIBRARY_PATH)
+
 if(dlite_PYTHONPATH)
   list(REMOVE_DUPLICATES dlite_PYTHONPATH)
 endif()
