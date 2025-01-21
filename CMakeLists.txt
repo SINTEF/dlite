@@ -153,6 +153,10 @@ endif()
 # Install paths
 # -------------
 
+# Ensure MacOS has rpaths set in libraries
+set(CMAKE_MACOSX_RPATH 1)
+
+
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
   set(DLITE_INSTALL_CMAKE_DIR "cmake")
