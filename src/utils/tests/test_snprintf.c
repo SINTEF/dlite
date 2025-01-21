@@ -46,11 +46,11 @@ MU_TEST(test_snprintf)
   int n;
 
   printf("\n\n--- test_snprintf\n");
-  n = rpl_snprintf(buf, sizeof(buf), "%s", short_string);
+  n = snprintf(buf, sizeof(buf), "%s", short_string);
   mu_assert_int_eq(strlen(short_string), n);
 
   memset(buf, 0, sizeof(buf));
-  n = rpl_snprintf(buf, 4, "%s", long_string);
+  n = snprintf(buf, 4, "%s", long_string);
   printf("\n*** n=%d, buf='%.10s'\n", n, buf);
 
 
