@@ -13,8 +13,10 @@
 
 DLiteStorage *db=NULL;
 #ifdef PASSWORD
+// cppcheck-suppress [syntaxError, unknownMacro]
 char *options = "database=" DATABASE ";user=" USER ";password=" PASSWORD;
 #else
+// cppcheck-suppress [syntaxError, unknownMacro]
 char *options = "database=" DATABASE ";user=" USER;
 #endif
 
