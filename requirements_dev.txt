@@ -1,7 +1,7 @@
 # Requirements building
 swig==4.3.0
 cmake==3.31.4
-#setuptools==67.5.0; python_version<"3.9"
-#setuptools==75.7.0; python_version>="3.9"
-setuptools==75.6.0
 wheel==0.45.1
+
+# Note, the setuptools==75.3.0 is the highest supported version in the Windows wheel
+setuptools==75.3.0
