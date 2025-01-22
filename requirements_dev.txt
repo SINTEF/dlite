@@ -5,6 +5,3 @@ cmake==3.31.4
 #setuptools==75.7.0; python_version>="3.9"
 setuptools==75.6.0
 wheel==0.45.1
-
-# Requirements for running tests
-mongomock==4.3.0
