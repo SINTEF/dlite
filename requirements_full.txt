@@ -22,7 +22,7 @@ urllib3>=1.0.0,<2
 #psycopg2>=2,<3
 
 # Utilities
-# Bug in pydantic 2.10.0, see https://github.com/pydantic/pydantic/issues/9898
+# Bug in pydantic 2.10.0, 2.10.1: See https://github.com/pydantic/pydantic/issues/9898
 annotated-types>=0.5.0,<0.8.0
 pydantic>=1.10.0,!=2.10.0,!=2.10.1,<2.10.6
 pydantic-core>=0.42,<2.27.3
