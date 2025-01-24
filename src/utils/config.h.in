@@ -79,20 +79,23 @@
 #cmakedefine HAVE_MBSTOWCS_S
 #cmakedefine HAVE_WCSTOMBS_S
 
+#cmakedefine HAVE_STRLCPY
+#cmakedefine HAVE_STRLCAT
+
 #cmakedefine HAVE_GETOPT
 #cmakedefine HAVE_GETOPT_LONG
 
-// #cmakedefine HAVE_SNPRINTF
-// #cmakedefine HAVE__SNPRINTF
-// #cmakedefine HAVE_VSNPRINTF
-// #cmakedefine HAVE__VSNPRINTF
-// #cmakedefine HAVE_VASPRINTF
-// #cmakedefine HAVE__VASPRINTF
-// #cmakedefine HAVE_ASPRINTF
-// #cmakedefine HAVE__ASPRINTF
-// #cmakedefine HAVE_LOCALECONV
-// #cmakedefine HAVE_VA_COPY
-// #cmakedefine HAVE___VA_COPY
+#cmakedefine HAVE_SNPRINTF
+#cmakedefine HAVE__SNPRINTF
+#cmakedefine HAVE_VSNPRINTF
+#cmakedefine HAVE__VSNPRINTF
+#cmakedefine HAVE_VASPRINTF
+#cmakedefine HAVE__VASPRINTF
+#cmakedefine HAVE_ASPRINTF
+#cmakedefine HAVE__ASPRINTF
+#cmakedefine HAVE_LOCALECONV
+#cmakedefine HAVE_VA_COPY
+#cmakedefine HAVE___VA_COPY
 
 #cmakedefine HAVE_MTX_INIT
 #cmakedefine HAVE_MTX_LOCK
