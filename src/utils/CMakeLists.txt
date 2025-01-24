@@ -38,27 +38,27 @@ if(CMAKE_COMPILER_IS_GNUCC)
 endif()
 
 include(CheckSymbolExists)
-check_symbol_exists(strdup              "string.h;_string.h"     HAVE_STRDUP)
-check_symbol_exists(_strdup             "string.h;_string.h"     HAVE__STRDUP)
-check_symbol_exists(strndup             "string.h;_string.h"     HAVE_STRNDUP)
-check_symbol_exists(_strndup            "string.h;_string.h"     HAVE__STRNDUP)
-check_symbol_exists(strcasecmp          "string.h;_string.h"     HAVE_STRCASECMP)
-check_symbol_exists(_stricmp            "string.h;_string.h"     HAVE__STRICMP)
-check_symbol_exists(strncasecmp         "string.h;_string.h"     HAVE_STRNCASECMP)
-check_symbol_exists(_strnicmp           "string.h;_string.h"     HAVE__STRNICMP)
+check_symbol_exists(strdup              string.h                 HAVE_STRDUP)
+check_symbol_exists(_strdup             string.h                 HAVE__STRDUP)     # Windows-specific
+check_symbol_exists(strndup             string.h                 HAVE_STRNDUP)
+check_symbol_exists(_strndup            string.h                 HAVE__STRNDUP)    # Windows-specific
+check_symbol_exists(strcasecmp          string.h                 HAVE_STRCASECMP)
+check_symbol_exists(_stricmp            string.h                 HAVE__STRICMP)    # Windows-specific
+check_symbol_exists(strncasecmp         string.h                 HAVE_STRNCASECMP)
+check_symbol_exists(_strnicmp           string.h                 HAVE__STRNICMP)   # Windows-specific
 
-check_symbol_exists(setenv              "stdlib.h;_stdlib.h"     HAVE_SETENV)
-check_symbol_exists(_putenv_s           stdlib.h                 HAVE__PUTENV_S)
-check_symbol_exists(unsetenv            "stdlib.h;_stdlib.h"     HAVE_UNSETENV)
+check_symbol_exists(setenv              stdlib.h                 HAVE_SETENV)
+check_symbol_exists(_putenv_s           stdlib.h                 HAVE__PUTENV_S)   # Windows-specific
+check_symbol_exists(unsetenv            stdlib.h                 HAVE_UNSETENV)
 
-check_symbol_exists(realpath            "stdlib.h;_stdlib.h"     HAVE_REALPATH)
+check_symbol_exists(realpath            stdlib.h                 HAVE_REALPATH)
 check_symbol_exists(stat                sys/stat.h               HAVE_STAT)
-# check_symbol_exists(exec              unistd.h                 HAVE_EXEC) // TODO: Remove - seems unused
-check_symbol_exists(clock               "time.h;_time.h"         HAVE_CLOCK)
-check_symbol_exists(P_tmpdir            "stdio.h;_stdio.h"       HAVE_P_TMPDIR)
-check_symbol_exists(_fileno             "stdio.h;_stdio.h"       HAVE__FILENO)
+# check_symbol_exists(exec              unistd.h                 HAVE_EXEC)        # Currently unused
+check_symbol_exists(clock               time.h                   HAVE_CLOCK)
+check_symbol_exists(P_tmpdir            stdio.h                  HAVE_P_TMPDIR)
+check_symbol_exists(_fileno             stdio.h                  HAVE__FILENO)     # Windows-specific
 check_symbol_exists(isatty              unistd.h                 HAVE_ISATTY)
-check_symbol_exists(_isatty             io.h                     HAVE__ISATTY)
+check_symbol_exists(_isatty             io.h                     HAVE__ISATTY)     # Windows-specific
 
 if(HAVE_WINDOWS_H)
 check_symbol_exists(GetFullPathNameW    windows.h                HAVE_GetFullPathNameW)
@@ -76,29 +76,29 @@ check_symbol_exists(CreateProcessA      processthreadsapi.h      HAVE_CreateProc
 check_symbol_exists(GetSystemTime       windows.h                HAVE_GetSystemTime)
 check_symbol_exists(BCryptGenRandom     bcrypt.h                 HAVE_BCryptGenRandom)
 
-check_symbol_exists(mbstowcs            "stdlib.h;_stdlib.h"     HAVE_MBSTOWCS)
-check_symbol_exists(wcstombs            "stdlib.h;_stdlib.h"     HAVE_WCSTOMBS)
-check_symbol_exists(mbstowcs_s          "stdlib.h;_stdlib.h"     HAVE_MBSTOWCS_S)
-check_symbol_exists(wcstombs_s          "stdlib.h;_stdlib.h"     HAVE_WCSTOMBS_S)
+check_symbol_exists(mbstowcs            stdlib.h                 HAVE_MBSTOWCS)
+check_symbol_exists(wcstombs            stdlib.h                 HAVE_WCSTOMBS)
+check_symbol_exists(mbstowcs_s          stdlib.h                 HAVE_MBSTOWCS_S)
+check_symbol_exists(wcstombs_s          stdlib.h                 HAVE_WCSTOMBS_S)
 
-check_symbol_exists(strlcpy             "string.h;_string.h"     HAVE_STRLCPY)
-check_symbol_exists(strlcat             "string.h;_string.h"     HAVE_STRLCAT)
+check_symbol_exists(strlcpy             string.h                 HAVE_STRLCPY)
+check_symbol_exists(strlcat             string.h                 HAVE_STRLCAT)
 
 check_symbol_exists(getopt              unistd.h                 HAVE_GETOPT)
 check_symbol_exists(getopt_long         getopt.h                 HAVE_GETOPT_LONG)
 
 # snprintf() is broken on windows - use own implementation there
 if(NOT WIN32)
-check_symbol_exists(snprintf            "stdio.h;secure/_stdio.h" HAVE_SNPRINTF)
-check_symbol_exists(_snprintf           "stdio.h;_stdio.h"       HAVE__SNPRINTF)
-check_symbol_exists(vsnprintf           "stdio.h;secure/_stdio.h" HAVE_VSNPRINTF)
-check_symbol_exists(_vsnprintf          "stdio.h;_stdio.h"       HAVE__VSNPRINTF)
-check_symbol_exists(asprintf            "stdio.h;_stdio.h"       HAVE_ASPRINTF)
-check_symbol_exists(_asprintf           "stdio.h;_stdio.h"       HAVE__ASPRINTF)
-check_symbol_exists(vasprintf           "stdio.h;_stdio.h"       HAVE_VASPRINTF)
-check_symbol_exists(_vasprintf          "stdio.h;_stdio.h"       HAVE__VASPRINTF)
-check_symbol_exists(asnprintf           "stdio.h;_stdio.h"       HAVE_ASPPRINTF)
-check_symbol_exists(asnprintf           "stdio.h;_stdio.h"       HAVE_ASPPRINTF)
+check_symbol_exists(snprintf            stdio.h                  HAVE_SNPRINTF)
+check_symbol_exists(_snprintf           stdio.h                  HAVE__SNPRINTF)   # Windows-specific
+check_symbol_exists(vsnprintf           stdio.h                  HAVE_VSNPRINTF)
+check_symbol_exists(_vsnprintf          stdio.h                  HAVE__VSNPRINTF)  # Windows-specific
+check_symbol_exists(asprintf            stdio.h                  HAVE_ASPRINTF)
+check_symbol_exists(_asprintf           stdio.h                  HAVE__ASPRINTF)   # Windows-specific
+check_symbol_exists(vasprintf           stdio.h                  HAVE_VASPRINTF)
+check_symbol_exists(_vasprintf          stdio.h                  HAVE__VASPRINTF)  # Windows-specific
+check_symbol_exists(asnprintf           stdio.h                  HAVE_ASNPPRINTF)
+check_symbol_exists(asnprintf           stdio.h                  HAVE_ASNPPRINTF)  # Remove duplicate
 endif()
 check_symbol_exists(localeconv          locale.h                 HAVE_LOCALECONV)
 check_symbol_exists(va_copy             stdarg.h                 HAVE_VA_COPY)
