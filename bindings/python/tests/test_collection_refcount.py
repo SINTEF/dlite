@@ -40,18 +40,18 @@ assert blob._refcount == 2  # coll, blob
 
 use_blob2(coll)
 assert coll._refcount == 1
-assert blob._refcount == 3  # 2 - coll, blob
+assert blob._refcount == 2  # coll, blob
 
-#use_blob2(coll)
-#assert blob._refcount == 3  # 2
+use_blob2(coll)
+assert blob._refcount == 2  # coll, blob
 
 
 insts = list(coll.get_instances())
 inst = insts[0]
-assert inst._refcount == 4  # 3 - inst, blob, coll
+assert inst._refcount == 3  # inst, blob, coll
 
 del coll
-assert inst._refcount == 3  # 2 - inst, blob
+assert inst._refcount == 2  # inst, blob
 
 del blob
-assert inst._refcount == 2  # 1 - inst
+assert inst._refcount == 1  # inst

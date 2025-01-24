@@ -157,6 +157,7 @@ struct _DLiteCollection {
     free($self);
   }
 
+  %newobject next;
   %feature("docstring",
            "Returns a new reference to next matching relation."
            ) next;
