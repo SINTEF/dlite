@@ -161,7 +161,7 @@ struct _DLiteCollection {
            "Returns a reference to next matching relation."
            ) next;
   const struct _DLiteInstance *next(void) {
-    return dlite_collection_next($self->coll, &$self->state);
+    return dlite_collection_next_new($self->coll, &$self->state);
   }
 
   %feature("docstring",
