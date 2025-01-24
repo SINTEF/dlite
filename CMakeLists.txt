@@ -3,7 +3,7 @@
 cmake_minimum_required(VERSION 3.16)
 
 project(dlite
-  VERSION 0.5.26
+  VERSION 0.5.27
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
