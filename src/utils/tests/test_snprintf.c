@@ -42,20 +42,22 @@ MU_TEST(test_snprintf)
 {
   char buf[10];
   char *short_string = "abc";
-  char *long_string = "0123456789abcdef";
+  char *long_string = strdup("0123456789abcdef");
   int n;
 
   printf("\n\n--- test_snprintf\n");
-  n = rpl_snprintf(buf, sizeof(buf), "%s", short_string);
+  n = snprintf(buf, sizeof(buf), "%s", short_string);
   mu_assert_int_eq(strlen(short_string), n);
 
   memset(buf, 0, sizeof(buf));
-  n = rpl_snprintf(buf, 4, "%s", long_string);
+  n = snprintf(buf, 4, "%s", long_string);
   printf("\n*** n=%d, buf='%.10s'\n", n, buf);
 
 
   n = snprintf(buf, sizeof(buf), "%s", long_string);
   mu_assert_int_eq(strlen(long_string), n);
+
+  free(long_string);
 }
 
 
