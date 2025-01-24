@@ -299,6 +299,7 @@ int strnquote(char *dest, size_t size, const char *s, int n,
 
     /* If `s` is NULL, use system snprintf() to represent it in a standard
        way. */
+    // cppcheck-suppress nullPointer
     int m = snprintf(dest+i, PDIFF(size, i), "%s", s);
     if (m >= 0) i += j;
   }
