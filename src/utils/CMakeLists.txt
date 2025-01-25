@@ -199,10 +199,8 @@ int main(void) { const char *f = __FUNCTION__; (void)(f); return 0; }
 
 # Generate byteorder.h
 # --------------------
-check_include_file(byteswap.h   HAVE_BYTESWAP_H)
-check_include_file(endian.h     HAVE_ENDIAN_H)
 
-if(NOT HAVE_BYTESWAP_H)
+if(NOT HAVE_BYTESWAP_H OR APPLE)
   configure_file(byteorder.h.in byteswap.h)
 endif()
 if(NOT HAVE_ENDIAN_H)
