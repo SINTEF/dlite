@@ -61,44 +61,20 @@ def _create_path(name):
     except KeyError:
         pass
     else:
-        for part in ep.value.split("|"):
-            module, path = part.split(":", 1)
-            fullpath = Path(import_module(module).__file__).parent / path
+        for value in ep.value.split("|"):
+            module, filepath = value.split(":", 1)
+            fullpath = Path(import_module(module).__file__).parent / filepath
             path.append(str(fullpath))
 
     return path
 
 # Create DLite search paths objects
-storage_path = _create_path("storages")
-template_path = _create_path("templates")
-storage_plugin_path = _create_path("storage-plugins")
-mapping_plugin_path = _create_path("mapping-plugins")
-python_storage_plugin_path = _create_path("python-storage-plugins")
-python_mapping_plugin_path = _create_path("python-mapping-plugins")
-python_protocol_plugin_path = _create_path("python-protocol-plugins")
-
-
-# Update default search paths
-from pathlib import Path
-pkgdir = Path(__file__).resolve().parent
-sharedir = pkgdir / "share" / "dlite"
-# if (sharedir / "storages").exists():
-#     storage_path[-1] = sharedir / "storages"
-#     #storage_path.append(sharedir / "storages")
-# if (sharedir / "storage-plugins").exists():
-#     storage_plugin_path[-1] = sharedir / "storage-plugins"
-#     #storage_plugin_path.append(sharedir / "storage-plugins")
-# if (sharedir / "mapping-plugins").exists():
-#     mapping_plugin_path[-1] = sharedir / "mapping-plugins"
-#     #mapping_plugin_path.append(sharedir / "mapping-plugins")
-# if (sharedir / "python-storage-plugins").exists():
-#     python_storage_plugin_path[-1] = sharedir / "python-storage-plugins"
-#     #python_storage_plugin_path.append(sharedir / "python-storage-plugins")
-# if (sharedir / "python-mapping-plugins").exists():
-#     python_mapping_plugin_path[-1] = sharedir / "python-mapping-plugins"
-#     #python_mapping_plugin_path.append(sharedir / "python-mapping-plugins")
-if (sharedir / "python-protocol-plugins").exists():
-    #python_protocol_plugin_path[-1] = sharedir / "python-protocol-plugins"
-    python_protocol_plugin_path.append(sharedir / "python-protocol-plugins")
+storage_path = _create_path("storage_path")
+template_path = _create_path("template_path")
+storage_plugin_path = _create_path("storage_plugin_path")
+mapping_plugin_path = _create_path("mapping_plugin_path")
+python_storage_plugin_path = _create_path("python_storage_plugin_path")
+python_mapping_plugin_path = _create_path("python_mapping_plugin_path")
+python_protocol_plugin_path = _create_path("python_protocol_plugin_path")
 
 %}

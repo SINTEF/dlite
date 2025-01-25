@@ -85,6 +85,7 @@ project_root
 │       └── special_datamodels
 │           └── specialdatamodel.yaml
 ├── pyproject.toml
+├── MANIFEST.in
 ├── README.md
 └── LICENSE
 ```
@@ -93,13 +94,22 @@ To make your datamodels and Python storage plugins available for users of your p
 
 ```toml
 [tool.setuptools.package-data]
-"mypackages.data.datamodels" = ["*.json", "*.yaml"]
-"mypackages.data.python_storage_plugins" = ["*.py"]
+"mypackage.data.datamodels" = ["*.json", "*.yaml"]
+"mypackage.data.special_datamodels" = ["*.json", "*.yaml"]
+"mypackage.data.python_storage_plugins" = ["*.py"]
 
 # Note the quotes around dlite.python_storage_plugins to escape the embedded dot
 [project.entry-points."dlite.paths"]
 storage_path = "mypackage:data/datamodels|mypackage:data/special_datamodels"
 python_storage_plugin_path = "mypackage:data/python_storage_plugins"
+```
+
+In addition you should add the include the package data in your MANIFEST.in
+
+```
+include mypackage/datamodels/*.yaml
+include mypackage/special_datamodels/*.yaml
+include mypackage/plugins/*.py
 ```
 
 See the [Setuptools documentation] for how to this can be done with `setup.py` or `setup.cfg`.
