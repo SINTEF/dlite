@@ -1,4 +1,5 @@
 # Requirements building
+# Ensure that these are consistent with python/pyproject.toml
 swig==4.3.0
 cmake==3.31.4
 wheel==0.45.1

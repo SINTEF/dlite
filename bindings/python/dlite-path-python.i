@@ -38,19 +38,34 @@
 
 %pythoncode %{
 import sys
+from pathlib import Path
+from importlib import import_module
 from importlib.metadata import entry_points
 
 def _create_path(name):
     """Return new DLite search path object, with given name."""
-    if sys.version_info < (3, 10):  # Fallback for Python < 3.10
-        eps = entry_points().get(f"dlite.{name}", ())
-    else:  # For Python 3.10+
-        eps = entry_points(group=f"dlite.{name}")
 
+    # Create FUPath object
     path = FUPath(name)
     path.name = name
-    for entry_point in eps:
-        path.append(entry_point.value)
+
+    # Access "dlite.paths" entry points
+    if sys.version_info < (3, 10):  # Fallback for Python < 3.10
+        eps = entry_points().get(f"dlite.paths", ())
+    else:  # For Python 3.10+
+        eps = entry_points(group=f"dlite.paths")
+
+    # Use entry points to populate default paths
+    try:
+        ep = eps[name]
+    except KeyError:
+        pass
+    else:
+        for part in ep.value.split("|"):
+            module, path = part.split(":", 1)
+            fullpath = Path(import_module(module).__file__).parent / path
+            path.append(str(fullpath))
+
     return path
 
 # Create DLite search paths objects
