@@ -2,8 +2,8 @@
 requires = [
   "numpy==2.1.2",
   "swig==4.3.0",
-  "cmake==3.31.4",
-  "wheel==0.45.1",
+  "cmake==3.31.1",
+  "wheel==0.41.3",
   #"setuptools==57.5.0; python_version<'3.9'",
   #"setuptools==75.3.0; python_version>='3.9'",
   "setuptools==75.3.0",
