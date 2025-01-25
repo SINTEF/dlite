@@ -114,6 +114,8 @@ include mypackage/plugins/*.py
 
 See the [Setuptools documentation] for how to this can be done with `setup.py` or `setup.cfg`.
 
+A complete example can be found in the [entry_points example] on GitHub.
+
 
 
 [setting environment variables]: #setting-environment-variables
@@ -122,3 +124,4 @@ See the [Setuptools documentation] for how to this can be done with `setup.py` o
 [environment variables]: https://sintef.github.io/dlite/user_guide/environment_variables.html
 [entry points]: https://setuptools.pypa.io/en/latest/userguide/entry_point.html
 [Setuptools documentation]: https://setuptools.pypa.io/en/latest/userguide/index.html
+[entry_points example]: https://github.com/SINTEF/dlite/tree/master/examples/entry_points
