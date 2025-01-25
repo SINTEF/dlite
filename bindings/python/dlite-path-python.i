@@ -55,12 +55,10 @@ def _create_path(name):
     else:  # For Python 3.10+
         eps = entry_points(group=f"dlite.paths")
 
-    # Use entry points to populate default paths
-    try:
-        ep = eps[name]
-    except KeyError:
-        pass
-    else:
+    # Use entry points to populate default paths (should work from Python 3.8)
+    for ep in eps:
+        if ep.name != name:
+            continue
         for value in ep.value.split("|"):
             module, filepath = value.split(":", 1)
             fullpath = Path(import_module(module).__file__).parent / filepath
