@@ -37,3 +37,12 @@ Python3_LIBRARY = "/opt/python/${ABITAG}/lib/libpython${PYVER}${PYABI}.a"
 Python3_INCLUDE_DIR = "/opt/python/${ABITAG}/include/python${PYVER}${PYABI}"
 
 CI_BUILD_CMAKE_ARGS = "-DCMAKE_INSTALL_PREFIX=$INSTALLDIR,-DPython3_EXECUTABLE=$Python3_EXECUTABLE,-DPython3_LIBRARY=$Python3_LIBRARY,-DPython3_INCLUDE_DIR=$Python3_INCLUDE_DIR,-DWITH_STATIC_PYTHON=YES"
+
+
+[tool.pytest.ini_options]
+minversion = "8.3"
+#addopts = "-rs --cov=oteapi_dlite --cov-report=term-missing:skip-covered --no-cov-on-fail"
+filterwarnings = [
+    # Treat all warnings as errors
+    "error",
+]

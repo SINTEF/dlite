@@ -106,7 +106,11 @@ jobs:
     - name: Build Linux wheel
       run: python3 -m pip wheel -w dist ./python
 
-    - name: Install python package and test the installation
+    - name: Install python package, test the installation and test with pytest
       run: |
         python3 -m pip install --user dist/*.whl
         python3 bindings/python/tests/__main__.py
+        python3 -m pip install pytest
+        pytest python tests
+
+
