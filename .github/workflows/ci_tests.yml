@@ -112,6 +112,7 @@ jobs:
         python3 bindings/python/tests/__main__.py
 
     - name: Test that it works with pytest and warnings as errors in pyproject
+      run: |  
         python3 -m pip install pytest
         pytest python/tests
 
