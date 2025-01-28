@@ -14,7 +14,7 @@ build-verbosity = 1
 
 [tool.cibuildwheel.windows]
 before-test = "python -m pip install -r {project}\\requirements.txt -r {project}\\requirements_dev.txt"
-test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
+test-command = "pytest {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
 
 [tool.cibuildwheel.linux]
 environment-pass = ["CI_BUILD_CMAKE_ARGS", "CI_PIP_CACHE_DIR"]
@@ -23,7 +23,7 @@ before-build = [
   "export PYVER=$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")",
   "export ABITAG=$(python -c \"import sys; cp=f'cp{sys.version_info.major}{sys.version_info.minor}'; print(f'{cp}-{cp}{sys.abiflags}')\")",
 ]
-test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
+test-command = "pytest {package}/../bindings/python/tests/test_python_bindings.py"
 
 [tool.cibuildwheel.linux.environment]
 PYVER = "$(python -c \"import sys; print(f'{sys.version_info.major}.{sys.version_info.minor}')\")"
