@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mypackage"
+version = "0.5.0"
+description = "Example package providing DLite datamodels and plugins."
+readme = "README.md"
+dependencies = ["dlite-python"]
+
+[tool.setuptools]
+packages = ["mypackage"]
+
+[tool.setuptools.package-data]
+"mypackage.datamodels" = ["*.json", "*.yaml"]
+"mypackage.plugins" = ["*.py"]
+"mypackage.data" = ["*.txt"]
+
+
+# Note the quotes around dlite.python_storage_plugins to escape the embedded dot
+[project.entry-points."dlite.paths"]
+storage_path = "mypackage:datamodels"
+python_storage_plugin_path = "mypackage:plugins"
