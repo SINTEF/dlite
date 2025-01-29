@@ -5,6 +5,7 @@ set(tests
   test_python_bindings
   test_collection
   test_collection_load
+  test_collection_refcount
   test_entity
   test_factory
   test_misc
