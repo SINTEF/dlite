@@ -96,20 +96,37 @@ include(SetCompilerFlags)
 
 enable_c_compiler_flag_if_supported("-m64")
 
-# Enable compiler warnings
-if(CMAKE_COMPILER_IS_GNUCC)
+
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   add_definitions(-D_GNU_SOURCE)
+  execute_process(COMMAND gcc -dumpfullversion OUTPUT_VARIABLE gcc_version)
+endif()
+
+# Enable compiler warnings
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
+  CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
+  CMAKE_C_COMPILER_ID STREQUAL "AppleClang"
+)
   enable_c_compiler_flag_if_supported("-Wall")
   enable_c_compiler_flag_if_supported("-Wextra")
   enable_c_compiler_flag_if_supported("-Wpedantic")
-  execute_process(COMMAND gcc -dumpfullversion OUTPUT_VARIABLE gcc_version)
   if(NOT ALLOW_WARNINGS AND "${gcc_version}" VERSION_GREATER_EQUAL 9.0)
     enable_c_compiler_flag_if_supported("-Werror")
+  endif()
+
+  # Remove optimisations for Debug / allow debug info
+  # FIXME: Doesn't deal with multi-config generators
+  # Sets CMAKE_C_FLAGS
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    enable_c_compiler_flag_if_supported("-g")
+    enable_c_compiler_flag_if_supported("-O0")
+    # enable_c_compiler_flag_if_supported("-Og")
+    # add_definitions(-DWITH_DEBUG -D_DEBUG)
   endif()
 endif()
 
 # Define MINGW if we are running a GNU compiler on a Windows system
-if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(MINGW TRUE)
   enable_c_compiler_flag_if_supported("-Wno-pragmas")
   enable_c_compiler_flag_if_supported("-Wno-unknown-pragmas")
@@ -135,6 +152,10 @@ endif()
 
 # Install paths
 # -------------
+
+# Ensure MacOS has rpaths set in libraries
+set(CMAKE_MACOSX_RPATH 1)
+
 
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
@@ -676,28 +697,40 @@ endif()
 
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
 set(dlite_LD_LIBRARY_PATH "")
-build_append(dlite_LD_LIBRARY_PATH
+set(dlite_TEMP_LIBRARY_PATH "") 
+build_append(dlite_TEMP_LIBRARY_PATH
   ${dlite_BINARY_DIR}/src
   ${dlite_BINARY_DIR}/src/utils
   )
 if(WITH_PYTHON)
-  build_append(dlite_LD_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
+  build_append(dlite_TEMP_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
 endif()
+
 #list(APPEND dlite_LD_LIBRARY_PATH
 #  ${HDF5_RUNTIME_DIR}
 #  )
-list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 
 # PYTHONPATH - Python search path for modules and packages
 set(dlite_PYTHONPATH
   ${dlite_BINARY_DIR}/bindings/python
   $ENV{PYTHONPATH}
 )
+
+# MacOS cannot use LD_LIBRARY_PATH on versions with System Integrity Protection (SIP)
+# so add to PYTHONPATH instead
+if(APPLE)
+  list(APPEND dlite_PYTHONPATH ${dlite_TEMP_LIBRARY_PATH})
+elseif(UNIX)
+  set(dlite_LD_LIBRARY_PATH dlite_TEMP_LIBRARY_PATH)
+  list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
+endif()
+unset(dlite_TEMP_LIBRARY_PATH)
+
 if(dlite_PYTHONPATH)
   list(REMOVE_DUPLICATES dlite_PYTHONPATH)
 endif()
 if(NOT dlite_PYTHONPATH MATCHES "\\\\")
-  string(REPLACE "\\" "\\\\" dlite_PYTHONPATH ${dlite_PYTHONPATH})
+  list(TRANSFORM dlite_PYTHONPATH REPLACE "\\\\" "\\\\\\\\")
 endif()
 
 # DLITE_STORAGE_PLUGIN_DIRS - search path for DLite storage plugins
@@ -804,11 +837,11 @@ string(REPLACE ";" "|" dlite_STORAGES_WINDOWS "${dlite_STORAGES_WINDOWS}")
 set(test_env
   "========== Test environment ========="
   "export DLITE_ROOT=${DLITE_ROOT}"
-  "export PATH=${dlite_PATH}"
-  "dlite_PATH_NATIVE=${dlite_PATH_NATIVE}"
+  "export PATH=${dlite_PATH_NATIVE}"
+  "dlite_PATH=${dlite_PATH}"
   "export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}"
-  "export PYTHONPATH=${dlite_PYTHONPATH}"
-  "PYTHONPATH_NATIVE=${dlite_PYTHONPATH_NATIVE}"
+  "export PYTHONPATH=${dlite_PYTHONPATH_NATIVE}"
+  "PYTHONPATH=${dlite_PYTHONPATH}"
   "export DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}"
   "export DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}"
   "export DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}"

@@ -123,6 +123,7 @@ set(link_args
   ${link_libraries_extra}
   )
 if(NOT WITH_STATIC_PYTHON)
+  # CMAKE_DL_LIBS is empty on MacOS
   list(APPEND link_args ${CMAKE_DL_LIBS})
 endif()
 
