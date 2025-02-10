@@ -1,35 +1,57 @@
 DLite Concepts
 ==============
 
-DLite is an implementation of [SOFT], which stands for SINTEF Open
-Framework and Tools and is a set of concepts for how to achieve
-semantic interoperability as well as implementations and corresponding
-tooling.
+Overview
+--------
+DLite is a lightweight data-centric framework for semantic interoperability.
+DLite allows to represent data and metadata with simple, but formalised data models, making it possible to decouple the (meta)data from how it is serialised.
+It includes a rich and easy extendable plugin-system for loading/writing (meta)data to different storage backends (like JSON, BSON, YAML, RDF, MinIO, MongoDB, PostgreSQL, Redis, CSV/Excel, ...).
+DLite enhances the reusability of storage plugins by a clear separation between data transfer (protocol) and loading/writing.
+This makes it possible to use the same file-based storage plugin against e.g. the local file system or an sftp or http server.
 
-The development of SOFT was motivated by many years of experience with
-developing scientific software, where it was observed that a lot of
-efforts went into developing parts that had little to do with the
-domain.
-A significant part of the development process was spent on different
-software engineering tasks, such as code design, the handling of I/O,
-correct memory handling of the program state and writing import and
-export filters in order to use data from different
-sources.
-In addition comes the code maintenance with support of legacy formats
-and the introduction of new features and changes to internal data
-state in the scientific software.
-With SOFT it is possible to utilize reusable software components that
-handle all this, or develop new reusable software components that can
-be used by others in the same framework.
-At the core of SOFT are the [SOFT data models], which by design provide
-a simple but powerful way to represent scientific data.
+Semantic interoperability and automated data transformations is achieved by mapping DLite data models and/or their properties of to classes defined in ontologies.
+By combining mappings with a library of reusable mapping functions, fully automated and very powerful data transformations and integrations can be achieved.
 
-Originally DLite started as a simplified pure C implementation of SOFT
-based on [SOFT5], but has with time developed into a robust framework
-with a large set of [features].
-There is also [SOFT7], a new version of SOFT written in pure Python
-where new features are tested out.
+DLite also include a collection of tools for e.g. validation of data models and generation of code for handling of i/o in C and Fortran programs.
 
+DLite is written in C, but includes bindings to Python and Fortran.
+It is commonly used from Python and available under a permissive MIT license.
+
+
+.. collapse:: The origin
+
+    DLite is an implementation of [SOFT], which stands for SINTEF Open
+    Framework and Tools and is a set of concepts for how to achieve
+    semantic interoperability as well as implementations and corresponding
+    tooling.
+
+    The development of SOFT was motivated by many years of experience with
+    developing scientific software, where it was observed that a lot of
+    efforts went into developing parts that had little to do with the
+    domain.
+    A significant part of the development process was spent on different
+    software engineering tasks, such as code design, the handling of I/O,
+    correct memory handling of the program state and writing import and
+    export filters in order to use data from different
+    sources.
+    In addition comes the code maintenance with support of legacy formats
+    and the introduction of new features and changes to internal data
+    state in the scientific software.
+    With SOFT it is possible to utilize reusable software components that
+    handle all this, or develop new reusable software components that can
+    be used by others in the same framework.
+    At the core of SOFT are the [SOFT data models], which by design provide
+    a simple but powerful way to represent scientific data.
+
+    Originally DLite started as a simplified pure C implementation of SOFT
+    based on [SOFT5], but has with time developed into a robust framework
+    with a large set of [features].
+    There is also [SOFT7], an experimental version of SOFT written in pure Python
+    where new features are tested out.
+
+
+Architecture
+------------
 The main components of DLite are shown in Figure 1, including bindings
 to several programming languages, tools, the plugin framework for
 storages, and mappings.
