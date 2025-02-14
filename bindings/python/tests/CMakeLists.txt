@@ -5,6 +5,7 @@ set(tests
   test_python_bindings
   test_collection
   test_collection_load
+  test_collection_refcount
   test_entity
   test_factory
   test_misc
@@ -46,8 +47,8 @@ foreach(test ${tests})
     ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
   set_property(TEST ${name} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
-  if (NOT WIN32)
-  set_property(TEST ${name} APPEND PROPERTY
+  if (UNIX AND NOT APPLE)
+    set_property(TEST ${name} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   endif()
   set_property(TEST ${name} APPEND PROPERTY
