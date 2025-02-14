@@ -1,0 +1,4 @@
+include mypackage/datamodels/*.json
+include mypackage/datamodels/*.yaml
+include mypackage/plugins/*.py
+include mypackage/data/*.txt

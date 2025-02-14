@@ -23,55 +23,7 @@ if is_conda_base and (sys.platform == 'win32'):
     raise RuntimeError(msg)
 
 from .dlite import *  # noqa: F401, F403
-
-thispath = Path(__file__).parent.resolve()
-
-if "DLITE_ROOT" in os.environ:
-    # User has decided to set DLITE_ROOT, the following paths will be defined:
-
-    # dlite.storage_plugin_path='%DLITE_ROOT%\share\dlite\storage-plugins'
-    # dlite.python_storage_plugin_path='%DLITE_ROOT%\share\dlite\python-storage-plugins'
-    # dlite.python_mapping_plugin_path='%DLITE_ROOT%\share\dlite\python-mapping-plugins'
-
-    # No need to remove paths defined during build time.
-    pass
-
-else:
-    # Delete the paths introduced during build (They are only valid on the build-system)
-    del storage_plugin_path[-1]
-    del python_storage_plugin_path[-1]
-    del python_mapping_plugin_path[-1]
-
-    # Set our package paths instead
-    storage_plugin_path.append(str(thispath / "share/dlite/storage-plugins"))
-    python_storage_plugin_path.append(str(thispath / "share/dlite/python-storage-plugins"))
-    python_mapping_plugin_path.append(str(thispath / "share/dlite/python-mapping-plugins"))
-
-# The following environment variables will be added to the respective dlite paths
-# as is at position 0 (Searched first)
-# DLITE_STORAGE_PLUGIN_DIRS
-# DLITE_PYTHON_STORAGE_PLUGIN_DIRS
-# DLITE_PYTHON_MAPPING_PLUGIN_DIRS
-
-# The following paths are valid only on the build-system, irrespective of DLITE_ROOT
-del mapping_plugin_path[-1]
-del storage_path[-1]
-
-# Set our package paths instead
-mapping_plugin_path.append(str(thispath / "share/dlite/mapping-plugins"))
-storage_path.append(str(thispath / "share/dlite/storages/*.json"))
-
-# The following environment variables will be added to the respective dlite paths
-# as is at position 0 (Search first)
-# DLITE_MAPPING_PLUGIN_DIRS
-# DLITE_STORAGES
-
-# Unused environment variable:
-# DLITE_TEMPLATE_DIRS: Search path for DLite templates.
-
-
-from .dlite import *  # noqa: F401, F403
 from .factory import classfactory, objectfactory, instancefactory  # noqa: F401
 
-del thispath
-del sys, os, Path, is_conda, is_conda_base
+
+del sys, os, is_conda, is_conda_base
