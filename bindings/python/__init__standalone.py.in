@@ -1,29 +1,21 @@
 import sys
-import os
-from pathlib import Path
 
 __version__ = "@dlite_VERSION@"
 
 try:
     import conda
-    del conda
 except:
-    is_conda_base = False
-    is_conda = os.path.exists(os.path.join(sys.prefix, 'conda-meta'))
+    pass
 else:
-    assert os.path.exists(os.path.join(sys.prefix, 'conda-meta'))
-    is_conda_base = True
-    is_conda = True
-
-if is_conda_base and (sys.platform == 'win32'):
-    msg="You are using the Anaconda Python base environment on Windows.\n"
-    msg+="In order for the Python-embedding in dlite to work, you may need to set PYTHONHOME.\n"
-    msg+="See: https://github.com/ContinuumIO/anaconda-issues/issues/11374\n"
-    msg+="Recommended workaround: Create a conda environment, reinstall dlite in that environment.\n"
-    raise RuntimeError(msg)
+    if sys.platform == "win32":
+        raise RuntimeError(
+            "You are using the Anaconda Python base environment on Windows.\n"
+            "In order for the Python-embedding in dlite to work, you may need \n"
+            "to set PYTHONHOME.\n"
+            "See: https://github.com/ContinuumIO/anaconda-issues/issues/11374\n"
+            "Recommended workaround: Create a conda environment, reinstall \n"
+            "DLite in that environment."
+        )
 
 from .dlite import *  # noqa: F401, F403
 from .factory import classfactory, objectfactory, instancefactory  # noqa: F401
-
-
-del sys, os, is_conda, is_conda_base
