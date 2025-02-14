@@ -22,6 +22,10 @@
 #include "dlite-macros.h"
 #include "dlite-errors.h"
 
+#ifdef WITH_PYTHON
+#include "pyembed/dlite-python-path.h"
+#endif
+
 /* Global variables */
 static int use_build_root = -1;   /* whether to use build root */
 static int dlite_platform = 0;    /* dlite platform */
@@ -411,7 +415,12 @@ const char *dlite_root_get(void)
   static char *dlite_root = NULL;
   if (!dlite_root) {
     char *v = getenv("DLITE_ROOT");
-    dlite_root = (v) ? v : DLITE_ROOT;
+    dlite_root = (v) ? v :
+#ifdef WITH_PYTHON
+      dlite_python_site_prefix();
+#else
+      DLITE_ROOT;
+#endif
   }
   return dlite_root;
 }

@@ -384,7 +384,7 @@ FUPaths *dlite_storage_paths(void)
       fu_paths_extend(g->storage_paths, dlite_STORAGES, "|");
     } else {
       fu_paths_extend_prefix(g->storage_paths, dlite_root_get(),
-                             DLITE_ROOT "/" DLITE_STORAGES, "|");
+                             DLITE_STORAGES, "|");
     }
   }
   return g->storage_paths;

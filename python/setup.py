@@ -37,16 +37,12 @@ if platform.system() == "Linux":
         # Will always have CMake version >= 3.14 (see `CMakeLists.txt`)
         "-DPython3_FIND_VIRTUALENV=ONLY",
         "-DPython3_FIND_IMPLEMENTATIONS=CPython",
+
+        f"-DPython3_EXECUTABLE={sys.executable}",
+        "-DCMAKE_INSTALL_PREFIX="
+        f"{site.USER_BASE if '--user' in sys.argv else sys.prefix}",
+
     ]
-    if not bool(int(os.getenv("CIBUILDWHEEL", "0"))):
-        # Not running with `cibuildwheel`
-        CMAKE_ARGS.extend(
-            [
-                f"-DPython3_EXECUTABLE={sys.executable}",
-                "-DCMAKE_INSTALL_PREFIX="
-                f"{site.USER_BASE if '--user' in sys.argv else sys.prefix}",
-            ]
-        )
 elif platform.system() == "Windows":
     dlite_compiled_ext = "_dlite.pyd"
     dlite_compiled_dll_suffix = "*.dll"

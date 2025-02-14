@@ -118,7 +118,7 @@ Debugging tests failing inside docker on GitHub
 
    and install final requirements manually
 
-        cd /project/python/build
+        cd /project
         pip install virtualenv -c /constraints.txt
         pip install --cache-dir /ci/pip_cache --prefer-binary -r /project/requirements.txt
 
