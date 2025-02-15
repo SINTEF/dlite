@@ -291,6 +291,8 @@ if(WITH_PYTHON)
   endif()
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
+  file(TO_CMAKE_PATH "${Python3_SITEARCH}" Python3_SITEARCH)
+
   if(NOT DLITE_PKG_ROOT)
     set(DLITE_PKG_ROOT "${Python3_SITEARCH}/dlite")
   endif()
