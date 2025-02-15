@@ -173,7 +173,7 @@ class CMakeBuildExt(build_ext):
         )
 
         # Show configurations
-        if self.verbose:
+        if self.verbose and platform.system != "Windows":
             subprocess.run(
                 ["cmake", "--build", ".", "--target", "show"],
                 cwd=self.build_temp,
