@@ -152,7 +152,7 @@ class CMakeBuildExt(build_ext):
 
         build_settings = [
             "=================  BUILD SETTINGS  =================",
-            f"platform:      {platform.system}",
+            f"platform:      {platform.system()}",
             f"build_lib:     {self.build_lib}",
             f"build_temp:    {self.build_temp}",
             f"debug:         {self.debug}",
@@ -174,13 +174,13 @@ class CMakeBuildExt(build_ext):
         )
 
         # Show configurations
-        #if self.verbose and platform.system != "Windows":
-        #    subprocess.run(
-        #        ["cmake", "--build", ".", "--target", "show"],
-        #        cwd=self.build_temp,
-        #        env=env,
-        #        check=True,
-        #    )
+        if self.verbose and platform.system() != "Windows":
+            subprocess.run(
+                ["cmake", "--build", ".", "--target", "show"],
+                cwd=self.build_temp,
+                env=env,
+                check=True,
+            )
 
         # Build
         build_args = ["cmake", "--build", ".", "--config", build_type]
