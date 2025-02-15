@@ -19,7 +19,7 @@ typedef enum {Replace, Append, Prepend} Action;
 
 /* Globals */
 FUPlatform platform = fuNative;
-const char *dlite_root = NULL;
+const char *dlite_root=NULL, *dlite_pkg_root=NULL;
 
 
 void help()
@@ -51,7 +51,7 @@ void help()
 
 
 /* Update `env` by adding variable `name` and `value` to it.  How it
-   is done is determined by `action`, which ban be either 'Replace',
+   is done is determined by `action`, which can be either 'Replace',
    'Append' or 'Prepend'. */
 char **add_paths(char **env, const char *name, const char *value, Action action)
 {
@@ -62,12 +62,12 @@ char **add_paths(char **env, const char *name, const char *value, Action action)
   fu_paths_set_platform(&paths, platform);
 
   if (action == Append && (v = get_envvar(env, name)))
-    fu_paths_extend_prefix(&paths, dlite_root, v, NULL);
+    fu_paths_extend_prefix(&paths, dlite_pkg_root, v, NULL);
 
-  fu_paths_extend_prefix(&paths, dlite_root, value, NULL);
+  fu_paths_extend_prefix(&paths, dlite_pkg_root, value, NULL);
 
   if (action == Prepend && (v = get_envvar(env, name)))
-    fu_paths_extend_prefix(&paths, dlite_root, v, NULL);
+    fu_paths_extend_prefix(&paths, dlite_pkg_root, v, NULL);
 
   if (!(s = fu_paths_string(&paths)))
     return err(1, "cannot add %s to environment", name), env;
@@ -129,6 +129,7 @@ int main(int argc, char *argv[])
   }
 
   dlite_root = (with_env) ? dlite_root_get() : DLITE_ROOT;
+  dlite_root = (with_env) ? dlite_pkg_root_get() : DLITE_PKG_ROOT;
 
   /* Create environment */
   if (with_env)  {
@@ -138,6 +139,7 @@ int main(int argc, char *argv[])
   if (with_install) {
     /* -- add install paths */
     env = add_paths(env, "DLITE_ROOT", dlite_root, Replace);
+    env = add_paths(env, "DLITE_PKG_ROOT", dlite_pkg_root, Replace);
     env = add_paths(env, "PATH", DLITE_RUNTIME_DIR, Prepend);
     env = add_paths(env, "LD_LIBRARY_PATH", DLITE_LIBRARY_DIR, Prepend);
     env = add_paths(env, "PYTHONPATH", DLITE_PYTHONPATH, Prepend);

@@ -34,11 +34,17 @@
 #define DLITE_ROOT             "@DLITE_ROOT@"
 #endif
 
+#ifndef DLITE_PKG_ROOT
+#define DLITE_PKG_ROOT         "@DLITE_PKG_ROOT@"
+#endif
+
 /* Installation directories relative to DLITE_ROOT */
 #define DLITE_INCLUDE_DIRS                "@DLITE_INCLUDE_DIRS@"
 #define DLITE_LIBRARY_DIR                 "@DLITE_LIBRARY_DIR@"
 #define DLITE_RUNTIME_DIR                 "@DLITE_RUNTIME_DIR@"
 #define DLITE_PYTHONPATH                  "@DLITE_PYTHONPATH@"
+
+/* Installation directories relative to DLITE_PKG_ROOT */
 #define DLITE_STORAGE_PLUGIN_DIRS         "@DLITE_STORAGE_PLUGIN_DIRS@"
 #define DLITE_MAPPING_PLUGIN_DIRS         "@DLITE_MAPPING_PLUGIN_DIRS@"
 #define DLITE_PYTHON_STORAGE_PLUGIN_DIRS  "@DLITE_PYTHON_STORAGE_PLUGIN_DIRS@"

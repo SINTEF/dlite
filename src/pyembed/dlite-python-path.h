@@ -8,12 +8,9 @@
 
 
 /**
-  Returns the newly allocated string with the Python site prefix or
-  NULL on error.
-
-  This correspond to returning `site.PREFIXES[0]` from Python.
+  Returns the DLite installation root directory.
  */
-char *dlite_python_site_prefix(void);
+char *dlite_python_root(void);
 
 
 #endif /* _DLITE_PYTHON_PATH_H */

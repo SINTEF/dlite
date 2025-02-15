@@ -291,26 +291,8 @@ if(WITH_PYTHON)
   endif()
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
-  # Find Python installation directory (relative to CMAKE_INSTALL_PREFIX)
-  if(NOT Python3_PKGDIR)
-    execute_process(
-      COMMAND ${Python3_EXECUTABLE} -c "import site; print([p for p in site.getsitepackages() if 'site-packages' in p][0])"
-      OUTPUT_VARIABLE Python3_PKGDIR
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-  endif()
-
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c "import sys; print(sys.prefix)"
-    OUTPUT_VARIABLE Python3_prefix
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-
-  file(RELATIVE_PATH Python3_SITE ${Python3_prefix} ${Python3_PKGDIR})
-  if(Python3_SITE)
-    set(Python3_PREFIX "${Python3_SITE}/dlite/")
-  else()
-    set(Python3_PREFIX "dlite/")
+  if(NOT DLITE_PKG_ROOT)
+    set(DLITE_PKG_ROOT "${Python3_SITEARCH}/dlite")
   endif()
 
   # Add linker flags for linking against Python
@@ -327,7 +309,7 @@ if(WITH_PYTHON)
   find_program(
     Python3_config
     NAMES ${Python3_EXECUTABLE}-config python3-config python-config
-    HINTS ${Python3_prefix}/bin
+    HINTS ${CMAKE_INSTALL_PREFIX}/bin
   )
 
   # Link libraries when compiling against static Python (e.g. manylinux)
@@ -355,13 +337,6 @@ if(WITH_PYTHON)
     endif()
   endif()
 
-  # Link libraries when compiling against static Python (e.g. cibuildwheel)
-  # if(DEFINED ENV{Python3_LIBRARY})
-  #   set(Python3_STATIC_LIBS $ENV{Python3_LIBRARY})
-  #   list(APPEND extra_link_libraries $ENV{Python3_LIBRARY})
-  # endif()
-  # message(STATUS "ENV{Python3_LIBRARY}: $ENV{Python3_LIBRARY}")
-
   add_custom_target(wheel
     COMMAND ${Python3_EXECUTABLE} -m pip wheel -w dist
         ${dlite_SOURCE_DIR}/python
@@ -369,19 +344,16 @@ if(WITH_PYTHON)
     COMMENT "Build Python wheels"
   )
 
-
-  message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
-  message(STATUS "Python3_prefix = ${Python3_prefix}")
-  message(STATUS "Python3_PKGDIR = ${Python3_PKGDIR}")
-  message(STATUS "Python3_SITE = ${Python3_SITE}")
-  message(STATUS "Python3_PREFIX = ${Python3_PREFIX}")
+  message(STATUS "Python3_SITEARCH = ${Python3_SITEARCH}")
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
   message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
   message(STATUS "Python3_NumPy_VERSION=${Python3_NumPy_VERSION}")
   message(STATUS "Python3_NumPy_INCLUDE_DIRS = ${Python3_NumPy_INCLUDE_DIRS}")
   message(STATUS "Python3_STATIC_LIBS = ${Python3_STATIC_LIBS}")
-
+  message(STATUS "Python3_LINK_OPTIONS = ${Python3_LINK_OPTIONS}")
+  #message(STATUS "Python3_LIBRARY_DIRS = ${Python3_LIBRARY_DIRS}")
+  #message(STATUS "Python3_RUNTIME_LIBRARY_DIRS = ${Python3_RUNTIME_LIBRARY_DIRS}")
 
   if (WIN32)
     # Prepare to workaround Anaconda issues on Windows
@@ -404,13 +376,15 @@ if(WITH_PYTHON)
   mark_as_advanced(ffi)
   get_filename_component(dlite_PATH_EXTRA ${ffi} DIRECTORY)
 
-  set(DLITE_PYTHONPATH
-    ${DLITE_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
-
-
+  set(DLITE_PYTHONPATH ${Python3_SITEARCH})
 else()
+  set(DLITE_PKG_ROOT "${DLITE_ROOT}")
   set(Python3_LIBRARIES "")
 endif()
+
+message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "DLITE_ROOT = ${DLITE_ROOT}")
+message(STATUS "DLITE_PKG_ROOT = ${DLITE_PKG_ROOT}")
 
 #
 # Fortran
@@ -433,14 +407,14 @@ if(extra_link_libraries MATCHES "^[ \t\n\r;]*$")
 endif()
 
 
-# DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
-set(DLITE_TEMPLATE_DIRS               "${Python3_PREFIX}share/dlite/templates")
-set(DLITE_STORAGE_PLUGIN_DIRS         "${Python3_PREFIX}share/dlite/storage-plugins")
-set(DLITE_MAPPING_PLUGIN_DIRS         "${Python3_PREFIX}share/dlite/mapping-plugins")
-set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS  "${Python3_PREFIX}share/dlite/python-mapping-plugins")
-set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS  "${Python3_PREFIX}share/dlite/python-storage-plugins")
-set(DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS "${Python3_PREFIX}share/dlite/python-protocol-plugins")
-set(DLITE_STORAGES                    "${Python3_PREFIX}share/dlite/storages")
+# DLite install paths relative to DLITE_PKG_ROOT
+set(DLITE_TEMPLATE_DIRS               "share/dlite/templates")
+set(DLITE_STORAGE_PLUGIN_DIRS         "share/dlite/storage-plugins")
+set(DLITE_MAPPING_PLUGIN_DIRS         "share/dlite/mapping-plugins")
+set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS  "share/dlite/python-mapping-plugins")
+set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS  "share/dlite/python-storage-plugins")
+set(DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS "share/dlite/python-protocol-plugins")
+set(DLITE_STORAGES                    "share/dlite/storages")
 
 
 
@@ -449,6 +423,7 @@ set(DLITE_STORAGES                    "${Python3_PREFIX}share/dlite/storages")
 set(DLITE_CONFIG_VARS
   dlite_VERSION
   DLITE_ROOT
+  DLITE_PKG_ROOT
   DLITE_INCLUDE_DIRS
   DLITE_LIBRARY_DIR
   DLITE_RUNTIME_DIR

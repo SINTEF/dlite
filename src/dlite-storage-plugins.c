@@ -71,7 +71,7 @@ static PluginInfo *get_storage_plugin_info(void)
     if (dlite_use_build_root())
       plugin_path_extend(g->storage_plugin_info, dlite_STORAGE_PLUGINS, NULL);
     else
-      plugin_path_extend_prefix(g->storage_plugin_info, dlite_root_get(),
+      plugin_path_extend_prefix(g->storage_plugin_info, dlite_pkg_root_get(),
                                 DLITE_STORAGE_PLUGIN_DIRS, NULL);
 
     /* Make sure that dlite DLLs are added to the library search path */

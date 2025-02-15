@@ -80,8 +80,9 @@ PyObject *dlite_python_module_dict(void)
 
   name = PyUnicode_FromString("dlite");
   assert(name);
-  if (!(module = PyImport_GetModule(name)))
-    FAIL("the dlite module cannot is not imported");
+  if (!(module = PyImport_GetModule(name)) &&
+      !(module = PyImport_ImportModule("dlite")))
+    FAIL("cannot import dlite module");
   if (!(dict = PyModule_GetDict(module)))
     FAIL("cannot access the dlite module dict");
  fail:

@@ -415,14 +415,32 @@ const char *dlite_root_get(void)
   static char *dlite_root = NULL;
   if (!dlite_root) {
     char *v = getenv("DLITE_ROOT");
-    dlite_root = (v) ? v :
-#ifdef WITH_PYTHON
-      dlite_python_site_prefix();
-#else
-      DLITE_ROOT;
-#endif
+    dlite_root = (v) ? v : DLITE_ROOT;
   }
   return dlite_root;
+}
+
+/*
+  Returns pointer to the DLite package installation root.
+
+  It may be altered with environment variable DLITE_PKG_ROOT.
+  With Python, it defaults to the DLite Python root directory, otherwise
+  it defaults to DLITE_ROOT.
+
+*/
+const char *dlite_pkg_root_get(void)
+{
+  static char *dlite_pkg_root = NULL;
+  if (!dlite_pkg_root) {
+    char *v = getenv("DLITE_PKG_ROOT");
+    dlite_pkg_root = (v) ? v :
+#ifdef WITH_PYTHON
+      dlite_python_root();
+#else
+      DLITE_PKG_ROOT;
+#endif
+  }
+  return dlite_pkg_root;
 }
 
 

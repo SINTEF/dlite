@@ -1,40 +1,32 @@
 /*
   Functions for generic DLite paths objects
  */
+#include "utils/fileutils.h"
 #include "dlite-macros.h"
 #include "dlite-pyembed.h"
+#include "dlite-python-singletons.h"
 #include "dlite-python-path.h"
 
 
 /*
-  Returns the newly allocated string with the Python site prefix or
-  NULL on error.
-
-  This correspond to returning `site.PREFIXES[0]` from Python.
+  Returns the DLite installation root directory.
  */
-char *dlite_python_site_prefix(void)
+char *dlite_python_root(void)
 {
-  PyObject *site=NULL, *prefixes=NULL, *prefix0;
-  const char *prefixbuf;
-  char *prefix=NULL;
+  PyObject *dlitedict, *file=NULL;
+  const char *filename;
+  char *dirname=NULL;
 
-  dlite_pyembed_initialise();
+  if (!(dlitedict = dlite_python_module_dict())) goto fail;
 
-  if (!(site = PyImport_ImportModule("site")))
-    FAILCODE(dlitePythonError, "cannot import `site`");
+  if (!(file = PyMapping_GetItemString(dlitedict, "__file__")))
+    FAILCODE(dlitePythonError, "cannot access `dlite.__file__`");
 
-  if (!(prefixes = PyObject_GetAttrString(site, "PREFIXES")))
-    FAILCODE(dlitePythonError, "cannot access `site.PREFIXES`");
-
-  if (!(prefix0 = PyList_GetItem(prefixes, 0)))  // borrowed ref
-    FAILCODE(dlitePythonError, "cannot access `site.PREFIXES[0]`");
-
-  if (!(prefixbuf = PyUnicode_AsUTF8(prefix0)))  // borrowed ref
+  if (!(filename = PyUnicode_AsUTF8(file)))  // borrowed ref
     FAILCODE(dlitePythonError, "PyUnicode_AsUTF8() failed");
-  prefix = strdup(prefixbuf);
+  dirname = fu_dirname(filename);
 
  fail:
-  Py_XDECREF(site);
-  Py_XDECREF(prefixes);
-  return prefix;
+  Py_XDECREF(file);
+  return dirname;
 }

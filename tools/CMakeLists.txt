@@ -64,6 +64,6 @@ install(
 )
 install(
   DIRECTORY templates
-  DESTINATION ${Python3_PREFIX}share/dlite
+  DESTINATION ${DLITE_PKG_ROOT}/share/dlite
   PATTERN "*~" EXCLUDE
 )

@@ -86,7 +86,7 @@ FUPaths *dlite_python_mapping_paths(void)
       s = fu_paths_extend(&g->mapping_paths,
                           dlite_PYTHON_MAPPING_PLUGINS, NULL);
     else
-      s = fu_paths_extend_prefix(&g->mapping_paths, dlite_root_get(),
+      s = fu_paths_extend_prefix(&g->mapping_paths, dlite_pkg_root_get(),
                                  DLITE_PYTHON_MAPPING_PLUGIN_DIRS, NULL);
     if (s < 0) return dlite_err(1, "error initialising dlite python mapping "
                                 "plugin dirs"), NULL;

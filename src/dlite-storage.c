@@ -383,7 +383,7 @@ FUPaths *dlite_storage_paths(void)
                       "/bindings/python/dlite/share/dlite/storages");
       fu_paths_extend(g->storage_paths, dlite_STORAGES, "|");
     } else {
-      fu_paths_extend_prefix(g->storage_paths, dlite_root_get(),
+      fu_paths_extend_prefix(g->storage_paths, dlite_pkg_root_get(),
                              DLITE_STORAGES, "|");
     }
   }

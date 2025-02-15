@@ -71,6 +71,9 @@ paths apart from the defaults, which is either in the installation
 root (if DLITE_USE_BUILD_ROOT is not set) or build directory (if
 DLITE_USE_BUILD_ROOT is set).
 
+  - **DLITE_PKG_ROOT**: With Python, this is the root directory of the installed
+    DLite python package.  Without Python, this is the same as DLITE_ROOT.
+
   - **DLITE_STORAGE_PLUGIN_DIRS**: Search path for DLite storage plugins.
     The paths are separated by ";" on Windows and ":" on Linux.
 
