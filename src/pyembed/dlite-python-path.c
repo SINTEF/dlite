@@ -15,7 +15,8 @@
 char *dlite_python_site_prefix(void)
 {
   PyObject *site=NULL, *prefixes=NULL, *prefix0;
-  const char *prefix;
+  const char *prefixbuf;
+  char *prefix=NULL;
 
   dlite_pyembed_initialise();
 
@@ -28,13 +29,12 @@ char *dlite_python_site_prefix(void)
   if (!(prefix0 = PyList_GetItem(prefixes, 0)))  // borrowed ref
     FAILCODE(dlitePythonError, "cannot access `site.PREFIXES[0]`");
 
-  if (!(prefix = PyUnicode_AsUTF8(prefix0)))
+  if (!(prefixbuf = PyUnicode_AsUTF8(prefix0)))  // borrowed ref
     FAILCODE(dlitePythonError, "PyUnicode_AsUTF8() failed");
-
-  return strdup(prefix);
+  prefix = strdup(prefixbuf);
 
  fail:
   Py_XDECREF(site);
   Py_XDECREF(prefixes);
-  return NULL;
+  return prefix;
 }

@@ -150,19 +150,45 @@ class CMakeBuildExt(build_ext):
 
         env = os.environ.copy()
 
+        build_settings = [
+            "=================  BUILD SETTINGS  =================",
+            f"build_lib:     {self.build_lib}",
+            f"build_temp:    {self.build_temp}",
+            f"debug:         {self.debug}",
+            f"verbose:       {self.verbose}",
+            f"inplace:       {self.inplace}",
+            f"force:         {self.force}",
+            f"editable_mode: {self.editable_mode}",
+            "====================================================",
+        ]
+        sys.stdout.write("\n".join(build_settings) + "\n")
+        sys.stdout.flush()
+
+        # Configure
         subprocess.run(
             cmake_args,
             cwd=self.build_temp,
             env=env,
-            #capture_output=True,
             check=True,
         )
 
+        # Show configurations
+        if self.verbose:
+            subprocess.run(
+                ["cmake", "--build", ".", "--target", "show"],
+                cwd=self.build_temp,
+                env=env,
+                check=True,
+            )
+
+        # Build
+        build_args = ["cmake", "--build", ".", "--config", build_type]
+        if self.verbose >= 2:
+            build_args.append("--verbose")
         subprocess.run(
-            ["cmake", "--build", ".", "--config", build_type, "--verbose"],
+            build_args,
             cwd=self.build_temp,
             env=env,
-            #capture_output=True,
             check=True,
         )
 

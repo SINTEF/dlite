@@ -294,7 +294,7 @@ if(WITH_PYTHON)
   # Find Python installation directory (relative to CMAKE_INSTALL_PREFIX)
   if(NOT Python3_PKGDIR)
     execute_process(
-      COMMAND ${Python3_EXECUTABLE} -c "import site; print(site.getsitepackages()[0])"
+      COMMAND ${Python3_EXECUTABLE} -c "import site; print([p for p in site.getsitepackages() if 'site-packages' in p][0])"
       OUTPUT_VARIABLE Python3_PKGDIR
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
@@ -697,7 +697,7 @@ endif()
 
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
 set(dlite_LD_LIBRARY_PATH "")
-set(dlite_TEMP_LIBRARY_PATH "") 
+set(dlite_TEMP_LIBRARY_PATH "")
 build_append(dlite_TEMP_LIBRARY_PATH
   ${dlite_BINARY_DIR}/src
   ${dlite_BINARY_DIR}/src/utils
