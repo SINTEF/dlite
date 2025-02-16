@@ -71,7 +71,7 @@ FUPaths *dlite_python_protocol_paths(void)
       s = fu_paths_extend(&g->protocol_paths,
                           dlite_PYTHON_PROTOCOL_PLUGINS, NULL);
     else
-      s = fu_paths_extend_prefix(&g->protocol_paths, dlite_root_get(),
+      s = fu_paths_extend_prefix(&g->protocol_paths, dlite_pkg_root_get(),
                                  DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS, NULL);
     if (s < 0) return dlite_err(1, "error initialising dlite python protocol "
                                 "plugin dirs"), NULL;

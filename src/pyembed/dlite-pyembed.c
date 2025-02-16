@@ -128,15 +128,16 @@ static const ErrorCorrelation *error_correlations(void)
   return g->errcorr;
 }
 
-/* Initialises the embedded Python environment.
+/*
+  Initialises the embedded Python environment.
 
-   From DLite v0.6.0, this function will only initialise an new
-   internal Python interpreter if there are no initialised
-   interpreters in the process.  This means that if DLite is called
-   from Python, the plugins will be called from the calling Python
-   interpreter.
+  From DLite v0.6.0, this function will only initialise an new
+  internal Python interpreter if there are no initialised
+  interpreters in the process.  This means that if DLite is called
+  from Python, the plugins will be called from the calling Python
+  interpreter.
 
-   This function can be called more than once.
+  This function can be called more than once.
  */
 void dlite_pyembed_initialise(void)
 {

@@ -96,20 +96,37 @@ include(SetCompilerFlags)
 
 enable_c_compiler_flag_if_supported("-m64")
 
-# Enable compiler warnings
-if(CMAKE_COMPILER_IS_GNUCC)
+
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU")
   add_definitions(-D_GNU_SOURCE)
+  execute_process(COMMAND gcc -dumpfullversion OUTPUT_VARIABLE gcc_version)
+endif()
+
+# Enable compiler warnings
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" OR
+  CMAKE_C_COMPILER_ID STREQUAL "Clang" OR
+  CMAKE_C_COMPILER_ID STREQUAL "AppleClang"
+)
   enable_c_compiler_flag_if_supported("-Wall")
   enable_c_compiler_flag_if_supported("-Wextra")
   enable_c_compiler_flag_if_supported("-Wpedantic")
-  execute_process(COMMAND gcc -dumpfullversion OUTPUT_VARIABLE gcc_version)
   if(NOT ALLOW_WARNINGS AND "${gcc_version}" VERSION_GREATER_EQUAL 9.0)
     enable_c_compiler_flag_if_supported("-Werror")
+  endif()
+
+  # Remove optimisations for Debug / allow debug info
+  # FIXME: Doesn't deal with multi-config generators
+  # Sets CMAKE_C_FLAGS
+  if(CMAKE_BUILD_TYPE STREQUAL "Debug")
+    enable_c_compiler_flag_if_supported("-g")
+    enable_c_compiler_flag_if_supported("-O0")
+    # enable_c_compiler_flag_if_supported("-Og")
+    # add_definitions(-DWITH_DEBUG -D_DEBUG)
   endif()
 endif()
 
 # Define MINGW if we are running a GNU compiler on a Windows system
-if(CMAKE_COMPILER_IS_GNUCC AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
+if(CMAKE_C_COMPILER_ID STREQUAL "GNU" AND CMAKE_SYSTEM_NAME STREQUAL "Windows")
   set(MINGW TRUE)
   enable_c_compiler_flag_if_supported("-Wno-pragmas")
   enable_c_compiler_flag_if_supported("-Wno-unknown-pragmas")
@@ -135,6 +152,10 @@ endif()
 
 # Install paths
 # -------------
+
+# Ensure MacOS has rpaths set in libraries
+set(CMAKE_MACOSX_RPATH 1)
+
 
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
@@ -270,26 +291,10 @@ if(WITH_PYTHON)
   endif()
   unset(CMAKE_CROSSCOMPILING_EMULATOR)
 
-  # Find Python installation directory (relative to CMAKE_INSTALL_PREFIX)
-  if(NOT Python3_PKGDIR)
-    execute_process(
-      COMMAND ${Python3_EXECUTABLE} -c "import site; print(site.getsitepackages()[0])"
-      OUTPUT_VARIABLE Python3_PKGDIR
-      OUTPUT_STRIP_TRAILING_WHITESPACE
-    )
-  endif()
+  file(TO_CMAKE_PATH "${Python3_SITEARCH}" Python3_SITEARCH)
 
-  execute_process(
-    COMMAND ${Python3_EXECUTABLE} -c "import sys; print(sys.prefix)"
-    OUTPUT_VARIABLE Python3_prefix
-    OUTPUT_STRIP_TRAILING_WHITESPACE
-  )
-
-  file(RELATIVE_PATH Python3_SITE ${Python3_prefix} ${Python3_PKGDIR})
-  if(Python3_SITE)
-    set(Python3_PREFIX "${Python3_SITE}/dlite/")
-  else()
-    set(Python3_PREFIX "dlite/")
+  if(NOT DLITE_PKG_ROOT)
+    set(DLITE_PKG_ROOT "${Python3_SITEARCH}/dlite")
   endif()
 
   # Add linker flags for linking against Python
@@ -306,7 +311,7 @@ if(WITH_PYTHON)
   find_program(
     Python3_config
     NAMES ${Python3_EXECUTABLE}-config python3-config python-config
-    HINTS ${Python3_prefix}/bin
+    HINTS ${CMAKE_INSTALL_PREFIX}/bin
   )
 
   # Link libraries when compiling against static Python (e.g. manylinux)
@@ -334,13 +339,6 @@ if(WITH_PYTHON)
     endif()
   endif()
 
-  # Link libraries when compiling against static Python (e.g. cibuildwheel)
-  # if(DEFINED ENV{Python3_LIBRARY})
-  #   set(Python3_STATIC_LIBS $ENV{Python3_LIBRARY})
-  #   list(APPEND extra_link_libraries $ENV{Python3_LIBRARY})
-  # endif()
-  # message(STATUS "ENV{Python3_LIBRARY}: $ENV{Python3_LIBRARY}")
-
   add_custom_target(wheel
     COMMAND ${Python3_EXECUTABLE} -m pip wheel -w dist
         ${dlite_SOURCE_DIR}/python
@@ -348,19 +346,16 @@ if(WITH_PYTHON)
     COMMENT "Build Python wheels"
   )
 
-
-  message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
-  message(STATUS "Python3_prefix = ${Python3_prefix}")
-  message(STATUS "Python3_PKGDIR = ${Python3_PKGDIR}")
-  message(STATUS "Python3_SITE = ${Python3_SITE}")
-  message(STATUS "Python3_PREFIX = ${Python3_PREFIX}")
+  message(STATUS "Python3_SITEARCH = ${Python3_SITEARCH}")
   message(STATUS "Python3_LIBRARIES = ${Python3_LIBRARIES}")
   message(STATUS "Python3_EXECUTABLE = ${Python3_EXECUTABLE}")
   message(STATUS "Python3_INCLUDE_DIRS = ${Python3_INCLUDE_DIRS}")
   message(STATUS "Python3_NumPy_VERSION=${Python3_NumPy_VERSION}")
   message(STATUS "Python3_NumPy_INCLUDE_DIRS = ${Python3_NumPy_INCLUDE_DIRS}")
   message(STATUS "Python3_STATIC_LIBS = ${Python3_STATIC_LIBS}")
-
+  message(STATUS "Python3_LINK_OPTIONS = ${Python3_LINK_OPTIONS}")
+  #message(STATUS "Python3_LIBRARY_DIRS = ${Python3_LIBRARY_DIRS}")
+  #message(STATUS "Python3_RUNTIME_LIBRARY_DIRS = ${Python3_RUNTIME_LIBRARY_DIRS}")
 
   if (WIN32)
     # Prepare to workaround Anaconda issues on Windows
@@ -383,13 +378,15 @@ if(WITH_PYTHON)
   mark_as_advanced(ffi)
   get_filename_component(dlite_PATH_EXTRA ${ffi} DIRECTORY)
 
-  set(DLITE_PYTHONPATH
-    ${DLITE_LIBRARY_DIR}/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages)
-
-
+  set(DLITE_PYTHONPATH ${Python3_SITEARCH})
 else()
+  set(DLITE_PKG_ROOT "${DLITE_ROOT}")
   set(Python3_LIBRARIES "")
 endif()
+
+message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "DLITE_ROOT = ${DLITE_ROOT}")
+message(STATUS "DLITE_PKG_ROOT = ${DLITE_PKG_ROOT}")
 
 #
 # Fortran
@@ -412,14 +409,14 @@ if(extra_link_libraries MATCHES "^[ \t\n\r;]*$")
 endif()
 
 
-# DLite install paths (CMAKE_INSTALL_PREFIX) is prepended to these
-set(DLITE_TEMPLATE_DIRS               "${Python3_PREFIX}share/dlite/templates")
-set(DLITE_STORAGE_PLUGIN_DIRS         "${Python3_PREFIX}share/dlite/storage-plugins")
-set(DLITE_MAPPING_PLUGIN_DIRS         "${Python3_PREFIX}share/dlite/mapping-plugins")
-set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS  "${Python3_PREFIX}share/dlite/python-mapping-plugins")
-set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS  "${Python3_PREFIX}share/dlite/python-storage-plugins")
-set(DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS "${Python3_PREFIX}share/dlite/python-protocol-plugins")
-set(DLITE_STORAGES                    "${Python3_PREFIX}share/dlite/storages")
+# DLite install paths relative to DLITE_PKG_ROOT
+set(DLITE_TEMPLATE_DIRS               "share/dlite/templates")
+set(DLITE_STORAGE_PLUGIN_DIRS         "share/dlite/storage-plugins")
+set(DLITE_MAPPING_PLUGIN_DIRS         "share/dlite/mapping-plugins")
+set(DLITE_PYTHON_MAPPING_PLUGIN_DIRS  "share/dlite/python-mapping-plugins")
+set(DLITE_PYTHON_STORAGE_PLUGIN_DIRS  "share/dlite/python-storage-plugins")
+set(DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS "share/dlite/python-protocol-plugins")
+set(DLITE_STORAGES                    "share/dlite/storages")
 
 
 
@@ -428,6 +425,7 @@ set(DLITE_STORAGES                    "${Python3_PREFIX}share/dlite/storages")
 set(DLITE_CONFIG_VARS
   dlite_VERSION
   DLITE_ROOT
+  DLITE_PKG_ROOT
   DLITE_INCLUDE_DIRS
   DLITE_LIBRARY_DIR
   DLITE_RUNTIME_DIR
@@ -676,28 +674,40 @@ endif()
 
 # LD_LIBRARY_PATH - path to shared library directories (Linux only)
 set(dlite_LD_LIBRARY_PATH "")
-build_append(dlite_LD_LIBRARY_PATH
+set(dlite_TEMP_LIBRARY_PATH "")
+build_append(dlite_TEMP_LIBRARY_PATH
   ${dlite_BINARY_DIR}/src
   ${dlite_BINARY_DIR}/src/utils
   )
 if(WITH_PYTHON)
-  build_append(dlite_LD_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
+  build_append(dlite_TEMP_LIBRARY_PATH ${dlite_BINARY_DIR}/src/pyembed)
 endif()
+
 #list(APPEND dlite_LD_LIBRARY_PATH
 #  ${HDF5_RUNTIME_DIR}
 #  )
-list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 
 # PYTHONPATH - Python search path for modules and packages
 set(dlite_PYTHONPATH
   ${dlite_BINARY_DIR}/bindings/python
   $ENV{PYTHONPATH}
 )
+
+# MacOS cannot use LD_LIBRARY_PATH on versions with System Integrity Protection (SIP)
+# so add to PYTHONPATH instead
+if(APPLE)
+  list(APPEND dlite_PYTHONPATH ${dlite_TEMP_LIBRARY_PATH})
+elseif(UNIX)
+  set(dlite_LD_LIBRARY_PATH dlite_TEMP_LIBRARY_PATH)
+  list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
+endif()
+unset(dlite_TEMP_LIBRARY_PATH)
+
 if(dlite_PYTHONPATH)
   list(REMOVE_DUPLICATES dlite_PYTHONPATH)
 endif()
 if(NOT dlite_PYTHONPATH MATCHES "\\\\")
-  string(REPLACE "\\" "\\\\" dlite_PYTHONPATH ${dlite_PYTHONPATH})
+  list(TRANSFORM dlite_PYTHONPATH REPLACE "\\\\" "\\\\\\\\")
 endif()
 
 # DLITE_STORAGE_PLUGIN_DIRS - search path for DLite storage plugins
@@ -804,11 +814,11 @@ string(REPLACE ";" "|" dlite_STORAGES_WINDOWS "${dlite_STORAGES_WINDOWS}")
 set(test_env
   "========== Test environment ========="
   "export DLITE_ROOT=${DLITE_ROOT}"
-  "export PATH=${dlite_PATH}"
-  "dlite_PATH_NATIVE=${dlite_PATH_NATIVE}"
+  "export PATH=${dlite_PATH_NATIVE}"
+  "dlite_PATH=${dlite_PATH}"
   "export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}"
-  "export PYTHONPATH=${dlite_PYTHONPATH}"
-  "PYTHONPATH_NATIVE=${dlite_PYTHONPATH_NATIVE}"
+  "export PYTHONPATH=${dlite_PYTHONPATH_NATIVE}"
+  "PYTHONPATH=${dlite_PYTHONPATH}"
   "export DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}"
   "export DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}"
   "export DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}"

@@ -98,7 +98,7 @@ FUPaths *dlite_python_storage_paths(void)
     if (dlite_use_build_root())
       s = fu_paths_extend(&g->paths, dlite_PYTHON_STORAGE_PLUGINS, NULL);
     else
-      s = fu_paths_extend_prefix(&g->paths, dlite_root_get(),
+      s = fu_paths_extend_prefix(&g->paths, dlite_pkg_root_get(),
                                  DLITE_PYTHON_STORAGE_PLUGIN_DIRS, NULL);
     if (s < 0) return dlite_err(1, "error initialising dlite python storage "
                                 "plugin dirs"), NULL;

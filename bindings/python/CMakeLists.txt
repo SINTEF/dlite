@@ -82,6 +82,15 @@ set_target_properties(dlitepy PROPERTIES
   OUTPUT_NAME "dlite"
   )
 
+
+# Python only looks for .so for compiled extension modules on all Unix platforms including MacOS
+# which would usually use .dylib thus change for just the extension module.
+if(APPLE)
+  set_target_properties(dlitepy PROPERTIES
+    SUFFIX ".so"
+  )
+endif()
+
 swig_link_libraries(dlitepy
   dlite
   dlite-utils
@@ -244,36 +253,30 @@ add_dependencies(
 # Install
 # -------
 # Based on: http://developer.intra2net.com/git/?p=libftdi;a=blob;f=python/CMakeLists.txt;h=93410544fac2a45eec51cb8dd344708b3bbdfe67;hb=HEAD
-if(UNIX)
-  set(pyext_ext ".so")
-else()
-  set(pyext_ext ".pyd")
-endif()
-
 install(
   DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/dlite
-  DESTINATION "${Python3_SITE}"
+  DESTINATION "${Python3_SITEARCH}"
   USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-mapping-plugins
-  DESTINATION ${Python3_PREFIX}share/dlite
+  DESTINATION ${DLITE_PKG_ROOT}/share/dlite
   USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
 install(
   DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/python-protocol-plugins
-  DESTINATION ${Python3_PREFIX}share/dlite
+  DESTINATION ${DLITE_PKG_ROOT}/share/dlite
   USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*~" EXCLUDE
 )
 install(
   DIRECTORY ${dlite_SOURCE_DIR}/storages/python/python-storage-plugins
-  DESTINATION ${Python3_PREFIX}share/dlite
+  DESTINATION ${DLITE_PKG_ROOT}/share/dlite
   USE_SOURCE_PERMISSIONS
   PATTERN ".gitignore" EXCLUDE
   PATTERN "*.json" EXCLUDE

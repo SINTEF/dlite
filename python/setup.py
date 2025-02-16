@@ -37,16 +37,12 @@ if platform.system() == "Linux":
         # Will always have CMake version >= 3.14 (see `CMakeLists.txt`)
         "-DPython3_FIND_VIRTUALENV=ONLY",
         "-DPython3_FIND_IMPLEMENTATIONS=CPython",
+
+        f"-DPython3_EXECUTABLE={sys.executable}",
+        "-DCMAKE_INSTALL_PREFIX="
+        f"{site.USER_BASE if '--user' in sys.argv else sys.prefix}",
+
     ]
-    if not bool(int(os.getenv("CIBUILDWHEEL", "0"))):
-        # Not running with `cibuildwheel`
-        CMAKE_ARGS.extend(
-            [
-                f"-DPython3_EXECUTABLE={sys.executable}",
-                "-DCMAKE_INSTALL_PREFIX="
-                f"{site.USER_BASE if '--user' in sys.argv else sys.prefix}",
-            ]
-        )
 elif platform.system() == "Windows":
     dlite_compiled_ext = "_dlite.pyd"
     dlite_compiled_dll_suffix = "*.dll"
@@ -154,19 +150,46 @@ class CMakeBuildExt(build_ext):
 
         env = os.environ.copy()
 
+        build_settings = [
+            "=================  BUILD SETTINGS  =================",
+            f"platform:      {platform.system()}",
+            f"build_lib:     {self.build_lib}",
+            f"build_temp:    {self.build_temp}",
+            f"debug:         {self.debug}",
+            f"verbose:       {self.verbose}",
+            f"inplace:       {self.inplace}",
+            f"force:         {self.force}",
+            f"editable_mode: {self.editable_mode}",
+            "====================================================",
+        ]
+        sys.stdout.write("\n".join(build_settings) + "\n")
+        sys.stdout.flush()
+
+        # Configure
         subprocess.run(
             cmake_args,
             cwd=self.build_temp,
             env=env,
-            #capture_output=True,
             check=True,
         )
 
+        # Show configurations
+        if self.verbose and platform.system() != "Windows":
+            subprocess.run(
+                ["cmake", "--build", ".", "--target", "show"],
+                cwd=self.build_temp,
+                env=env,
+                check=True,
+            )
+
+        # Build
+        build_args = ["cmake", "--build", ".", "--config", build_type]
+        if self.verbose >= 2:
+            build_args.append("--verbose")
         subprocess.run(
-            ["cmake", "--build", ".", "--config", build_type, "--verbose"],
+            build_args,
             cwd=self.build_temp,
             env=env,
-            #capture_output=True,
             check=True,
         )
 
