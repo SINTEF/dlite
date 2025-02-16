@@ -7,7 +7,7 @@ project(pytestdebug
 add_compile_options("-g")
 
 
-find_package(Python3 REQUIRED COMPONENTS Interpreter Development NumPy)
+find_package(Python3 REQUIRED COMPONENTS Interpreter Development)
 
 find_package(SWIG)
 include(UseSWIG)

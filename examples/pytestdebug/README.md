@@ -15,13 +15,13 @@ Steps to reproduce the bug
 
 1. Create a virtual environment and install dependencies
 
-       python -m venv env
+       python3 -m venv env
        source env/bin/activate
        pip install .
 
 2. Build and install pytestdebug package
 
-       cd pytestdebug
+       cd pytestdebug  # Root directory of the pytestdebug example
        mkdir build
        cd build
        cmake ..
