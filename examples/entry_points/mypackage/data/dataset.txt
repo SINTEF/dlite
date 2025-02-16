@@ -1,0 +1,6 @@
+measurements: 4
+time  temperature
+0     20
+10    70
+20    80
+30    85

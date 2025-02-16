@@ -55,7 +55,7 @@ int utf8decode(const char *text, long *unicode_value);
 
 Invalid UTF-8 sequences are reported as being zero bytes long.
 
-NOTE: A NULL terminator byte is automatically added to the end of the output.
+NOTE: A NUL terminator byte is automatically added to the end of the output.
 
 @param value The unicode character to be encoded as a UTF-8 sequence.
 @param output If provided, the character will be written in UTF-8 format here.

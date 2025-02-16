@@ -93,7 +93,7 @@ int utf8encode(long value, char *output)
       output[3] = 128 + ((value >> 12) & 63);
       output[4] = 128 + ((value >>  6) & 63);
       output[5] = 128 + ((value >>  0) & 63);
-      output[6] = 0;  /* NULL terminator. */
+      output[6] = 0;  /* NUL terminator. */
     }
     return 6;
   }
@@ -109,7 +109,7 @@ int utf8encode(long value, char *output)
       output[2] = 128 + ((value >> 12) & 63);
       output[3] = 128 + ((value >>  6) & 63);
       output[4] = 128 + ((value >>  0) & 63);
-      output[5] = 0;  /* NULL terminator. */
+      output[5] = 0;  /* NUL terminator. */
     }
     return 5;
   }
@@ -124,7 +124,7 @@ int utf8encode(long value, char *output)
       output[1] = 128 + ((value >> 12) & 63);
       output[2] = 128 + ((value >>  6) & 63);
       output[3] = 128 + ((value >>  0) & 63);
-      output[4] = 0;  /* NULL terminator. */
+      output[4] = 0;  /* NUL terminator. */
     }
     return 4;
   }
@@ -138,7 +138,7 @@ int utf8encode(long value, char *output)
       output[0] = 224 + ((value >> 12) & 15);
       output[1] = 128 + ((value >>  6) & 63);
       output[2] = 128 + ((value >>  0) & 63);
-      output[3] = 0;  /* NULL terminator. */
+      output[3] = 0;  /* NUL terminator. */
     }
     return 3;
   }
@@ -151,7 +151,7 @@ int utf8encode(long value, char *output)
     {
       output[0] = 192 + ((value >>  6) & 31);
       output[1] = 128 + ((value >>  0) & 63);
-      output[2] = 0;  /* NULL terminator. */
+      output[2] = 0;  /* NUL terminator. */
     }
     return 2;
   }
@@ -163,7 +163,7 @@ int utf8encode(long value, char *output)
     if (output)
     {
       output[0] = (char)value;
-      output[1] = 0;  /* NULL terminator. */
+      output[1] = 0;  /* NUL terminator. */
     }
     return 1;
   }

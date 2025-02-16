@@ -22,6 +22,10 @@
 #include "dlite-macros.h"
 #include "dlite-errors.h"
 
+#ifdef WITH_PYTHON
+#include "pyembed/dlite-python-path.h"
+#endif
+
 /* Global variables */
 static int use_build_root = -1;   /* whether to use build root */
 static int dlite_platform = 0;    /* dlite platform */
@@ -414,6 +418,29 @@ const char *dlite_root_get(void)
     dlite_root = (v) ? v : DLITE_ROOT;
   }
   return dlite_root;
+}
+
+/*
+  Returns pointer to the DLite package installation root.
+
+  It may be altered with environment variable DLITE_PKG_ROOT.
+  With Python, it defaults to the DLite Python root directory, otherwise
+  it defaults to DLITE_ROOT.
+
+*/
+const char *dlite_pkg_root_get(void)
+{
+  static char *dlite_pkg_root = NULL;
+  if (!dlite_pkg_root) {
+    char *v = getenv("DLITE_PKG_ROOT");
+    dlite_pkg_root = (v) ? v :
+#ifdef WITH_PYTHON
+      dlite_python_root();
+#else
+      DLITE_PKG_ROOT;
+#endif
+  }
+  return dlite_pkg_root;
 }
 
 

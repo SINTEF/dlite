@@ -226,6 +226,16 @@ void dlite_set_use_build_root(int v);
 */
 const char *dlite_root_get(void);
 
+/**
+  Returns pointer to the DLite package installation root.
+
+  It may be altered with environment variable DLITE_PKG_ROOT.
+  With Python, it defaults to the DLite Python root directory, otherwise
+  it defaults to DLITE_ROOT.
+
+*/
+const char *dlite_pkg_root_get(void);
+
 
 /**
   On Windows, this function adds default directories to the DLL search

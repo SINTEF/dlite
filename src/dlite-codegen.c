@@ -492,7 +492,7 @@ FUPaths *dlite_codegen_path_get(void)
     if (dlite_use_build_root())
       fu_paths_extend(&g->template_paths, dlite_TEMPLATES, NULL);
     else
-      fu_paths_extend_prefix(&g->template_paths, dlite_root_get(),
+      fu_paths_extend_prefix(&g->template_paths, dlite_pkg_root_get(),
                              DLITE_TEMPLATE_DIRS, NULL);
 
     g->template_paths_initialised = 1;

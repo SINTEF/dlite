@@ -37,7 +37,7 @@ jobs:
       # workflow for Linux systems.
     - name: Install dependencies
       run: |
-        sudo apt-get update --fix-missing && \
+        sudo apt-get update --fix-missing
         sudo apt-get install \
           libxml2-dev \
           libxslt-dev \
