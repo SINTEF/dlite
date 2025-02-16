@@ -60,9 +60,9 @@ Steps to reproduce the bug
    shows that the NULL comes from the Python library function `PyType_FromSpec()`
    returning NULL, although that the `spec` argument is fully legal.
 
-   Further debugging requires digging into the Python source code.
-   But from this it is seems very likely that pytest during its collection phase
-   calls the SWIG-generated interface before Python is properly initialised.
+Further debugging requires digging into the Python source code.
+But from this it is seems very likely that pytest during its collection phase
+calls the SWIG-generated interface before Python is properly initialised.
 
 
 Conclusion
