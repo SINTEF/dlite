@@ -65,9 +65,6 @@ But from this it is seems very likely that pytest during its collection phase
 calls the SWIG-generated interface before Python is properly initialised.
 
 
-Conclusion
-----------
-Don't set `filterwarnings = ["error"]` in pytest.
-
-Alternatively, select a more decent testing framework that doesn't loads modules
-without importing them properly.
+Summary
+-------
+Don't set `filterwarnings = ["error"]` in pytest for projects with SWIG-generated modules.
