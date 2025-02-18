@@ -68,3 +68,8 @@ calls the SWIG-generated interface before Python is properly initialised.
 Summary
 -------
 Don't set `filterwarnings = ["error"]` in pytest for projects with SWIG-generated modules.
+
+
+This example was created on Fedora 38 and Python: 3.11.
+The same segfault has also been seen with Ubuntu and several different versions of Python.
+See `pyproject.toml` for versions of SWIG and other Python packages.
