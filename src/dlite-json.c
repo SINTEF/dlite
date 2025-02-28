@@ -10,7 +10,6 @@
 #include "utils/compat.h"
 #include "utils/strutils.h"
 
-#include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-json.h"

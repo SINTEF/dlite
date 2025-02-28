@@ -4,7 +4,6 @@
 #include <string.h>
 
 #include "utils/err.h"
-#include "getuuid.h"
 #include "dlite-macros.h"
 #include "dlite-store.h"
 

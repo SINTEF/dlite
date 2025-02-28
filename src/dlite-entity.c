@@ -13,7 +13,6 @@
 #include "utils/sha3.h"
 #include "utils/rng.h"
 
-#include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-type.h"

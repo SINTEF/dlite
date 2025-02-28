@@ -13,7 +13,6 @@
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
 #include "dlite-storage-plugins.h"
-#include "getuuid.h"
 
 #define GLOBALS_ID "dlite-storage-id"
 #define HOTLIST_CHUNK_LENGTH 8

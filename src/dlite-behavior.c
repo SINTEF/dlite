@@ -24,9 +24,12 @@ static DLiteBehavior behavior_table[] = {
   { "singleInterpreter",           "0.5.17",  "0.7.0",   "0.9.0",
     "Evaluate Python plugins from calling interpreter when DLite is called "
     "from Python.  The old behavior is to call the plugins from an internal "
-    "interpreter", -1 },
+    "interpreter", -1},
   { "storageQuery",                "0.5.23",  "0.6.0",   "0.8.0",
     "Fix typo and rename method queue() to query() in storage plugins.", -1},
+  { "namespacedID",                "0.5.30",  "0.6.0",   "0.8.0",
+    "Prefix instance IDs that are neither an URI or an UUID with the URI of "
+    "the metadata.", -1},
   { NULL,                          NULL,      NULL,      NULL,     NULL, 0 }
 };
 
