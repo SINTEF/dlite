@@ -7,7 +7,7 @@
 
 #include "utils/compat-src/getopt.h"
 #include "utils/err.h"
-#include "getuuid.h"
+#include "dlite-misc.h"
 
 
 void help()
@@ -40,9 +40,9 @@ int main(int argc, char *argv[])
     return 0;
   }
   if (argc <= 1)
-    getuuid(buff, NULL);
+    dlite_get_uuid(buff, NULL);
   else if (argc == 2)
-    getuuid(buff, argv[1]);
+    dlite_get_uuid(buff, argv[1]);
   else
     return err(1, "dgetuuid: too many arguments.  Try `dgetuuid -h`.");
 

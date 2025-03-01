@@ -140,9 +140,8 @@ DLiteInstance *dlite_store_pop(DLiteStore *store, const char *id)
 {
   item_t *item;
   DLiteInstance *inst;
-  int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
-  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == UUID_RANDOM)
+  if ((dlite_get_uuid(uuid, id)) <= dliteIdRandom)
     FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
   if (!(item = (item_t *)map_get(&store->map, uuid)))
     FAIL1("id '%s' is not in store", id);
@@ -164,7 +163,7 @@ DLiteInstance *dlite_store_pop_all(DLiteStore *store, const char *id)
   DLiteInstance *inst;
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
-  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == UUID_RANDOM)
+  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == dliteIdRandom)
     FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
   if (!(item = (item_t *)map_get(&store->map, uuid)))
     FAIL1("id '%s' is not in store", id);
@@ -213,7 +212,7 @@ DLiteInstance *dlite_store_get(const DLiteStore *store, const char *id)
   item_t *item;
   int uuidver;
   char uuid[DLITE_UUID_LENGTH+1];
-  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == UUID_RANDOM)
+  if ((uuidver = dlite_get_uuid(uuid, id)) < 0 || uuidver == dliteIdRandom)
     FAIL1("id '%s' is neither a valid UUID or a convertable string", id);
   if (!(item = (item_t *)map_get(&((DLiteStore *)store)->map, uuid)))
     FAIL1("id '%s' not in store", id);

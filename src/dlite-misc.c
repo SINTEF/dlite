@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <ctype.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
@@ -17,6 +18,8 @@
 #include "utils/rng.h"
 #include "utils/uri_encode.h"
 #include "utils/urlsplit.h"
+#include "utils/uuid.h"
+#include "utils/uuid4.h"
 #include "utils/globmatch.h"
 //#include "getuuid.h"
 #include "dlite.h"
@@ -84,41 +87,116 @@ int dlite_isinstanceuri(const char *s, int len)
 }
 
 
-///*
-//  Write normalised `id` to `buff`, which is a buffer of size `n`.
-//
-//  If `id` is
-//
-//  If `id` is neither a valid UUID or URI, the result depends on the
-//  `namespacedID` behaviour.
-//
-//    - If namespacedID is on, `id` is prepended with `uri` followed by a
-//      slash (/).  It is an error `uri` is NULL.
-//    - If namespacedID is off, `id` is copied as-is to `buff`.
-//
-//  A final hash or slash in `id` is stripped off.
-//
-//  Return the number of bytes written `buff` (excluding the terminating
-//  NUL) or would have been written to `buff` if it is not large enough.
-//  A negative number is returned on error.
-// */
-//int dlite_normalise_id(char *buff, size_t n, const char *id, size_t len, const char *uri)
-//{
-//  int m=0;
-//  if (len == 0) len = strlen(id);
-//  if (strchr("/#", id[len-1])) len--;
-//
-//  if (len == DLITE_UUID_LENGTH && isuuid(id)) {
-//    return snprintf(buff, n, "%.*s", len, id);
-//  } else if (dlite_isinstanceuri(id, len))
-//    return snprintf(buff, n, "%.*s", len, id);
-//
-//  if (dlite_behavior_get("namespacedID")) {
-//    if () ;
-//  } else {
-//
-//  }
-//}
+/*
+  Returns non-zero if `id` is a valid UUID.
+*/
+int dlite_isuuid(const char *id)
+{
+  return isuuid(id);
+}
+
+/*
+  Returns the ID type of `id`.
+ */
+DLiteIdType dlite_idtype(const char *id)
+{
+  return dlite_idtypen(id, (id) ? strlen(id) : 0);
+}
+
+/*
+  Like dlite_idtype(), but takes the the length of `id` as an
+  additional argument.
+*/
+DLiteIdType dlite_idtypen(const char *id, int len)
+{
+  if (!len || !id || !*id) return dliteIdRandom;
+
+  if (id[len-1] && strchr("/#", id[len-1])) len--;
+
+  if (len == DLITE_UUID_LENGTH && isuuid(id)) return dliteIdCopy;
+
+  if (isurln(id, len))
+    return (len > DLITE_UUID_LENGTH+9 && isuuid(id + len-DLITE_UUID_LENGTH)) ?
+      dliteIdCopy : dliteIdHash;
+
+  return dliteIdHash;
+}
+
+/*
+  Write normalised `id` to `buff`, which is a buffer of size `n`.
+
+  The normalisation is done according to the following table:
+
+  | ID             | Normalised ID  |
+  |----------------|----------------|
+  | NULL           | NULL           |
+  | *uuid*         | *ns* / *uuid*  |
+  | *uri* / *uuid* | *uri* / *uuid* |
+  | *uri*          | *uri*          |
+  | *id*           | *ns* / *id*    |
+
+  where;
+
+  - *uuid* is a valid UUID. Ex: "0a46cacf-ce65-5b5b-a7d7-ad32deaed748"
+  - *ns* is the predefined namespace string "http://onto-ns.com/data"
+  - *uri* is a valid URI with no query or fragment parts.
+    Ex: "http://onto-ns.com/meta/0.1/MyDatamodel"
+  - *id* is a string that is neither a UUID or a URL. Ex: "aa6060"
+
+  A final hash or slash in `id` is stripped off.
+
+  Return the number of bytes written `buff` (excluding the terminating
+  NUL) or would have been written to `buff` if it is not large enough.
+  A negative number is returned on error.
+ */
+int dlite_normalise_id(char *buff, size_t n, const char *id, const char *uri)
+{
+  return dlite_normalise_idn(buff, n, id, (id) ? strlen(id) : 0, uri);
+}
+
+/*
+  Like dlite_normalise_id(), but takes `len`, the the length of `id` as an
+  additional argument.
+*/
+int dlite_normalise_idn(char *buff, size_t n,
+                        const char *id, size_t len,
+                        const char *uri)
+{
+  // id: NULL
+  if (!len || !id || !*id) {
+    if (n > 0) buff[0] = '\0';
+    return 0;
+  }
+
+  //if (len == 0) len = strlen(id);
+  //if (id[len-1] && strchr("/#", id[len-1])) len--;
+
+  // id: uri/uuid, uri
+  if (isurln(id, len)) {
+    int m = len - DLITE_UUID_LENGTH;
+    if (len > DLITE_UUID_LENGTH+9 && isuuid(id+m))
+      return snprintf(buff, n, "%.*s", DLITE_UUID_LENGTH, id+m);
+    return snprintf(buff, n, "%.*s", (int)len, id);
+  }
+
+  if (!uri) uri = DLITE_NS_DATA;
+  char *sep = (strchr("/#", uri[strlen(uri)-1])) ? "" : "/";
+
+  // id: uuid, id
+  return snprintf(buff, n, "%s%s%.*s", uri, sep, (int)len, id);
+}
+
+
+/*
+  Write a version 5 UUID hash (using the DNS namespace) of the `len`
+  first characters of `id` to `buff`.
+*/
+static void uuid5n(char *buff, const char *id, size_t len)
+{
+  uuid_s uuid;
+  uuid_create_sha1_from_name(&uuid, NameSpace_DNS, id, len);
+  uuid_as_string(&uuid, buff);
+}
 
 /*
   Writes instance UUID to `buff` based on `id`.
@@ -126,78 +204,90 @@ int dlite_isinstanceuri(const char *s, int len)
   Whether and what kind of UUID that is generated depends on `id`:
 
     - If `id` is NULL or empty, a new random version 4 UUID is generated.
+      Returns dliteIdRandom
     - If `id` is a valid UUID, it is copied to `buff`.
-    - If `id` is a valid URL that ends with an UUID, the part is copied
+      Returns dliteIdCopy
+    - If `id` is a valid URL that ends with an UUID, the UUID part is copied
       to `buff`.
-    - Otherwise, a new version 5 sha1-based UUID is generated using
-      the DNS namespace. What it is generated from depends on the
-      `namespacedID` behaviour.
+      Returns dliteIdCopy
+    - If `id` is a valid URL (that doesn't ends with an UUID), a hash
+      of `id` is written to `buff`.
+      Returns dliteIdHash
+    - Otherwise, the generated uuid depends on the `namespacedID` behaviour.
 
-        - If `namespacedID` is on and `id` is a valid URL, the UUID is
-          generated from `id`.
-        - If `namespacedID` is on and `id` is not a valid URL, the
-          UUID is generated from the string constructed by concatenating
-          the strings `uri`, "/" and `id`. A `dliteMissingMetadataError` is
-          returned if `uri` is NULL.
+        - If `namespacedID` is on, the UUID is generated from
+          `ns`/`id`, where `ns` is DLITE_NS_DATA.
         - If `namespacedID` is off, the UUID is generated from `id`.
+
+      Returns dliteIdHash
 
   Length of `buff` must at least (DLITE_UUID_LENGTH + 1) bytes (36 bytes
   for UUID + NUL termination).
 
-  Returns the UUID version if a new UUID is generated or zero if `id`
-  is already a valid UUID.  On error, a negative error code is returned.
+  Returns the DLite ID type or a negative error code on error.
  */
-int dlite_get_uuid(char *buff, const char *id, const char *uri)
+DLiteIdType dlite_get_uuid(char *buff, const char *id)
 {
-  return dlite_getuuidn(buff, id, uri, 0);
+  return dlite_get_uuidn(buff, id, (id) ? strlen(id) : 0);
 }
 
 /*
   Like dlite_get_uuid(), but takes the the length of `id` as an
   additional parameter.
  */
-int dlite_get_uuidn(char *buff, const char *id, const char *uri, size_t len)
+DLiteIdType dlite_get_uuidn(char *buff, const char *id, size_t len)
 {
-  int version;
+  DLiteIdType type;
 
-  if (!id || !*id) {
-    int status = uuid4_generate(buff);
-    if (status) return err(dliteRuntimeError, "cannot generate version 4 UUID");
-    return UUID_RANDOM;
-  }
-
-  if (len == 0) len = strlen(id);
-  if (id[len-1] && strchr("/#", id[len-1])) len--;
-
-  if (len == DLITE_UUID_LENGTH && dlite_isuuid(id)) {
-    strncpy(buff, id, DLITE_UUID_LENGTH);
-    buff[DLITE_UUID_LENGTH] = '\0';
-    return UUID_COPY;
-  } else if (isurln(id, len))
-
-
-  } else if (dlite_isinstanceuri(id, len)) {
-    len -= DLITE_UUID_LENGTH;
-    assert(len > 0);
-    strncpy(buff, id+len, DLITE_UUID_LENGTH);
-    buff[DLITE_UUID_LENGTH] = '\0';
-    return UUID_EXTRACT;
-  } else if (dlite_behavior_get("namespacedID")) {
-    if (!uri) return err(dliteMissingMetadataError,
-                         "missing metadata URI when inferring UUID for "
-                         "instance id '%s'", id);
-
-
-     uuid_create_sha1_from_name(&uuid, NameSpace_DNS, id, len);
-    uuid_as_string(&uuid, buff);
-    version = UUID_HASH;
-
+  if (!len || !id || !*id) {  // id: NULL
+    if (uuid4_generate(buff))
+      return err(dliteRuntimeError, "cannot generate version 4 UUID");
+    type = dliteIdRandom;
   } else {
-    uuid_create_sha1_from_name(&uuid, NameSpace_DNS, id, len);
-    uuid_as_string(&uuid, buff);
-    return UUID_HASH;
+    //if (len == 0) len = strlen(id);
+    //if (id[len-1] && strchr("/#", id[len-1])) len--;
+
+    if (len == DLITE_UUID_LENGTH && isuuid(id)) {  // id: uuid
+      strncpy(buff, id, DLITE_UUID_LENGTH);
+      buff[DLITE_UUID_LENGTH] = '\0';
+      type = dliteIdCopy;
+    } else if (isurln(id, len)) {  // id: uri/uuid, uri
+      int m = len - DLITE_UUID_LENGTH;
+      if (m > 9 && isuuid(id+m)) {
+        strncpy(buff, id+m, DLITE_UUID_LENGTH);
+        buff[DLITE_UUID_LENGTH] = '\0';
+        type = dliteIdCopy;
+      } else {
+        uuid5n(buff, id, len);
+        type = dliteIdHash;
+      }
+    } else if (dlite_behavior_get("namespacedID")) {  // id: id
+      char tmp[256], *s;
+      size_t needed_len = len + sizeof(DLITE_NS_DATA) + 2;
+      if (needed_len <= sizeof(tmp)) {
+        snprintf(tmp, sizeof(tmp), "%s/%*.s", DLITE_NS_DATA, (int)len, id);
+        uuid5n(buff, tmp, sizeof(tmp));
+      } else {
+        if (!(s = malloc(needed_len)))
+          return err(dliteMemoryError, "allocation failure");
+        uuid5n(buff, s, needed_len-1);
+        free(s);
+      }
+      type = dliteIdHash;
+    } else {  // id: id
+      uuid5n(buff, id, len);
+      type = dliteIdHash;
+    }
   }
+
+  /* For reprodusability, always convert to lower case */
+  int i;
+  for (i=0; i < DLITE_UUID_LENGTH; i++)
+    buff[i] = tolower(buff[i]);
+
+  return type;
 }
+
 
 /*
   Returns an unique uri for metadata defined by `name`, `version`
