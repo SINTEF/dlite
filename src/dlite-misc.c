@@ -210,6 +210,17 @@ DLiteIdType dlite_get_uuid(char *buff, const char *id)
  */
 DLiteIdType dlite_get_uuidn(char *buff, const char *id, size_t len)
 {
+  int namespacedID = dlite_behavior_get("namespacedID");
+  return _dlite_get_uuidn(buff, id, len, namespacedID);
+}
+
+/*
+  Internal help-function for dlite_get_uuidn(), which takes the
+  namespacedID behavior as argument.
+ */
+DLiteIdType _dlite_get_uuidn(char *buff, const char *id, size_t len,
+                             int namespacedID)
+{
   DLiteIdType type;
 
   if (!len || !id || !*id) {  // id: NULL
@@ -231,7 +242,7 @@ DLiteIdType dlite_get_uuidn(char *buff, const char *id, size_t len)
         uuid5n(buff, id, len);
         type = dliteIdHash;
       }
-    } else if (dlite_behavior_get("namespacedID")) {  // id: id
+    } else if (namespacedID) {  // id: id
       char tmp[256], *s;
       size_t needed_len = len + sizeof(DLITE_DATA_NS) + 1;
 

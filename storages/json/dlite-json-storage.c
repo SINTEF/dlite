@@ -262,7 +262,7 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   }
   if (!buf && !(buf = jstore_get(js->jstore, id)))
       goto fail;
-  if (dlite_get_uuid(uuid, id) == dliteIdCopy) {
+  if (dlite_isuuid(id)) {
     /* the provided id is an uuid - check if a human readable id has been
        assoicated with `id` as a label */
     if (!(scanid = jstore_get_label(js->jstore, id))) scanid = id;

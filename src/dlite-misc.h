@@ -141,6 +141,12 @@ DLiteIdType dlite_get_uuid(char *buff, const char *id);
  */
 DLiteIdType dlite_get_uuidn(char *buff, const char *id, size_t len);
 
+/*
+  Internal help-function for dlite_get_uuidn(), which takes the
+  namespacedID behavior as argument.
+ */
+DLiteIdType _dlite_get_uuidn(char *buff, const char *id, size_t len,
+                             int namespacedID);
 
 /**
   Returns an unique uri for metadata defined by `name`, `version`

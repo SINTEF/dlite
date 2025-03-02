@@ -598,8 +598,13 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   if (id && *id) {
     char uuid2[DLITE_UUID_LENGTH+1];
     if (dlite_get_uuid(uuid2, id) < 0) goto fail;
-    if (strcmp(uuid, uuid2) != 0)
-      FAIL3("instance has id \"%s\", expected \"%s\" (%s)", uuid, uuid2, id);
+    if (strcmp(uuid, uuid2) != 0) {
+      dlite_warn("Instance \"%s\" include an URI \"%s\" whos UUID (%s) is "
+                 "inconsistent with the instance UUID (%s). "
+                 "This may be due to the namespacedID behavior change. "
+                 "Ignoring the URI.", id, uri, uuid, uuid2);
+      uri = NULL;
+    }
   }
   if (uri) id = uri;
 
