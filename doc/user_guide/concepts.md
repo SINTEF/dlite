@@ -162,62 +162,6 @@ URIs do not have to be resolvable, but it is good practice that they
 resolves to their definition.
 
 
-### Instances
-Instances are identified by a [universally unique identifier (UUID)][UUID],
-which is a 128 bit label expressed as a string of the form
-`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx`, where the `x`es are hexadecimal digits
-in the range [0-9a-fA-F].
-
-Since data models are subclasses of instances and instances, as
-described below, are uniquely identified by their UUID, data models
-also have UUIDs. The UUID of a data model is calculated as a version 5
-SHA1-based UUID hash of the data model URI using the DNS namespace
-(with an optional final hash (#) or slash (/) stripped off).
-
-DLite also allows the user to identify a data instance with a human
-readable ID.
-Like for metadata, the UUID will then be calculated as a hash of the
-ID according to the following rules:
-
-  - If ID ends with a final hash (#) or slash (/), it will be stripped off,
-    before matching against the cases below.
-
-    _**Example**: http://onto-ns.com/meta/0.3/EntitySchema/.
-    The UUID of http://onto-ns.com/meta/0.3/EntitySchema will be returned._
-
-  - If ID is a valid UUID, it is returned unchanged.
-
-    _**Example**: 7cd8e521-0514-4b65-bee5-d9d4dd989967_
-
-  - If ID matches `<URI>/<UUID>` where `<URI>` is a valid URI and
-    `<UUID>` is a valid UUID, then the `<UUID>` part is returned.
-
-    _**Example**: http://onto-ns.com/chemistry/0.1/Molecule/7cd8e521-0514-4b65-bee5-d9d4dd989967.
-    Returns 7cd8e521-0514-4b65-bee5-d9d4dd989967_
-
-  - If ID matches `<URI>/<non-UUID>` where `<URI>` is a valid URI and
-    `<non-UUID>` is NOT a valid UUID, then a version 5 sha1-based UUID
-    is calculated from ID using the DNS namespace.
-
-    _**Example**: http://onto-ns.com/chemistry/0.1/Molecule/metanol_
-
-  - Otherwise a new URI is constructed as `<datamodel-URI>/<ID>`,
-    where `<datamodel-URI>` is the URI of the data model of the instance
-    and `<ID>` is the ID.  A version 5 sha1-based UUID calculated from
-    the new URI using the DNS namespace is returned.
-
-    _**Example**: "metanol". In this case the UUID hash of
-    http://onto-ns.com/chemistry/0.1/Molecule/metanol will be returned._
-
-The tool `dlite-getuuid` can be used to manually convert URIs to their
-corresponding UUIDs.
-
-Currently DLite does not enforce that user-defined URIs must follow
-the [RFC 3986] standard for a [valid URI], but it is recommended to do
-so in order to allow using the URI as a valid [RDF]
-subject or object in a knowledge base.
-
-
 Data model semantics
 --------------------
 ![The datamodel of DLite.](../_static/datamodel.svg)
@@ -226,18 +170,20 @@ _**Figure 3**. The DLite data model._
 
 The DLite data model is defined by the [Datamodel ontology] and shown
 schematically in Figure 3.
-In orange we have the same hierarchy as shown in Figure 2 with *instance*
+In orange we have the same hierarchy as shown in Figure 2, with *instance*
 as the most general concepts.
 
-As discussed above, all instances have an UUID that is used as their
-main identifier for database lookup.
-All metadata as well as some data instances can also be identified by
-a URI (in which case the UUID is a hash of this URI).
-Instances also have a *meta* field that refer to the metadata that it
-is described by (or that it is an instance of).
+All data models and metadata have the following fields:
+- *uri*: URI that uniquely identifies the data model.
+- *uuid*: An UUID calculated as a hash of the *uri*. Used for database lookup.
+- *meta*: The URI of the meta-metadata that this metadata is an instance of.
+  If omitted, it defaults to the entity schema, which describes data models.
+- *description*: A human description of the data model.
+- *dimensions*: Common dimension used for array properties.
+- *properties*: Descriptions of each of the underlying data properties.
+- *relations*: A sequence of RDF subject-predicate-object triples with
+  additional documentation.
 
-In general metadata describe their instances using *dimensions*,
-*properties* and *relations*.
 Properties describe data in terms of keyword-value pairs, dimensions
 enable efficient description of multi-dimensional arrays and relations
 can describe anything that can be represented in a knowledge base.
@@ -281,6 +227,68 @@ their generality.
 However, relations are heavily used in [collections].
 
 
+### Identifiers
+Instances are uniquely identified by a [universally unique identifier
+(UUID)][UUID], which is a 128 bit label expressed as a string of the
+form `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx`, where the `x`es are
+hexadecimal digits in the range [0-9a-fA-F].
+
+Since data models are a subclass of instances, as described above,
+they are also uniquely identified by their UUID. The UUID of a data
+model is calculated as a version 5 SHA1-based UUID hash of the data
+model URI using the DNS namespace (with an optional final hash (#) or
+slash (/) stripped off).
+
+Furthermore, to allow identifiers to be used in triplestores, they can
+also be normalised to (potentially) resolvable IRIs. The columns in
+the table below list the three representations of identifiers. Any
+representation can be considered an ID, while normalised IDs are valid
+IRIs.
+
+| ID             | Normalised ID  | Corresponding UUID  | Note          |
+|----------------|----------------|---------------------|---------------|
+| *uuid*         | *ns* / *uuid*  | *uuid*              |               |
+| *uri* / *uuid* | *uri* / *uuid* | *uuid*              |               |
+| *uri*          | *uri*          | hash of *uri*       |               |
+| *id*           | *ns* / *id*    | hash of *id*        | before v0.6.0 |
+| *id*           | *ns* / *id*    | hash of *ns* / *id* | v0.6.0+       |
+
+**Explanation of the symbols used in the table**
+
+- *uuid* is a valid UUID. Ex: "0a46cacf-ce65-5b5b-a7d7-ad32deaed748"
+- *ns* is the predefined namespace string: "http://onto-ns.com/data"
+- *uri* is a valid URI with no query or fragment parts (as defined in
+  the [RFC 3986] standard). Ex: "http://onto-ns.com/meta/0.1/MyDatamodel"
+- *id* is a string that is neither a UUID or a URL. Ex: "aa6060".
+
+```{note}
+The way an UUID is calculated from an *id* was changed in version 0.6.0.
+
+The reason for this change is to ensure that the same UUID is obtained,
+regardless of whether it is calculated from the *id* or its corresponding
+normalised ID.
+
+The behavior can be controlled with the `namespacedID` [behavior].
+```
+
+Any ID can uniquely be converted to a normalised ID and any normalised
+ID can uniquely be converted to a UUID.  Most importantly, using a
+normalised ID or UUID as an ID will result in the same corresponding UUID.
+
+Going back is also possible. A UUID can be converted to a normalised
+ID (ex: *uuid* -> *ns* / *uuid*) and a normalised `ID can be converted
+to an ID (ex: *uri* -> *uri*). However, these conversions are not
+unique.
+
+The *id* form is convenient for human readable identifiers. But please
+note, that such *id*'s must be globally unique. it is therefore
+recommended to use normalised IDs instead. These are also valid IRIs
+and can be used knowledge bases.
+
+The tool `dlite-getuuid` can be used to manually convert URIs to their
+corresponding UUIDs (or normalised IRI).
+
+
 
 [SINTEF Open Framework and Tools (SOFT)]: history.md
 [features]: features.md
@@ -288,6 +296,7 @@ However, relations are heavily used in [collections].
 [dcat:Distribution]: https://www.w3.org/TR/vocab-dcat-3/#Class:Distribution
 [UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier
 [Datamodel ontology]: https://github.com/emmo-repo/datamodel
+[behavior]: https://sintef.github.io/dlite/user_guide/configure_behavior_changes.html
 
 [RFC 3986]: https://datatracker.ietf.org/doc/html/rfc3986
 [valid URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#syntax
