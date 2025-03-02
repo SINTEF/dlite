@@ -15,7 +15,7 @@
 #define DLITE_UUID_LENGTH 36
 
 /** Fallback namespace for data instances */
-#define DLITE_NS_DATA "http://onto-ns.com/data"
+#define DLITE_DATA_NS "http://onto-ns.com/data"
 
 
 /**

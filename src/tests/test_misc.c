@@ -7,9 +7,18 @@
 #include "utils/uuid.h"
 #include "boolean.h"
 #include "dlite.h"
+#include "dlite-behavior.h"
 
 
-MU_TEST(test_dlite_idtype)
+MU_TEST(test_isuuid)
+{
+  mu_assert_int_eq(1, dlite_isuuid("a58d4302-c9be-416d-a36c-cb25524a5a17"));
+  mu_assert_int_eq(1, dlite_isuuid("a58d4302-c9be-416d-a36c-cb25524a5a17+"));
+  mu_assert_int_eq(0, dlite_isuuid("58d4302-c9be-416d-a36c-cb25524a5a17"));
+  mu_assert_int_eq(0, dlite_isuuid("_a58d4302-c9be-416d-a36c-cb25524a5a17"));
+}
+
+MU_TEST(test_idtype)
 {
   mu_assert_int_eq(dliteIdRandom, dlite_idtype(NULL));
   mu_assert_int_eq(dliteIdCopy,
@@ -89,20 +98,37 @@ MU_TEST(test_get_uuid)
   char buff[37];
 
   mu_assert_int_eq(dliteIdRandom, dlite_get_uuid(buff, NULL));
+  mu_assert_int_eq(1, dlite_isuuid(buff));
 
-  mu_assert_int_eq(dliteIdHash, dlite_get_uuid(buff, "abc"));
-  mu_assert_string_eq("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8", buff);
-
-  mu_assert_int_eq(dliteIdHash, dlite_get_uuid(buff, "testdata"));
+  mu_assert_int_eq(dliteIdCopy, dlite_get_uuid(buff,
+                   "a839938d-1d30-5b2a-af5c-2a23d436abdc"));
   mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
 
   mu_assert_int_eq(dliteIdCopy, dlite_get_uuid(buff,
-                                     "a839938d-1d30-5b2a-af5c-2a23d436abdc"));
+                   "A839938D-1D30-5B2A-AF5C-2A23D436ABDC"));
   mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
 
   mu_assert_int_eq(dliteIdCopy, dlite_get_uuid(buff,
-                                     "A839938D-1D30-5B2A-AF5C-2A23D436ABDC"));
+                   "http://ex.com/a/a839938d-1d30-5b2a-af5c-2a23d436abdc"));
   mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
+
+  mu_assert_int_eq(dliteIdHash, dlite_get_uuid(buff,"http://ex.com/a/b"));
+  mu_assert_string_eq("0e188d02-7327-5fa1-832f-78a53ed6e2a1", buff);
+
+  mu_assert_int_eq(dliteIdHash, dlite_get_uuid(buff,DLITE_DATA_NS "/abc"));
+  mu_assert_string_eq("8c942973-6c8d-5d6d-8e4e-503ee50d7f84", buff);
+
+  if (dlite_behavior_get("namespacedID")) {
+    mu_assert_int_eq(dliteIdHash, dlite_get_uuid(buff, "abc"));
+    mu_assert_string_eq("8c942973-6c8d-5d6d-8e4e-503ee50d7f84", buff);
+  } else {
+    mu_assert_int_eq(dliteIdHash, dlite_get_uuid(buff, "abc"));
+    mu_assert_string_eq("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8", buff);
+
+    mu_assert_int_eq(dliteIdHash, dlite_get_uuid(buff, "testdata"));
+    mu_assert_string_eq("a839938d-1d30-5b2a-af5c-2a23d436abdc", buff);
+  }
+
 }
 
 MU_TEST(test_get_uuidn)
@@ -114,15 +140,26 @@ MU_TEST(test_get_uuidn)
   mu_assert_int_eq(dliteIdRandom, dlite_get_uuidn(buff, "abc", 0));
   mu_assert_int_eq(dliteIdRandom, dlite_get_uuidn(buff, "", 20));
 
-  mu_assert_int_eq(dliteIdHash, dlite_get_uuidn(buff, "abc", 3));
-  mu_assert_string_eq("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8", buff);
+  if (dlite_behavior_get("namespacedID")) {
+    mu_assert_int_eq(dliteIdHash, dlite_get_uuidn(buff, "abc", 3));
+    mu_assert_string_eq("8c942973-6c8d-5d6d-8e4e-503ee50d7f84", buff);
 
-  mu_assert_int_eq(dliteIdHash, dlite_get_uuidn(buff, "abc", 2));
-  mu_assert_string_eq("710a586f-e1aa-54ec-93a9-85a85aa0b725", buff);
+    mu_assert_int_eq(dliteIdHash, dlite_get_uuidn(buff, "abc", 2));
+    mu_assert_string_eq("e7eca1a9-c136-5e00-84ca-10bb61c8ca06", buff);
 
-  mu_assert_int_eq(dliteIdHash, dlite_get_uuidn(buff, "abc", 4));
-  mu_assert_string_eq("aa02945d-3cd6-5aec-82f9-0a8f51980d11", buff);
+    mu_assert_int_eq(dliteIdHash, dlite_get_uuidn(buff, "abc", 4));
+    mu_assert_string_eq("8f6b6536-03d6-5d86-91c9-87094b1acb9f", buff);
 
+  } else {
+    mu_assert_int_eq(dliteIdHash, dlite_get_uuidn(buff, "abc", 3));
+    mu_assert_string_eq("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8", buff);
+
+    mu_assert_int_eq(dliteIdHash, dlite_get_uuidn(buff, "abc", 2));
+    mu_assert_string_eq("710a586f-e1aa-54ec-93a9-85a85aa0b725", buff);
+
+    mu_assert_int_eq(dliteIdHash, dlite_get_uuidn(buff, "abc", 4));
+    mu_assert_string_eq("aa02945d-3cd6-5aec-82f9-0a8f51980d11", buff);
+  }
 
   id = "a839938d-1d30-5b2a-af5c-2a23d436abdc";
   mu_assert_int_eq(dliteIdCopy, dlite_get_uuidn(buff, id, 36));
@@ -265,7 +302,8 @@ MU_TEST_SUITE(test_suite)
 {
   dlite_init();
 
-  MU_RUN_TEST(test_dlite_idtype);
+  MU_RUN_TEST(test_isuuid);
+  MU_RUN_TEST(test_idtype);
   MU_RUN_TEST(test_normalise_id);
   MU_RUN_TEST(test_normalise_idn);
   MU_RUN_TEST(test_get_uuid);

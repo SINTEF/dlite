@@ -147,14 +147,10 @@ int dlite_normalise_idn(char *buff, size_t n,
   }
 
   // id: uri/uuid, uri
-  if (isurln(id, len)) {
-    int m = len - DLITE_UUID_LENGTH;
-    if (len > DLITE_UUID_LENGTH+9 && isuuid(id+m))
-      return snprintf(buff, n, "%.*s", DLITE_UUID_LENGTH, id+m);
+  if (isurln(id, len))
     return snprintf(buff, n, "%.*s", (int)len, id);
-  }
 
-  if (!uri) uri = DLITE_NS_DATA;
+  if (!uri) uri = DLITE_DATA_NS;
   char *sep = (strchr("/#", uri[strlen(uri)-1])) ? "" : "/";
 
   // id: uuid, id
@@ -191,7 +187,7 @@ static void uuid5n(char *buff, const char *id, size_t len)
     - Otherwise, the generated uuid depends on the `namespacedID` behaviour.
 
         - If `namespacedID` is on, the UUID is generated from
-          `ns`/`id`, where `ns` is DLITE_NS_DATA.
+          `ns`/`id`, where `ns` is DLITE_DATA_NS.
         - If `namespacedID` is off, the UUID is generated from `id`.
 
       Returns dliteIdHash
@@ -235,13 +231,15 @@ DLiteIdType dlite_get_uuidn(char *buff, const char *id, size_t len)
       }
     } else if (dlite_behavior_get("namespacedID")) {  // id: id
       char tmp[256], *s;
-      size_t needed_len = len + sizeof(DLITE_NS_DATA) + 2;
+      size_t needed_len = len + sizeof(DLITE_DATA_NS) + 1;
+
       if (needed_len <= sizeof(tmp)) {
-        snprintf(tmp, sizeof(tmp), "%s/%*.s", DLITE_NS_DATA, (int)len, id);
-        uuid5n(buff, tmp, sizeof(tmp));
+        snprintf(tmp, sizeof(tmp), "%s/%.*s", DLITE_DATA_NS, (int)len, id);
+        uuid5n(buff, tmp, needed_len-1);
       } else {
         if (!(s = malloc(needed_len)))
           return err(dliteMemoryError, "allocation failure");
+        snprintf(s, needed_len, "%s/%.*s", DLITE_DATA_NS, (int)len, id);
         uuid5n(buff, s, needed_len-1);
         free(s);
       }

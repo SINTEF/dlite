@@ -9,10 +9,37 @@ from dlite.testutils import raises
 assert dlite.get_idtype(None) == "Random"
 assert dlite.get_idtype("abc") == "Hash"
 assert dlite.get_idtype("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8") == "Copy"
-assert dlite.get_uuid("abc") == "6cb8e707-0fc5-5f55-88d4-d4fed43e64a8"
 assert dlite.get_uuid("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8") == (
     "6cb8e707-0fc5-5f55-88d4-d4fed43e64a8"
 )
+
+# Test change in behavior
+if dlite.Behavior.namespacedID:
+    uuid = "8c942973-6c8d-5d6d-8e4e-503ee50d7f84"
+    assert dlite.get_uuid("abc") == uuid
+    assert dlite.get_uuid("http://onto-ns.com/data/abc") == uuid
+else:
+    assert dlite.get_uuid("abc") == "6cb8e707-0fc5-5f55-88d4-d4fed43e64a8"
+
+assert dlite.normalise_id(None) == ""
+iri = dlite.normalise_id("abc")
+assert iri == dlite.DATA_NS + "/abc"
+assert dlite.normalise_id(iri) == iri
+iri2 = dlite.normalise_id("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8")
+assert iri2 == dlite.DATA_NS + "/" + "6cb8e707-0fc5-5f55-88d4-d4fed43e64a8"
+assert dlite.normalise_id(iri2) == iri2
+
+ns = "http://example.com"
+ns2 = "http://example.com/"
+assert dlite.normalise_id(None, ns) == ""
+assert dlite.normalise_id("abc", ns) == ns + "/abc"
+assert dlite.normalise_id("abc", ns) == ns2 + "abc"
+iri3 = dlite.normalise_id("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8", ns)
+assert iri3 == ns + "/" + "6cb8e707-0fc5-5f55-88d4-d4fed43e64a8"
+assert dlite.normalise_id(iri, ns) == iri
+assert dlite.normalise_id(iri2, ns) == iri2
+assert dlite.normalise_id(iri3, ns) == iri3
+
 
 assert dlite.join_meta_uri("name", "version", "ns") == "ns/version/name"
 assert dlite.split_meta_uri("ns/version/name") == ["name", "version", "ns"]
