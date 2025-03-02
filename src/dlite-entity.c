@@ -164,9 +164,10 @@ static int _instance_store_remove(const char *uuid)
 static DLiteInstance *_instance_store_get(const char *id)
 {
   instance_map_t *istore = _instance_store();
+  DLiteIdType idtype;
   char uuid[DLITE_UUID_LENGTH+1];
   DLiteInstance **instp;
-  if (dlite_get_uuid(uuid, id) <= dliteIdRandom)
+  if ((idtype = dlite_get_uuid(uuid, id)) < 0 || idtype == dliteIdRandom)
     return errx(dliteValueError,
                 "id '%s' is neither a valid UUID or a convertable string",
                 id), NULL;
@@ -411,7 +412,7 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   char uuid[DLITE_UUID_LENGTH+1];
   size_t i, size;
   DLiteInstance *inst=NULL;
-  int j, uuidver;
+  int j, idtype;
 
   /* Check if we are trying to create an instance with an already
      existing id. */
@@ -440,9 +441,9 @@ static DLiteInstance *_instance_create(const DLiteMeta *meta,
   dlite_instance_incref(inst);  /* increase refcount of the new instance */
 
   /* Initialise header */
-  if ((uuidver = dlite_get_uuid(uuid, id)) < 0) goto fail;
+  if ((idtype = dlite_get_uuid(uuid, id)) < 0) goto fail;
   memcpy(inst->uuid, uuid, sizeof(uuid));
-  if (uuidver == dliteIdHash) inst->uri = strdup(id);
+  if (idtype == dliteIdHash) inst->uri = strdup(id);
   inst->meta = (DLiteMeta *)meta;
 
   /* Set dimensions */
@@ -880,30 +881,11 @@ DLiteInstance *dlite_instance_load_url(const char *url)
   assert(url);
   if (!(str = strdup(url))) FAILCODE(dliteMemoryError, "allocation failure");
   if (dlite_split_url(str, &driver, &location, &options, &id)) goto fail;
-  if (!(inst = dlite_instance_load_loc(driver, location, options, id)))
-    FAILCODE1(dliteStorageLoadError, "cannot load url: %s", url);
+  inst = dlite_instance_load_loc(driver, location, options, id);
 
  fail:
-  free(str);
-  return inst;
-  /*
- ErrTry:
-  if (id && *id) inst = _instance_store_get(id);
- ErrOther:
-  err_clear();
- ErrEnd;
-
- if (inst) {
-   dlite_instance_incref(inst);
-  } else {
-    if (!(s = dlite_storage_open(driver, location, options))) goto fail;
-    if (!(inst = dlite_instance_load(s, id))) goto fail;
-  }
- fail:
-  if (s) dlite_storage_close(s);
   if (str) free(str);
   return inst;
-  */
 }
 
 /*
