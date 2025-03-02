@@ -234,6 +234,7 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
 {
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   const char *buf=NULL, *scanid;
+  DLiteIdType idtype;
   char uuid[DLITE_UUID_LENGTH+1];
 
   if (!js->jstore) {
@@ -256,7 +257,7 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
             "than one instance: %s", s->location);
     }
     if (jstore_iter_deinit(&iter)) goto fail;
-  } else if (dlite_get_uuid(uuid, id) > dliteIdRandom) {
+  } else if ((idtype = dlite_get_uuid(uuid, id)) && idtype != dliteIdRandom) {
     buf = jstore_get(js->jstore, uuid);
   }
   if (!buf && !(buf = jstore_get(js->jstore, id)))

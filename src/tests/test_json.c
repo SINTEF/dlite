@@ -91,14 +91,6 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(NULL, 0, inst, 4, dliteJsonSingle);
   mu_assert_int_eq(404, m);
 
-  // xxx
-  m = dlite_json_sprint(buf, sizeof(buf), coll, 0, dliteJsonCompactRel);
-  printf("\n");
-  printf("*** m: %d\n", m);
-  printf("*** buff:\n");
-  printf("%s\n", buf);
-  printf("***\n\n");
-
 
   /* More tests for issue #543 */
   m = dlite_json_sprint(NULL, 0, coll, 0, dliteJsonCompactRel);
