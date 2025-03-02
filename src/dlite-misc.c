@@ -21,7 +21,6 @@
 #include "utils/uuid.h"
 #include "utils/uuid4.h"
 #include "utils/globmatch.h"
-//#include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-errors.h"
@@ -63,27 +62,6 @@ FUPlatform dlite_get_platform(void)
     }
   }
   return dlite_platform;
-}
-
-
-/*
-  Returns non-zero if `s` matches <URI>/<UUID>.
-
-  `len` is the considered length of `s`. If zero, it defaults to the lengths of `s`.
-
-  An optional final hash or slash will be ignored.
-*/
-int dlite_isinstanceuri(const char *s, int len)
-{
-  if (len <= 0) len = strlen(s);
-  if (len < DLITE_UUID_LENGTH + 10) return 0;
-  if (strchr("#/", s[len-1])) len--;
-  len -= DLITE_UUID_LENGTH;
-  if (!isuuid(s+len)) return 0;
-  if (s[--len] != '/') return 0;
-  if (strcatjspn(s, strcatPercent) < len) return 0;
-  if ((int)strcspn(s, ":") >= len) return 0;
-  return 1;
 }
 
 
@@ -168,9 +146,6 @@ int dlite_normalise_idn(char *buff, size_t n,
     return 0;
   }
 
-  //if (len == 0) len = strlen(id);
-  //if (id[len-1] && strchr("/#", id[len-1])) len--;
-
   // id: uri/uuid, uri
   if (isurln(id, len)) {
     int m = len - DLITE_UUID_LENGTH;
@@ -244,9 +219,6 @@ DLiteIdType dlite_get_uuidn(char *buff, const char *id, size_t len)
       return err(dliteRuntimeError, "cannot generate version 4 UUID");
     type = dliteIdRandom;
   } else {
-    //if (len == 0) len = strlen(id);
-    //if (id[len-1] && strchr("/#", id[len-1])) len--;
-
     if (len == DLITE_UUID_LENGTH && isuuid(id)) {  // id: uuid
       strncpy(buff, id, DLITE_UUID_LENGTH);
       buff[DLITE_UUID_LENGTH] = '\0';
@@ -864,7 +836,7 @@ static void dlite_err_handler(const ErrRecord *record)
           (!match && locals->warnings_hide))
         err_default_handler(record);
     } else if (!locals->warnings_hide) {
-        err_default_handler(record);
+      err_default_handler(record);
     }
     break;
   case errLevelError:

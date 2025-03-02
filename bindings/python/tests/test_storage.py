@@ -251,3 +251,8 @@ txt = dlite.Storage.plugin_help("bufftest")
 assert txt == "Test plugin that represents instances as byte-encoded json."
 buf = inst.to_bytes("bufftest")
 assert buf == str(inst).encode()
+
+
+# Test loading instance by id
+with dlite.Storage("json", indir / "persons.json"):
+    ada = s.load("Ada")

@@ -11,7 +11,6 @@
 #include "utils/strtob.h"
 #include "utils/jstore.h"
 #include "utils/map.h"
-#include "getuuid.h"
 #include "dlite.h"
 #include "dlite-storage-plugins.h"
 #include "dlite-macros.h"
@@ -236,7 +235,6 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
   DLiteJsonStorage *js = (DLiteJsonStorage *)s;
   const char *buf=NULL, *scanid;
   char uuid[DLITE_UUID_LENGTH+1];
-  int uuidver;
 
   if (!js->jstore) {
     if (s->location)
@@ -258,12 +256,12 @@ DLiteInstance *json_load(const DLiteStorage *s, const char *id)
             "than one instance: %s", s->location);
     }
     if (jstore_iter_deinit(&iter)) goto fail;
-  } else if ((uuidver = dlite_get_uuid(uuid, id)) >= 0 && uuidver != UUID_RANDOM) {
+  } else if (dlite_get_uuid(uuid, id) > dliteIdRandom) {
     buf = jstore_get(js->jstore, uuid);
   }
   if (!buf && !(buf = jstore_get(js->jstore, id)))
       goto fail;
-  if (dlite_get_uuid(uuid, id) == 0) {
+  if (dlite_get_uuid(uuid, id) == dliteIdCopy) {
     /* the provided id is an uuid - check if a human readable id has been
        assoicated with `id` as a label */
     if (!(scanid = jstore_get_label(js->jstore, id))) scanid = id;

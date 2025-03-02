@@ -5,9 +5,12 @@
   #include "utils/globmatch.h"
   #include "utils/uri_encode.h"
 
-  posstatus_t get_uuid_version(const char *id) {
-    char buff[DLITE_UUID_LENGTH+1];
-    return dlite_get_uuid(buff, id);
+  const char *get_idtype(const char *id) {
+    const char *names[] = {"Random", "Hash", "Copy"};
+    DLiteIdType idtype = dlite_idtype(id);
+    if (idtype < 0) return NULL;
+    assert(idtype < sizeof(names)/sizeof(const char *));
+    return names[idtype];
   }
 
   void split_meta_uri(const char *uri, char **name, char **version,
@@ -98,11 +101,10 @@ Otherwise return `id` (which already must be a valid UUID).
 %cstring_bounded_output(char *buff36, DLITE_UUID_LENGTH+1);
 void dlite_get_uuid(char *buff36, const char *id=NULL);
 
-%feature("docstring", "\
-Returns the generated UUID version number if `id` had been passed to
-get_uuid() or zero if `id` is already a valid UUID.
-") get_uuid_version;
-posstatus_t get_uuid_version(const char *id=NULL);
+%feature("docstring", "Returns the type of `id`. Either Random, Hash or Copy.")
+         get_idtype;
+const char *get_idtype(const char *id);
+
 
 %feature("docstring", "\
 Returns a (metadata) uri by combining `name`, `version` and `namespace` as:

@@ -6,9 +6,9 @@ import dlite
 from dlite.testutils import raises
 
 
-assert dlite.get_uuid_version() == 4
-assert dlite.get_uuid_version("abc") == 5
-assert dlite.get_uuid_version("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8") == 0
+assert dlite.get_idtype(None) == "Random"
+assert dlite.get_idtype("abc") == "Hash"
+assert dlite.get_idtype("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8") == "Copy"
 assert dlite.get_uuid("abc") == "6cb8e707-0fc5-5f55-88d4-d4fed43e64a8"
 assert dlite.get_uuid("6cb8e707-0fc5-5f55-88d4-d4fed43e64a8") == (
     "6cb8e707-0fc5-5f55-88d4-d4fed43e64a8"
