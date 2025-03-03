@@ -241,28 +241,19 @@ def from_graph(graph, id=None):
     # Get uuid and make sure that it is consistent with id
     uuid = graph.value(rdfid, DM.hasUUID)
     dlite_id = id if id else uuid
-    dlite_id = dlite_id.split("#", 1)[-1]
     if not uuid:
         v = graph.value(None, DM.hasUUID, Literal(id))
         if v:
             rdfid = v
             uuid = id
-            dlite_id = (
-                rdfid.split("#", 1)[-1]
-                if "#" in rdfid
-                else rdfid.rsplit("/", 1)[-1]
-            )
+            dlite_id = rdfid
             rdfid = URIRef(rdfid)
     if uuid:
         uuid = str(uuid)
-
-    if uuid:
-        if dlite.get_uuid(dlite_id) != str(uuid):
-            if dlite.get_uuid(dlite_id) != uuid:
-                raise ValueError(
-                    f'provided id "{id}" does not correspond '
-                    f'to uuid "{uuid}"'
-                )
+        if dlite.get_uuid(dlite_id) != uuid:
+            raise ValueError(
+                f'provided id "{dlite_id}" does not correspond to uuid "{uuid}"'
+            )
     else:
         uuid = dlite.get_uuid(dlite_id)
 

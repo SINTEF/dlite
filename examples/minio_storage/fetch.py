@@ -9,8 +9,8 @@ dlite.storage_path.append(url)
 
 
 # Get data from MinIO
-aa6060 = dlite.get_instance("aa6060")
-aa6082 = dlite.get_instance("aa6082")
+aa6060 = dlite.get_instance("http://data.org/aa6060")
+aa6082 = dlite.get_instance("http://data.org/aa6082")
 
 
 # Show an instance we fetched
