@@ -245,13 +245,13 @@ the table below list the three representations of identifiers. Any
 representation can be considered an ID, while normalised IDs are valid
 IRIs.
 
-| ID             | Normalised ID  | Corresponding UUID  | Note          |
-|----------------|----------------|---------------------|---------------|
-| *uuid*         | *ns* / *uuid*  | *uuid*              |               |
-| *uri* / *uuid* | *uri* / *uuid* | *uuid*              |               |
-| *uri*          | *uri*          | hash of *uri*       |               |
-| *id*           | *ns* / *id*    | hash of *id*        | before v0.6.0 |
-| *id*           | *ns* / *id*    | hash of *ns* / *id* | v0.6.0+       |
+| ID             | Normalised ID  | Corresponding UUID    | Note          |
+|----------------|----------------|-----------------------|---------------|
+| *uuid*         | *ns* / *uuid*  | *uuid*                |               |
+| *uri* / *uuid* | *uri* / *uuid* | *uuid*                |               |
+| *uri*          | *uri*          | hash of *uri*         |               |
+| *name*         | *ns* / *name*  | hash of *name*        | before v0.6.0 |
+| *name*         | *ns* / *name*  | hash of *ns* / *name* | v0.6.0+       |
 
 **Explanation of the symbols used in the table**
 
@@ -259,13 +259,14 @@ IRIs.
 - *ns* is the predefined namespace string: "http://onto-ns.com/data"
 - *uri* is a valid URI with no query or fragment parts (as defined in
   the [RFC 3986] standard). Ex: "http://onto-ns.com/meta/0.1/MyDatamodel"
-- *id* is a string that is neither a UUID or a URL. Ex: "aa6060".
+- *name* is a string that is neither a UUID or a URL. Ex: "aa6060".
 
 ```{note}
-The way an UUID is calculated from an *id* was changed in version 0.6.0.
+The way a UUID is calculated from an ID of the form of a *name* was changed
+in version 0.6.0.
 
 The reason for this change is to ensure that the same UUID is obtained,
-regardless of whether it is calculated from the *id* or its corresponding
+regardless of whether it is calculated from the *name* or its corresponding
 normalised ID.
 
 The behavior can be controlled with the `namespacedID` [behavior].

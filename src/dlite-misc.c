@@ -111,7 +111,7 @@ DLiteIdType dlite_idtypen(const char *id, int len)
   | *uuid*         | *ns* / *uuid*  |
   | *uri* / *uuid* | *uri* / *uuid* |
   | *uri*          | *uri*          |
-  | *id*           | *ns* / *id*    |
+  | *name*         | *ns* / *name*  |
 
   where:
 
@@ -119,7 +119,7 @@ DLiteIdType dlite_idtypen(const char *id, int len)
   - *ns* is the predefined namespace string "http://onto-ns.com/data"
   - *uri* is a valid URI with no query or fragment parts.
     Ex: "http://onto-ns.com/meta/0.1/MyDatamodel"
-  - *id* is a string that is neither a UUID or a URL. Ex: "aa6060"
+  - *name* is a string that is neither a UUID or a URL. Ex: "aa6060"
 
   A final hash or slash in `id` is stripped off.
 
@@ -177,14 +177,14 @@ static void uuid5n(char *buff, const char *id, size_t len)
 
   The UUID is calculated according to this table.
 
-  | ID             | Corresponding UUID  | ID type       | Note      |
-  |----------------|---------------------|------.....----|-----------|
-  | NULL           | random UUID         | dliteIdRandom |           |
-  | *uuid*         | *uuid*              | dliteIdCopy   |           |
-  | *uri* / *uuid* | *uuid*              | dliteIdCopy   |           |
-  | *uri*          | hash of *uri*       | dliteIdHash   |           |
-  | *id*           | hash of *id*        | dliteIdHash   |  < v0.6.0 |
-  | *id*           | hash of *ns* / *id* | dliteIdHash   | >= v0.6.0 |
+  | ID             | Corresponding UUID    | ID type       | Note      |
+  |----------------|-----------------------|------.....----|-----------|
+  | NULL           | random UUID           | dliteIdRandom |           |
+  | *uuid*         | *uuid*                | dliteIdCopy   |           |
+  | *uri* / *uuid* | *uuid*                | dliteIdCopy   |           |
+  | *uri*          | hash of *uri*         | dliteIdHash   |           |
+  | *name*         | hash of *name*        | dliteIdHash   |  < v0.6.0 |
+  | *name*         | hash of *ns* / *name* | dliteIdHash   | >= v0.6.0 |
 
   where:
 
@@ -192,10 +192,10 @@ static void uuid5n(char *buff, const char *id, size_t len)
   - *ns* is the predefined namespace string "http://onto-ns.com/data"
   - *uri* is a valid URI with no query or fragment parts.
     Ex: "http://onto-ns.com/meta/0.1/MyDatamodel"
-  - *id* is a string that is neither a UUID or a URL. Ex: "aa6060"
+  - *name* is a string that is neither a UUID or a URL. Ex: "aa6060"
 
   A version 4 UUID is used for the random UUID and a version 5 UUID
-  (with the DNS namespace) is used fhr the hash.
+  (with the DNS namespace) is used for the hash.
 
   Returns the DLite ID type or a negative error code on error.
  */

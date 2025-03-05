@@ -27,7 +27,7 @@ static DLiteBehavior behavior_table[] = {
     "interpreter", -1},
   { "storageQuery",                "0.5.23",  "0.6.0",   "0.8.0",
     "Fix typo and rename method queue() to query() in storage plugins.", -1},
-  { "namespacedID",                "0.5.30",  "0.6.0",   "0.8.0",
+  { "namespacedID",                "0.5.30",  "0.6.0",   "1.0.0",
     "Prefix instance IDs that are neither an URI or an UUID with the URI of "
     "the metadata.", -1},
   { NULL,                          NULL,      NULL,      NULL,     NULL, 0 }
