@@ -12,6 +12,7 @@ import dlite
 thisdir = Path(__file__).absolute().parent
 datadir = thisdir / "data"
 entitydir = thisdir / "entities"
+outdir = thisdir / "output"
 dlite.storage_path.append(f"{entitydir}/*.json")
 
 # Create collection -- our knowledge base in this example
@@ -103,4 +104,4 @@ print("Molecule instance:")
 print(molecule)
 
 
-ts.serialize("output/mappingfunc.ttl")
+ts.serialize(outdir / "mappingfunc.ttl")
