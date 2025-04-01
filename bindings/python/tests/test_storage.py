@@ -36,7 +36,7 @@ with dlite.Storage(url) as s2:
 
 
 # Create an instance
-inst = myentity(dimensions=[2, 3], id="my-data")
+inst = myentity(dimensions=[2, 3], id="http://data.org/my-data")
 inst["a-bool-array"] = True, False
 inst["a-relation"] = "subj", "pred", "obj"
 inst["a-relation-array"] = [
@@ -85,15 +85,15 @@ assert mturk2.name == "Mechanical Turk"
 assert inst.to_bytes("json").decode() == str(inst)
 assert inst.to_bytes("json", options="").decode() == str(inst)
 s0 = inst.to_bytes("json", options="").decode()
-assert s0.startswith("{\n  \"ce592ff9-")
+assert s0.startswith("{\n  \"0cd33859-")
 s1 = inst.to_bytes("json", options="indent=2").decode()
-assert s1.startswith("  {\n    \"ce592ff9-")
+assert s1.startswith("  {\n    \"0cd33859-")
 s2 = inst.to_bytes("json", options="single=true").decode()
 assert s2.startswith("{\n  \"uri\":")
 s3 = inst.to_bytes("json", options="uri-key=true").decode()
-assert s3.startswith("{\n  \"my-data\":")
+assert s3.startswith("{\n  \"http://data.org/my-data\":")
 s4 = inst.to_bytes("json", options="single=true;with-uuid=true").decode()
-assert s4.startswith("{\n  \"uri\": \"my-data\",\n  \"uuid\":")
+assert s4.startswith("{\n  \"uri\": \"http://data.org/my-data\",\n  \"uuid\":")
 
 # FIXME: Add test for the `arrays`, `no-parent` and `compact` options.
 # Should we rename `arrays` to `soft7` for consistency with the Python API?
@@ -105,7 +105,9 @@ myentity.save(f"json://{outdir}/test_storage_myentity.json?mode=w")
 inst.save(f"json://{outdir}/test_storage_inst.json?mode=w")
 rel1 = inst["a-relation"].aspreferred()
 del inst
-inst = dlite.Instance.from_url(f"json://{outdir}/test_storage_inst.json#my-data")
+inst = dlite.Instance.from_url(
+    f"json://{outdir}/test_storage_inst.json#http://data.org/my-data"
+)
 rel2 = inst["a-relation"].aspreferred()
 assert rel1 == rel2
 
@@ -115,7 +117,9 @@ if yaml:
     print('--- testing yaml')
     inst.save(f"yaml://{outdir}/test_storage_inst.yaml?mode=w")
     del inst
-    inst = dlite.Instance.from_url(f"yaml://{outdir}/test_storage_inst.yaml#my-data")
+    inst = dlite.Instance.from_url(
+        f"yaml://{outdir}/test_storage_inst.yaml#http://data.org/my-data"
+    )
 
     # test help()
     expected = """\
@@ -150,11 +154,11 @@ Opens `location`.
 
     # Test to_bytes()/from_bytes()
     data = inst.to_bytes("yaml")
-    data2 = data.replace(b"uri: my-data", b"uri: my-data2").replace(
-        dlite.get_uuid("my-data").encode(),
-        dlite.get_uuid("my-data2").encode()
+    data2 = data.replace(b"my-data", b"my-data2").replace(
+        dlite.get_uuid("http://data.org/my-data").encode(),
+        dlite.get_uuid("http://data.org/my-data2").encode()
     )
-    assert data2.startswith(b"uri: my-data2")
+    assert data2.startswith(b"uri: http://data.org/my-data2")
 
     inst2 = dlite.Instance.from_bytes("yaml", data2)
     assert inst2.uuid != inst.uuid
@@ -162,7 +166,7 @@ Opens `location`.
 
     # Test to_bytes() with options
     data3 = inst.to_bytes("yaml", options="single=false")
-    assert data3.startswith(b"ce592ff9-a7dc-548a-bbe5-3c53800afaf3")
+    assert data3.startswith(b"0cd33859-7d57-5774-8502-bd95ba61aecf")
 
     s.flush()  # avoid calling flush() when the interpreter is teared down
 
@@ -181,7 +185,9 @@ except (dlite.DLiteUnsupportedError, dlite.DLiteStorageOpenError):
 else:
     # del inst
     # FIXME: read from inst.ttl not db.xml
-    inst3 = dlite.Instance.from_url("rdf://{outdir}/db.xml#my-data")
+    inst3 = dlite.Instance.from_url(
+        "rdf://{outdir}/db.xml#http://data.org/my-data"
+    )
 
     with raises(dlite.DLiteIOError):
         inst.save(
@@ -251,3 +257,8 @@ txt = dlite.Storage.plugin_help("bufftest")
 assert txt == "Test plugin that represents instances as byte-encoded json."
 buf = inst.to_bytes("bufftest")
 assert buf == str(inst).encode()
+
+
+# Test loading instance by id
+with dlite.Storage("json", indir / "persons.json"):
+    ada = s.load("Ada")

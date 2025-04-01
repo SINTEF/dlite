@@ -15,8 +15,8 @@ url = f"minio://play.min.io?access_key={access_key};secret_key={secret_key}"
 
 
 # Push to minio
-aa6060 = dlite.get_instance("aa6060")
-aa6082 = dlite.get_instance("aa6082")
+aa6060 = dlite.get_instance("http://data.org/aa6060")
+aa6082 = dlite.get_instance("http://data.org/aa6082")
 with dlite.Storage(url) as s:
     s.save(aa6060.meta)  # Remember to also save metadata
     s.save(aa6060)

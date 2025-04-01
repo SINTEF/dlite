@@ -3,30 +3,29 @@ d9910bde-6028-524c-9e0f-e8f0db734bc8:
   meta: http://onto-ns.com/meta/0.3/EntitySchema
   description: test entity with explicit meta
   dimensions:
-  - description: first dim
-    name: L
-  - description: second dim
-    name: M
-  - description: third dim
-    name: N
+    L: first dim
+    M: second dim
+    N: third dim
   properties:
-  - name: myblob
-    type: blob3
-  - name: mydouble
-    type: float64
-    unit: m
-    description: A double following a single character...
-  - name: myfixstring
-    type: string3
-    description: A fix string.
-  - name: mystring
-    name: mystring
-    type: string
-    description: A string pointer.
-  - name: myshort
-    type: uint16
-    description: An unsigned short integer.
-  - name: myarray
-    type: int32
-    shape: [L, M, N]
-    description: An array string pointer.
+    myblob:
+      type: blob3
+    mydouble:
+      type: float64
+      unit: m
+      description: A double following a single character...
+    myfixstring:
+      type: string3
+      description: A fix string.
+    mystring:
+      type: string
+      description: A string pointer.
+    myshort:
+      type: uint16
+      description: An unsigned short integer.
+    myarray:
+      type: int32
+      shape:
+      - L
+      - M
+      - N
+      description: An array string pointer.

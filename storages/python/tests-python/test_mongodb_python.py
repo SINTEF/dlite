@@ -45,7 +45,7 @@ meta = dlite.Instance.from_location("json", inputdir / "test_meta.json")
 inst1 = dlite.Instance.from_location("json", inputdir / "test_data.json",
                                      id="52522ba5-6bfe-4a64-992d-e9ec4080fbac")
 inst2 = dlite.Instance.from_location("json", inputdir / "test_data.json",
-                                     id="2f8ba28c-add6-5718-a03c-ea46961d6ca7")
+                                     id="410ace1a-1e71-5e08-9ff3-b952307dbffe")
 
 
 storage = create_storage()

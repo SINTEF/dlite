@@ -225,3 +225,19 @@ int uuid_from_string(uuid_s *uuid, const char *s, size_t len)
 
   return 0;
 }
+
+/* Returns non-zero if `s` is a valid UUID. */
+int isuuid(const char *s)
+{
+  int i;
+  for (i=0; i<8; i++) if (!isxdigit(*(s++))) return 0;
+  if (*(s++) != '-') return 0;
+  for (i=0; i<4; i++) if (!isxdigit(*(s++))) return 0;
+  if (*(s++) != '-') return 0;
+  for (i=0; i<4; i++) if (!isxdigit(*(s++))) return 0;
+  if (*(s++) != '-') return 0;
+  for (i=0; i<4; i++) if (!isxdigit(*(s++))) return 0;
+  if (*(s++) != '-') return 0;
+  for (i=0; i<12; i++) if (!isxdigit(*(s++))) return 0;
+  return 1;
+}

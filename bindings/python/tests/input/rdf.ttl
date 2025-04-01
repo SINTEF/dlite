@@ -12,7 +12,7 @@ onto:my_test_instance a dm:DataInstance ;
         <http://onto-ns.com/data#my_test_instance/myfixstring>,
         <http://onto-ns.com/data#my_test_instance/myshort>,
         <http://onto-ns.com/data#my_test_instance/mystring> ;
-    dm:hasUUID "e076a856-e36e-5335-967e-2f2fd153c17d" ;
+    dm:hasUUID "4bed8e00-74c4-5f40-838a-8f35dc069301" ;
     dm:instanceOf <http://onto-ns.com/meta/0.1/test-entity> .
 
 <http://onto-ns.com/data#my_test_instance/L> dm:hasLabel "L" ;
@@ -121,4 +121,3 @@ onto:my_test_instance a dm:DataInstance ;
     dm:hasDescription "A string pointer." ;
     dm:hasLabel "mystring" ;
     dm:hasType "string" .
-

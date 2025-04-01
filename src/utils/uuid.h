@@ -102,4 +102,7 @@ void uuid_as_string(uuid_s *uuid, char s[37]);
    If `uuid` is NULL, only format checking is performed. */
 int uuid_from_string(uuid_s *uuid, const char *s, size_t len);
 
+/* Returns non-zero if `s` is a valid UUID. */
+int isuuid(const char *s);
+
 #endif /* !__uuid_h__ */

@@ -38,7 +38,7 @@ assert dlite.format_dict(D2, soft7=False) == D2
 # soft7 representation.  This is identical to the old representation for
 # data instances
 d1 = {
-    "uuid": "d6a1c1db-44b6-5b87-b815-83f1127395b6",
+    "uuid": "41467846-f31c-5689-9bcd-2ab1626a9f0d",
     "meta": "http://onto-ns.com/meta/ex/0.2/Test",
     "dimensions": {"n": 3},
     "properties": {
@@ -47,7 +47,7 @@ d1 = {
     },
 }
 d2 = {  # old representation
-    "uuid": "d6a1c1db-44b6-5b87-b815-83f1127395b6",
+    "uuid": "41467846-f31c-5689-9bcd-2ab1626a9f0d",
     "meta": "http://onto-ns.com/meta/ex/0.2/Test",
     "dimensions": {"n": 3},
     "properties": {
@@ -56,7 +56,7 @@ d2 = {  # old representation
     },
 }
 d3 = {
-    "uuid": "d6a1c1db-44b6-5b87-b815-83f1127395b6",
+    "uuid": "41467846-f31c-5689-9bcd-2ab1626a9f0d",
     "meta": "http://onto-ns.com/meta/ex/0.2/Test",
     "dimensions": [3],
     "properties": {
@@ -122,28 +122,28 @@ assert dlite.format_dict(d1, single=False, urikey=True) == d1_multi
 assert dlite.format_dict(d1, single=False, urikey=False) == d1_multi
 
 # Test format_dict(), arg: id
-d4 = {"inst1": d1_nouuid}
+d4 = {"http://data.org/inst1": d1_nouuid}
 d5 = {
-    "inst1": d1,
-    "inst2": d1_nouuid,
-    "inst3": d1_nouuid,
+    "http://data.org/inst1": d1,
+    "http://data.org/inst2": d1_nouuid,
+    "http://data.org/inst3": d1_nouuid,
 }
 d1_uri = d1.copy()
-d1_uri["uri"] = "inst1"
+d1_uri["uri"] = "http://data.org/inst1"
 d1_uri_nouuid = d1_uri.copy()
 del d1_uri_nouuid["uuid"]
 d1_uri_multi = {d1["uuid"]: d1_uri_nouuid}
-assert dlite.format_dict(d4, id="inst1", single=True) == d1_uri
-assert dlite.format_dict(d4, id="inst1", single=None) == d1_uri_multi
-assert dlite.format_dict(d4, id="inst1", single=False) == d1_uri_multi
+assert dlite.format_dict(d4, id="http://data.org/inst1", single=True) == d1_uri
+assert dlite.format_dict(d4, id="http://data.org/inst1", single=None) == d1_uri_multi
+assert dlite.format_dict(d4, id="http://data.org/inst1", single=False) == d1_uri_multi
 assert dlite.format_dict(d4) == {d1["uuid"]: d1_uri}
 with raises(dlite.DLiteLookupError):
     dlite.format_dict(d4, id="noexisting")
 
 # FIXME - make sure that the uri is included
-assert dlite.format_dict(d5, id="inst1", single=True) == d1
-assert dlite.format_dict(d5, id="inst1", single=None) == d1_multi
-assert dlite.format_dict(d5, id="inst1", single=False) == d1_multi
+assert dlite.format_dict(d5, id="http://data.org/inst1", single=True) == d1
+assert dlite.format_dict(d5, id="http://data.org/inst1", single=None) == d1_multi
+assert dlite.format_dict(d5, id="http://data.org/inst1", single=False) == d1_multi
 # assert dlite.format_dict(d5, id="inst1", single=True) == d1_uri
 # assert dlite.format_dict(d5, id="inst1", single=None) == d1_uri_multi
 # assert dlite.format_dict(d5, id="inst1", single=False) == d1_uri_multi

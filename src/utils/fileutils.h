@@ -298,6 +298,9 @@ char *fu_nativepath(const char *path, char *dest, size_t size,
                     const char *pathsep);
 
 
+/** Returns zero if path exists. */
+int fu_exists(const char *path);
+
 /**
   Returns the canonicalized absolute pathname for `path`.  Resolves
   symbolic links and references to '/./', '/../' and extra '/'.  Note

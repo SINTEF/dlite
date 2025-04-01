@@ -148,23 +148,23 @@ print(rdf)
 turtle = """
 @prefix dm: <http://emmo.info/datamodel/0.0.2#> .
 
-<6de3394f-615f-4b18-bae6-efcff13a2f0f> a dm:DataInstance ;
+<http://onto-ns.com/data/6de3394f-615f-4b18-bae6-efcff13a2f0f> a dm:DataInstance ;
     dm:hasProperty
-        <5ecf9c76-5997-4923-b085-566753cb59d7#downloadUrl>,
-        <5ecf9c76-5997-4923-b085-566753cb59d7#license>,
-        <5ecf9c76-5997-4923-b085-566753cb59d7#mediaType> ;
+        <http://onto-ns.com/data/5ecf9c76-5997-4923-b085-566753cb59d7#downloadUrl>,
+        <http://onto-ns.com/data/5ecf9c76-5997-4923-b085-566753cb59d7#license>,
+        <http://onto-ns.com/data/5ecf9c76-5997-4923-b085-566753cb59d7#mediaType> ;
     dm:hasUUID "6de3394f-615f-4b18-bae6-efcff13a2f0f" ;
     dm:instanceOf <http://onto-ns.com/meta/0.1/ResourceConfig> .
 
-<5ecf9c76-5997-4923-b085-566753cb59d7#downloadUrl> dm:hasLabel "downloadUrl" ;
+<http://onto-ns.com/data/5ecf9c76-5997-4923-b085-566753cb59d7#downloadUrl> dm:hasLabel "downloadUrl" ;
     dm:hasValue "http://example.com/testdata.csv" ;
     dm:instanceOf <http://onto-ns.com/meta/0.1/ResourceConfig#downloadUrl> .
 
-<5ecf9c76-5997-4923-b085-566753cb59d7#license> dm:hasLabel "license" ;
+<http://onto-ns.com/data/5ecf9c76-5997-4923-b085-566753cb59d7#license> dm:hasLabel "license" ;
     dm:hasValue "CC-BY-4.0" ;
     dm:instanceOf <http://onto-ns.com/meta/0.1/ResourceConfig#license> .
 
-<5ecf9c76-5997-4923-b085-566753cb59d7#mediaType> dm:hasLabel "mediaType" ;
+<http://onto-ns.com/data/5ecf9c76-5997-4923-b085-566753cb59d7#mediaType> dm:hasLabel "mediaType" ;
     dm:hasValue "text/csv" ;
     dm:instanceOf <http://onto-ns.com/meta/0.1/ResourceConfig#mediaType> .
 """

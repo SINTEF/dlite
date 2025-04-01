@@ -91,14 +91,14 @@ if HAVE_BSON:
 
     print("Test loading metadata...")
     with dlite.Storage("bson", meta_infile, "mode=r") as s:
-        meta = s.load("2b10c236-eb00-541a-901c-046c202e52fa")
+        meta = s.load("d9910bde-6028-524c-9e0f-e8f0db734bc8")
     print("...Loading metadata ok!")
 
     print("Test saving metadata...")
     with dlite.Storage("bson", meta_outfile, "mode=w") as s:
         s.save(meta)
     with dlite.Storage("bson", meta_outfile, "mode=r") as s:
-        inst2 = s.load("2b10c236-eb00-541a-901c-046c202e52fa")
+        inst2 = s.load("d9910bde-6028-524c-9e0f-e8f0db734bc8")
     if meta == inst2:
         print("...Saving metadata ok!")
     else:
@@ -108,8 +108,8 @@ if HAVE_BSON:
 
     print("Test loading data...")
     with dlite.Storage("bson", data_infile, "mode=r") as s:
-        inst1 = s.load("204b05b2-4c89-43f4-93db-fd1cb70f54ef")
-        inst2 = s.load("e076a856-e36e-5335-967e-2f2fd153c17d")
+        inst1 = s.load(id="52522ba5-6bfe-4a64-992d-e9ec4080fbac")
+        inst2 = s.load(id="410ace1a-1e71-5e08-9ff3-b952307dbffe")
     print("...Loading data ok!")
 
     print("Test saving data...")
@@ -117,8 +117,8 @@ if HAVE_BSON:
         s.save(inst1)
         s.save(inst2)
     with dlite.Storage("bson", data_outfile, "mode=r") as s:
-        inst3 = s.load("204b05b2-4c89-43f4-93db-fd1cb70f54ef")
-        inst4 = s.load("e076a856-e36e-5335-967e-2f2fd153c17d")
+        inst3 = s.load(id="52522ba5-6bfe-4a64-992d-e9ec4080fbac")
+        inst4 = s.load(id="410ace1a-1e71-5e08-9ff3-b952307dbffe")
     if inst1 == inst3 and inst2 == inst4:
         print("...Saving data ok!")
     else:
@@ -161,7 +161,7 @@ if HAVE_YAML:
     print("Test loading data...")
     with dlite.Storage("yaml", data_infile, "mode=r") as s:
         inst1 = s.load("52522ba5-6bfe-4a64-992d-e9ec4080fbac")
-        inst2 = s.load("2f8ba28c-add6-5718-a03c-ea46961d6ca7")
+        inst2 = s.load("http://data.org/my_test_instance_1")
     print("...Loading data ok!")
 
     print("Test saving data...")
@@ -172,6 +172,8 @@ if HAVE_YAML:
         d1 = pyyaml.safe_load(f)
     with open(data_outfile, "r") as f:
         d2 = pyyaml.safe_load(f)
+    d = d1["52522ba5-6bfe-4a64-992d-e9ec4080fbac"]
+    del d["uuid"]
     assert d1 == d2
     print("...Saving data ok!")
     os.remove(data_outfile)
@@ -206,9 +208,9 @@ if HAVE_RDF:
 
     print("Test loading data...")
     with dlite.Storage("pyrdf", data_infile, "mode=r") as s:
-        inst1 = s.load("inst_with_uri")
-        # inst1 = s.load('2713c649-e9b1-5f5e-8abb-8a6e3e610a61')
-        inst2 = s.load("67128279-c3fa-4483-8842-eb571f94a1ae")
+        inst1 = s.load("http://data.org/my_test_instance_1")
+        # inst1 = s.load('410ace1a-1e71-5e08-9ff3-b952307dbffe')
+        inst2 = s.load("52522ba5-6bfe-4a64-992d-e9ec4080fbac")
     print("...Loading data ok!")
 
     print("Test saving data...")

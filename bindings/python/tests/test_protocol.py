@@ -69,8 +69,8 @@ data1 = archive_extract(data, "blob1.json")
 data2 = archive_extract(data, "blob2.json")
 b1 = dlite.Instance.from_bytes("json", data1)
 b2 = dlite.Instance.from_bytes("json", data2)
-assert b1.uri == "blob1"
-assert b2.uri == "blob2"
+assert b1.uri == "http://onto-ns.com/data/blob1"
+assert b2.uri == "http://onto-ns.com/data/blob2"
 assert b1.content.tolist() == [97, 98, 99]
 assert b2.content.tolist() == [97, 98, 99]
 

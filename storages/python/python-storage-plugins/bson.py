@@ -94,7 +94,7 @@ class bson(dlite.DLiteStorageBase):
         """
         if uuid in self._data:
             return instance_from_dict(self._data[uuid])
-        raise KeyError(f"Instance with ID {uuid!r} not found")
+        raise KeyError(f"Instance with ID '{uuid}' not found")
 
     def save(self, inst: dlite.Instance) -> None:
         """Store `inst` in the current storage.

@@ -8,8 +8,6 @@ General environment variables
 Standard environment variables also known outside of DLite.  You may
 have to adjust these.
 
-Generic environment variables
------------------------------
   - **PATH**: Standard search path for runtimes (.exe and .dll on Windows).
     The paths are separated by ";" on Windows and ":" on Linux.
 

@@ -42,9 +42,9 @@ with raises(dlite.DLiteStorageSaveError):
     myentity.save(f"json://{outdir}/test_entity.json")
 
 # Create an instance of `myentity` with dimensions 2, 3
-# For convinience, we give it an unique label "myid" that can be used
-# interchangable with its uuid
-inst = Instance.from_metaid(myentity.uri, [2, 3], "myid")
+# For convinience, we give it an unique label "http://data.org/myid" that
+# can be used interchangable with its uuid
+inst = Instance.from_metaid(myentity.uri, [2, 3], "http://data.org/myid")
 assert inst.dimensions == {"N": 2, "M": 3}
 assert inst.is_data
 assert not inst.is_meta
@@ -93,7 +93,7 @@ blob = inst2["a-blob"]
 del inst2
 inst2 = Instance.from_url(
     f"json://{outdir}/test_entity_inst.json?"
-    "mode=r#46a67765-3d8b-5764-9583-3aec59a17983"
+    "mode=r#1ad3669b-71c9-517e-be5d-449079d2b3a8"
 )
 assert inst2["a-blob"] == blob
 
@@ -104,7 +104,7 @@ assert inst2["a-blob"] == blob
 del inst2
 inst2 = Instance.from_location(
     "json", outdir / "test_entity_inst.json",
-    id="46a67765-3d8b-5764-9583-3aec59a17983"
+    id="1ad3669b-71c9-517e-be5d-449079d2b3a8"
 )
 assert inst2["a-blob"] == blob
 del inst2
@@ -115,7 +115,7 @@ assert inst2["a-blob"] == blob
 del inst2
 
 with dlite.Storage("json", outdir / "test_entity_inst.json") as s:
-    inst2 = s.load(id="46a67765-3d8b-5764-9583-3aec59a17983")
+    inst2 = s.load(id="1ad3669b-71c9-517e-be5d-449079d2b3a8")
 assert inst2["a-blob"] == blob
 del inst2
 

@@ -1,171 +1,171 @@
 @prefix ns1: <http://emmo.info/datamodel/0.0.2#> .
 @prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae> a ns1:DataInstance ;
-    ns1:hasDimension <67128279-c3fa-4483-8842-eb571f94a1ae#L>,
-        <67128279-c3fa-4483-8842-eb571f94a1ae#M>,
-        <67128279-c3fa-4483-8842-eb571f94a1ae#N> ;
-    ns1:hasProperty <67128279-c3fa-4483-8842-eb571f94a1ae#myarray>,
-        <67128279-c3fa-4483-8842-eb571f94a1ae#myblob>,
-        <67128279-c3fa-4483-8842-eb571f94a1ae#mydouble>,
-        <67128279-c3fa-4483-8842-eb571f94a1ae#myfixstring>,
-        <67128279-c3fa-4483-8842-eb571f94a1ae#myshort>,
-        <67128279-c3fa-4483-8842-eb571f94a1ae#mystring> ;
-    ns1:hasUUID "67128279-c3fa-4483-8842-eb571f94a1ae" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity> .
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac> a ns1:DataInstance ;
+    ns1:hasDimension <52522ba5-6bfe-4a64-992d-e9ec4080fbac#L>,
+        <52522ba5-6bfe-4a64-992d-e9ec4080fbac#M>,
+        <52522ba5-6bfe-4a64-992d-e9ec4080fbac#N> ;
+    ns1:hasProperty <52522ba5-6bfe-4a64-992d-e9ec4080fbac#myarray>,
+        <52522ba5-6bfe-4a64-992d-e9ec4080fbac#myblob>,
+        <52522ba5-6bfe-4a64-992d-e9ec4080fbac#mydouble>,
+        <52522ba5-6bfe-4a64-992d-e9ec4080fbac#myfixstring>,
+        <52522ba5-6bfe-4a64-992d-e9ec4080fbac#myshort>,
+        <52522ba5-6bfe-4a64-992d-e9ec4080fbac#mystring> ;
+    ns1:hasUUID "52522ba5-6bfe-4a64-992d-e9ec4080fbac" ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity> .
 
-<inst_with_uri> a ns1:DataInstance ;
-    ns1:hasDimension <inst_with_uri#L>,
-        <inst_with_uri#M>,
-        <inst_with_uri#N> ;
-    ns1:hasProperty <inst_with_uri#myarray>,
-        <inst_with_uri#myblob>,
-        <inst_with_uri#mydouble>,
-        <inst_with_uri#myfixstring>,
-        <inst_with_uri#myshort>,
-        <inst_with_uri#mystring> ;
-    ns1:hasUUID "2713c649-e9b1-5f5e-8abb-8a6e3e610a61" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity> .
+<http://data.org/my_test_instance_1> a ns1:DataInstance ;
+    ns1:hasDimension <http://data.org/my_test_instance_1#L>,
+        <http://data.org/my_test_instance_1#M>,
+        <http://data.org/my_test_instance_1#N> ;
+    ns1:hasProperty <http://data.org/my_test_instance_1#myarray>,
+        <http://data.org/my_test_instance_1#myblob>,
+        <http://data.org/my_test_instance_1#mydouble>,
+        <http://data.org/my_test_instance_1#myfixstring>,
+        <http://data.org/my_test_instance_1#myshort>,
+        <http://data.org/my_test_instance_1#mystring> ;
+    ns1:hasUUID "410ace1a-1e71-5e08-9ff3-b952307dbffe" ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae#L> ns1:hasLabel "L" ;
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac#L> ns1:hasLabel "L" ;
     ns1:hasValue 2 ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#L> .
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#L> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae#M> ns1:hasLabel "M" ;
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac#M> ns1:hasLabel "M" ;
     ns1:hasValue 2 ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#M> .
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#M> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae#N> ns1:hasLabel "N" ;
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac#N> ns1:hasLabel "N" ;
     ns1:hasValue 3 ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#N> .
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#N> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae#myarray> ns1:hasLabel "myarray" ;
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac#myarray> ns1:hasLabel "myarray" ;
     ns1:hasValue "[[[1, 2, 3], [3, 2, 1]], [[4, 5, 6], [6, 5, 4]]]" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myarray> .
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#myarray> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae#myblob> ns1:hasLabel "myblob" ;
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac#myblob> ns1:hasLabel "myblob" ;
     ns1:hasValue "0a0120" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myblob> .
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#myblob> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae#mydouble> ns1:hasLabel "mydouble" ;
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac#mydouble> ns1:hasLabel "mydouble" ;
     ns1:hasValue "2.72" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#mydouble> .
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#mydouble> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae#myfixstring> ns1:hasLabel "myfixstring" ;
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac#myfixstring> ns1:hasLabel "myfixstring" ;
     ns1:hasValue "Si" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myfixstring> .
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#myfixstring> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae#myshort> ns1:hasLabel "myshort" ;
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac#myshort> ns1:hasLabel "myshort" ;
     ns1:hasValue "13" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myshort> .
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#myshort> .
 
-<67128279-c3fa-4483-8842-eb571f94a1ae#mystring> ns1:hasLabel "mystring" ;
+<52522ba5-6bfe-4a64-992d-e9ec4080fbac#mystring> ns1:hasLabel "mystring" ;
     ns1:hasValue "..." ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#mystring> .
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#mystring> .
 
-<http://onto-ns.com/meta/0.1/test-entity#myarray/shape> a ns1:Shape ;
-    ns1:hasFirst <http://onto-ns.com/meta/0.1/test-entity#myarray/shape_0> .
+<http://data.org/my_test_instance_1#L> ns1:hasLabel "L" ;
+    ns1:hasValue 2 ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#L> .
 
-<http://onto-ns.com/meta/0.1/test-entity#myarray/shape_0> a ns1:DimensionExpression ;
-    ns1:hasNext <http://onto-ns.com/meta/0.1/test-entity#myarray/shape_1> ;
+<http://data.org/my_test_instance_1#M> ns1:hasLabel "M" ;
+    ns1:hasValue 1 ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#M> .
+
+<http://data.org/my_test_instance_1#N> ns1:hasLabel "N" ;
+    ns1:hasValue 3 ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#N> .
+
+<http://data.org/my_test_instance_1#myarray> ns1:hasLabel "myarray" ;
+    ns1:hasValue "[[[1, 2, 3]], [[4, 5, 6]]]" ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#myarray> .
+
+<http://data.org/my_test_instance_1#myblob> ns1:hasLabel "myblob" ;
+    ns1:hasValue "0a0010" ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#myblob> .
+
+<http://data.org/my_test_instance_1#mydouble> ns1:hasLabel "mydouble" ;
+    ns1:hasValue "3.14" ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#mydouble> .
+
+<http://data.org/my_test_instance_1#myfixstring> ns1:hasLabel "myfixstring" ;
+    ns1:hasValue "Al" ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#myfixstring> .
+
+<http://data.org/my_test_instance_1#myshort> ns1:hasLabel "myshort" ;
+    ns1:hasValue "17" ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#myshort> .
+
+<http://data.org/my_test_instance_1#mystring> ns1:hasLabel "mystring" ;
+    ns1:hasValue "allocated string..." ;
+    ns1:instanceOf <http://onto-ns.com/meta/0.1/TestEntity#mystring> .
+
+<http://onto-ns.com/meta/0.1/TestEntity#myarray/shape> a ns1:Shape ;
+    ns1:hasFirst <http://onto-ns.com/meta/0.1/TestEntity#myarray/shape_0> .
+
+<http://onto-ns.com/meta/0.1/TestEntity#myarray/shape_0> a ns1:DimensionExpression ;
+    ns1:hasNext <http://onto-ns.com/meta/0.1/TestEntity#myarray/shape_1> ;
     ns1:hasValue "L" .
 
-<http://onto-ns.com/meta/0.1/test-entity#myarray/shape_1> a ns1:DimensionExpression ;
-    ns1:hasNext <http://onto-ns.com/meta/0.1/test-entity#myarray/shape_2> ;
+<http://onto-ns.com/meta/0.1/TestEntity#myarray/shape_1> a ns1:DimensionExpression ;
+    ns1:hasNext <http://onto-ns.com/meta/0.1/TestEntity#myarray/shape_2> ;
     ns1:hasValue "M" .
 
-<http://onto-ns.com/meta/0.1/test-entity#myarray/shape_2> a ns1:DimensionExpression ;
+<http://onto-ns.com/meta/0.1/TestEntity#myarray/shape_2> a ns1:DimensionExpression ;
     ns1:hasValue "N" .
 
-<inst_with_uri#L> ns1:hasLabel "L" ;
-    ns1:hasValue 2 ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#L> .
-
-<inst_with_uri#M> ns1:hasLabel "M" ;
-    ns1:hasValue 1 ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#M> .
-
-<inst_with_uri#N> ns1:hasLabel "N" ;
-    ns1:hasValue 3 ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#N> .
-
-<inst_with_uri#myarray> ns1:hasLabel "myarray" ;
-    ns1:hasValue "[[[1, 2, 3]], [[4, 5, 6]]]" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myarray> .
-
-<inst_with_uri#myblob> ns1:hasLabel "myblob" ;
-    ns1:hasValue "0a0010" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myblob> .
-
-<inst_with_uri#mydouble> ns1:hasLabel "mydouble" ;
-    ns1:hasValue "3.14" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#mydouble> .
-
-<inst_with_uri#myfixstring> ns1:hasLabel "myfixstring" ;
-    ns1:hasValue "Al" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myfixstring> .
-
-<inst_with_uri#myshort> ns1:hasLabel "myshort" ;
-    ns1:hasValue "17" ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#myshort> .
-
-<inst_with_uri#mystring> ns1:hasLabel "mystring" ;
-    ns1:hasValue "allocated string..." ;
-    ns1:instanceOf <http://onto-ns.com/meta/0.1/test-entity#mystring> .
-
-<http://onto-ns.com/meta/0.1/test-entity> a ns1:Entity ;
+<http://onto-ns.com/meta/0.1/TestEntity> a ns1:Entity ;
     ns1:hasDescription "test entity with explicit meta"@en ;
-    ns1:hasDimension <http://onto-ns.com/meta/0.1/test-entity#L>,
-        <http://onto-ns.com/meta/0.1/test-entity#M>,
-        <http://onto-ns.com/meta/0.1/test-entity#N> ;
-    ns1:hasProperty <http://onto-ns.com/meta/0.1/test-entity#myarray>,
-        <http://onto-ns.com/meta/0.1/test-entity#myblob>,
-        <http://onto-ns.com/meta/0.1/test-entity#mydouble>,
-        <http://onto-ns.com/meta/0.1/test-entity#myfixstring>,
-        <http://onto-ns.com/meta/0.1/test-entity#myshort>,
-        <http://onto-ns.com/meta/0.1/test-entity#mystring> ;
-    ns1:hasUUID "2b10c236-eb00-541a-901c-046c202e52fa" ;
+    ns1:hasDimension <http://onto-ns.com/meta/0.1/TestEntity#L>,
+        <http://onto-ns.com/meta/0.1/TestEntity#M>,
+        <http://onto-ns.com/meta/0.1/TestEntity#N> ;
+    ns1:hasProperty <http://onto-ns.com/meta/0.1/TestEntity#myarray>,
+        <http://onto-ns.com/meta/0.1/TestEntity#myblob>,
+        <http://onto-ns.com/meta/0.1/TestEntity#mydouble>,
+        <http://onto-ns.com/meta/0.1/TestEntity#myfixstring>,
+        <http://onto-ns.com/meta/0.1/TestEntity#myshort>,
+        <http://onto-ns.com/meta/0.1/TestEntity#mystring> ;
+    ns1:hasUUID "d9910bde-6028-524c-9e0f-e8f0db734bc8" ;
     ns1:instanceOf <http://onto-ns.com/meta/0.3/EntitySchema> .
 
-<http://onto-ns.com/meta/0.1/test-entity#L> a ns1:Dimension ;
+<http://onto-ns.com/meta/0.1/TestEntity#L> a ns1:Dimension ;
     ns1:hasDescription "first dim"@en ;
     ns1:hasLabel "L"@en .
 
-<http://onto-ns.com/meta/0.1/test-entity#M> a ns1:Dimension ;
+<http://onto-ns.com/meta/0.1/TestEntity#M> a ns1:Dimension ;
     ns1:hasDescription "second dim"@en ;
     ns1:hasLabel "M"@en .
 
-<http://onto-ns.com/meta/0.1/test-entity#N> a ns1:Dimension ;
+<http://onto-ns.com/meta/0.1/TestEntity#N> a ns1:Dimension ;
     ns1:hasDescription "third dim"@en ;
     ns1:hasLabel "N"@en .
 
-<http://onto-ns.com/meta/0.1/test-entity#myarray> a ns1:Property ;
+<http://onto-ns.com/meta/0.1/TestEntity#myarray> a ns1:Property ;
     ns1:hasDescription "An array string pointer." ;
     ns1:hasLabel "myarray" ;
-    ns1:hasShape <http://onto-ns.com/meta/0.1/test-entity#myarray/shape> ;
+    ns1:hasShape <http://onto-ns.com/meta/0.1/TestEntity#myarray/shape> ;
     ns1:hasType "int32" .
 
-<http://onto-ns.com/meta/0.1/test-entity#myblob> a ns1:Property ;
+<http://onto-ns.com/meta/0.1/TestEntity#myblob> a ns1:Property ;
     ns1:hasLabel "myblob" ;
     ns1:hasType "blob3" .
 
-<http://onto-ns.com/meta/0.1/test-entity#mydouble> a ns1:Property ;
+<http://onto-ns.com/meta/0.1/TestEntity#mydouble> a ns1:Property ;
     ns1:hasDescription "A double following a single character..." ;
     ns1:hasLabel "mydouble" ;
     ns1:hasType "float64" ;
     ns1:hasUnit "m" .
 
-<http://onto-ns.com/meta/0.1/test-entity#myfixstring> a ns1:Property ;
+<http://onto-ns.com/meta/0.1/TestEntity#myfixstring> a ns1:Property ;
     ns1:hasDescription "A fix string." ;
     ns1:hasLabel "myfixstring" ;
     ns1:hasType "string3" .
 
-<http://onto-ns.com/meta/0.1/test-entity#myshort> a ns1:Property ;
+<http://onto-ns.com/meta/0.1/TestEntity#myshort> a ns1:Property ;
     ns1:hasDescription "An unsigned short integer." ;
     ns1:hasLabel "myshort" ;
     ns1:hasType "uint16" .
 
-<http://onto-ns.com/meta/0.1/test-entity#mystring> a ns1:Property ;
+<http://onto-ns.com/meta/0.1/TestEntity#mystring> a ns1:Property ;
     ns1:hasDescription "A string pointer." ;
     ns1:hasLabel "mystring" ;
     ns1:hasType "string" .

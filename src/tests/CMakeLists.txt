@@ -18,8 +18,7 @@ set(tests
   test_schemas
   test_arrays
   test_ref
-  test_getuuid
-  )
+)
 
 if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
   unset(extra_link_libraries)

@@ -72,7 +72,7 @@ def format_dict(
     uri = d.get("uri", d.get("identity"))
     uuid = d.get("uuid", _dlite.get_uuid(uri) if uri else None)
     if id and not uuid:
-        if _dlite.get_uuid_version(id) == 5:
+        if _dlite.get_idtype(id) == "Hash":
             uri = id
         uuid = _dlite.get_uuid(id)
     metaid = d.get("meta", _dlite.ENTITY_SCHEMA)

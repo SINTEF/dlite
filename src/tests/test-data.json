@@ -40,9 +40,9 @@
       ]
     }
   },
-  "e076a856-e36e-5335-967e-2f2fd153c17d": {
+  "117a8bb9-df2e-5c77-a84d-3ac45add03f0": {
     "meta": "http://onto-ns.com/meta/0.1/test-entity",
-    "uri": "my_test_instance",
+    "uri": "http://data.org/my_test_instance",
     "dimensions": {
       "L": 2,
       "M": 1,

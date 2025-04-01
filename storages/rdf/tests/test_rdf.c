@@ -19,7 +19,7 @@ MU_TEST(test_load_inst)
   mu_check(meta);
 
   url="json://" STRINGIFY(dlite_SOURCE_DIR) "/src/tests/test-data.json?mode=r"
-    "#e076a856-e36e-5335-967e-2f2fd153c17d";
+    "#117a8bb9-df2e-5c77-a84d-3ac45add03f0";
   inst = dlite_instance_load_url(url);
   mu_check(inst);
 }
@@ -52,7 +52,7 @@ MU_TEST(test_load)
   nref = inst->_refcount;
   while (nref--) dlite_instance_decref(inst);
 
-  inst = dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
+  inst = dlite_instance_load(s, "117a8bb9-df2e-5c77-a84d-3ac45add03f0");
   mu_check(inst);
   dlite_json_sprint(buf, sizeof(buf), inst, 0, 0);
   printf("%s\n", buf);

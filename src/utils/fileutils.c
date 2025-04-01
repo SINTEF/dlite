@@ -26,6 +26,12 @@
 #include <stdarg.h>
 #include <string.h>
 #include <ctype.h>
+#ifdef HAVE_ACCESS
+#include <unistd.h>
+#endif
+#ifdef HAVE__ACCESS
+#include <io.h>
+#endif
 
 #include "compat.h"
 #include "err.h"
@@ -605,6 +611,33 @@ char *fu_nativepath(const char *path, char *dest, size_t size,
     return err(1, "don't know how to convert path - current platform is "
                "neither Unix or Windows"), NULL;
   }
+}
+
+
+/* Returns zero if path exists. */
+int fu_exists(const char *path)
+{
+#ifdef HAVE_ACCESS
+  return access(path, F_OK);
+#endif
+
+#ifdef HAVE__ACCESS
+  return _access(path, 0);
+#endif
+
+#if defined(HAVE_PathFileExistsW) && defined(HAVE_MBSTOWCS_S)
+  size_t wlen;
+  wchar_t wpath[MAX_PATH+1];
+  if (mbstowcs_s(&wlen, wpath, MAX_PATH+1, path, MAX_PATH+1))
+    return err(-1, "cannot convert path to wide char: %s", path);
+  return (PathFileExistsW(wpath) == TRUE) ? 0 : 1;
+#endif
+
+  // Fallback
+  FILE *fp;
+  if (!(fp = fopen(path, "rb"))) return 1;
+  fclose(fp);
+  return 0;
 }
 
 

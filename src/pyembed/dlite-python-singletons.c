@@ -82,9 +82,9 @@ PyObject *dlite_python_module_dict(void)
   assert(name);
   if (!(module = PyImport_GetModule(name)) &&
       !(module = PyImport_ImportModule("dlite")))
-    FAIL("cannot import dlite module");
+    FAILCODE(dlitePythonError, "cannot import dlite module");
   if (!(dict = PyModule_GetDict(module)))
-    FAIL("cannot access the dlite module dict");
+    FAILCODE(dlitePythonError, "cannot access the dlite module dict");
  fail:
   Py_XDECREF(name);
   return dict;

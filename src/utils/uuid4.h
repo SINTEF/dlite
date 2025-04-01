@@ -16,6 +16,11 @@ enum {
   UUID4_EFAILURE = -1
 };
 
+/**
+  Writes a random version 4 UUID to `dst`.
+
+  Returns non-zero on error.
+*/
 int uuid4_generate(char *dst);
 
 #endif
