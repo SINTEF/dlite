@@ -78,7 +78,7 @@ jobs:
 
           # 64-bit manylinux
           - os: ubuntu-20.04
-            system_type: ["manylinux", "_2_34"]
+            system_type: ["manylinux", "_2_28"]
             arch: x86_64
             py_minors: 8,9,10,11,12,13
 
