@@ -17,21 +17,21 @@
 #
 # Generate dockerfile:
 #
-#     .github/docker/gen_dockerfile.sh manylinux _2_34 x86_64 > \
-#         .github/docker/dockerfiles/Dockerfile-manylinux_2_34_x86_64
+#     .github/docker/gen_dockerfile.sh manylinux _2_28 x86_64 > \
+#         .github/docker/dockerfiles/Dockerfile-manylinux_2_28_x86_64
 #
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker build -t dlite-manylinux_2_34_x86_64 \
-#         -f .github/docker/dockerfiles/Dockerfile-manylinux_2_34_x86_64 .
+#     docker build -t dlite-manylinux_2_28_x86_64 \
+#         -f .github/docker/dockerfiles/Dockerfile-manylinux_2_28_x86_64 .
 #
 # Run (for debugging):
 #
 #     docker run --rm -it \
 #         --volume $PWD:/io \
 #         --user $(id -u):$(id -g) \
-#         dlite-manylinux_2_34_x86_64 \
+#         dlite-manylinux_2_28_x86_64 \
 #         /bin/bash
 #
 
