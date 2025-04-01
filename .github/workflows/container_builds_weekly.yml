@@ -24,7 +24,7 @@ jobs:
         include:
         # 64-bit manylinux
         - system: "manylinux"
-          type: "_2_34"
+          type: "_2_28"
           arch: "x86_64"
           py_minors: "8 9 10 11 12 13"
         #- system: "manylinux"
