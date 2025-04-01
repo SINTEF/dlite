@@ -3,5 +3,5 @@ swig==4.3.0 # Must agree with python/pyproject.toml
 cmake==3.31.6 # Must agree with python/pyproject.toml
 wheel==0.45.1 # Must agree with python/pyproject.toml
 
-# Note, the setuptools==77.0.3 is the highest supported version in the Windows wheel
-setuptools==77.0.3 # Must agree with python/pyproject.toml
+# Note, that setuptools 75.3.0 is the highest supported version in the Windows wheel
+setuptools==75.3.0 # Must agree with python/pyproject.toml
