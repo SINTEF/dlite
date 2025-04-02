@@ -3,7 +3,7 @@
   "description": "Represent the force on a set of particles/atoms.",
   "dimensions": {
     "natoms": "Number of particles/atoms.",
-    "ncoords": "Number of coordinates. Always 3.",
+    "ncoords": "Number of coordinates. Always 3."
   },
   "properties": {
     "forces": {
