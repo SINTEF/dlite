@@ -94,7 +94,9 @@ if requests:
     with Protocol(protocol="http", location=url) as pr:
         s = pr.load()
     d = json.loads(s)
-    assert d["25a1d213-15bb-5d46-9fcc-cbb3a6e0568e"]["uri"] == "aa6060"
+    assert d["d4fe482c-ae2d-50f6-9dc8-ed64c5401bc6"]["uri"] == (
+        "http://data.org/aa6060"
+    )
 
 if requests and yaml:
     url = (
