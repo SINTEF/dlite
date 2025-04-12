@@ -39,7 +39,7 @@ MU_TEST(test_save)
 	  = dlite_instance_load(s, "204b05b2-4c89-43f4-93db-fd1cb70f54ef");
   mu_check(dlite_instance_is_data(data1));
   DLiteInstance* data2
-	  = dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
+	  = dlite_instance_load(s, "117a8bb9-df2e-5c77-a84d-3ac45add03f0");
   mu_check(dlite_instance_is_data(data2));
   mu_assert_int_eq(0, dlite_storage_close(s));
 
@@ -76,7 +76,7 @@ MU_TEST(test_load)
   dlite_instance_decref(json_data1);
 
   DLiteInstance *json_data2 =
-    dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
+    dlite_instance_load(s, "117a8bb9-df2e-5c77-a84d-3ac45add03f0");
   mu_check(json_data2);
   char *json_str2 = dlite_json_aprint(json_data2, 0, 1);
   dlite_instance_decref(json_data2);
@@ -109,7 +109,7 @@ MU_TEST(test_load)
   dlite_instance_decref(bson_data1);
 
   DLiteInstance *bson_data2 =
-    dlite_instance_load(s, "e076a856-e36e-5335-967e-2f2fd153c17d");
+    dlite_instance_load(s, "117a8bb9-df2e-5c77-a84d-3ac45add03f0");
   mu_check(bson_data2);
   char* bson_str2 = dlite_json_aprint(bson_data2, 0, 1);
   dlite_instance_decref(bson_data2);

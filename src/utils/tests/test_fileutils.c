@@ -263,6 +263,13 @@ MU_TEST(test_fu_unixpath)
   free(s);
 }
 
+MU_TEST(test_fu_exists)
+{
+  char *testfile = fu_join(STRINGIFY(TESTDIR), "test_fileutils.c", NULL);
+  mu_assert_int_eq(0, fu_exists(testfile));
+  mu_check(fu_exists("_non_existing_file_.abc"));
+}
+
 MU_TEST(test_fu_realpath)
 {
   char *testdir, *path, *realpath;
@@ -520,6 +527,7 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_fu_nextpath);
   MU_RUN_TEST(test_fu_winpath);
   MU_RUN_TEST(test_fu_unixpath);
+  MU_RUN_TEST(test_fu_exists);
   MU_RUN_TEST(test_fu_realpath);
 
   MU_RUN_TEST(test_fu_opendir);       /* setup */
