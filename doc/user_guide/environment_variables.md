@@ -105,6 +105,15 @@ DLITE_USE_BUILD_ROOT is set).
 
 Environment variables for controlling error handling
 ----------------------------------------------------
+  - **ERR_LEVEL**: Lowest error level to report.
+      - "0" | unset       : Show warnings and errors (default)
+      - "1" | "Debug"     : Show all messages, including debugging
+      - "2" | "Info"      : Show all messages, excluding debugging
+      - "3" | "Warning"   : Show warnings and errors
+      - "4" | "Error"     : Only show errors
+      - "5" | "Exception" : Only show exceptions and fatal errors
+      - "6" | "Fatal"     : Only show fatal errors
+
   - **ERR_STREAM**: Error stream to write messages to.  May be:
       - empty             : do not write anything
       - "stderr" | unset  : write to stderr

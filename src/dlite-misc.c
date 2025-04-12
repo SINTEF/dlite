@@ -840,6 +840,8 @@ static void dlite_err_handler(const ErrRecord *record)
   switch (record->level) {
   case errLevelSuccess:
     break;
+  case errLevelDebug:
+  case errLevelInfo:
   case errLevelWarn:
     if (locals->warnings_pattern) {
       int match = !globmatch(locals->warnings_pattern, record->msg);
@@ -1059,6 +1061,10 @@ int dlite_warn(const char *msg, ...) {
   BODY2(warn, msg); return 0; }
 int dlite_warnx(const char *msg, ...) {
   BODY2(warnx, msg); return 0; }
+int dlite_info(const char *msg, ...) {
+  BODY2(info, msg); return 0; }
+int dlite_debug(const char *msg, ...) {
+  BODY2(debug, msg); return 0; }
 
 /* Changed below to explicitely link against _err_vformat() to avoid
    to unintensionally link against the nonstandard BSD family of error
@@ -1078,6 +1084,10 @@ int dlite_vwarn(const char *msg, va_list ap) {
   return _err_vformat(errLevelWarn, 0, errno, NULL, NULL, msg, ap); }
 int dlite_vwarnx(const char *msg, va_list ap) {
   return _err_vformat(errLevelWarn, 0, 0, NULL, NULL, msg, ap); }
+int dlite_vinfo(const char *msg, va_list ap) {
+  return _err_vformat(errLevelInfo, 0, 0, NULL, NULL, msg, ap); }
+int dlite_vdebug(const char *msg, va_list ap) {
+  return _err_vformat(errLevelDebug, 0, 0, NULL, NULL, msg, ap); }
 
 int dlite_errval(void) { return err_geteval(); }
 const char *dlite_errmsg(void) { return err_getmsg(); }
@@ -1101,6 +1111,8 @@ void dlite_err_set_file(const char *filename)
     err(1, "cannot open error file: %s", filename);
 }
 
+int dlite_err_set_level(int level) { return err_set_level(level); }
+int dlite_err_get_level(void) { return err_get_level(); }
 int dlite_err_set_warn_mode(int mode) { return err_set_warn_mode(mode); }
 int dlite_err_get_warn_mode(void) { return err_get_warn_mode(); }
 int dlite_err_set_debug_mode(int mode) { return err_set_debug_mode(mode); }

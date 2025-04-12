@@ -507,6 +507,10 @@ int dlite_warn(const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 1, 2)));
 int dlite_warnx(const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 1, 2)));
+int dlite_info(const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 1, 2)));
+int dlite_debug(const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 1, 2)));
 
 void dlite_vfatal(int eval, const char *msg, va_list ap)
   __attribute__ ((__noreturn__, __format__ (__printf__, 2, 0)));
@@ -520,6 +524,10 @@ int dlite_vwarn(const char *msg, va_list ap)
   __attribute__ ((__format__ (__printf__, 1, 0)));
 int dlite_vwarnx(const char *msg, va_list ap)
   __attribute__ ((__format__ (__printf__, 1, 0)));
+int dlite_vinfo(const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 1, 0)));
+int dlite_vdebug(const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 1, 0)));
 
 int dlite_errval(void);
 const char *dlite_errmsg(void);
@@ -528,6 +536,8 @@ FILE *dlite_err_get_stream(void);
 void dlite_err_set_stream(FILE *stream);
 void dlite_err_set_file(const char *filename);
 
+int dlite_err_set_level(int level);
+int dlite_err_get_level(void);
 int dlite_err_set_warn_mode(int mode);
 int dlite_err_get_warn_mode(void);
 int dlite_err_set_debug_mode(int mode);

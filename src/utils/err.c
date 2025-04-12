@@ -9,6 +9,7 @@
  * TODO: Consider to reuse good ideas from https://github.com/rxi/log.c
  */
 #include <assert.h>
+#include <ctype.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
@@ -64,6 +65,10 @@ typedef struct {
 /* Thread local variables */
 typedef struct {
 
+  /* Lowest error level to report.
+   * If negative (default), check the environment. */
+  ErrLevel err_level;
+
   /* Indicate wheter the error functions should return, exit or about.
    * If negative (default), check the environment. */
   ErrAbortMode err_abort_mode;
@@ -76,7 +81,7 @@ typedef struct {
    * If negative (default), check the environment. */
   ErrDebugMode err_debug_mode;
 
-  /* Whether to */
+  /* Whether to write errors messages color-coded. */
   ErrColorMode err_color_mode;
 
   /* How to handle overridden errors in  ErrTry clauses.
@@ -117,6 +122,7 @@ static void reset_tls(void)
   _globals.err_stream_atexit_called = 0;
 
   memset(&_tls, 0, sizeof(_tls));
+  _tls.err_level = -1;
   _tls.err_abort_mode = -1;
   _tls.err_warn_mode = -1;
   _tls.err_debug_mode = -1;
@@ -132,6 +138,7 @@ static ThreadLocals *get_tls(void)
   if (!_tls_initialized) {
     _tls_initialized = 1;
     memset(&_tls, 0, sizeof(_tls));
+    _tls.err_level = -1;
     _tls.err_abort_mode = -1;
     _tls.err_warn_mode = -1;
     _tls.err_debug_mode = -1;
@@ -168,6 +175,8 @@ static char *err_append_sep = "\n - ";
 /* Error names */
 static char *errlevel_names[] = {
   "Success",
+  "Debug",
+  "Info",
   "Warning",
   "Error",
   "Exception",
@@ -200,6 +209,10 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
   int ignore_new_error = 0;
   ErrHandler handler = err_get_handler();
   ErrNameConv nameconv = err_get_nameconv();
+
+  /* Skip low error levels */
+  if (errlevel < err_get_level())
+    return 0;
 
   /* Check warning mode */
   if (errlevel == errLevelWarn) {
@@ -278,8 +291,9 @@ int _err_vformat(ErrLevel errlevel, int eval, int errnum, const char *file,
     if (errnum)
       n += snprintf(errmsg + n, errsize - n, ": %s", strerror(errnum));
     if (n >= (int)errsize && stream)
-      fprintf(stream, "Warning: error %d truncated due to full message buffer",
-              eval);
+      fprintf(stream,
+              "Warning: error %d truncated due to full message buffer: %s",
+              eval, errmsg);
   }
 
   /* If this error occured after the try clause in an ErrTry handler,
@@ -532,6 +546,40 @@ FILE *err_get_stream(void)
     }
   }
   return g->err_stream;
+}
+
+ErrLevel err_set_level(int level)
+{
+  ThreadLocals *tls = get_tls();
+  int prev = tls->err_level;
+  tls->err_level = level;
+  return prev;
+}
+
+ErrLevel err_get_level(void)
+{
+  ThreadLocals *tls = get_tls();
+  int level = tls->err_level;
+  if (level < 0) {
+    char *s = getenv("ERR_LEVEL");
+    if (!s || !s[0]) {
+      level = 0;
+    } else if (isdigit(s[0])) {
+      level = atoi(s);
+      if (level < 0) level = 0;
+      if (level > errLevelFatal) level = errLevelFatal;
+    } else {
+      size_t i;
+      level = 0;
+      for (i=0; i<sizeof(errlevel_names)/sizeof(char *); i++)
+        if (strcasecmp(s, errlevel_names[i]) == 0) {
+          level = i;
+          break;
+        }
+    }
+    tls->err_level = level;  // cache level for next time
+  }
+  return (level == 0) ? errLevelWarn : level;
 }
 
 ErrAbortMode err_set_abort_mode(int mode)
