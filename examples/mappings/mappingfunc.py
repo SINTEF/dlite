@@ -12,6 +12,7 @@ import dlite
 thisdir = Path(__file__).absolute().parent
 datadir = thisdir / "data"
 entitydir = thisdir / "entities"
+outdir = thisdir / "output"
 dlite.storage_path.append(f"{entitydir}/*.json")
 
 # Create collection -- our knowledge base in this example
@@ -24,7 +25,7 @@ ts = Triplestore(backend="collection", collection=coll)
 DON = ts.bind("don", "http://example.com/demo-ontology#")
 AT = ts.bind("at", "http://onto-ns.com/meta/0.1/Structure#")
 RES = ts.bind("res", "http://onto-ns.com/meta/0.1/CalcResult#")
-MOL = ts.bind("mol", "http://onto-ns.com/meta/0.1/Molecule#")
+MOL = ts.bind("mol", "http://onto-ns.com/meta/0.2/Molecule#")
 
 # Load data
 C3H6 = dlite.Instance.from_location("json", datadir / "C3H6.json")
@@ -101,3 +102,6 @@ molecule, = coll.get_instances(metaid=MOL, property_mappings=True)
 
 print("Molecule instance:")
 print(molecule)
+
+
+ts.serialize(outdir / "mappingfunc.ttl")
