@@ -27,14 +27,11 @@ inst = dlite.Instance.from_location(
     driver="postgresql",
     location=host,
     options=f"user={user};database={database};password={password}",
-    #id="1d3d7cfe-db21-5998-8405-588bc748f657",
     id="Cleopatra",
 )
 
 print(inst)
-assert inst.uuid == "1d3d7cfe-db21-5998-8405-588bc748f657"
-assert inst.uri == "Cleopatra"
 assert inst.meta.uri == "http://onto-ns.com/meta/0.1/SimplePerson"
 assert inst.dimensions == {}
 assert inst.name == "Cleopatra"
-assert inst.age == 2092.0
+assert inst.age == 2092

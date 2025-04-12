@@ -50,7 +50,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
       d = s->api->dataModel(s, id);
   } else if (!id || !*id || s->idflag == dliteIDTranslateToUUID ||
       s->idflag == dliteIDRequireUUID) {
-    if (uuidver != 0 && s->idflag == dliteIDRequireUUID)
+    if (uuidver != dliteIdCopy && s->idflag == dliteIDRequireUUID)
       FAIL1("id is not a valid UUID: \"%s\"", id);
     d = s->api->dataModel(s, uuid);
   }
@@ -63,7 +63,7 @@ DLiteDataModel *dlite_datamodel(const DLiteStorage *s, const char *id)
   d->s = (DLiteStorage *)s;
   memcpy(d->uuid, uuid, sizeof(d->uuid));
 
-  if (uuidver == 5 && s->flags & dliteWritable && s->api->setDataName)
+  if (uuidver == dliteIdHash && s->flags & dliteWritable && s->api->setDataName)
     s->api->setDataName(d, id);
 
  fail:

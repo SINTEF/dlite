@@ -1,6 +1,6 @@
 {
-  "2f8ba28c-add6-5718-a03c-ea46961d6ca7":   {
-    "uri": "my_test_instance_1",
+  "410ace1a-1e71-5e08-9ff3-b952307dbffe":   {
+    "uri": "http://data.org/my_test_instance_1",
     "meta": "http://onto-ns.com/meta/0.1/TestEntity",
     "dimensions": {
       "L": 2,

@@ -1,10 +1,36 @@
+410ace1a-1e71-5e08-9ff3-b952307dbffe:
+  uri: http://data.org/my_test_instance_1
+  meta: http://onto-ns.com/meta/0.1/TestEntity
+  dimensions:
+    L: 2
+    M: 1
+    N: 3
+  properties:
+    myblob: 0a0010
+    mydouble: 3.14
+    myfixstring: Al
+    mystring: allocated string...
+    myshort: 17
+    myarray:
+    - - - 1
+        - 2
+        - 3
+    - - - 4
+        - 5
+        - 6
 52522ba5-6bfe-4a64-992d-e9ec4080fbac:
+  uuid: 52522ba5-6bfe-4a64-992d-e9ec4080fbac
   meta: http://onto-ns.com/meta/0.1/TestEntity
   dimensions:
     L: 2
     M: 2
     N: 3
   properties:
+    myblob: 0a0120
+    mydouble: 2.72
+    myfixstring: Si
+    mystring: '...'
+    myshort: 13
     myarray:
     - - - 1
         - 2
@@ -18,29 +44,3 @@
       - - 6
         - 5
         - 4
-    myblob: 0a0120
-    mydouble: 2.72
-    myfixstring: Si
-    myshort: 13
-    mystring: '...'
-
-2f8ba28c-add6-5718-a03c-ea46961d6ca7:
-  uri: my_test_instance_1
-  meta: http://onto-ns.com/meta/0.1/TestEntity
-  dimensions:
-    L: 2
-    M: 1
-    N: 3
-  properties:
-    myarray:
-    - - - 1
-        - 2
-        - 3
-    - - - 4
-        - 5
-        - 6
-    myblob: 0a0010
-    mydouble: 3.14
-    myfixstring: Al
-    myshort: 17
-    mystring: allocated string...

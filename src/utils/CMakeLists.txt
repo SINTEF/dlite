@@ -86,6 +86,8 @@ check_symbol_exists(strlcat             string.h                 HAVE_STRLCAT)
 
 check_symbol_exists(getopt              unistd.h                 HAVE_GETOPT)
 check_symbol_exists(getopt_long         getopt.h                 HAVE_GETOPT_LONG)
+check_symbol_exists(access              unistd.h                 HAVE_ACCESS)
+check_symbol_exists(_access             io.h                     HAVE__ACCESS)
 
 # snprintf() is broken on windows - use own implementation there
 if(NOT WIN32)
@@ -230,7 +232,7 @@ else()
   check_symbol_exists(bswap_32 byteswap.h HAVE_BSWAP_32)
   check_symbol_exists(bswap_64 byteswap.h HAVE_BSWAP_64)
   check_symbol_exists(bswap_128 byteswap.h HAVE_BSWAP_128)
-  
+
   check_symbol_exists(htobe16 endian.h HAVE_HTOBE16)
   check_symbol_exists(htobe32 endian.h HAVE_HTOBE32)
   check_symbol_exists(htobe64 endian.h HAVE_HTOBE64)

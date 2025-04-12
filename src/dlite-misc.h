@@ -11,7 +11,11 @@
 #include "dlite-errors.h"
 #include "dlite-type.h"
 
-#define DLITE_UUID_LENGTH 36  /*!< length of an uuid (excl. NUL-termination) */
+/** length of an uuid (excl. NUL-termination) */
+#define DLITE_UUID_LENGTH 36
+
+/** Fallback namespace for data instances */
+#define DLITE_DATA_NS "http://onto-ns.com/data"
 
 
 /**
@@ -30,30 +34,119 @@ const char *dlite_get_version(void);
  */
 FUPlatform dlite_get_platform(void);
 
-/**
-  Writes an UUID to `buff` based on `id`.
 
-  Whether and what kind of UUID that is generated depends on `id`:
-    - If `id`  is NULL or empty, a new random version 4 UUID is generated.
-    - If `id` is not a valid UUID string, a new version 5 sha1-based UUID
-      is generated from `id` using the DNS namespace.
-    - Otherwise is `id` already a valid UUID and it is simply copied to
-      `buff`.
+/**
+  Returns current platform based on the DLITE_PLATFORM environment
+  variable.  Used when initiating paths.
+ */
+FUPlatform dlite_get_platform(void);
+
+
+
+/** Ways to express an instance ID. */
+typedef enum {
+  dliteIdRandom,  /*!< new random version 4 UUID */
+  dliteIdHash,    /*!< new version 5 UUID with DNS namespace */
+  dliteIdCopy     /*!< copy UUID */
+} DLiteIdType;
+
+/**
+  Returns non-zero if `id` is a valid UUID.
+*/
+int dlite_isuuid(const char *id);
+
+/**
+  Returns the ID type of `id`.
+ */
+DLiteIdType dlite_idtype(const char *id);
+
+/**
+  Like dlite_idtype(), but takes the the length of `id` as an
+  additional argument.
+*/
+DLiteIdType dlite_idtypen(const char *id, int len);
+
+/**
+  Write normalised `id` to `buff`, which is a buffer of size `n`.
+
+  The normalisation is done according to the following table:
+
+  | ID             | Normalised ID  |
+  |----------------|----------------|
+  | NULL           | NULL           |
+  | *uuid*         | *ns* / *uuid*  |
+  | *uri* / *uuid* | *uri* / *uuid* |
+  | *uri*          | *uri*          |
+  | *name*         | *ns* / *name*  |
+
+  where;
+
+  - *uuid* is a valid UUID. Ex: "0a46cacf-ce65-5b5b-a7d7-ad32deaed748"
+  - *ns* is the predefined namespace string "http://onto-ns.com/data"
+  - *uri* is a valid URI with no query or fragment parts.
+    Ex: "http://onto-ns.com/meta/0.1/MyDatamodel"
+  - *name* is a string that is neither a UUID or a URL. Ex: "aa6060"
+
+  A final hash or slash in `id` is stripped off.
+
+  Return the number of bytes written `buff` (excluding the terminating
+  NUL) or would have been written to `buff` if it is not large enough.
+  A negative number is returned on error.
+ */
+int dlite_normalise_id(char *buff, size_t n, const char *id, const char *uri);
+
+/**
+  Like dlite_normalise_id(), but takes `len`, the the length of `id` as an
+  additional argument.
+*/
+int dlite_normalise_idn(char *buff, size_t n,
+                        const char *id, size_t len,
+                        const char *uri);
+
+/**
+  Writes instance UUID to `buff` based on `id`.
 
   Length of `buff` must at least (DLITE_UUID_LENGTH + 1) bytes (36 bytes
   for UUID + NUL termination).
 
-  Returns the UUID version if a new UUID is generated or zero if `id`
-  is already a valid UUID.  On error, -1 is returned.
+  The UUID is calculated according to this table.
+
+  | ID             | Corresponding UUID    | ID type       | Note      |
+  |----------------|-----------------------|------.....----|-----------|
+  | NULL           | random UUID           | dliteIdRandom |           |
+  | *uuid*         | *uuid*                | dliteIdCopy   |           |
+  | *uri* / *uuid* | *uuid*                | dliteIdCopy   |           |
+  | *uri*          | hash of *uri*         | dliteIdHash   |           |
+  | *name*         | hash of *name*        | dliteIdHash   |  < v0.6.0 |
+  | *name*         | hash of *ns* / *name* | dliteIdHash   | >= v0.6.0 |
+
+  where:
+
+  - *uuid* is a valid UUID. Ex: "0a46cacf-ce65-5b5b-a7d7-ad32deaed748"
+  - *ns* is the predefined namespace string "http://onto-ns.com/data"
+  - *uri* is a valid URI with no query or fragment parts.
+    Ex: "http://onto-ns.com/meta/0.1/MyDatamodel"
+  - *name* is a string that is neither a UUID or a URL. Ex: "aa6060"
+
+  A version 4 UUID is used for the random UUID and a version 5 UUID
+  (with the DNS namespace) is used fhr the hash.
+
+  Returns the DLite ID type or a negative error code on error.
  */
-int dlite_get_uuid(char *buff, const char *id);
+DLiteIdType dlite_get_uuid(char *buff, const char *id);
 
 /**
   Like dlite_get_uuid(), but takes the the length of `id` as an
   additional parameter.
  */
-int dlite_get_uuidn(char *buff, const char *id, size_t len);
+DLiteIdType dlite_get_uuidn(char *buff, const char *id, size_t len);
 
+/*
+  Internal help-function for dlite_get_uuidn(), which takes the
+  namespacedID behavior as argument.
+ */
+DLiteIdType _dlite_get_uuidn(char *buff, const char *id, size_t len,
+                             int namespacedID);
 
 /**
   Returns an unique uri for metadata defined by `name`, `version`
@@ -414,6 +507,10 @@ int dlite_warn(const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 1, 2)));
 int dlite_warnx(const char *msg, ...)
   __attribute__ ((__format__ (__printf__, 1, 2)));
+int dlite_info(const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 1, 2)));
+int dlite_debug(const char *msg, ...)
+  __attribute__ ((__format__ (__printf__, 1, 2)));
 
 void dlite_vfatal(int eval, const char *msg, va_list ap)
   __attribute__ ((__noreturn__, __format__ (__printf__, 2, 0)));
@@ -427,6 +524,10 @@ int dlite_vwarn(const char *msg, va_list ap)
   __attribute__ ((__format__ (__printf__, 1, 0)));
 int dlite_vwarnx(const char *msg, va_list ap)
   __attribute__ ((__format__ (__printf__, 1, 0)));
+int dlite_vinfo(const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 1, 0)));
+int dlite_vdebug(const char *msg, va_list ap)
+  __attribute__ ((__format__ (__printf__, 1, 0)));
 
 int dlite_errval(void);
 const char *dlite_errmsg(void);
@@ -435,6 +536,8 @@ FILE *dlite_err_get_stream(void);
 void dlite_err_set_stream(FILE *stream);
 void dlite_err_set_file(const char *filename);
 
+int dlite_err_set_level(int level);
+int dlite_err_get_level(void);
 int dlite_err_set_warn_mode(int mode);
 int dlite_err_get_warn_mode(void);
 int dlite_err_set_debug_mode(int mode);
