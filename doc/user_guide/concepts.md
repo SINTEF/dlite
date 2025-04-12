@@ -1,34 +1,18 @@
 DLite Concepts
 ==============
+DLite is a lightweight data-centric framework for semantic interoperability.
 
-DLite is an implementation of [SOFT], which stands for SINTEF Open
-Framework and Tools and is a set of concepts for how to achieve
-semantic interoperability as well as implementations and corresponding
-tooling.
+The core of DLite is a framework for formalised representation of data
+described by data models (also called metadata or entities).
+On top of this, DLite has a plugin system for various representations of
+the data in different formats and storages, as well as bindings to popular
+languages like Python, mappings to ontological concepts for enhanced
+semantics and a set of tools.
 
-The development of SOFT was motivated by many years of experience with
-developing scientific software, where it was observed that a lot of
-efforts went into developing parts that had little to do with the
-domain.
-A significant part of the development process was spent on different
-software engineering tasks, such as code design, the handling of I/O,
-correct memory handling of the program state and writing import and
-export filters in order to use data from different
-sources.
-In addition comes the code maintenance with support of legacy formats
-and the introduction of new features and changes to internal data
-state in the scientific software.
-With SOFT it is possible to utilize reusable software components that
-handle all this, or develop new reusable software components that can
-be used by others in the same framework.
-At the core of SOFT are the [SOFT data models], which by design provide
-a simple but powerful way to represent scientific data.
+DLite is a C implementation of the [SINTEF Open Framework and Tools
+(SOFT)], which is a set of concepts and tools for using data
+models to efficiently describe and work with scientific data.
 
-Originally DLite started as a simplified pure C implementation of SOFT
-based on [SOFT5], but has with time developed into a robust framework
-with a large set of [features].
-There is also [SOFT7], a new version of SOFT written in pure Python
-where new features are tested out.
 
 The main components of DLite are shown in Figure 1, including bindings
 to several programming languages, tools, the plugin framework for
@@ -72,7 +56,7 @@ Since any complex software will have many data models and often multiple
 instances of the same data model, DLite allows for creating collections of
 data models with defined relationships.
 
-One idea of SOFT is that software may be written is such way that
+An important idea is that software may be written is such way that
 business logic is handled by the codebase, while I/O, file-formats,
 version handling, data import/export and interoperability can be
 handled by reusable components in the DLite-framework, thus reducing
@@ -89,28 +73,24 @@ The instances colored orange are predefined, while the other may be defined by t
 Data instances 5 and 6 are what we normally will call a collection._
 
 Figure 2 shows the datamodel hierarchy implemented in DLite.
-As a user, you will almost always deal with only entities or data
+As a user, you will almost always deal with only data models or data
 instances, but the hierarchy gives DLite a strong and theoretically
 well-defined schema.
 
 An *instance* in DLite is a formal representation of a dataset.  It is
-called an instance, because it is an instance of a data model (or
-*metadata* using the DLite terminology).
+called an instance, because it is an instance of a data model.
 This is similar to instances of classes in object oriented programming.
 
-In DLite we often say that an instance is described by its metadata (aka data model).
-The DLite metadata are themselves formalised and described by their meta-metadata.
-Hence, metadata are instances, too.
+In DLite we often say that an instance is described by its data model
+(also called entity for historical reasons).
+The DLite data models are themselves formalised and described by their metadata.
+Hence, data models are instances, too.
 
-At the lowest level of abstraction we have the actual data or *data
-instances*.
-Metadata that describe *data instances* are (for historical reasons
-and compatibility with SOFT) called *entities*.
-*Entities* are instances of the *EntitySchema*.
+Data models are instances of the *EntitySchema*.
 The *EntitySchema* is an instance of the *BasicMetadataSchema*, which is an
 instance of itself (meaning that it can be used to describe itself).
 Hence, in DLite **everything is an instance**.  This has a practical
-implication that the API for instances can be applied to all metadata
+implication that the API for instances can be applied to all data models
 as well.  Since the BasicMetadataSchema can describe itself, no more
 abstraction levels are needed, making the DLite metadata schema
 complete and well-defined.
@@ -122,7 +102,7 @@ In DLite all instances that describe other instances (of a lower abstraction
 level) are called *metadata*.
 
 Compared to ontologies, *data instances* correspond to OWL individuals
-while *entities* correspond to OWL classes.
+while *data models* correspond to OWL classes.
 OWL, which is based on first order logic, does not have concepts corresponding
 to the higher abstraction levels of EntitySchema and BasicMetadataSchema.
 
@@ -133,48 +113,46 @@ common BasicMetadataSchema.
 Of course, this requires a common agreement on the BasicMetadataSchema.
 
 
-### Entities
-An entity can be a single thing or object that represents something
-physical or nonphysical, concrete or abstract.
-The entity contains information about the data that constitutes the
+### Data models
+A data model contains information about the data that constitutes the
 state of the object it describes.
-The entity does not contain the actual data, but describes what the
+The data model does not contain the actual data, but describes what the
 different data fields are, in terms of name, data types, units,
 dimensionality etc.
 Information about data is often called metadata.
-Formal meta data enables for the correct interpretation of a set of
+Formal metadata enables for the correct interpretation of a set of
 data, which otherwise would be unreadable.
 
-An example of an entity is 'Atom', which can be defined as something
+An example of a data model is 'Atom', which can be defined as something
 that has a position, an atomic number (which characterizes the
 chemical element), mass, charge, etc.
-Another example of a completely different kind of entity can be a data
-reference-entity with properties such as name, description, license,
-access-url, media-type, format, etc. The first entity is suitable as
+Another example of a completely different kind of data model can be a data
+reference-data model with properties such as name, description, license,
+access-url, media-type, format, etc. The first data model is suitable as
 an object in a simulation code, while the latter is more suitable for
 a data catalog distribution description (e.g. [dcat:Distribution]).
-Entities allows for describing many aspects of the domain.
-While each entity describes a single unit of information, a set of
-entities can describe the complete domain.
+Data models allows for describing many aspects of the domain.
+While each data model describes a single unit of information, a set of
+data models can describe the complete domain.
 
 
 #### Uniqueness & immutability
-To ensure consistency, an entity (or other metadata) should never be
+To ensure consistency, a data model (or metadata) should never be
 changed once published.
 They are uniquely identified by their *URI*, which has 3 separate
-elements: a namespace, a version number and a name.
-An entity named 'Particle' is unlikely to have the same meaning and
+parts: a namespace, a version number and a name.
+An data model named 'Particle' is unlikely to have the same meaning and
 the set of parameters across all domains.
-In particle physics, the entity 'Particle' would constitute matter and
+In particle physics, it would constitute matter and
 radiation, while in other fields the term 'Particle' can be a general
-term to describe something small.
-For this reason SOFT entities have namespaces, similar to how
+term to describe a small inclusion or innoculant.
+For this reason data models have namespaces, similar to how
 vocabularies are defined in OWL.
 The version number is a pragmatic solution to handle how properties of
-an entity might evolve during the development process.
-In order to handle different versions of a software, the entity
+a data model might evolve during the development process.
+In order to handle different versions of a software, the data model
 version number can be used to identify the necessary transformation
-between two data sets.
+(instance mappings) between two versions of a data model.
 
 For example, the URI for the EntitySchema is
 http://onto-ns.com/meta/0.3/EntitySchema, with
@@ -184,49 +162,28 @@ URIs do not have to be resolvable, but it is good practice that they
 resolves to their definition.
 
 
-### Instances
-Instances are identified by a [universally unique identifier (UUID)],
-which is a 128 bit label expressed as a string of the form
-`8290318f-258e-54e2-9838-bb187881f996`.
-Since metadata are instances, they also have a UUID (which is
-calculated as a hash of their URI).
-
-DLite also allows the user to identify a data instance with a human
-readable URI.
-Like for metadata, the UUID will then be calculated as a hash of the
-URI.
-The tool `dlite-getuuid` can be used to manually convert URIs to their
-corresponding UUIDs.
-
-Currently DLite does not enforce that user-defined URIs must follow
-the [RFC 3986] standard for a [valid URI], but it is recommended to do
-so in order to allow using the URI as a valid [RDF]
-subject or object in a knowledge base.
-For this purpose, DLite also allows to refer to data instances using
-ids of the form `<metadata_uri>/<uuid>` (for example
-http://onto-ns.com/meta/0.1/Collection/db6e092b-20f9-44c1-831b-bd597c96daae).
-
-
-Metadata semantics
-------------------
+Data model semantics
+--------------------
 ![The datamodel of DLite.](../_static/datamodel.svg)
 
 _**Figure 3**. The DLite data model._
 
 The DLite data model is defined by the [Datamodel ontology] and shown
 schematically in Figure 3.
-In orange we have the same hierarchy as shown in Figure 2 with *instance*
+In orange we have the same hierarchy as shown in Figure 2, with *instance*
 as the most general concepts.
 
-As discussed above, all instances have an UUID that is used as their
-main identifier for database lookup.
-All metadata as well as some data instances can also be identified by
-a URI (in which case the UUID is a hash of this URI).
-Instances also have a *meta* field that refer to the metadata that it
-is described by (or that it is an instance of).
+All data models and metadata have the following fields:
+- *uri*: URI that uniquely identifies the data model.
+- *uuid*: An UUID calculated as a hash of the *uri*. Used for database lookup.
+- *meta*: The URI of the meta-metadata that this metadata is an instance of.
+  If omitted, it defaults to the entity schema, which describes data models.
+- *description*: A human description of the data model.
+- *dimensions*: Common dimension used for array properties.
+- *properties*: Descriptions of each of the underlying data properties.
+- *relations*: A sequence of RDF subject-predicate-object triples with
+  additional documentation.
 
-In general metadata describe their instances using *dimensions*,
-*properties* and *relations*.
 Properties describe data in terms of keyword-value pairs, dimensions
 enable efficient description of multi-dimensional arrays and relations
 can describe anything that can be represented in a knowledge base.
@@ -234,7 +191,7 @@ Together they provide a general means to describe all types of data
 that can be represented digitally.
 Note however, that not all metadata uses all of these three ways to
 describe their instances.
-For example, entities have only dimensions and properties.
+For example, data models have only dimensions and properties.
 Also note that dimensions and properties cannot have the same name, since
 they are accessed from the same namespace.
 
@@ -254,8 +211,8 @@ attributes:
   referring to other instances.
 - *shape*: The dimensions of multi-dimensional properties.
   This is a list of dimension expressions referring to the dimensions defined above.
-  For instance, if an entity have dimensions with names `H`, `K` and `L` and
-  a property with shape `["K", "H+1"]`, the property of an instance of this entity
+  For instance, if a data model have dimensions with names `H`, `K` and `L` and
+  a property with shape `["K", "H+1"]`, the property of an instance of this data model
   with dimension values `H=2, K=2, L=6` will have shape `[2, 3]`.
 - *unit*: The unit of the property.
 - *description*: A human description of the property.
@@ -265,22 +222,82 @@ Please note that *dims* is a now deprecated alias for *shape*.
 
 ### Relation
 A RDF subject-predicate-object triplet.
-Relations are currently not explored in metadata, but are included because of
+Relations are currently not explored in data models, but are included because of
 their generality.
 However, relations are heavily used in [collections].
 
-references
-----------
 
-[SOFT]: https://www.sintef.no/en/publications/publication/1553408/
-[SOFT data models]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md#soft5-features
-[SOFT5]: https://github.com/NanoSim/Porto/blob/porto/Preview-Final-Release/doc/manual/02_soft_introduction.md
-[SOFT7]: https://github.com/SINTEF/soft7
+### Identifiers
+Instances are uniquely identified by a [universally unique identifier
+(UUID)][UUID], which is a 128 bit label expressed as a string of the
+form `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx`, where the `x`es are
+hexadecimal digits in the range [0-9a-fA-F].
+
+Since data models are a subclass of instances, as described above,
+they are also uniquely identified by their UUID. The UUID of a data
+model is calculated as a version 5 SHA1-based UUID hash of the data
+model URI using the DNS namespace (with an optional final hash (#) or
+slash (/) stripped off).
+
+Furthermore, to allow identifiers to be used in triplestores, they can
+also be normalised to (potentially) resolvable IRIs. The columns in
+the table below list the three representations of identifiers. Any
+representation can be considered an ID, while normalised IDs are valid
+IRIs.
+
+| ID             | Normalised ID  | Corresponding UUID    | Note          |
+|----------------|----------------|-----------------------|---------------|
+| *uuid*         | *ns* / *uuid*  | *uuid*                |               |
+| *uri* / *uuid* | *uri* / *uuid* | *uuid*                |               |
+| *uri*          | *uri*          | hash of *uri*         |               |
+| *name*         | *ns* / *name*  | hash of *name*        | before v0.6.0 |
+| *name*         | *ns* / *name*  | hash of *ns* / *name* | v0.6.0+       |
+
+**Explanation of the symbols used in the table**
+
+- *uuid* is a valid UUID. Ex: "0a46cacf-ce65-5b5b-a7d7-ad32deaed748"
+- *ns* is the predefined namespace string: "http://onto-ns.com/data"
+- *uri* is a valid URI with no query or fragment parts (as defined in
+  the [RFC 3986] standard). Ex: "http://onto-ns.com/meta/0.1/MyDatamodel"
+- *name* is a string that is neither a UUID or a URL. Ex: "aa6060".
+
+```{note}
+The way a UUID is calculated from an ID of the form of a *name* was changed
+in version 0.6.0.
+
+The reason for this change is to ensure that the same UUID is obtained,
+regardless of whether it is calculated from the *name* or its corresponding
+normalised ID.
+
+The behavior can be controlled with the `namespacedID` [behavior].
+```
+
+Any ID can uniquely be converted to a normalised ID and any normalised
+ID can uniquely be converted to a UUID.  Most importantly, using a
+normalised ID or UUID as an ID will result in the same corresponding UUID.
+
+Going back is also possible. A UUID can be converted to a normalised
+ID (ex: *uuid* -> *ns* / *uuid*) and a normalised `ID can be converted
+to an ID (ex: *uri* -> *uri*). However, these conversions are not
+unique.
+
+The *id* form is convenient for human readable identifiers. But please
+note, that such *id*'s must be globally unique. it is therefore
+recommended to use normalised IDs instead. These are also valid IRIs
+and can be used knowledge bases.
+
+The tool `dlite-getuuid` can be used to manually convert URIs to their
+corresponding UUIDs (or normalised IRI).
+
+
+
+[SINTEF Open Framework and Tools (SOFT)]: history.md
 [features]: features.md
 [collections]: collections.md
 [dcat:Distribution]: https://www.w3.org/TR/vocab-dcat-3/#Class:Distribution
 [UUID]: https://en.wikipedia.org/wiki/Universally_unique_identifier
 [Datamodel ontology]: https://github.com/emmo-repo/datamodel
+[behavior]: https://sintef.github.io/dlite/user_guide/configure_behavior_changes.html
 
 [RFC 3986]: https://datatracker.ietf.org/doc/html/rfc3986
 [valid URI]: https://en.wikipedia.org/wiki/Uniform_Resource_Identifier#syntax

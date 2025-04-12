@@ -10,7 +10,6 @@
 #include "utils/compat.h"
 #include "utils/strutils.h"
 
-#include "getuuid.h"
 #include "dlite.h"
 #include "dlite-macros.h"
 #include "dlite-json.h"
@@ -550,12 +549,12 @@ static int get_meta_uuid(char uuid[DLITE_UUID_LENGTH+1], const char *src,
                          const jsmntok_t *obj)
 {
   int retval=1;
-  char *buf;
+  char *buf=NULL;
   if (!(buf = get_meta_uri(src, obj))) goto fail;
   if (dlite_get_uuid(uuid, buf) < 0) goto fail;
   retval = 0;
  fail:
-  free(buf);
+  if (buf) free(buf);
   return retval;
 }
 
@@ -599,8 +598,13 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   if (id && *id) {
     char uuid2[DLITE_UUID_LENGTH+1];
     if (dlite_get_uuid(uuid2, id) < 0) goto fail;
-    if (strcmp(uuid, uuid2) != 0)
-      FAIL3("instance has id \"%s\", expected \"%s\" (%s)", uuid, uuid2, id);
+    if (strcmp(uuid, uuid2) != 0) {
+      dlite_warn("Instance \"%s\" include an URI \"%s\" whos UUID (%s) is "
+                 "inconsistent with the instance UUID (%s). "
+                 "This may be due to the namespacedID behavior change. "
+                 "Ignoring the URI.", id, uri, uuid, uuid2);
+      uri = NULL;
+    }
   }
   if (uri) id = uri;
 
@@ -704,10 +708,9 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
     /* -- assign uri */
     if (!inst->uri) {
-      char uuid2[DLITE_UUID_LENGTH+1];
       if (uri)
         inst->uri = strdup(uri);
-      else if (id && dlite_get_uuid(uuid2, id) > 0)
+      else if (id && !dlite_isuuid(id))
         inst->uri = strdup(id);
     }
 
@@ -955,13 +958,13 @@ DLiteJsonFormat dlite_json_check(const char *src, const jsmntok_t *tokens,
   }
 
   if (!(flg & dliteJsonSingle)) {
-    int ver;
+    int idtype;
     key = item - 1;
-    if ((ver = dlite_get_uuidn(uuid, src + key->start,
+    if ((idtype = dlite_get_uuidn(uuid, src + key->start,
                                key->end - key->start)) < 0)
       FAIL2("cannot calculate uuid for key: \"%.*s\"",
             key->end - key->start, src + key->start);
-    if (ver > 0) flg |= dliteJsonUriKey;
+    if (idtype == dliteIdHash) flg |= dliteJsonUriKey;
   }
 
   if (!(props = jsmn_item(src, item, "properties")))
@@ -1235,10 +1238,9 @@ DLiteJsonFormat dlite_jstore_loads(JStore *js, const char *src, int len)
          uuid to the jstore */
       const char *id = src + t->start;
       int len = t->end - t->start;
-      int uuidver = dlite_get_uuidn(uuid, id, len);
-      if (uuidver < 0)
+      if (dlite_get_uuidn(uuid, id, len) < 0)
         goto fail;
-      else if (uuidver > 0)
+      else if (len != DLITE_UUID_LENGTH || !dlite_isuuid(id))
         jstore_set_labeln(js, uuid, id, len);
 
       if (jstore_addn(js, uuid, DLITE_UUID_LENGTH,
@@ -1300,16 +1302,16 @@ DLiteInstance *dlite_jstore_get(JStore *js, const char *id)
 {
   char uuid[DLITE_UUID_LENGTH+1];
   const char *buf=NULL, *scanid=id;
-  int uuidver = dlite_get_uuid(uuid, id);
-  if (uuidver < 0 || uuidver == UUID_RANDOM)
+  DLiteIdType idtype = dlite_get_uuid(uuid, id);
+  if (idtype < 0 || idtype == dliteIdRandom)
     return errx(dliteKeyError, "cannot derive UUID from id: '%s'", id), NULL;
   if (!(buf = jstore_get(js, uuid)) &&
       !(buf = jstore_get(js, id)))
     return errx(dliteKeyError, "no such id in store: '%s'", id), NULL;
 
   /* If `id` is an UUID, check if `id` has been associated with a label */
-  if ((uuidver == UUID_COPY || uuidver == UUID_EXTRACT) &&
-      !(scanid = jstore_get_label(js, id))) scanid = id;
+  if (idtype == dliteIdCopy && !(scanid = jstore_get_label(js, id)))
+    scanid = id;
 
   return dlite_json_sscan(buf, scanid, NULL);
 }

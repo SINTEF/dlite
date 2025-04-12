@@ -7,7 +7,7 @@
 
 #include "utils/compat-src/getopt.h"
 #include "utils/err.h"
-#include "getuuid.h"
+#include "dlite-misc.h"
 
 
 void help()
@@ -15,7 +15,11 @@ void help()
   char **p, *msg[] = {
     "Usage: dlite-getuuid [-h] [STRING]",
     "Generates an UUID.",
-    "  -h, --help     Prints this help and exit.",
+    "  -h, --help          Prints this help and exit.",
+    "  -n, --normalise-id  Return normalised ID instead of a UUID.",
+    "  -u, --uri=URI       Used together with --normalise-id.",
+    "                      A optional namespace to prepend to STRING, ",
+    "                      if STRING is not a URI.",
     "",
     "If STRING is not given, a random (version 4) UUID is printed to stdout.",
     "",
@@ -33,19 +37,40 @@ void help()
 
 int main(int argc, char *argv[])
 {
-  char buff[37];
+  char *id=NULL, *uri=NULL, buf[512];
+  int normalise_id = 0;
 
-  if (argc > 1 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help"))) {
-    help();
-    return 0;
+  /* Command line arguments */
+  err_set_prefix("dlite-getuuid");
+
+  /* Parse options and arguments */
+  while (1) {
+    int longindex = 0;
+    struct option longopts[] = {
+      {"help",             0, NULL, 'h'},
+      {"normalised-id",    0, NULL, 'n'},
+      {"uri",              1, NULL, 'u'},
+      {NULL, 0, NULL, 0}
+    };
+    int c = getopt_long(argc, argv, "hnu:", longopts, &longindex);
+    if (c == -1) break;
+    switch (c) {
+    case 'h':  help(); exit(0);
+    case 'n':  normalise_id = 1; break;
+    case 'u':  uri = optarg; break;
+    case '?':  exit(1);
+    default:   abort();
+    }
   }
-  if (argc <= 1)
-    getuuid(buff, NULL);
-  else if (argc == 2)
-    getuuid(buff, argv[1]);
-  else
-    return err(1, "dgetuuid: too many arguments.  Try `dgetuuid -h`.");
+  if (optind < argc) id = argv[optind++];
+  if (optind != argc)
+    return errx(1, "Too many arguments. Try `dlite-getuuid --help`.");
 
-  printf("%s\n", buff);
+  if (normalise_id)
+    dlite_normalise_id(buf, sizeof(buf), id, uri);
+  else
+    dlite_get_uuid(buf, id);
+
+  printf("%s\n", buf);
   return 0;
 }

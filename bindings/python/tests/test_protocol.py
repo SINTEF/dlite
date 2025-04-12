@@ -69,8 +69,8 @@ data1 = archive_extract(data, "blob1.json")
 data2 = archive_extract(data, "blob2.json")
 b1 = dlite.Instance.from_bytes("json", data1)
 b2 = dlite.Instance.from_bytes("json", data2)
-assert b1.uri == "blob1"
-assert b2.uri == "blob2"
+assert b1.uri == "http://onto-ns.com/data/blob1"
+assert b2.uri == "http://onto-ns.com/data/blob2"
 assert b1.content.tolist() == [97, 98, 99]
 assert b2.content.tolist() == [97, 98, 99]
 
@@ -94,7 +94,9 @@ if requests:
     with Protocol(protocol="http", location=url) as pr:
         s = pr.load()
     d = json.loads(s)
-    assert d["25a1d213-15bb-5d46-9fcc-cbb3a6e0568e"]["uri"] == "aa6060"
+    assert d["d4fe482c-ae2d-50f6-9dc8-ed64c5401bc6"]["uri"] == (
+        "http://data.org/aa6060"
+    )
 
 if requests and yaml:
     url = (
