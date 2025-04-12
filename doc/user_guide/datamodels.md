@@ -1,5 +1,5 @@
-Representing a datamodel (entity)
-=================================
+Representing a datamodel
+========================
 
 The underlying structure of DLite datamodels are described under [concepts].
 
@@ -9,9 +9,14 @@ Note that several other possibilities are avilable, and this can be seen in the
 examples and tests present in the repository.
 
 We choose here to present only one method as mixing reprentation methods might
-be confusing. Note, however that yaml and json representations are interchangable.
+be confusing. Note, however that yaml and json representations are interchangeable.
 
+
+Generic example
+---------------
 A generic example with some comments for clarity can be seen below.
+For brevity, we choose here to represent the datamodel in [YAML] format.
+However, the structure is exactly the same for the [JSON] format.
 
 ```yaml
 uri: http://namespace/version/name
@@ -65,9 +70,43 @@ properties:
 ```
 
 
-dlite-validate
---------------
-The [dlite-validate tool][./tools.md#dlite_validate] can be used to check if a specific representation (in a file) is a valid DLite datamodel
+The soft5 and soft7 formats
+---------------------------
+For historical reasons are there two formats for the YAML and JSON representations.
+The examples above are represented in the *soft7* format.
+This format works well with pydantic models and is slightly less verbose than the older *soft5* format, which works well with JSON-LD and JSON-SCHEMA.
+
+The above `http://onto-ns.com/meta/0.1/Person` datamodel has the following representation in the *soft5* format:
+
+```yaml
+uri: http://onto-ns.com/meta/0.1/Person
+description: A person.
+dimensions:
+  - name: N
+    description: Number of skills.
+properties:
+  - name: name
+    description: Full name.
+    type: string
+  - name: age
+    description: Age of person.
+    type: float
+    unit: years
+  - name: skills
+    description: List of skills.
+    type: string
+    shape: [N]
+```
+
+
+
+
+Validating data models
+----------------------
+The [dlite-validate] tool can be used to check if a specific representation (in a file) is a valid DLite datamodel
 
 
 [concepts]: https://sintef.github.io/dlite/user_guide/concepts.html
+[JSON]: https://www.json.org/
+[YAML]: https://yaml.org/
+[dlite-validate]: https://sintef.github.io/dlite/user_guide/tools.html#dlite-validate
