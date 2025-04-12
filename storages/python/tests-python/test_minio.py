@@ -25,7 +25,7 @@ options = (
     f"secret_key={secret_key};timeout=2"
 )
 
-inst1 = dlite.get_instance("2f8ba28c-add6-5718-a03c-ea46961d6ca7")
+inst1 = dlite.get_instance("http://data.org/my_test_instance_1")
 inst2 = dlite.get_instance("52522ba5-6bfe-4a64-992d-e9ec4080fbac")
 meta = inst1.meta
 
