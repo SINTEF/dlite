@@ -1,12 +1,13 @@
 /* -*- C -*-  (not really, but good for syntax highlighting) */
 
 %{
-  status_t from_typename(const char *typename, int *type, int *size) {
+  posstatus_t from_typename(const char *typename, int *size) {
     size_t v = 0;
-    status_t retval =
-      dlite_type_set_dtype_and_size(typename, (DLiteType *)type, &v);
-    if (retval == 0) *size = (int)v;
-    return retval;
+    DLiteType type=-1, *dt=&type;
+    if (dlite_type_set_dtype_and_size(typename, dt, &v))
+      return -1;
+    *size = (int)v;
+    return type;
   }
 
   char *to_typename(int type, int size) {
@@ -37,6 +38,7 @@ enum _DLiteType {
   dliteFloat,            /*!< Floating point */
   dliteFixString,        /*!< Fix-sized NUL-terminated string */
   dliteStringPtr,        /*!< Pointer to NUL-terminated string */
+  dliteRef,              /*!< Pointer to another instance */
 
   dliteDimension,        /*!< Dimension, for entities */
   dliteProperty,         /*!< Property, for entities */
@@ -44,12 +46,12 @@ enum _DLiteType {
 };
 
 
-%apply int *OUTPUT { int *type, int *size };
+%apply int *OUTPUT { int *TYPESIZE };
 %feature(
   "docstring",
   "Returns type number and size from given type name."
 ) from_typename;
-status_t from_typename(const char *typename, int *type, int *size);
+posstatus_t from_typename(const char *typename, int *TYPESIZE);
 
 %newobject to_typename;
 %feature(

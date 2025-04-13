@@ -73,10 +73,10 @@ properties:
 The soft5 and soft7 formats
 ---------------------------
 For historical reasons are there two formats for the YAML and JSON representations.
-The examples above are represented in the *soft7* format.
-This format works well with pydantic models and is slightly less verbose than the older *soft5* format, which works well with JSON-LD and JSON-SCHEMA.
+The examples above are represented in the `soft7` format.
+This format works well with pydantic models and is slightly less verbose than the older `soft5` format, which works well with JSON-LD and JSON-SCHEMA.
 
-The above `http://onto-ns.com/meta/0.1/Person` datamodel has the following representation in the *soft5* format:
+The above `http://onto-ns.com/meta/0.1/Person` datamodel has the following representation in the `soft5` format:
 
 ```yaml
 uri: http://onto-ns.com/meta/0.1/Person

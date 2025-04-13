@@ -76,8 +76,8 @@ class yaml(dlite.DLiteStorageBase):
                 )
             self.flushed = True
 
-    def load(self, id: str):
-        """Loads `uuid` from current storage and return it as a new instance.
+    def load(self, id):
+        """Loads `id` from current storage and return it as a new instance.
 
         Arguments:
             id: UUID or URI of DLite Instance to return from the storage.
@@ -91,7 +91,7 @@ class yaml(dlite.DLiteStorageBase):
             self.writable = False
         return inst
 
-    def save(self, inst: dlite.Instance):
+    def save(self, inst):
         """Stores `inst` in current storage.
 
         Arguments:
@@ -102,7 +102,7 @@ class yaml(dlite.DLiteStorageBase):
         self.flushed = False
 
     def delete(self, id):
-        """Delete instance with given `uuid` from storage.
+        """Delete instance with given `id` from storage.
 
         Arguments:
             id: UUID or URI of instance to delete.

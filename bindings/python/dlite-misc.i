@@ -218,15 +218,19 @@ no errors have occured since the last call to dlite.errclr().
 ") dlite_errmsg;
 const char *dlite_errmsg(void);
 
-%feature("docstring", "\
-Get current error stream.
-") dlite_err_set_file;
+%feature("docstring",
+         "Get current lowest error level to report.") dlite_err_get_levelname;
+const char *dlite_err_get_levelname(void);
+
+%feature("docstring",
+         "Set current lowest error level to report.") dlite_err_set_levelname;
+const char *dlite_err_set_levelname(const char *name);
+
+%feature("docstring", "Get current error stream.") dlite_err_set_file;
 FILE *dlite_err_get_stream(void);
 
-%feature("docstring", "\
-Set error stream.
-") dlite_err_set_file;
-void dlite_err_set_stream(FILE *);
+%feature("docstring", "Set error stream.") dlite_err_set_file;
+FILE *dlite_err_set_stream(FILE *stream=NULL);
 
 %feature("docstring", "\
 Set error log file. Special values includes:
