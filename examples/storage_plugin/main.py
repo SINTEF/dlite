@@ -8,9 +8,9 @@ thisdir = Path(__file__).resolve().parent
 #dlite.python_storage_plugin_path.append(thisdir  / "plugins")
 
 dlite.storage_path.append(thisdir / "entities" / "TempProfile.json")
-DataModel = dlite.get_instance("http://onto-ns.com/meta/0.1/TempProfile")
 dlite.python_storage_plugin_path.append(thisdir  / "plugins")
-#DataModel = dlite.get_instance("http://onto-ns.com/meta/0.1/TempProfile")
+
+DataModel = dlite.get_instance("http://onto-ns.com/meta/0.1/TempProfile")
 
 # Create instance from dataset
 inst = dlite.Instance.from_location("tempprofile", thisdir / "dataset.txt",

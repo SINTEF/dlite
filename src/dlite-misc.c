@@ -1027,6 +1027,27 @@ int dlite_err_ignored_get(DLiteErrCode code)
 }
 
 
+/* Recursive help function for stripping initial error names from `msg`. */
+static const char *_errstrip(const char *msg)
+{
+  if (!isalpha(msg[0])) return msg;
+  int n=1;
+  while (isalnum(msg[n])) n++;
+  if (n < 5 ||
+      msg[n-5] != 'E' || msg[n-4] != 'r' || msg[n-3] != 'r' ||
+      msg[n-2] != 'o' || msg[n-1] != 'r' || msg[n-0] != ':') return msg;
+  n++;
+  while (isblank(msg[n])) n++;
+  return _errstrip(msg+n);
+}
+
+/* Return current error message. */
+const char *dlite_errmsg(void) {
+  const char *msg = err_getmsg();
+  return _errstrip(msg);
+}
+
+
 /* ----------------------------------------------------------- */
 /* TODO:
  * Add explanation for why we need these functions and do not
@@ -1090,10 +1111,9 @@ int dlite_vdebug(const char *msg, va_list ap) {
   return _err_vformat(errLevelDebug, 0, 0, NULL, NULL, msg, ap); }
 
 int dlite_errval(void) { return err_geteval(); }
-const char *dlite_errmsg(void) { return err_getmsg(); }
 void dlite_errclr(void) { err_clear(); }
 FILE *dlite_err_get_stream(void) { return err_get_stream(); }
-void dlite_err_set_stream(FILE *stream) { err_set_stream(stream); }
+FILE *dlite_err_set_stream(FILE *stream) { return err_set_stream(stream); }
 
 /* Like dlite_err_set_stream(), but takes a filename instead of a stream. */
 void dlite_err_set_file(const char *filename)
@@ -1113,6 +1133,9 @@ void dlite_err_set_file(const char *filename)
 
 int dlite_err_set_level(int level) { return err_set_level(level); }
 int dlite_err_get_level(void) { return err_get_level(); }
+const char *dlite_err_set_levelname(const char *name) {return err_set_levelname(name);}
+const char *dlite_err_get_levelname(void) { return err_get_levelname(); }
+
 int dlite_err_set_warn_mode(int mode) { return err_set_warn_mode(mode); }
 int dlite_err_get_warn_mode(void) { return err_get_warn_mode(); }
 int dlite_err_set_debug_mode(int mode) { return err_set_debug_mode(mode); }

@@ -33,8 +33,8 @@ MU_TEST(test_err_functions)
   mu_assert_string_eq(msg, err_getmsg());
 
   /* Failing system call */
-  // cppcheck-suppress leakReturnValNotUsed
-  fopen("", "r");
+  FILE *fp = fopen("", "r");
+  mu_check(fp == NULL);
 
   msg = "Error 2: my errmsg: ";
   mu_assert_int_eq(2, err(2, "my errmsg"));

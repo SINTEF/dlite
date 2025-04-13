@@ -198,7 +198,6 @@ else:
         )
 
 
-
 # Tests for issue #587
 if yaml:
     bytearr = inst.to_bytes("yaml")

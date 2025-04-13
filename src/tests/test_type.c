@@ -138,7 +138,11 @@ MU_TEST(test_set_dtype_and_size)
   mu_assert_int_eq(sizeof(DLiteInstance *), size);
 
   // invalid type
+  FILE *ferr = dlite_err_set_stream(NULL);  // hide errors
   mu_check(dlite_type_set_dtype_and_size("git://meta/0.1/Data", &type, &size));
+  mu_check(dlite_type_set_dtype_and_size("", &type, &size));
+  mu_check(dlite_type_set_dtype_and_size("st3", &type, &size));
+  dlite_err_set_stream(ferr);  // show errors
 
   mu_assert_int_eq(0, dlite_type_set_dtype_and_size("property", &type, &size));
   mu_assert_int_eq(dliteProperty, type);

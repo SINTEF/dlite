@@ -582,6 +582,25 @@ ErrLevel err_get_level(void)
   return (level == 0) ? errLevelWarn : level;
 }
 
+const char *err_set_levelname(const char *name)
+{
+  size_t i;
+  for (i=0; i<sizeof(errlevel_names)/sizeof(char *); i++)
+    if (strcasecmp(name, errlevel_names[i]) == 0) {
+      const char *name = errlevel_names[i];
+      err_set_level(i);
+      return name;
+    }
+  return err(-1, "invalid errlevel name: %s", name), NULL;
+}
+
+const char *err_get_levelname(void)
+{
+  ErrLevel level = err_get_level();
+  return errlevel_names[level];
+}
+
+
 ErrAbortMode err_set_abort_mode(int mode)
 {
   ThreadLocals *tls = get_tls();
@@ -733,8 +752,10 @@ int err_get_color_coded()
 void err_default_handler(const ErrRecord *record)
 {
   FILE *stream = err_get_stream();
+  if (!stream) return;
   const char *msg = record->msg + record->pos;
   char *errmark = (record->pos) ? "" : "** ";
+
   if (record->pos >= ERR_MSGSIZE) return;
   if (record->pos) {
     int m = strspn(msg, "\n");

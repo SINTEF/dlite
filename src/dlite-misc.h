@@ -490,6 +490,8 @@ void dlite_err_ignored_set(DLiteErrCode code, int value);
 /** Return whether printing is ignored for given error code. */
 int dlite_err_ignored_get(DLiteErrCode code);
 
+/** Return current error message. */
+const char *dlite_errmsg(void);
 
 #ifndef __GNUC__
 #define __attribute__(x)
@@ -530,14 +532,16 @@ int dlite_vdebug(const char *msg, va_list ap)
   __attribute__ ((__format__ (__printf__, 1, 0)));
 
 int dlite_errval(void);
-const char *dlite_errmsg(void);
 void dlite_errclr(void);
 FILE *dlite_err_get_stream(void);
-void dlite_err_set_stream(FILE *stream);
+FILE *dlite_err_set_stream(FILE *stream);
 void dlite_err_set_file(const char *filename);
 
 int dlite_err_set_level(int level);
 int dlite_err_get_level(void);
+const char *dlite_err_set_levelname(const char *name);
+const char *dlite_err_get_levelname(void);
+
 int dlite_err_set_warn_mode(int mode);
 int dlite_err_get_warn_mode(void);
 int dlite_err_set_debug_mode(int mode);

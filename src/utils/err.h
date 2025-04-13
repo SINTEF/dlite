@@ -429,6 +429,18 @@ ErrLevel err_set_level(int level);
 ErrLevel err_get_level(void);
 
 /**
+ * @brief Like err_set_level() but takes the error level name as input.
+ *
+ * Returns -1 on error.
+ */
+const char *err_set_levelname(const char *name);
+
+/**
+ * @brief Like err_get_level() but but takes the error level name as input.
+ */
+const char *err_get_levelname(void);
+
+/**
  * @brief Set wheter the error functions should return normally, exit or about.
  * Interpretation of `mode` argument:
  *   - mode >= 2:  abort
