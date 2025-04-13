@@ -587,11 +587,11 @@ const char *err_set_levelname(const char *name)
   size_t i;
   for (i=0; i<sizeof(errlevel_names)/sizeof(char *); i++)
     if (strcasecmp(name, errlevel_names[i]) == 0) {
-      const char *name = err_get_levelname();
+      const char *name = errlevel_names[i];
       err_set_level(i);
       return name;
     }
-  return err(-1, "invalid errlevel name: %s", name);
+  return err(-1, "invalid errlevel name: %s", name), NULL;
 }
 
 const char *err_get_levelname(void)
