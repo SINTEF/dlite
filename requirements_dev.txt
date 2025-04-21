@@ -4,4 +4,4 @@ cmake==4.0.0 # Must agree with python/pyproject.toml
 wheel==0.45.1 # Must agree with python/pyproject.toml
 
 # Note, that setuptools 75.3.0 is the highest supported version in the Windows wheel
-setuptools==78.1.0 # Must agree with python/pyproject.toml
+setuptools==79.0.0 # Must agree with python/pyproject.toml
