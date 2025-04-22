@@ -14,7 +14,7 @@ env:
 jobs:
   update_version:
     name: Update DLite version and release body
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-24.04
     if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
 
     steps:
