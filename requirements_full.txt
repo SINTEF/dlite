@@ -9,7 +9,7 @@ pint>=0.15,<1
 # Plugins
 PyYAML>=5.4.1,<7
 pandas>=1.2,<2.3
-pyarrow>=14.0,<20.0
+pyarrow>=14.0,<21.0
 tables>=3.8,<5.0
 openpyxl>=3.0.9,<3.2
 jinja2>=3.0,<4
