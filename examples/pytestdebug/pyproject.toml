@@ -1,0 +1,21 @@
+[build-system]
+requires = [
+  "setuptools==75.3.0",
+  "wheel==0.45.1",
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pytestdebug"
+version = "0.1"
+
+dependencies = [
+  "swig==4.3.0",
+  "cmake==3.31.4",
+  "pytest==8.3.4",
+]
+
+
+[tool.pytest.ini_options]
+minversion = "8.3"
+filterwarnings = ["error"]  # Treat all warnings as errors
