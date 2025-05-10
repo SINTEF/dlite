@@ -138,7 +138,11 @@ MU_TEST(test_set_dtype_and_size)
   mu_assert_int_eq(sizeof(DLiteInstance *), size);
 
   // invalid type
+  FILE *ferr = dlite_err_set_stream(NULL);  // hide errors
   mu_check(dlite_type_set_dtype_and_size("git://meta/0.1/Data", &type, &size));
+  mu_check(dlite_type_set_dtype_and_size("", &type, &size));
+  mu_check(dlite_type_set_dtype_and_size("st3", &type, &size));
+  dlite_err_set_stream(ferr);  // show errors
 
   mu_assert_int_eq(0, dlite_type_set_dtype_and_size("property", &type, &size));
   mu_assert_int_eq(dliteProperty, type);
@@ -403,7 +407,7 @@ MU_TEST(test_scan)
   free(s);
 
   /* ref */
-  DLiteInstance *inst=(DLiteInstance *)dlite_collection_create("instid");
+  DLiteInstance *inst=(DLiteInstance *)dlite_collection_create("http://data.org/collid");
   DLiteInstance *inst2=inst;
 
   n = dlite_type_scan(" null  ", -1, &inst2,
@@ -411,7 +415,7 @@ MU_TEST(test_scan)
   mu_assert_int_eq(5, n);
   mu_assert_ptr_eq(NULL, inst2);
 
-  n = dlite_type_scan("\"d04b56b9-d451-5c87-b34e-1b6fe96a9ade\"", -1, &inst2,
+  n = dlite_type_scan("\"11832981-7097-566e-8e14-51d41b461648\"", -1, &inst2,
                       dliteRef, sizeof(DLiteInstance **), dliteFlagQuoted);
   mu_assert_int_eq(38, n);
   mu_assert_ptr_eq(inst, inst2);

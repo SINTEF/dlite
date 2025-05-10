@@ -199,12 +199,26 @@ void dlite_pyembed_initialise(void)
       /* New Python Initialisation Configuration */
       PyStatus status;
       PyConfig config;
+      wchar_t *executable=NULL;
 
       PyConfig_InitPythonConfig(&config);
       config.isolated = 0;
       config.safe_path = 0;
       config.use_environment = 1;
       config.user_site_directory = 1;
+
+      /* Set executable if VIRTUAL_ENV environment variable is defined */
+      char *venv = getenv("VIRTUAL_ENV");
+      if (venv) {
+#ifdef WINDOWS
+        char *exec = fu_join(venv, "Scripts", "python.exe", NULL);
+#else
+        char *exec = fu_join(venv, "bin", "python", NULL);
+#endif
+        status = PyConfig_SetBytesString(&config, &config.executable, exec);
+        if (PyStatus_Exception(status))
+          FAIL1("failed configuring executable: %s", exec);
+      }
 
       /* If dlite is called from a python, reparse arguments to avoid
          that they are stripped off... */
@@ -226,6 +240,8 @@ void dlite_pyembed_initialise(void)
       PyConfig_Clear(&config);
       if (PyStatus_Exception(status))
         FAIL("failed clearing pyembed config");
+
+      if (executable) free(executable);
 #else
       /* Old Initialisation */
       wchar_t *progname;

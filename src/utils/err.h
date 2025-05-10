@@ -19,6 +19,15 @@
  *
  * ## Used environment variables
  *
+ *   * `ERR_LEVEL`: Lowest error level to report.
+ *       - "0" | Default   : Show warnings and errors (default)
+ *       - "1" | Debug     : Show all messages, including debugging
+ *       - "2" | Info      : Show all messages, excluding debugging
+ *       - "3" | Warning   : Show warnings and errors
+ *       - "4" | Error     : Only show errors
+ *       - "5" | Exception : Only show exceptions and fatal errors
+ *       - "6" | Fatal     : Only show fatal errors
+ *
  *   * `ERR_STREAM`: Error stream to write messages to.
  *       - empty             : do not write anything
  *       - "stderr" | unset  : write to stderr
@@ -104,6 +113,8 @@
 /** Error levels */
 typedef enum {
   errLevelSuccess,         /*!< success */
+  errLevelDebug,           /*!< debug */
+  errLevelInfo,            /*!< info */
   errLevelWarn,            /*!< warning */
   errLevelError,           /*!< error */
   errLevelException,       /*!< exception (never returns) */
@@ -405,6 +416,29 @@ FILE *err_set_stream(FILE *stream);
  * @brief Returns the current error stream.
  */
 FILE *err_get_stream(void);
+
+
+/**
+ * @brief Set lowest error level to report.
+ */
+ErrLevel err_set_level(int level);
+
+/**
+ * @brief Return the current error level.
+ */
+ErrLevel err_get_level(void);
+
+/**
+ * @brief Like err_set_level() but takes the error level name as input.
+ *
+ * Returns -1 on error.
+ */
+const char *err_set_levelname(const char *name);
+
+/**
+ * @brief Like err_get_level() but but takes the error level name as input.
+ */
+const char *err_get_levelname(void);
 
 /**
  * @brief Set wheter the error functions should return normally, exit or about.

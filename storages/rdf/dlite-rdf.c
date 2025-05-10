@@ -62,7 +62,7 @@ typedef struct {
   DLiteDataModel_HEAD
 } RdfDataModel;
 
-/** */
+/** Internal state when iterating over a triplestore */
 typedef struct {
   TripleState state;
   char *pattern;

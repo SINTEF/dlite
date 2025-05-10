@@ -1,6 +1,6 @@
 {
-  "0a75c038-1ea1-5916-bbd4-6d0298894f4c": {
-    "uri": "dlite/1/A",
+  "84309df9-c9bc-5551-9712-8f2b7e5d3bc4": {
+    "uri": "http://data.org/dlite/1/A",
     "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
     "description": "dummy entity",
     "dimensions": [
@@ -19,12 +19,12 @@
       }
     ]
   },
-  "dlite/1/test-c": {
+  "http://data.org/dlite/1/test-c": {
     "meta": "http://onto-ns.com/meta/0.3/EntitySchema",
     "dimensions": [],
     "properties": []
   },
-  "dlite/1/empty": {
+  "http://data.org/dlite/1/empty": {
     "name": "empty",
     "version": "1",
     "namespace": "dlite",
@@ -32,12 +32,12 @@
     "dimensions": [],
     "properties": []
   },
-  "dbd9d597-16b4-58f5-b10f-7e49cf85084b": {
-    "uri": "test-a",
+  "a612d81f-40ef-598f-b2b6-8436e5633999": {
+    "uri": "http://data.org/test-a",
     "meta": {
       "name": "A",
       "version": "1",
-      "namespace": "dlite"
+      "namespace": "http://data.org/dlite"
     },
     "dimensions": {
       "N": 5
@@ -53,8 +53,8 @@
       ]
     }
   },
-  "2f4ae7b7-247a-5cc2-b6c5-5ac0ccd8cc5c": {
-    "meta": "dlite/1/A",
+  "32df761f-6572-441f-94d0-fb01b78e949b": {
+    "meta": "http://data.org/dlite/1/A",
     "dimensions": {
       "N": 0
     },
@@ -63,8 +63,8 @@
       "P2": []
     }
   },
-  "data3": {
-    "meta": "dlite/1/A",
+  "http://data.org/data3": {
+    "meta": "http://data.org/dlite/1/A",
     "dimensions": {
       "N": 1
     },

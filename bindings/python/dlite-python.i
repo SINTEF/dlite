@@ -1404,7 +1404,7 @@ PyObject *dlite_run_file(const char *path, PyObject *globals, PyObject *locals)
 }
 
 %{
-  typedef int status_t;     // error if non-zero, no output
+  typedef int status_t;     // error if non-zero, otherwise return None
   typedef int posstatus_t;  // error if negative
 %}
 

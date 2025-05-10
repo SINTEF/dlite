@@ -488,9 +488,9 @@ int dlite_type_set_dtype_and_size(const char *typename,
   namelen = len;
   while (isdigit(typename[len])) len++;
   if (isalpha(typename[len]) || typename[len] == '_')
-    return errx(1, "alphabetic characters or underscore cannot follow digits "
-                "in type name: %s", typename);
-
+    return errx(dliteTypeError, "alphabetic characters or underscore cannot "
+                "follow digits in type name: %s", typename);
+  if (namelen == 0) return errx(dliteTypeError, "typename cannot be empty");
 
   /* Check if typename is a fixed-sized type listed in the type table */
   for (i=0; type_table[i].typename; i++) {
@@ -503,26 +503,27 @@ int dlite_type_set_dtype_and_size(const char *typename,
 
   /* Type is not in the type table - it must have a explicit size */
   if (len == namelen) {
-    if (strncmp(typename, "blob", namelen) == 0)
-      return errx(1, "explicit length is expected for type name: %s",
-                  typename);
+    if (namelen == 4 && strncmp(typename, "blob", namelen) == 0)
+      return errx(dliteTypeError, "explicit length is expected for "
+                  "type name: %s", typename);
     else
-      return errx(1, "unknown type: %s", typename);
+      return errx(dliteTypeError, "unknown type: %s", typename);
   }
 
   /* extract size from `typename` */
   typesize = strtol(typename + namelen, &endptr, 10);
   assert(endptr == typename + len);
-  if (strncmp(typename, "blob", namelen) == 0) {
+  if (namelen == 4 && strncmp(typename, "blob", namelen) == 0) {
     *dtype = dliteBlob;
     *size = typesize;
-  } else if (strncmp(typename, "string", namelen) == 0 ||
-             strncmp(typename, "str", namelen)) {
+  } else if ((namelen == 6 && strncmp(typename, "string", namelen) == 0) ||
+             (namelen == 3 && strncmp(typename, "str", namelen) == 0)) {
     *dtype = dliteFixString;
     *size = typesize+1;
   } else {
-    return err(dliteTypeError, "unknown type: %s", typename);
+    return errx(dliteTypeError, "unknown type: %s", typename);
   }
+
   return 0;
 }
 

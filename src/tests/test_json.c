@@ -23,7 +23,7 @@ MU_TEST(test_load)
   meta = dlite_meta_load_url(url);
   mu_check(meta);
 
-  url = PREFIX "test-data.json?mode=r#e076a856-e36e-5335-967e-2f2fd153c17d";
+  url = PREFIX "test-data.json?mode=r#117a8bb9-df2e-5c77-a84d-3ac45add03f0";
   inst = dlite_instance_load_url(url);
   mu_check(inst);
 
@@ -54,17 +54,17 @@ MU_TEST(test_sprint)
   m = dlite_json_sprint(buf, sizeof(buf), inst, 4, dliteJsonSingle);
   //printf("\n--------------------------------------------------------\n");
   //printf("%s\n", buf);
-  mu_assert_int_eq(404, m);
+  mu_assert_int_eq(420, m);
 
   m = dlite_json_sprint(buf, 80, inst, 4, dliteJsonSingle);
   //printf("\n--------------------------------------------------------\n");
   //printf("%s\n", buf);
-  mu_assert_int_eq(404, m);
+  mu_assert_int_eq(420, m);
 
   m = dlite_json_sprint(buf, sizeof(buf), inst, 0, 0);
   //printf("\n--------------------------------------------------------\n");
   //printf("<%.*s>\n", m, buf);
-  mu_assert_int_eq(415, m);
+  mu_assert_int_eq(431, m);
 
 
 
@@ -86,10 +86,10 @@ MU_TEST(test_sprint)
 
   /* Tests for PR #541 */
   m = dlite_json_sprint(buf, 0, inst, 4, dliteJsonSingle);
-  mu_assert_int_eq(404, m);
+  mu_assert_int_eq(420, m);
 
   m = dlite_json_sprint(NULL, 0, inst, 4, dliteJsonSingle);
-  mu_assert_int_eq(404, m);
+  mu_assert_int_eq(420, m);
 
 
   /* More tests for issue #543 */
@@ -171,7 +171,7 @@ MU_TEST(test_scan)
   mu_check(fp);
   stat = dlite_storage_paths_append(path);
   mu_check(stat >= 0);
-  inst = dlite_json_fscan(fp, "dbd9d597-16b4-58f5-b10f-7e49cf85084b", NULL);
+  inst = dlite_json_fscan(fp, "a612d81f-40ef-598f-b2b6-8436e5633999", NULL);
   fclose(fp);
   mu_check(inst);
 
@@ -210,30 +210,30 @@ MU_TEST(test_check)
   mu_assert_int_eq(dliteJsonWithMeta | dliteJsonArrays, flags);
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
-                             "0a75c038-1ea1-5916-bbd4-6d0298894f4c", &flags);
+                             "84309df9-c9bc-5551-9712-8f2b7e5d3bc4", &flags);
   mu_assert_int_eq(dliteJsonMetaFormat, fmt);
   mu_assert_int_eq(dliteJsonWithMeta | dliteJsonArrays, flags);
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
-                             "dlite/1/test-c", &flags);
+                             "http://data.org/dlite/1/test-c", &flags);
   mu_assert_int_eq(dliteJsonMetaFormat, fmt);
   mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta | dliteJsonArrays,
                    flags);
 
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
-                             "dlite/1/empty", &flags);
+                             "http://data.org/dlite/1/empty", &flags);
   mu_assert_int_eq(dliteJsonMetaFormat, fmt);
   mu_assert_int_eq(dliteJsonUriKey | dliteJsonWithMeta | dliteJsonArrays,
                    flags);
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
-                             "dbd9d597-16b4-58f5-b10f-7e49cf85084b", &flags);
+                             "a612d81f-40ef-598f-b2b6-8436e5633999", &flags);
   mu_assert_int_eq(dliteJsonDataFormat, fmt);
   mu_assert_int_eq(dliteJsonWithMeta, flags);
 
   fmt = dlite_json_checkfile(THISDIR "test-read-data.json",
-                             "2f4ae7b7-247a-5cc2-b6c5-5ac0ccd8cc5c", &flags);
+                             "32df761f-6572-441f-94d0-fb01b78e949b", &flags);
   mu_assert_int_eq(dliteJsonDataFormat, fmt);
   mu_assert_int_eq(dliteJsonWithMeta, flags);
 

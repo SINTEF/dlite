@@ -3,7 +3,7 @@
   "description": "A basic description of an atomic structure.",
   "dimensions": {
     "natoms": "Number of atoms.",
-    "ncoords": "Number of coordinates. Always 3.",
+    "ncoords": "Number of coordinates. Always 3."
   },
   "properties": {
     "positions": {

@@ -23,7 +23,7 @@
 #
 #     cd dlite  # cd to DLite root directory
 #     docker build -t dlite-musllinux_1_2_x86_64 \
-#         -f .github/docker/Dockerfile-musllinux_1_2_x86_64 .
+#         -f .github/docker/dockerfiles/Dockerfile-musllinux_1_2_x86_64 .
 #
 # Run (for debugging):
 #

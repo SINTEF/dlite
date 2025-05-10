@@ -13,7 +13,6 @@
 #include "dlite-macros.h"
 #include "dlite-datamodel.h"
 #include "dlite-storage-plugins.h"
-#include "getuuid.h"
 
 #define GLOBALS_ID "dlite-storage-id"
 #define HOTLIST_CHUNK_LENGTH 8
@@ -246,7 +245,7 @@ DLiteInstance *dlite_storage_load(const DLiteStorage *s, const char *id)
 {
   char uuid[DLITE_UUID_LENGTH+1];
   DLiteInstance **ptr, *inst=NULL;
-  if (getuuid(uuid, id) < 0) return NULL;
+  if (dlite_get_uuid(uuid, id) < 0) return NULL;
   if ((ptr = map_get(&(((DLiteStorage *)s)->cache), uuid))) return *ptr;
 
   if (s->api->loadInstance) {
