@@ -245,13 +245,14 @@ the table below list the three representations of identifiers. Any
 representation can be considered an ID, while normalised IDs are valid
 IRIs.
 
-| ID             | Normalised ID  | Corresponding UUID    | Note          |
-|----------------|----------------|-----------------------|---------------|
-| *uuid*         | *ns* / *uuid*  | *uuid*                |               |
-| *uri* / *uuid* | *uri* / *uuid* | *uuid*                |               |
-| *uri*          | *uri*          | hash of *uri*         |               |
-| *name*         | *ns* / *name*  | hash of *name*        | before v0.6.0 |
-| *name*         | *ns* / *name*  | hash of *ns* / *name* | v0.6.0+       |
+| ID             | Normalised ID  | Corresponding UUID    | Note                        |
+|----------------|----------------|-----------------------|-----------------------------|
+| *uuid*         | *ns* / *uuid*  | *uuid*                |                             |
+| *uri* / *uuid* | *uri* / *uuid* | *uuid*                |                             |
+| *uri*          | *uri*          | hash of *uri*         |                             |
+| *name*         | *ns* / *name*  | hash of *name*        | experimental, before v0.6.0 |
+| *name*         | *ns* / *name*  | hash of *ns* / *name* | experimental, v0.6.0+       |
+|                |                |                       |                             |
 
 **Explanation of the symbols used in the table**
 
@@ -262,6 +263,8 @@ IRIs.
 - *name* is a string that is neither a UUID or a URL. Ex: "aa6060".
 
 ```{note}
+The support of name IDs is considered experimental!
+
 The way a UUID is calculated from an ID of the form of a *name* was changed
 in version 0.6.0.
 
