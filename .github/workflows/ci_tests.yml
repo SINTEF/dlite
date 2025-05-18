@@ -2,7 +2,7 @@ name: CI tests
 
 # This CI builds DLite and runs (almost) all tests.
 #
-# The following plugins are not tested here, since they depends on an external service:
+# The following plugins are not tested here, since they depend on an external service:
 #
 # Protocol plugins:
 #   - sftp
@@ -15,98 +15,301 @@ name: CI tests
 # Please remember to update respective plugin docstring if this list changes.
 #
 
-on: [push]
+# TODO: Split jobs from configure, then build, then package, install etc
+# TODO: Windows builds: Native using VS (MSVCRT & UCRT libraries), Native using VS plus Anaconda, MingW, CYGWIN, Cross compiled with MingW on Ubuntu, Cross compiled on ? as 32bit (i686)?
+on:
+  push:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    name: ${{ matrix.os }}-${{ matrix.subsystem }}-py${{ matrix.python-version }}
+    runs-on: ${{ matrix.os }}
+    defaults:
+      run:
+        shell: ${{ matrix.subsystem == 'none' && 'bash' || 'msys2 {0}' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10"]
+        subsystem: [none]
+        include:
+          - os: ubuntu-latest
+            python-version: "3.8"
+            subsystem: none
+          - os: ubuntu-latest
+            python-version: "3.13"
+            subsystem: none
+          - os: windows-latest
+            python-version: "3.10"
+            subsystem: none
+          - os: windows-latest
+            subsystem: mingw
 
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
+      - name: Setup MSYS2
+        id: msys2
+        if: ${{ matrix.subsystem == 'mingw' }}
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          release: false
+          path-type: inherit
+          pacboy: >-
+            python:p
+            python-argon2_cffi:p
+            python-cffi:p
+            python-numpy:p
+            python-pandas:p
+            python-paramiko:p
+            python-pip:p
+            python-pyarrow:p
+            python-pydantic-core:p
+            python-rdflib:p
+            python-yaml:p
+            cmake:p
+            gcc:p
+            hdf5:p
+            swig:p
+            libxml2:p
+            libxslt:p
 
-    - name: Setup Python 3.10
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.10"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        if: ${{ matrix.subsystem != 'mingw' }}
+        with:
+          python-version: ${{ matrix.python-version }}
 
 
-      # We do not install rdflib0-dev here, since we want to test
-      # DLite both with and without rdflib (Redland) support and the
-      # case with rdflib is already covered by the ci_build_wheel
-      # workflow for Linux systems.
-    - name: Install dependencies
-      run: |
-        sudo apt-get update --fix-missing
-        sudo apt-get install \
-          libxml2-dev \
-          libxslt-dev \
-          libhdf5-dev \
-          doxygen \
-          graphviz \
-          python3 \
-          python3-pip \
-          python3-dev \
-          python3-numpy \
-          python3-yaml
+        # We do not install rdflib0-dev here, since we want to  
+        # DLite both with and without rdflib (Redland) support and the
+        # case with rdflib is already covered by the ci_build_wheel
+        # workflow for Linux systems.
+      - name: Install ${{ matrix.os }} dependencies
+        run: |
+          if [[ ${{ matrix.os }} == ubuntu* ]] ;
+          then
+            APT_INSTALL=(
+              libhdf5-dev
+            )
+            sudo apt-get update --fix-missing
+            sudo apt-get install ${APT_INSTALL[@]}
+                
+          elif [[ ${{ matrix.os }} == macos* ]] ;
+          then
+            BREW_INSTALL=(
+              hdf5
+            )
+            brew install --formula ${BREW_INSTALL[@]}
 
-    - name: Install Python dependencies
-      run: |
-        which python3
-        python3 --version
-        python3 -m pip --version
-        python3 -m pip install --upgrade pip
-        python3 -m pip install -U setuptools wheel
-        python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
+          fi
 
-    - name: Check numpy
-      run: |
-        python3 -c 'import numpy as np; print(np.get_include())'
 
-    - name: List installed Python packages
-      run: |
-        uname -a
-        python --version
-        pip freeze
+      - name: Install Python dependencies
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            which python3
+            python3 --version
 
-    - name: Configure
-      env:
-        DLITE_IMPORTSKIP_EXITCODE: 1
-      run: |
-        Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
-        CFLAGS='-Wno-missing-field-initializers' \
-        cmake -B build . -DFORCE_EXAMPLES=ON -DWITH_FORTRAN=YES
+            # --system-site-packages allows the venv to use pacman installed packages
+            # which won't compile on MinGW without patching. Some runner images have
+            # a locked install requiring a venv.
+            python3 -m venv --system-site-packages venv
+            source venv/bin/activate
+            
+            # Due to the way packages are installed in both the base MinGW Python
+            # install for compiled packages and the remaining platform independant
+            # packages are installed to the venv, the paths Python uses get mixed
+            # up, so we give a hint with the below env var. A ._pth file may work
+            # instead. The env var __PYVENV_LAUNCHER__ should also work (and is better
+            # documented).
+            echo "PYTHONEXECUTABLE=$VIRTUAL_ENV/bin/python3.exe" >> $GITHUB_ENV
 
-    - name: Build
-      run: cmake --build .
-      working-directory: build
+            # Need to ensure utf-8 mode on Windows
+            echo "PYTHONIOENCODING=utf-8" >> $GITHUB_ENV
+            echo "PYTHONUTF8=1" >> $GITHUB_ENV
 
-    - name: Install
-      run: cmake --install .
-      working-directory: build
+            python3 -m pip install --upgrade pip
+            python3 -m pip --version
 
-    - name: Test
-      env:
-        DLITE_PYDEBUG: ""
-      run: ctest || ctest --rerun-failed --output-on-failure -V
-      working-directory: build
+            python3 -m pip install -U setuptools wheel
 
-    - name: Test with all behavior changes disabled
-      env:
-        DLITE_BEHAVIOR: OFF
-      run: ctest || ctest --rerun-failed --output-on-failure -V
-      working-directory: build
+            # requirements.txt is omitted as only contains numpy.
+            # This needs to be and is installed by pacman.
+            python3 -m pip install -r requirements_full.txt
 
-    - name: Test with all behavior changes enabled
-      env:
-        DLITE_BEHAVIOR: ON
-      run: ctest || ctest --rerun-failed --output-on-failure -V
-      working-directory: build
+            # Note: Uses MinGW versions of dev tools cmake and swig are used for building
+            # instead. Thus requirements_dev.txt is not used.
 
-    - name: Build Linux wheel
-      run: python3 -m pip wheel -w dist ./python
+          elif [[ ${{ matrix.os }} == ubuntu* ]] || [[ ${{ matrix.os }} == macos* ]] ;
+          then
+            which python3
+            python3 --version
+            python3 -m pip --version
+            python3 -m pip install --upgrade pip
+            python3 -m pip install -U setuptools wheel
+            python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
+          
+          elif [[ ${{ matrix.os }} == windows* ]] ;
+          then
+            which python3
+            python3 --version
 
-    - name: Install python package and test the installation
-      run: |
-        python3 -m pip install --user dist/*.whl
-        python3 bindings/python/tests/__main__.py
+            # Need to ensure utf-8 mode on Windows
+            echo "PYTHONIOENCODING=utf-8" >> $GITHUB_ENV
+            echo "PYTHONUTF8=1" >> $GITHUB_ENV
+
+            python3 -m pip install --upgrade pip
+            python3 -m pip --version
+
+            python3 -m pip install -U setuptools wheel
+            python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
+
+          fi
+
+
+      - name: Check numpy
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source venv/bin/activate
+          fi
+          python3 -c 'import numpy as np; print(np.get_include())'
+
+
+      - name: List installed Python packages
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source venv/bin/activate
+          fi
+          uname -a
+          python --version
+          pip freeze
+      
+
+      - name: Setup Fortran
+        uses: fortran-lang/setup-fortran@v1
+        id: setup-fortran
+        if: ${{ startsWith(matrix.os, 'macos') }}
+        with:
+          compiler: gcc
+
+
+      - name: Configure CMake
+        env:
+          DLITE_IMPORTSKIP_EXITCODE: 1
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source venv/bin/activate
+            cmake -B build . \
+              -DCMAKE_CONFIGURATION_TYPES:STRING=Release \
+              -DFORCE_EXAMPLES=ON \
+              -DWITH_FORTRAN=NO \
+              -DPython3_FIND_STRATEGY=LOCATION \
+              -DPython3_ROOT_DIR=$(python3 -c 'import sys; print(sys.exec_prefix)') \
+              -G "MinGW Makefiles"
+
+          elif [[ ${{ matrix.os }} == ubuntu* ]] || [[ ${{ matrix.os }} == macos* ]] ;
+          then
+            cmake -B build . \
+              -DCMAKE_CONFIGURATION_TYPES:STRING=Release \
+              -DFORCE_EXAMPLES=ON \
+              -DWITH_FORTRAN=YES \
+              -DPython3_FIND_STRATEGY=LOCATION \
+              -DPython3_ROOT_DIR=$(python3 -c 'import sys; print(sys.exec_prefix)')
+
+          elif [[ ${{ matrix.os }} == windows* ]] ;
+          then
+            cmake -B build . \
+              -DCMAKE_CONFIGURATION_TYPES:STRING=Release \
+              -DFORCE_EXAMPLES=ON \
+              -DWITH_FORTRAN=NO \
+              -DPython3_FIND_STRATEGY=LOCATION \
+              -DPython3_ROOT_DIR=$(python3 -c 'import sys; print(sys.exec_prefix)') \
+              -G "Visual Studio 17 2022" \
+              -DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE=x64 \
+              -A x64
+          
+          fi
+ 
+
+      - name: Build
+        working-directory: build
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source ../venv/bin/activate
+          fi
+          cmake --build . --config Release
+
+
+      - name: Install
+        working-directory: build
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source ../venv/bin/activate
+          fi
+          cmake --install . --config Release
+
+
+      - name: Test
+        env:
+          DLITE_PYDEBUG: ""
+        working-directory: build
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source ../venv/bin/activate
+          fi
+          ctest --build-config Release || ctest --build-config Release --rerun-failed --output-on-failure -V
+
+
+      - name: Test with all behavior changes disabled
+        env:
+          DLITE_BEHAVIOR: OFF
+        working-directory: build
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source ../venv/bin/activate
+          fi
+          ctest --build-config Release || ctest --build-config Release --rerun-failed --output-on-failure -V
+
+
+      - name: Test with all behavior changes enabled
+        env:
+          DLITE_BEHAVIOR: ON
+        working-directory: build
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source ../venv/bin/activate
+          fi
+          ctest --build-config Release || ctest --build-config Release --rerun-failed --output-on-failure -V
+
+
+      - name: Build ${{ matrix.os }} wheel
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source venv/bin/activate
+          fi
+          python3 -m pip wheel -w dist ./python
+
+
+      - name: Install Python package and test the installation
+        run: |
+          if [[ "${{ matrix.subsystem }}" != none ]] ;
+          then
+            source venv/bin/activate
+          fi
+          python3 -m pip install --user dist/*.whl
+          python3 bindings/python/tests/__main__.py
