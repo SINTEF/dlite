@@ -71,7 +71,7 @@
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "temimage"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/TEMImage#"^^xsd:string ] ],
+                                                                    emmo:hasValue "http://onto-ns.com/meta/chatacterisation/0.1/TEMImage#"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "oteio"@en ] ;
@@ -117,7 +117,7 @@
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "temimage"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/TEMImage#"^^xsd:string ] ],
+                                                                    emmo:hasValue "http://onto-ns.com/meta/characterisation/0.1/TEMImage#"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "oteio"@en ] ;
@@ -184,7 +184,7 @@
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "temimage"@en ] ;
                                                             oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
-                                                                    emmo:hasValue "http://onto-ns.com/meta/0.1/TEMImage#"^^xsd:string ] ],
+                                                                    emmo:hasValue "http://onto-ns.com/meta/characterisation/0.1/TEMImage#"^^xsd:string ] ],
                                                         [ a oteio:KeyValuePair ;
                                                             oteio:hasDictionaryKey [ a oteio:DictionaryKey ;
                                                                     emmo:hasStringValue "oteio"@en ] ;
@@ -642,4 +642,3 @@
                                             emmo:hasStringValue "mappingType"@en ] ;
                                     oteio:hasDictionaryValue [ a oteio:DictionaryValue ;
                                             emmo:hasValue "mappings"^^xsd:string ] ] ] ] ] .
-
