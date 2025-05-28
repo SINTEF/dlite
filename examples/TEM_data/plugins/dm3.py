@@ -10,7 +10,7 @@ import dlite
 
 class dm3(dlite.DLiteStorageBase):
     """DLite storage plugin for Gatan DM3 files."""
-    meta = "http://onto-ns.com/meta/0.1/TEMImage"
+    meta = "http://onto-ns.com/meta/characterisation/0.1/TEMImage"
 
     def open(self, location, options=None):
         """Loads a dm3 file from `location`.  No options are supported."""

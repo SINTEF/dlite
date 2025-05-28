@@ -11,7 +11,7 @@ thumbnail = outdir / f"{temimage}.png"
 
 # Namespaces
 MO = Namespace("https://w3id.org/emmo/domain/microstructure#")
-TEMIMAGE = Namespace("http://onto-ns.com/meta/0.1/TEMImage#")
+TEMIMAGE = Namespace("http://onto-ns.com/meta/characterisation/0.1/TEMImage#")
 IMAGE = Namespace("http://onto-ns.com/meta/0.1/Image#")
 PS = Namespace("http://onto-ns.com/meta/0.1/PrecipitateStatistics#")
 COMP = Namespace("http://onto-ns.com/meta/0.1/Composition#")
