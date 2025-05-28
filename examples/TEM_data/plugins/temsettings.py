@@ -11,7 +11,7 @@ class temsettings(dlite.DLiteStorageBase):
         location: Path to output JSON file.
         options: Unused
     """
-    meta = "http://onto-ns.com/meta/0.1/TEMImage"
+    meta = "http://onto-ns.com/meta/characterisation/0.1/TEMImage"
 
     def open(self, location, options=None):
         """Open output file `location`.  No options are supported."""

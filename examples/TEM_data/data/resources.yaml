@@ -20,7 +20,7 @@ data_resources:
     mapping:
       mappingType: mappings
       prefixes:
-        temimage: http://onto-ns.com/meta/0.1/TEMImage#
+        temimage: http://onto-ns.com/meta/characterisation/0.1/TEMImage#
         map: https://w3id.org/emmo/domain/mappings#
         emmo: https://w3id.org/emmo#
         oteio: https://w3id.org/emmo/domain/oteio#
@@ -43,7 +43,7 @@ data_resources:
     mapping:
       mappingType: mappings
       prefixes:
-        temimage: http://onto-ns.com/meta/0.1/TEMImage#
+        temimage: http://onto-ns.com/meta/characterisation/0.1/TEMImage#
         map: https://w3id.org/emmo/domain/mappings#
         emmo: https://w3id.org/emmo#
         oteio: https://w3id.org/emmo/domain/oteio#
@@ -66,7 +66,7 @@ data_resources:
     mapping:
       mappingType: mappings
       prefixes:
-        temimage: http://onto-ns.com/meta/0.1/TEMImage#
+        temimage: http://onto-ns.com/meta/characterisation/0.1/TEMImage#
         map: https://w3id.org/emmo/domain/mappings#
         emmo: https://w3id.org/emmo#
         oteio: https://w3id.org/emmo/domain/oteio#
