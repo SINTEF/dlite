@@ -140,11 +140,34 @@ endif()
 target_link_libraries(dlite ${link_args})
 target_link_libraries(dlite-static ${link_args})
 
-set_target_properties(dlite PROPERTIES
-  WINDOWS_EXPORT_ALL_SYMBOLS ON
-  BUILD_RPATH "$ORIGIN/"
-  INSTALL_RPATH "$ORIGIN/"
-  )
+# LIBRARY RPATH/ RUNPATH: dlite
+# =============================
+# 
+# At build, set absolute RPATHS to the other library.
+# 
+# At install the library will be loaded from the directory:
+# 
+#   ${CMAKE_INSTALL_PREFIX}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/dlite
+#   - OR - using CMake dlite directory variables:
+#   ${DLITE_PYTHONPATH}/dlite
+# 
+# The linked library will be copied into the above noted folder at install.
+
+if(APPLE)
+  set_target_properties(dlite PROPERTIES
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src/utils"
+    INSTALL_RPATH "@loader_path"
+    )
+else()
+  set_target_properties(dlite PROPERTIES
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src/utils"
+    INSTALL_RPATH "$ORIGIN"
+    )
+endif()
+
 set_target_properties(dlite-static PROPERTIES
   POSITION_INDEPENDENT_CODE ON
   )
