@@ -127,20 +127,20 @@ DLite storage plugin for YAML.
 
 Opens `location`.
 
-        Arguments:
-            location: Path to YAML file.
-            options: Supported options:
-            - `mode`: Mode for opening.  Valid values are:
-                - `a`: Open for writing, add to existing `location` (default).
-                - `r`: Open existing `location` for reading.
-                - `w`: Open for writing. If `location` exists, it is truncated.
-            - `soft7`: Whether to save using SOFT7 format.
-            - `single`: Whether to save in single-instance form.
-            - `with_uuid`: Whether to include UUID when saving.
-            - with_meta: Whether to always include "meta" (even for metadata)
-            - with_parent: Whether to include parent info for transactions.
-            - urikey: Whether the URI is the preferred keys in multi-instance
-                format.
+Arguments:
+    location: Path to YAML file.
+    options: Supported options:
+    - `mode`: Mode for opening.  Valid values are:
+        - `a`: Open for writing, add to existing `location` (default).
+        - `r`: Open existing `location` for reading.
+        - `w`: Open for writing. If `location` exists, it is truncated.
+    - `soft7`: Whether to save using SOFT7 format.
+    - `single`: Whether to save in single-instance form.
+    - `with_uuid`: Whether to include UUID when saving.
+    - with_meta: Whether to always include "meta" (even for metadata)
+    - with_parent: Whether to include parent info for transactions.
+    - urikey: Whether the URI is the preferred keys in multi-instance
+        format.
 """
     s = dlite.Storage(
         "yaml", outdir / "test_storage_inst.yaml", options="mode=a"
