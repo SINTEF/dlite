@@ -298,12 +298,13 @@ if(WITH_PYTHON)
   endif()
 
   # Add linker flags for linking against Python
+  # Returns 'None' on Windows
   execute_process(
     COMMAND ${Python3_EXECUTABLE} -c "import sysconfig; print(sysconfig.get_config_var('PY_LDFLAGS'))"
     OUTPUT_VARIABLE Python3_LDFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
-  if(Python3_LDFLAGS)
+  if(Python3_LDFLAGS AND NOT Python3_LDFLAGS STREQUAL "None")
     list(APPEND extra_link_libraries ${Python3_LDFLAGS})
   endif()
 
