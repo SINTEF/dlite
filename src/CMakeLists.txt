@@ -7,8 +7,10 @@ if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
 endif()
 
 
+#-----------------------------------------------------
 # Generate config headers
-# -----------------------
+#-----------------------------------------------------
+add_subdirectory(utils)
 configure_file(config.h.in config.h)
 configure_file(config-paths.h.in config-paths.h)
 
@@ -21,7 +23,6 @@ dlite_genenv(${CMAKE_CURRENT_BINARY_DIR}/config-paths.h NATIVE)
 # Compile library
 #-----------------------------------------------------
 
-add_subdirectory(utils)
 # Support driver and mapping plugins written in Python
 if(WITH_PYTHON)
   add_subdirectory(pyembed)
