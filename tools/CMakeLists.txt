@@ -100,6 +100,11 @@ install(
   TARGETS dlite-getuuid dlite-codegen dlite-env
   DESTINATION bin
 )
+# Ensure RPATHS updated correctly
+install(
+  TARGETS dlite-getuuid dlite-codegen dlite-env
+  DESTINATION ${Python3_PREFIX}share/dlite/bin
+)
 install(
   PROGRAMS dlite-docker
   DESTINATION bin
