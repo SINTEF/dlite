@@ -282,7 +282,7 @@ check_type_size(intmax_t                  INTMAX_T)
 check_type_size(uintmax_t                 UINTMAX_T)
 check_type_size(uintptr_t                 UINTPTR_T)
 check_type_size(ptrdiff_t                 PTRDIFF_T)
-set(CMAKE_REQUIRED_INCLUDES "stdlib.h;_stdlib.h")
+set(CMAKE_REQUIRED_INCLUDES stdlib.h)
 check_type_size(size_t                    HAVE_SIZE_T)
 unset(CMAKE_REQUIRED_INCLUDES)
 
