@@ -150,12 +150,35 @@ endif()
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
 
+# Linker RPATH / RUNPATH
+# ----------------------
+# 
+# Note: lib can be lib64 on some Linux platforms e.g. Fedora and SuSE.
+#   This includes the Python lib as per the documentation below:
+#   https://docs.python.org/3/using/configure.html#cmdoption-with-platlibdir
+# 
+# Note: Ubuntu & Debian use 'Multipath' triplet subdirectories for libraries
+#   The compiler's target machine triplet can be obtained with `gcc -dumpmachine`
+# 
+# Useful info at:
+# https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
+
+set(CMAKE_SKIP_RPATH FALSE)
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+set(CMAKE_INSTALL_RPATH "")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+if(APPLE)
+  # macOS needs full paths hence use of @loader_path in the target properties for *_RPATH
+  # @loader_path is replaced at runtime by the directory the target is loaded from.
+  set(CMAKE_MACOSX_RPATH TRUE)
+endif()
+  # Linux uses DT_RUNPATH which can be overridden by the environment variable LD_LIBRARY_PATH
+  # $ORIGIN is replaced at runtime by the directory the target is loaded from.
+
+
 # Install paths
 # -------------
-
-# Ensure MacOS has rpaths set in libraries
-set(CMAKE_MACOSX_RPATH 1)
-
 
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
