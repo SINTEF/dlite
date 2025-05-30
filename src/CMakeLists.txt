@@ -79,7 +79,17 @@ endif()
 if(WITH_PYTHON)
   list(APPEND include_directories_extra ${Python3_INCLUDE_DIRS})
   if(NOT WITH_STATIC_PYTHON)
-    list(APPEND link_libraries_extra ${Python3_LIBRARIES})
+    # Force Linux to use the full path to the Python library instead of the SONAME
+    add_library(python_lib SHARED IMPORTED)
+    set_target_properties(python_lib PROPERTIES
+      # Unix
+      IMPORTED_LOCATION ${Python3_LIBRARIES}
+      IMPORTED_NO_SONAME TRUE
+      # Windows
+      IMPORTED_IMPLIB ${Python3_LIBRARIES} # .lib or .dll.a
+      # IMPORTED_LOCATION # .dll
+      )
+    list(APPEND link_libraries_extra python_lib)
   endif()
   # Python requires the intl library
   find_library(INTL_LIBRARY intl)

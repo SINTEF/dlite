@@ -70,13 +70,6 @@ macro(test_example example)
   set_property(TEST ${example}-test PROPERTY ENVIRONMENT
     LD_LIBRARY_PATH="${dlite_LD_LIBRARY_PATH_NATIVE}:${Python3_LIBRARY_DIRS}"
   )
-
-  # FIXME - enable this test again
-  # Currently the tests fails on GitHub with the message
-  #
-  # error while loading shared libraries: libpython3.10.so.1.0: cannot open shared object file: No such file or directory
-  #
-  set_property(TEST ${example}-test    PROPERTY DISABLED True)
 endmacro()
 
 
