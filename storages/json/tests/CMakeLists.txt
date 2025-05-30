@@ -54,6 +54,18 @@ foreach(test ${tests})
     ${dlite-src_SOURCE_DIR}/tests
     )
   add_dependencies(${test} copy-dlite-plugins-json)
+  
+# TEST RPATH/ RUNPATH
+# ===================
+# 
+# These tests will be run from the Build directory only.
+# Set absolute RPATHS to the other libraries.
+# TODO: Change all paths to generators e.g. for dlite, dlite-utils etc as easier to maintain
+
+  set_property(TARGET ${test} PROPERTY
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils;$<TARGET_FILE_DIR:dlite-plugins-json>"
+    )
 
   add_test(
     NAME ${test}
