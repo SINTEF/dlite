@@ -4,15 +4,15 @@ project(dlite-tools C)
 # TODO - It would be preferable to link with the shared libraries.
 # How to do that without breaking the docker build?
 
-if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
-  unset(extra_link_libraries)
+if(WIN32 AND NOT MINGW)
+  set(getopt_source "../src/utils/compat-src/getopt.c")
 endif()
 
 # dlite-getuuid
-add_executable(dlite-getuuid dlite-getuuid.c)
+add_executable(dlite-getuuid dlite-getuuid.c ${getopt_source})
 target_link_libraries(dlite-getuuid
-  dlite-static
-  dlite-utils-static
+  dlite
+  dlite-utils
   ${extra_link_libraries}
 )
 target_include_directories(dlite-getuuid PRIVATE
@@ -21,10 +21,10 @@ target_include_directories(dlite-getuuid PRIVATE
 
 
 # dlite-codegen
-add_executable(dlite-codegen dlite-codegen.c)
+add_executable(dlite-codegen dlite-codegen.c ${getopt_source})
 target_link_libraries(dlite-codegen
-  dlite-static
-  dlite-utils-static
+  dlite
+  dlite-utils
   ${extra_link_libraries}
 )
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -38,10 +38,10 @@ target_include_directories(dlite-codegen PRIVATE
 
 
 # dlite-env
-add_executable(dlite-env dlite-env.c)
+add_executable(dlite-env dlite-env.c ${getopt_source})
 target_link_libraries(dlite-env
-  dlite-static
-  dlite-utils-static
+  dlite
+  dlite-utils
   ${extra_link_libraries}
 )
 target_include_directories(dlite-env PRIVATE

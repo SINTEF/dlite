@@ -20,10 +20,6 @@ set(tests
   test_ref
 )
 
-if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
-  unset(extra_link_libraries)
-endif()
-
 list(APPEND tests test_json_entity)
 list(APPEND tests test_storage_lookup)
 list(APPEND tests test_mapping)

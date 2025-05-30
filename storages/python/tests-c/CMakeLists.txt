@@ -27,10 +27,6 @@ add_definitions(
   -DCURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
 )
 
-if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
-  unset(extra_link_libraries)
-endif()
-
 include(FindPythonModule)
 
 # Disable yaml test if PyYAML is not in installed
