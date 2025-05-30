@@ -5,6 +5,7 @@ import re
 import shutil
 import site
 import subprocess
+import sysconfig
 from glob import glob
 from typing import TYPE_CHECKING
 from pathlib import Path
@@ -25,8 +26,13 @@ if TYPE_CHECKING:
 SETUP_DIR = Path(__file__).resolve().parent
 SOURCE_DIR = SETUP_DIR.parent
 
+
+# As per https://www.msys2.org/docs/python/#portability
+is_mingw = os.name == "nt" and sysconfig.get_platform().startswith("mingw")
+
+
 # Set platform-specific CMAKE_ARGS
-if platform.system() == "Linux":
+if platform.system() in ["Linux", "Darwin"]:
     dlite_compiled_ext = "_dlite.so"
     dlite_compiled_dll_suffix = "*.so"
     CMAKE_ARGS = [
@@ -34,14 +40,27 @@ if platform.system() == "Linux":
         "-DWITH_HDF5=OFF",
         "-DALLOW_WARNINGS=ON",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
-        # Will always have CMake version >= 3.14 (see `CMakeLists.txt`)
-        "-DPython3_FIND_VIRTUALENV=ONLY",
+        "-DPython3_FIND_VIRTUALENV=FIRST",
         "-DPython3_FIND_IMPLEMENTATIONS=CPython",
 
         f"-DPython3_EXECUTABLE={sys.executable}",
         "-DCMAKE_INSTALL_PREFIX="
         f"{site.USER_BASE if '--user' in sys.argv else sys.prefix}",
 
+    ]
+elif is_mingw:
+    dlite_compiled_ext = "_dlite.pyd"
+    dlite_compiled_dll_suffix = "*.dll"
+    is_64bits = sys.maxsize > 2**32
+    arch = 'x64' if is_64bits else 'x86'
+    v = sys.version_info
+    CMAKE_ARGS = [
+        "-G", "MinGW Makefiles",
+        "-DWITH_DOC=OFF",
+        "-DWITH_HDF5=OFF",
+        "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
+        "-DPython3_FIND_STRATEGY=LOCATION",
+        f"-DPython3_ROOT_DIR={sys.exec_prefix}",
     ]
 elif platform.system() == "Windows":
     dlite_compiled_ext = "_dlite.pyd"
@@ -57,7 +76,7 @@ elif platform.system() == "Windows":
         f"-DPYTHON_VERSION={v.major}.{v.minor}",
         "-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES",
         f"-DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE={arch}",
-        "-DPython3_FIND_VIRTUALENV=STANDARD",
+        "-DPython3_FIND_VIRTUALENV=FIRST",
     ]
 else:
     raise NotImplementedError(f"Unsupported platform: {platform.system()}")
