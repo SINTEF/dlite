@@ -699,7 +699,7 @@ set(dlite_PYTHONPATH
 if(APPLE)
   list(APPEND dlite_PYTHONPATH ${dlite_TEMP_LIBRARY_PATH})
 elseif(UNIX)
-  set(dlite_LD_LIBRARY_PATH dlite_TEMP_LIBRARY_PATH)
+  set(dlite_LD_LIBRARY_PATH ${dlite_TEMP_LIBRARY_PATH})
   list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 endif()
 unset(dlite_TEMP_LIBRARY_PATH)
