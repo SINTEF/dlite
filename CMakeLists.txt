@@ -305,6 +305,13 @@ if(WITH_PYTHON)
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
   if(Python3_LDFLAGS AND NOT Python3_LDFLAGS STREQUAL "None")
+    if(APPLE)
+      # Strip out `-arch xyz` flags if present as on macOS multi-architecture are common,
+      # leading to it needing to be compiled on multiple architectures
+      # without having the correct generators/ toolkits setup.
+      # GitHub macOS runner images tend to have universal binaries
+      string(REGEX REPLACE "(-arch[ \t\r\n]+[A-Za-z0-9_]+ )*(.)" "\\2" Python3_LDFLAGS ${Python3_LDFLAGS})
+    endif()
     list(APPEND extra_link_libraries ${Python3_LDFLAGS})
   endif()
 
