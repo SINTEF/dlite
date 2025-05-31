@@ -7,7 +7,7 @@
  */
 
 #include <stdlib.h>
-#include "utils/compat-src/setenv.h"
+#include "setenv.h"
 
 /* setenv() - change or add an environment variable */
 #if defined(HAVE_SETENV) && defined(HAVE__PUTENV_S)
