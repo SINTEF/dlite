@@ -674,6 +674,7 @@ if(WIN32)
   if(HAVE_REDLAND)
     list(APPEND dlite_PATH ${REDLAND_RUNTIME_DIR})
   endif()
+  list(APPEND dlite_PATH "${CMAKE_INSTALL_PREFIX}/bin")
 endif()
 list(REMOVE_DUPLICATES dlite_PATH)
 
@@ -825,16 +826,6 @@ if(CROSS_TARGET AND MINGW)
   set(dlite_PATH ${paths})
 endif()
 
-
-set(dlite_PATH_NATIVE1 "${CMAKE_INSTALL_PREFIX}/bin")
-foreach(path ${dlite_PATH})
-  list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
-endforeach()
-if(WIN32)
-  string(REPLACE ";" "\\\\;" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
-else()
-  string(REPLACE ";" ":" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
-endif()
 
 # Note, DLITE_STORAGES uses "|" as separator on all systems
 string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")
