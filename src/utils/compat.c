@@ -27,9 +27,9 @@ typedef int make_iso_compilers_happy;
 #ifdef HAVE__PUTENV_S
 int setenv(const char *name, const char *value, int overwrite)
 {
-  if (overwrite || getenv(name))
-    return _putenv(name, value);
-  return 0;
+  if (!overwrite && getenv(name))
+    return 0;
+  return _putenv_s(name, value);
 }
 #endif
 
