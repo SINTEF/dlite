@@ -27,16 +27,6 @@ if(WITH_PYTHON)
   list(APPEND dlite_PATH ${Python3_LIBDIR})
 endif()
 
-set(dlite_PATH_NATIVE "")
-foreach(path ${dlite_PATH})
-  list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
-endforeach()
-if(WIN32)
-  string(REPLACE ";" "\;" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
-else()
-  string(REPLACE ";" ":" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
-endif()
-
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test}
@@ -69,7 +59,7 @@ foreach(test ${tests})
     )
 
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${dlite_PATH_NATIVE},\\\;>")
   if (WIN32 AND PYTHON_IS_ANACONDA)
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")
