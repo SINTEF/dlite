@@ -112,10 +112,9 @@ if(APPLE)
   )
 endif()
 
-swig_link_libraries(dlitepy
+target_link_libraries(dlitepy
   dlite
   dlite-utils
-  #${Python3_LIBRARIES}
   )
 
 
