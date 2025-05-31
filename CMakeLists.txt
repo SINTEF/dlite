@@ -143,6 +143,8 @@ if(MSVC)
 
   # Do not complain about standard library functions
   add_definitions("-D_CRT_SECURE_NO_WARNINGS")
+
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
 # Uncomment the lines below to compile with AddressSanitizer
