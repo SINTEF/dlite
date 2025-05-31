@@ -24,15 +24,13 @@ typedef int make_iso_compilers_happy;
 
 
 /* setenv() - change or add an environment variable */
-#ifndef HAVE_SETENV
-# ifdef HAVE__PUTENV_S
+#ifdef HAVE__PUTENV_S
 int setenv(const char *name, const char *value, int overwrite)
 {
   if (overwrite || getenv(name))
     return _putenv(name, value);
   return 0;
 }
-# endif
 #endif
 
 
