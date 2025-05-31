@@ -4,6 +4,7 @@
 #include <string.h>
 #include <limits.h>
 
+#include "config.h"
 #include "fileutils.h"
 #include "test_macros.h"
 
@@ -436,7 +437,7 @@ MU_TEST(test_fu_paths)
 
   fu_paths_deinit(&paths);
 
-#if defined(HAVE_SETENV) && defined(HAVE_UNSETENV)
+#ifdef HAVE_SETENV
   setenv("XXX", "aa" PATHSEP "bb" PATHSEP "cc", 1);
   fu_paths_init(&paths, "XXX");
   mu_assert_int_eq(3, paths.n);
@@ -445,7 +446,11 @@ MU_TEST(test_fu_paths)
   mu_assert_string_eq("cc", paths.paths[2]);
   fu_paths_deinit(&paths);
 
+#ifdef HAVE_UNSETENV
   unsetenv("XXX");
+#else
+  setenv("XXX", "", 1)
+#endif
   fu_paths_init(&paths, "XXX");
   mu_assert_int_eq(0, paths.n);
   fu_paths_deinit(&paths);

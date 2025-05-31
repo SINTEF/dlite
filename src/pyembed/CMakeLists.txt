@@ -2,6 +2,7 @@
 
 
 set(pyembed_sources
+  utils/compat-src/setenv.c
   pyembed/dlite-pyembed.c
   pyembed/dlite-pyembed-utils.c
   pyembed/dlite-python-singletons.c

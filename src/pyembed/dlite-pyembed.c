@@ -8,7 +8,7 @@
 #include "dlite-python-storage.h"
 #include "dlite-python-mapping.h"
 #include "dlite-python-singletons.h"
-#include "config-paths.h"
+#include "utils/compat-src/setenv.h"
 
 #define GLOBALS_ID "dlite-pyembed-globals"
 
@@ -146,7 +146,7 @@ void dlite_pyembed_initialise(void)
   if (!g->initialised) {
       g->initialised = 1;
 
-#if defined(HAVE_SETENV) || defined(HAVE__PUTENV_S)
+#if defined(HAVE_SETENV)
       if (Py_IsInitialized()) {
       /* Set environment variables from global variables in Python
          starting with "DLITE_" */
