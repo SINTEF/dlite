@@ -72,12 +72,12 @@ if(WITH_JSON)
       )
 
     set_property(TEST ${test} PROPERTY
-      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+      ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${dlite_PATH_NATIVE},\\\;>")
     if(MINGW)
       set_property(TEST ${test} APPEND PROPERTY
         ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
     endif()
-    if (NOT WIN32)
+    if (UNIX AND NOT APPLE)
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
     endif()

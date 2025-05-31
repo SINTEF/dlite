@@ -68,8 +68,13 @@ foreach(test ${tests})
     COMMAND ${RUNNER} ${test}
     )
 
+if(WIN32 AND NOT MINGW)
   set_property(TEST ${name} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${dlite_PATH_NATIVE},\\\;>")
+else()
+  set_property(TEST ${name} PROPERTY
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${dlite_PATH_UNIX}")
+endif()
   set_property(TEST ${name} APPEND PROPERTY
     ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
   set_property(TEST ${name} APPEND PROPERTY
@@ -78,5 +83,7 @@ foreach(test ${tests})
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   set_property(TEST ${name} APPEND PROPERTY
     ENVIRONMENT "DLITE_USE_BUILD_ROOT=YES")
+  set_property(TEST ${name} APPEND PROPERTY
+    ENVIRONMENT "DLITE_STORAGES=*.json")
 
 endforeach()

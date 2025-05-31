@@ -71,7 +71,7 @@ foreach(test ${tests})
     )
 
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${dlite_PATH_NATIVE},\\\;>")
 
   if(MINGW)
     set_property(TEST ${test} APPEND PROPERTY
