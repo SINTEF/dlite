@@ -11,21 +11,21 @@ project(dlite-example-3
 
 set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
-  ${DLITE_ROOT}/cmake
-  ${DLITE_ROOT}/cmake/Modules
-  ${DLITE_ROOT}/share/cmake
-  ${DLITE_ROOT}/share/cmake/Modules
+  ${DLITE_ROOT}/share/Modules
+  ${DLITE_ROOT}/share/dlite/cmake
   )
-find_package(dlite)
+find_package(dlite REQUIRED)
 
 include(dliteCodeGen)
 
 dlite_codegen(
   philibtable.h
   c-header
-  json:${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json?mode=r
+  json://${CMAKE_CURRENT_SOURCE_DIR}/PhilibTable.json?mode=r
   --storage-plugins=${DLITE_STORAGE_PLUGINS}
   )
+
+add_compile_options("-DDLITE_ROOT=${DLITE_ROOT}")
 
 link_directories(${DLITE_LIBRARY_DIR})
 
@@ -36,7 +36,6 @@ target_include_directories(dlite-example-3 PUBLIC
   ${CMAKE_CURRENT_BINARY_DIR}
   )
 
-enable_testing()
 
 add_test(
   NAME dlite-example-3
@@ -51,5 +50,5 @@ set_property(TEST dlite-example-3 APPEND PROPERTY
   ENVIRONMENT "LD_LIBRARY_PATH=${DLITE_ROOT}/lib")
 elseif(WIN32)
 set_property(TEST dlite-example-3 APPEND PROPERTY
-  ENVIRONMENT "PATH=${DLITE_ROOT/lib};${PATH}")
+  ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${DLITE_ROOT}/lib,\\\;>")
 endif()
