@@ -359,9 +359,6 @@ endif()
 if(NOT HAVE_REALPATH AND UNIX)
   list(APPEND sources compat-src/realpath.c)
 endif()
-if(NOT HAVE_SETENV AND HAVE__PUTENV_S)
-  list(APPEND sources compat-src/setenv.c)
-endif()
 
 add_definitions(
   -DHAVE_CONFIG_H

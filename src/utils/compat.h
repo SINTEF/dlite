@@ -35,6 +35,11 @@
 #error "system is missing definition of size_t"
 #endif
 
+/** setenv() - change or add an environment variable */
+#if !defined(HAVE_SETENV) && defined(HAVE__PUTENV_S)
+#define HAVE_SETENV
+int setenv(const char *name, const char *value, int overwrite);
+#endif
 
 /*
  * compat/realpath.c

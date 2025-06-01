@@ -23,6 +23,17 @@ typedef int make_iso_compilers_happy;
 #endif
 
 
+/* setenv() - change or add an environment variable */
+#if defined(HAVE_SETENV) && defined(HAVE__PUTENV_S)
+int setenv(const char *name, const char *value, int overwrite)
+{
+  if (!overwrite && getenv(name))
+    return 0;
+  return _putenv_s(name, value);
+}
+#endif
+
+
 /* strdup() - duplicate a string */
 #if !defined(HAVE_STRDUP) && !defined(HAVE__STRDUP)
 char *strdup(const char *s)

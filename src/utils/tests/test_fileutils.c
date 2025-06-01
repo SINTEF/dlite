@@ -11,6 +11,12 @@
 #include "minunit/minunit.h"
 
 
+// Within dlite-utils
+#if !defined(HAVE_SETENV) && defined(HAVE__PUTENV_S)
+extern setenv(const char *name, const char *value, int overwrite);
+#endif
+
+
 FUDir *dir;
 
 
