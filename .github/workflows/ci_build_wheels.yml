@@ -47,6 +47,7 @@ jobs:
 
           # 64-bit Windows
           - os: windows-2022
+            system_type: ["win", ""]
             arch: amd64
             py_minors: 8,13
 
@@ -59,11 +60,13 @@ jobs:
 
           # 64-bit (Intel) macOS
           - os: macos-14
+            system_type: ["macosx", ""]
             arch: x86_64
             py_minors: 8,13
 
           # 64-bit (Apple Silicon) macOS
           - os: macos-14
+            system_type: ["macosx", ""]
             arch: arm64
             py_minors: 8,13
  
