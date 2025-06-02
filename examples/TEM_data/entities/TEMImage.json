@@ -1,5 +1,5 @@
 {
-  "uri": "http://onto-ns.com/meta/0.1/TEMImage",
+  "uri": "http://onto-ns.com/meta/characterisation/0.1/TEMImage",
   "description": "Metadata for a TEM image.",
   "dimensions": {
     "ndim": "Number of dimensions. This is always 4.",
