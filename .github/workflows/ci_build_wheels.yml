@@ -59,7 +59,7 @@ jobs:
           #   py_minors: 8,13
 
           # 64-bit (Intel) macOS
-          - os: macos-14
+          - os: macos-13
             system_type: ["macosx", ""]
             arch: x86_64
             py_minors: 8,13
