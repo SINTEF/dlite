@@ -2,6 +2,11 @@
 #
 cmake_minimum_required(VERSION 3.16)
 
+# macOS SDK 10.13 is supported by Xcode 15.0.1
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS deployment version" FORCE)
+# macOS version SDK: https://developer.apple.com/support/xcode/ (macOS in Deployment Targets column)
+# XCode version: https://github.com/actions/runner-images?tab=readme-ov-file#available-images (version supported by GitHub Runner images)
+
 project(dlite
   VERSION 0.5.29
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
