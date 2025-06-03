@@ -334,11 +334,28 @@ if(WITH_PYTHON)
 
   if(Python3_LDFLAGS AND NOT Python3_LDFLAGS STREQUAL "None")
     if(APPLE)
-      # Strip out `-arch xyz` flags if present as on macOS multi-architecture are common,
-      # leading to it needing to be compiled on multiple architectures
-      # without having the correct generators/ toolkits setup.
-      # GitHub macOS runner images tend to have universal binaries
-      string(REGEX REPLACE "(-arch[ \t\r\n]+[A-Za-z0-9_]+ )*(.)" "\\2" Python3_LDFLAGS ${Python3_LDFLAGS})
+      # Strip out `-arch xyz` flags if present. On macOS multi-architecture is common
+      # leading to it needing to be compiled on multiple architectures.
+      # The correct generators/ toolkits are not setup to handle this.
+      # GitHub macOS runner images tend to have universal binaries with e.g. -arch x86_64;arm64
+      separate_arguments(Python3_LDFLAGS_ARGS UNIX_COMMAND ${Python3_LDFLAGS})
+      set(skip_next FALSE)
+      set(Python3_LDFLAGS "")
+      foreach(arg ${Python3_LDFLAGS_ARGS})
+        if(${arg} STREQUAL "-arch")
+          set(skip_next TRUE)
+        elseif(${skip_next})
+          set(skip_next FALSE)
+        elseif(${arg} MATCHES "[ ]+")
+          list(APPEND Python3_LDFLAGS "\"${arg}\"")
+        else()
+          list(APPEND Python3_LDFLAGS ${arg})
+        endif()
+      endforeach()
+      string(JOIN " " Python3_LDFLAGS ${Python3_LDFLAGS})
+      string(STRIP Python3_LDFLAGS ${Python3_LDFLAGS})
+      unset(skip_next)
+      unset(Python3_LDFLAGS_ARGS)
     endif()
     list(APPEND extra_link_libraries ${Python3_LDFLAGS})
   endif()
