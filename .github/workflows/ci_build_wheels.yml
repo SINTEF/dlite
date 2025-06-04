@@ -77,10 +77,17 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python 3.8 for linking when needed
+        uses: actions/setup-python@v5
         with:
           python-version: 3.8
         if: matrix.py_minors == 8
+
+      - name: Setup Python 3.11 for running CIBW
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
 
       - name: Login to GitHub Container Registry
         if: startsWith(matrix.os, 'ubuntu')
