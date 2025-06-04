@@ -13,9 +13,6 @@ jobs:
   build_wheels:
     name: Build wheels
     runs-on: ${{ matrix.os }}
-    env:
-      MACOSX_DEPLOYMENT_TARGET: "10.13"
-      CIBW_ENVIRONMENT: MACOSX_DEPLOYMENT_TARGET="10.13"
     strategy:
       fail-fast: false
       matrix:
@@ -66,13 +63,15 @@ jobs:
             system_type: ["macosx", ""]
             arch: x86_64
             py_minors: 8,13
+            deployment-target: "13"
 
           # 64-bit (Apple Silicon) macOS
           - os: macos-14
             system_type: ["macosx", ""]
             arch: arm64
             py_minors: 8,13
- 
+            deployment-target: "14"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -114,3 +113,5 @@ jobs:
           CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_x86_64:latest
           CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_i686:latest
+          MACOSX_DEPLOYMENT_TARGET: ${{ matrix.deployment-target }}
+          CIBW_ENVIRONMENT: MACOSX_DEPLOYMENT_TARGET="${{ matrix.deployment-target }}"
