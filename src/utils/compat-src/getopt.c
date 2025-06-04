@@ -8,6 +8,7 @@
  */
 #include <stdio.h>
 #include <string.h>
+
 #include "getopt.h"
 
 char* optarg = 0;

@@ -81,6 +81,7 @@ macro(dlite_codegen output template url)
         dlite_BINARY_DIR
         dlite_SOURCE_DIR
         dlite_LD_LIBRARY_PATH
+        dlite_PATH_EXTRA
         dlite_PYTHONPATH
         dlite_PYTHON_STORAGE_PLUGINS
         dlite_PYTHON_MAPPING_PLUGINS

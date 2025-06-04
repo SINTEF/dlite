@@ -133,7 +133,6 @@ set(link_args
   ${link_libraries_extra}
   )
 if(NOT WITH_STATIC_PYTHON)
-  # CMAKE_DL_LIBS is empty on MacOS
   list(APPEND link_args ${CMAKE_DL_LIBS})
 endif()
 
@@ -172,7 +171,6 @@ set_target_properties(dlite-static PROPERTIES
   POSITION_INDEPENDENT_CODE ON
   )
 
-#set_property(TARGET dlite-static-pic PROPERTY POSITION_INDEPENDENT_CODE ON)
 set_source_files_properties(
     dlite-misc.c
     dlite-storage.c
@@ -214,8 +212,8 @@ set_target_properties(dlite PROPERTIES PUBLIC_HEADER "${headers}")
 install(
   TARGETS dlite dlite-static
   EXPORT  dliteTargets
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib #TODO: May need to replace lib with ${LIBDIR}
+  ARCHIVE DESTINATION lib #TODO: May need to replace lib with ${LIBDIR}
   RUNTIME DESTINATION bin
   PUBLIC_HEADER DESTINATION include/dlite
   INCLUDES DESTINATION include/dlite

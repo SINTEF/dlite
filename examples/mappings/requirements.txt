@@ -1,8 +1,7 @@
-tripper==0.2.14
+tripper @ git+https://github.com/EMMC-ASBL/tripper.git@master
 pint>=0.15,<1
 
-oteapi-core>=0.6.1,<1
-#oteapi-dlite>0.1.6,<1  # update once after migrating to pydantic v2
-oteapi-dlite @ git+https://github.com/EMMC-ASBL/oteapi-dlite.git@master
-DLite-Python>=0.5.1,<1
-otelib>=0.4.1,<1
+# FIXME: Await Dlite-Python to have Darwin & MinGW fixed on main distro
+# oteapi-core>=1.0,<2
+# oteapi-dlite>=1.0,<2
+# otelib>=1.0,<2

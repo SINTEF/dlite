@@ -1,12 +1,17 @@
 ! You must set environment variable DLITE_STORAGES='*.json' and run
 ! this test from the same directory as this file
 
+module Person_m
+  use Person, only: &
+    TPerson
+end module
+
 program ftest_person
 
   use iso_c_binding
   use DLite
   use dlite_config, only: dlite_fortran_test_dir
-  use Person
+  use Person_m
   use Scan3D
 
   implicit none
@@ -38,6 +43,7 @@ program ftest_person
                    "mode=r;useid=keep", &
                    "Joe Doe")
 
+  ! print *, 'person      = ', person%check()
   print *, 'uuid        = ', person%uuid
   print *, 'n           = ', person%n
   print *, 'm           = ', person%m

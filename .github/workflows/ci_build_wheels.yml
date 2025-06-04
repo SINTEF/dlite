@@ -14,7 +14,7 @@ jobs:
     name: Build wheels
     runs-on: ${{ matrix.os }}
     env:
-      MACOSX_DEPLOYMENT_TARGET: "10.13"
+      CIBW_ENVIRONMENT: MACOSX_DEPLOYMENT_TARGET="10.13"
     strategy:
       fail-fast: false
       matrix:

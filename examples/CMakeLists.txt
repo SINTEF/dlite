@@ -54,11 +54,14 @@ macro(test_example example)
       -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
       -DDLITE_ROOT=${CMAKE_INSTALL_PREFIX}
+      -DCMAKE_Fortran_COMPILER=${CMAKE_Fortran_COMPILER}
       -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
       ${toolchain_opt}
       ${CMAKE_CURRENT_SOURCE_DIR}/${example}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${example}
     )
+  # RPATHS for the examples will be the full path as they link to the
+  # installed libraries, which are outside of the build paths.
   add_test(
     NAME ${example}-build
     COMMAND ${CMAKE_COMMAND} --build .
@@ -94,7 +97,7 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
       test_example(ex4)
     endif()
   endif()
-  #test_example(ex5d)
+  # test_example(ex5d)
 
   # Run python examples
   foreach(name ${python_examples})
