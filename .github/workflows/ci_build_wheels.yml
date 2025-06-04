@@ -13,6 +13,8 @@ jobs:
   build_wheels:
     name: Build wheels
     runs-on: ${{ matrix.os }}
+    env:
+      MACOSX_DEPLOYMENT_TARGET: "10.13"
     strategy:
       fail-fast: false
       matrix:
