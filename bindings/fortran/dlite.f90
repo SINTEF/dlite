@@ -557,9 +557,7 @@ contains
     else
       shape = dims_p
     endif
-    if (c_associated(ptr)) then
-      call free_c(ptr)
-    endif
+    call free_c(ptr)
   end subroutine dlite_instance_get_property_dims_by_index
 
   function dlite_instance_decref(instance) result(count)

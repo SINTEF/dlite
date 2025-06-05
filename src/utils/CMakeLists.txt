@@ -349,7 +349,7 @@ set(sources
   uuid.c
   uuid4.c
   )
-if(NOT(HAVE_GETOPT AND HAVE_GETOPT_LONG))
+if(NOT(MINGW AND HAVE_GETOPT_LONG))
   list(APPEND sources compat-src/getopt.c)
 endif()
 if(WITH_SNPRINTF)
@@ -443,8 +443,9 @@ install(
   DESTINATION include/dlite/utils/compat-src
   )
 
-# Generate config.h
-  configure_file(config.h.in config.h)
 
 # Tests
 add_subdirectory(tests)
+
+# .. generate config.h
+configure_file(config.h.in config.h)

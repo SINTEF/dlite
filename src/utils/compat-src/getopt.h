@@ -11,22 +11,14 @@
 extern "C" {
 #endif // __cplusplus
 
-#include "config.h"
-
-#if defined(HAVE_GETOPT) && defined(HAVE_GETOPT_LONG)
-# include <unistd.h>
-# include <getopt.h>
+#ifdef HAVE_GETOPT
+#include <getopt.h>
 #else
-# ifndef _UNISTD_H_
-#  define _UNISTD_H_
+#ifndef _GETOPT_H_
+#define _GETOPT_H_
 
     int getopt(int argc, char* const argv[],
             const char* optstring);
-
-# endif // _UNISTD_H_
-
-# ifndef _GETOPT_H_
-#  define _GETOPT_H_
 
     extern char *optarg;
     extern int optind, opterr, optopt;
@@ -51,8 +43,9 @@ extern "C" {
             const struct option* longopts, int* longindex);
 ****************************************************************************/
 
-# endif // _GETOPT_H_
-#endif  // HAVE_GETOPT && HAVE_GETOPT_LONG
+#endif  /* HAVE_GETOPT */
+
 #ifdef __cplusplus
 }
 #endif // __cplusplus
+#endif // _GETOPT_H_
