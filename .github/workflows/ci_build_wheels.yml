@@ -76,17 +76,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python 3.8 for linking when needed
-        uses: actions/setup-python@v5
+      - uses: actions/setup-python@v5
         with:
-          python-version: 3.8
-          architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
-        if: matrix.py_minors == 8
-
-      - name: Setup Python 3.11 for running CIBW
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
+          python-version: "3.${{ contains(matrix.py_minors, ',') && 'x' || matrix.py_minors }}"
           architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
 
       - name: Login to GitHub Container Registry
@@ -115,4 +107,4 @@ jobs:
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_x86_64:latest
           CIBW_MUSLLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_i686:latest
           MACOSX_DEPLOYMENT_TARGET: ${{ matrix.deployment-target }}
-          CIBW_ENVIRONMENT: MACOSX_DEPLOYMENT_TARGET="${{ matrix.deployment-target }}"
+          CIBW_ENVIRONMENT: MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment-target }}
