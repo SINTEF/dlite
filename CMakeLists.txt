@@ -332,7 +332,7 @@ if(WITH_PYTHON)
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
 
-  message(STATUS "Python3_LDFLAG = ${Python3_LDFLAGS}")
+  message(STATUS "Python3_LDFLAGS = ${Python3_LDFLAGS}")
 
   if(Python3_LDFLAGS AND NOT Python3_LDFLAGS STREQUAL "None")
     if(APPLE)
