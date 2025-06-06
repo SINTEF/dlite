@@ -82,7 +82,7 @@ jobs:
           architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
 
       - name: Install Python from python.org
-        if: runner.os == 'macOS' && matrix.py_minors == 8
+        if: runner.os == 'macOS' && contains(matrix.py_minors, 8)
         run: |
           url="https://www.python.org/ftp/python/3.8.10/python-3.8.10-macos11.pkg"
           curl $url -o python-3.8.10-macos11.pkg
