@@ -63,14 +63,14 @@ jobs:
             system_type: ["macosx", ""]
             arch: x86_64
             py_minors: 8,13
-            deployment-target: "13"
+            deployment-target: 11
 
           # 64-bit (Apple Silicon) macOS
           - os: macos-14
             system_type: ["macosx", ""]
             arch: arm64
             py_minors: 8,13
-            deployment-target: "14"
+            deployment-target: 11
 
     steps:
       - name: Checkout repository
