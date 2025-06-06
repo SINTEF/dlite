@@ -81,6 +81,13 @@ jobs:
           python-version: "3.${{ contains(matrix.py_minors, ',') && 'x' || matrix.py_minors }}"
           architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
 
+      - name: Install Python from python.org
+        if: runner.os == 'macOS' && matrix.py_minors == 8
+        run: |
+          url="https://www.python.org/ftp/python/3.8.10/python-3.8.10-macos11.pkg"
+          curl $url -o python-3.8.10-macos11.pkg
+          sudo installer -pkg python-3.8.10-macos11.pkg -target /
+
       - name: Login to GitHub Container Registry
         if: startsWith(matrix.os, 'ubuntu')
         uses: docker/login-action@v3
