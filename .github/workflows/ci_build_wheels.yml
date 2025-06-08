@@ -8,6 +8,7 @@ on:
 
 env:
   container_registry: ghcr.io
+  CIBW_DEBUG_TRACEBACK: TRUE
 
 jobs:
   build_wheels:
