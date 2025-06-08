@@ -13,9 +13,12 @@ build-frontend = "pip"
 build-verbosity = 1
 
 [tool.cibuildwheel.macos]
-[tool.cibuildwheel.windows]
 before-test = "python -m pip install -r {project}/requirements.txt -r {project}/requirements_dev.txt"
 test-command = "python {package}/../bindings/python/tests/test_python_bindings.py"
+
+[tool.cibuildwheel.windows]
+before-test = "python -m pip install -r {project}\\requirements.txt -r {project}\\requirements_dev.txt"
+test-command = "python {package}\\..\\bindings\\python\\tests\\test_python_bindings.py"
 
 [tool.cibuildwheel.linux]
 environment-pass = ["CI_BUILD_CMAKE_ARGS", "CI_PIP_CACHE_DIR"]
