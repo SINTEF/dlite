@@ -76,9 +76,10 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Install Python for running cibuildwheel
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.${{ contains(matrix.py_minors, ',') && 'x' || matrix.py_minors }}"
+          python-version: "3.x"
           architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
 
       - name: Install Python 3.8 from python.org
