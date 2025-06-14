@@ -34,7 +34,7 @@ is_mingw = os.name == "nt" and sysconfig.get_platform().startswith("mingw")
 # Set platform-specific CMAKE_ARGS
 if platform.system() in ["Linux", "Darwin"]:
     dlite_compiled_ext = "_dlite.so"
-    dlite_compiled_dll_suffix = "*.so"
+    dlite_compiled_dll_suffix = "*.so" if platform.system() == "Linux" else "*.dylib"
     CMAKE_ARGS = [
         "-DWITH_DOC=OFF",
         "-DWITH_HDF5=OFF",
