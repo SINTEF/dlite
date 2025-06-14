@@ -80,7 +80,7 @@ jobs:
       - name: Install Python for running cibuildwheel
         uses: actions/setup-python@v5
         with:
-          python-version: "3.x"
+          python-version: "3.13.5"
           architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
 
       # https://cibuildwheel.pypa.io/en/stable/faq/#macos-building-cpython-38-wheels-on-arm64
