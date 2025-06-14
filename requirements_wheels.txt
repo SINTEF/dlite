@@ -1,0 +1,5 @@
+# Wheel building
+cibuildwheel==3.0.0 # Python >=3.11 but for CI runner only
+
+# Load the other dev requirements
+-r  requirements_dev.txt

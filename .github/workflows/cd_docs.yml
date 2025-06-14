@@ -58,7 +58,6 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install -U setuptools wheel
           pip install -r requirements.txt -r requirements_doc.txt -r requirements_dev.txt
 
       - name: Available version of installed programs
