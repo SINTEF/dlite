@@ -111,6 +111,7 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          # MinGW
           if [[ "${{ matrix.subsystem }}" != none ]] ;
           then
             which python3
@@ -146,6 +147,7 @@ jobs:
             # Note: Uses MinGW versions of dev tools cmake and swig are used for building
             # instead. Thus requirements_dev.txt is not used.
 
+          # Ubuntu and macOS
           elif [[ ${{ matrix.os }} == ubuntu* ]] || [[ ${{ matrix.os }} == macos* ]] ;
           then
             which python3
@@ -153,7 +155,8 @@ jobs:
             python3 -m pip --version
             python3 -m pip install --upgrade pip
             python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
-          
+
+          # Windows
           elif [[ ${{ matrix.os }} == windows* ]] ;
           then
             which python3
