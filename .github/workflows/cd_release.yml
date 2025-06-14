@@ -175,10 +175,10 @@ jobs:
     - name: Update version
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
-    - name: Set up Python 3.9
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.9"
+        python-version: 3.x
 
     - name: Install Python dependencies
       run: |
