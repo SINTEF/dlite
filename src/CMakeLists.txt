@@ -93,11 +93,15 @@ if(WITH_PYTHON)
     list(APPEND link_libraries_extra python_lib)
   endif()
   # Python uses the intl library only for the gettext & locale modules
-  find_library(Intl_LIBRARY intl)
+  if(NOT APPLE)
+    find_library(Intl_LIBRARY intl)
+  endif()
   # macOS does not natively have gettext. It is usually supplied by Homebrew
   # or Macports. This dependancy adds complexity for the user and elevates
   # the deployment target unnecessaily for little gained functionality.
-  if(Intl_LIBRARY AND NOT APPLE)
+  # intl is not linked in this buiild for macOS unless Intl_LIBRARY is provided
+  # at configure
+  if(Intl_LIBRARY)
     if(Intl_IS_BUILT_IN)
       message(STATUS "Found intl: Contained in the C standard library")
     else()
