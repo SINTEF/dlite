@@ -1,5 +1,5 @@
 # Wheel building
-cibuildwheel==3.0.0 # Python >=3.11 but for CI runner only
+cibuildwheel==2.23.3 # TODO: v3.0.0 has breaking changes
 
 # Load the other dev requirements
 -r  requirements_dev.txt
