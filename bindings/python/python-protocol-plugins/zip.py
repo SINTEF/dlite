@@ -3,7 +3,6 @@ from urllib.parse import urlparse
 
 import hashlib
 import re
-import requests
 from zipfile import ZipFile
 
 import dlite
@@ -31,6 +30,8 @@ class zip(dlite.DLiteProtocolBase):
         path, zippath = location.split("#", 1)
 
         if re.match("^https?:.*", path):
+            import requests
+
             key = hashlib.shake_128(path.encode()).hexdigest(6)
             zipfile = get_cachedir() / f"cache-{key}.zip"
             if nocache or not zipfile.exists():
