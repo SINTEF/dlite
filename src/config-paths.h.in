@@ -3,7 +3,7 @@
 #ifndef _DLITE_CONFIG_PATHS_H
 #define _DLITE_CONFIG_PATHS_H
 
-#define dlite_PATH                    "@dlite_PATH@"
+#define dlite_PATH                    "@dlite_PATH_CMAKE@"
 #define dlite_PATH_EXTRA              "@dlite_PATH_EXTRA@"
 /* FIXME: This has no meaning for Windows but ./tools/dlite-env.c expects this and does not like backslashes */
 #define dlite_LD_LIBRARY_PATH         "@dlite_LD_LIBRARY_PATH@"

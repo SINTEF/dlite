@@ -15,6 +15,10 @@ set(python_examples
   )
 endif()
 
+if(MINGW)
+  list(APPEND CMAKE_MODULE_PATH "${dlite_SOURCE_DIR}/cmake")
+  list(REMOVE_DUPLICATES CMAKE_MODULE_PATH)
+endif()
 
 # CMake toolchain option
 if(CMAKE_TOOLCHAIN_FILE)
@@ -50,6 +54,7 @@ macro(test_example example)
       -DCMAKE_INSTALL_PREFIX=${CMAKE_INSTALL_PREFIX}
       -DCMAKE_C_FLAGS=${CMAKE_C_FLAGS}
       -DDLITE_ROOT=${CMAKE_INSTALL_PREFIX}
+      -DCMAKE_MODULE_PATH=${CMAKE_MODULE_PATH}
       ${toolchain_opt}
       ${CMAKE_CURRENT_SOURCE_DIR}/${example}
     WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/${example}
@@ -70,13 +75,6 @@ macro(test_example example)
   set_property(TEST ${example}-test PROPERTY ENVIRONMENT
     LD_LIBRARY_PATH="${dlite_LD_LIBRARY_PATH_NATIVE}:${Python3_LIBRARY_DIRS}"
   )
-
-  # FIXME - enable this test again
-  # Currently the tests fails on GitHub with the message
-  #
-  # error while loading shared libraries: libpython3.10.so.1.0: cannot open shared object file: No such file or directory
-  #
-  set_property(TEST ${example}-test    PROPERTY DISABLED True)
 endmacro()
 
 
@@ -106,7 +104,7 @@ if(FORCE_EXAMPLES OR EXISTS ${CMAKE_INSTALL_PREFIX}/share/dlite/examples)
           ${CMAKE_CURRENT_SOURCE_DIR}/${name}/main.py
       )
     set_property(TEST ${name} PROPERTY
-      ENVIRONMENT "PATH=${dlite_PATH_NATIVE}${PATHSEP}$ENV{PATH}")
+      ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${dlite_PATH_NATIVE},\\\;>")
     set_property(TEST ${name} APPEND PROPERTY
       ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
     set_property(TEST ${name} APPEND PROPERTY

@@ -282,7 +282,7 @@ check_type_size(intmax_t                  INTMAX_T)
 check_type_size(uintmax_t                 UINTMAX_T)
 check_type_size(uintptr_t                 UINTPTR_T)
 check_type_size(ptrdiff_t                 PTRDIFF_T)
-set(CMAKE_REQUIRED_INCLUDES "stdlib.h;_stdlib.h")
+set(CMAKE_REQUIRED_INCLUDES stdlib.h)
 check_type_size(size_t                    HAVE_SIZE_T)
 unset(CMAKE_REQUIRED_INCLUDES)
 
@@ -349,7 +349,7 @@ set(sources
   uuid.c
   uuid4.c
   )
-if(NOT HAVE_GETOPT)
+if(NOT(MINGW AND HAVE_GETOPT_LONG))
   list(APPEND sources compat-src/getopt.c)
 endif()
 if(WITH_SNPRINTF)
@@ -421,8 +421,8 @@ set_target_properties(dlite-utils PROPERTIES PUBLIC_HEADER "${headers}")
 install(
   TARGETS dlite-utils dlite-utils-static
   EXPORT  dliteTargets
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib #TODO: May need to replace lib with ${LIBDIR}
+  ARCHIVE DESTINATION lib #TODO: May need to replace lib with ${LIBDIR}
   RUNTIME DESTINATION bin
   PUBLIC_HEADER DESTINATION include/dlite/utils
   INCLUDES DESTINATION include/dlite/utils
@@ -440,7 +440,7 @@ install(
   FILES
     compat-src/dirent.h
     compat-src/getopt.h
-  DESTINATION include/dlite/utils/compat
+  DESTINATION include/dlite/utils/compat-src
   )
 
 

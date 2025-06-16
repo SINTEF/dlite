@@ -114,7 +114,7 @@ else()
     set(dlite_PATH
       "${DLITE_RUNTIME_DIR};${DLITE_LIBRARY_DIR};$ENV{PATH}")
     set(dlite_LD_LIBRARY_PATH
-      "$ENV{LD_LIBRARY_PATH}")
+      "")
     set(dlite_STORAGE_PLUGINS
       "${DLITE_STORAGE_PLUGINS};$ENV{DLITE_STORAGE_PLUGINS}")
     set(dlite_MAPPINGS_PLUGINS
@@ -131,21 +131,38 @@ else()
   endif()
 
   include(FindPackageHandleStandardArgs)
-  find_package_handle_standard_args(dlite DEFAULT_MSG
-    DLITE_INCLUDE_DIRS
-    DLITE_LIBRARIES
-    DLITE_LIBRARY_DIR
-    DLITE_RUNTIME_DIR
-    DLITE_TEMPLATE_DIR
-    DLITE_STORAGE_PLUGINS
-    DLITE_MAPPINGS_PLUGINS
-    DLITE_ROOT
+  if(WIN32)
+    find_package_handle_standard_args(dlite DEFAULT_MSG
+      DLITE_INCLUDE_DIRS
+      DLITE_LIBRARIES
+      DLITE_LIBRARY_DIR
+      DLITE_RUNTIME_DIR
+      DLITE_TEMPLATE_DIR
+      DLITE_STORAGE_PLUGINS
+      DLITE_MAPPINGS_PLUGINS
+      DLITE_ROOT
 
-    dlite_PATH
-    dlite_LD_LIBRARY_PATH
-    dlite_STORAGE_PLUGINS
-    dlite_MAPPINGS_PLUGINS
-    )
+      dlite_PATH
+      dlite_STORAGE_PLUGINS
+      dlite_MAPPINGS_PLUGINS
+      )
+  else()
+    find_package_handle_standard_args(dlite DEFAULT_MSG
+      DLITE_INCLUDE_DIRS
+      DLITE_LIBRARIES
+      DLITE_LIBRARY_DIR
+      DLITE_RUNTIME_DIR
+      DLITE_TEMPLATE_DIR
+      DLITE_STORAGE_PLUGINS
+      DLITE_MAPPINGS_PLUGINS
+      DLITE_ROOT
+
+      dlite_PATH
+      dlite_LD_LIBRARY_PATH
+      dlite_STORAGE_PLUGINS
+      dlite_MAPPINGS_PLUGINS
+      )
+  endif()
 
   # Show the DLITE_INCLUDE_DIRS and DLITE_LIBRARIES variables only in
   # the advanced view

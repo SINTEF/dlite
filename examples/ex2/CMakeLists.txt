@@ -11,10 +11,8 @@ project(dlite-example-2
 
 set(CMAKE_MODULE_PATH
   ${CMAKE_MODULE_PATH}
-  ${DLITE_ROOT}/cmake
-  ${DLITE_ROOT}/cmake/Modules
-  ${DLITE_ROOT}/share/cmake
-  ${DLITE_ROOT}/share/cmake/Modules
+  ${DLITE_ROOT}/share/Modules
+  ${DLITE_ROOT}/share/dlite/cmake
   )
 find_package(dlite REQUIRED)
 
@@ -39,8 +37,6 @@ target_include_directories(dlite-example-2 PUBLIC
   )
 
 
-enable_testing()
-
 add_test(
   NAME dlite-example-2
   COMMAND ${CMAKE_CURRENT_BINARY_DIR}/dlite-example-2
@@ -54,5 +50,5 @@ set_property(TEST dlite-example-2 APPEND PROPERTY
   ENVIRONMENT "LD_LIBRARY_PATH=${DLITE_ROOT}/lib")
 elseif(WIN32)
 set_property(TEST dlite-example-2 APPEND PROPERTY
-  ENVIRONMENT "PATH=${DLITE_ROOT/lib};${PATH}")
+  ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${DLITE_ROOT}/lib,\\\;>")
 endif()

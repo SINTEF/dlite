@@ -146,7 +146,7 @@ void dlite_pyembed_initialise(void)
   if (!g->initialised) {
       g->initialised = 1;
 
-#if defined(HAVE_SETENV) || defined(HAVE__PUTENV_S)
+#if defined(HAVE_SETENV)
       if (Py_IsInitialized()) {
       /* Set environment variables from global variables in Python
          starting with "DLITE_" */
@@ -210,7 +210,9 @@ void dlite_pyembed_initialise(void)
       /* Set executable if VIRTUAL_ENV environment variable is defined */
       char *venv = getenv("VIRTUAL_ENV");
       if (venv) {
-#ifdef WINDOWS
+#if defined(__MINGW32__) || defined(__MINGW64__)
+        char *exec = fu_join(venv, "bin", "python.exe", NULL);
+#elif defined(WINDOWS)
         char *exec = fu_join(venv, "Scripts", "python.exe", NULL);
 #else
         char *exec = fu_join(venv, "bin", "python", NULL);

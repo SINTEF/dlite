@@ -65,7 +65,6 @@ set_source_files_properties(dlite.i
     SWIG_MODULE_NAME "dlite"
     )
 
-#SET(CMAKE_SKIP_BUILD_RPATH TRUE)
 swig_add_library(dlitepy
   TYPE SHARED
   LANGUAGE python
@@ -75,12 +74,34 @@ swig_add_library(dlitepy
   )
 
 
-# Convince _dlite.so that it may search for whatever libraries it depends on in its own directory
-set_target_properties(dlitepy PROPERTIES
-  BUILD_RPATH "$ORIGIN/"
-  INSTALL_RPATH "$ORIGIN/"
-  OUTPUT_NAME "dlite"
-  )
+# LIBRARY RPATH/ RUNPATH: dlitepy
+# ===============================
+# 
+# At build, this and the other libraries will be copied to the same directory.
+# 
+# This library will be loaded by Python as an extension module from the directory:
+# 
+#   ${CMAKE_INSTALL_PREFIX}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/dlite
+#   - OR - using CMake dlite directory variables:
+#   ${DLITE_PYTHONPATH}/dlite
+# 
+# The two linked libraries will be copied into the above noted folder at install.
+
+if(APPLE)
+  set_target_properties(dlitepy PROPERTIES
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils"
+    INSTALL_RPATH "@loader_path"
+    OUTPUT_NAME "dlite"
+    )
+else()
+  set_target_properties(dlitepy PROPERTIES
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils"
+    INSTALL_RPATH "$ORIGIN"
+    OUTPUT_NAME "dlite"
+    )
+endif()
 
 
 # Python only looks for .so for compiled extension modules on all Unix platforms including MacOS
@@ -91,10 +112,9 @@ if(APPLE)
   )
 endif()
 
-swig_link_libraries(dlitepy
+target_link_libraries(dlitepy
   dlite
   dlite-utils
-  #${Python3_LIBRARIES}
   )
 
 

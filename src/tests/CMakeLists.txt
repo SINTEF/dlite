@@ -20,10 +20,6 @@ set(tests
   test_ref
 )
 
-if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
-  unset(extra_link_libraries)
-endif()
-
 list(APPEND tests test_json_entity)
 list(APPEND tests test_storage_lookup)
 list(APPEND tests test_mapping)
@@ -57,13 +53,25 @@ foreach(test ${tests})
     ${dlite_BINARY_DIR}/src
     )
 
+  # TEST RPATH/ RUNPATH
+  # ===================
+  # 
+  # These tests will be run from the Build directory only.
+  # Set absolute RPATHS to the other libraries.
+  # TODO: Change all paths to generators e.g. for dlite, dlite-utils etc as easier to maintain
+
+  set_property(TARGET ${test} PROPERTY
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils"
+    )
+
   add_test(
     NAME ${test}
     COMMAND ${RUNNER} ${test}
     )
 
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${dlite_PATH_NATIVE},\\\;>")
 
   if(MINGW)
     set_property(TEST ${test} APPEND PROPERTY

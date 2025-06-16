@@ -1,6 +1,7 @@
 import os
 import sys
 import subprocess
+import time
 from pathlib import Path
 
 from dlite.testutils import importskip, serverskip
@@ -15,5 +16,15 @@ thisdir = Path(__file__).resolve().parent
 timeout_str = os.getenv("TIMEOUT", None)
 timeout = float(timeout_str) if timeout_str else None
 
-subprocess.check_call([sys.executable, f"{thisdir}/store.py"], timeout=timeout)
-subprocess.check_call([sys.executable, f"{thisdir}/fetch.py"], timeout=timeout)
+# The MinIO server is public and there can be a race condition
+attempts = 0
+while attempts < 3:
+    try:
+        subprocess.check_call([sys.executable, f"{thisdir}/store.py"], timeout=timeout)
+        subprocess.check_call([sys.executable, f"{thisdir}/fetch.py"], timeout=timeout)
+    except dlite.DLiteMissingInstanceError:
+        attempts += 1
+        print(f"Sleeping for 5s as failed to access expected instances in attempt {attempts} of 3")
+        time.sleep(5)
+    finally:
+        break

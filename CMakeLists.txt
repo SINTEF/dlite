@@ -2,6 +2,11 @@
 #
 cmake_minimum_required(VERSION 3.16)
 
+# macOS SDK 10.13 is supported by Xcode 15.0.1
+set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS deployment version" FORCE)
+# macOS version SDK: https://developer.apple.com/support/xcode/ (macOS in Deployment Targets column)
+# XCode version: https://github.com/actions/runner-images?tab=readme-ov-file#available-images (version supported by GitHub Runner images)
+
 project(dlite
   VERSION 0.5.29
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
@@ -143,6 +148,8 @@ if(MSVC)
 
   # Do not complain about standard library functions
   add_definitions("-D_CRT_SECURE_NO_WARNINGS")
+
+  set(CMAKE_WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
 # Uncomment the lines below to compile with AddressSanitizer
@@ -150,12 +157,35 @@ endif()
 #set (CMAKE_LINKER_FLAGS_DEBUG "${CMAKE_LINKER_FLAGS_DEBUG} -fno-omit-frame-pointer -fsanitize=address")
 
 
+# Linker RPATH / RUNPATH
+# ----------------------
+# 
+# Note: lib can be lib64 on some Linux platforms e.g. Fedora and SuSE.
+#   This includes the Python lib as per the documentation below:
+#   https://docs.python.org/3/using/configure.html#cmdoption-with-platlibdir
+# 
+# Note: Ubuntu & Debian use 'Multipath' triplet subdirectories for libraries
+#   The compiler's target machine triplet can be obtained with `gcc -dumpmachine`
+# 
+# Useful info at:
+# https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
+
+set(CMAKE_SKIP_RPATH FALSE)
+set(CMAKE_SKIP_BUILD_RPATH FALSE)
+set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
+set(CMAKE_INSTALL_RPATH "")
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH FALSE)
+if(APPLE)
+  # macOS needs full paths hence use of @loader_path in the target properties for *_RPATH
+  # @loader_path is replaced at runtime by the directory the target is loaded from.
+  set(CMAKE_MACOSX_RPATH TRUE)
+endif()
+  # Linux uses DT_RUNPATH which can be overridden by the environment variable LD_LIBRARY_PATH
+  # $ORIGIN is replaced at runtime by the directory the target is loaded from.
+
+
 # Install paths
 # -------------
-
-# Ensure MacOS has rpaths set in libraries
-set(CMAKE_MACOSX_RPATH 1)
-
 
 # Install path for CMake files
 if(WIN32 AND NOT CYGWIN)
@@ -298,12 +328,40 @@ if(WITH_PYTHON)
   endif()
 
   # Add linker flags for linking against Python
+  # Returns 'None' on Windows
   execute_process(
     COMMAND ${Python3_EXECUTABLE} -c "import sysconfig; print(sysconfig.get_config_var('PY_LDFLAGS'))"
     OUTPUT_VARIABLE Python3_LDFLAGS
     OUTPUT_STRIP_TRAILING_WHITESPACE
   )
-  if(Python3_LDFLAGS)
+
+  message(STATUS "Python3_LDFLAGS = ${Python3_LDFLAGS}")
+
+  if(Python3_LDFLAGS AND NOT Python3_LDFLAGS STREQUAL "None")
+    if(APPLE)
+      # Strip out `-arch xyz` flags if present. On macOS multi-architecture is common
+      # leading to it needing to be compiled on multiple architectures.
+      # The correct generators/ toolkits are not setup to handle this.
+      # GitHub macOS runner images tend to have universal binaries with e.g. -arch x86_64;arm64
+      separate_arguments(Python3_LDFLAGS_ARGS UNIX_COMMAND ${Python3_LDFLAGS})
+      set(skip_next FALSE)
+      set(Python3_LDFLAGS "")
+      foreach(arg ${Python3_LDFLAGS_ARGS})
+        if(${arg} STREQUAL "-arch")
+          set(skip_next TRUE)
+        elseif(${skip_next})
+          set(skip_next FALSE)
+        elseif(${arg} MATCHES "[ ]+")
+          list(APPEND Python3_LDFLAGS "\"${arg}\"")
+        else()
+          list(APPEND Python3_LDFLAGS ${arg})
+        endif()
+      endforeach()
+      string(JOIN " " Python3_LDFLAGS ${Python3_LDFLAGS})
+      string(STRIP "${Python3_LDFLAGS}" Python3_LDFLAGS)
+      unset(skip_next)
+      unset(Python3_LDFLAGS_ARGS)
+    endif()
     list(APPEND extra_link_libraries ${Python3_LDFLAGS})
   endif()
 
@@ -641,6 +699,7 @@ if(WIN32)
   if(HAVE_REDLAND)
     list(APPEND dlite_PATH ${REDLAND_RUNTIME_DIR})
   endif()
+  list(APPEND dlite_PATH "${CMAKE_INSTALL_PREFIX}/bin")
 endif()
 list(REMOVE_DUPLICATES dlite_PATH)
 
@@ -698,7 +757,7 @@ set(dlite_PYTHONPATH
 if(APPLE)
   list(APPEND dlite_PYTHONPATH ${dlite_TEMP_LIBRARY_PATH})
 elseif(UNIX)
-  set(dlite_LD_LIBRARY_PATH dlite_TEMP_LIBRARY_PATH)
+  set(dlite_LD_LIBRARY_PATH ${dlite_TEMP_LIBRARY_PATH})
   list(REMOVE_DUPLICATES dlite_LD_LIBRARY_PATH)
 endif()
 unset(dlite_TEMP_LIBRARY_PATH)
@@ -792,16 +851,6 @@ if(CROSS_TARGET AND MINGW)
   set(dlite_PATH ${paths})
 endif()
 
-
-set(dlite_PATH_NATIVE1 "${CMAKE_INSTALL_PREFIX}/bin")
-foreach(path ${dlite_PATH})
-  list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
-endforeach()
-if(WIN32)
-  string(REPLACE ";" "\\\\;" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
-else()
-  string(REPLACE ";" ":" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
-endif()
 
 # Note, DLITE_STORAGES uses "|" as separator on all systems
 string(REPLACE ";" "|" dlite_STORAGES         "${dlite_STORAGES}")

@@ -31,10 +31,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Python 3.10
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.10"
+          python-version: "3.13.5"
 
       - name: Setup Pages
         uses: actions/configure-pages@v5
@@ -58,7 +58,6 @@ jobs:
       - name: Install Python dependencies
         run: |
           pip install --upgrade pip
-          pip install -U setuptools wheel
           pip install -r requirements.txt -r requirements_doc.txt -r requirements_dev.txt
 
       - name: Available version of installed programs

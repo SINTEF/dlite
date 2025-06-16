@@ -108,6 +108,20 @@ jobs:
 
           # 32-bit Windows
 
+          # 64-bit (Intel) macOS
+          - os: macos-13
+            system_type: ["macosx", ""]
+            arch: x86_64
+            py_minors: 8,9,10,11,12,13
+            deployment-target: "10.13"
+
+          # 64-bit (Apple Silicon) macOS
+          - os: macos-14
+            system_type: ["macosx", ""]
+            arch: arm64
+            py_minors: 8,9,10,11,12,13
+            deployment-target: "11.0"
+
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
@@ -121,11 +135,19 @@ jobs:
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
       shell: bash  # Enforce bash shell to make `sed` work also on Windows
 
-    - name: Set up Python 3
+    - name: Install Python for running cibuildwheel
       uses: actions/setup-python@v5
       with:
-        python-version: "3.${{ contains(matrix.py_minors, ',') && 'x' || matrix.py_minors }}"
-        architecture: ${{ matrix.arch == '' && 'x86' || 'x64' }}
+        python-version: "3.13.5"
+        architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
+
+    # https://cibuildwheel.pypa.io/en/stable/faq/#macos-building-cpython-38-wheels-on-arm64
+    - name: Install Python3.8 from python.org for macOS compiling
+      if: matrix.os == 'macos-14'
+      run: |
+        url="https://www.python.org/ftp/python/3.8.10/python-3.8.10-macos11.pkg"
+        curl $url -o python-3.8.10-macos11.pkg
+        sudo installer -pkg python-3.8.10-macos11.pkg -target /
 
     - name: Login to GitHub Container Registry
       if: startsWith(matrix.os, 'ubuntu')
@@ -137,9 +159,8 @@ jobs:
 
     - name: Install cibuildwheel
       run: |
-        python -m pip install -U pip
-        python -m pip install -U setuptools wheel
-        python -m pip install -U cibuildwheel
+        python -m pip install --upgrade pip
+        python -m pip install -r requirements_wheels.txt
 
     # See pyproject.toml (under python/) for cibuildwheel configuration
     - name: Build wheels
@@ -148,6 +169,7 @@ jobs:
         python -m cibuildwheel --output-dir wheelhouse python
       env:
         CIBW_BUILD: cp3${{ contains(matrix.py_minors, ',') && format('{{{0}}}', matrix.py_minors) || matrix.py_minors }}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
+        CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment-target }}"
         CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
         CIBW_MANYLINUX_I686_IMAGE:   ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
         CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_x86_64:latest
@@ -176,18 +198,18 @@ jobs:
     - name: Update version
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
-    - name: Set up Python 3.9
+    - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: "3.9"
+        python-version: "3.13.5"
 
     - name: Install Python dependencies
       run: |
-        python -m pip install -U pip
-        pip install -U build
+        python -m pip install pip
+        pip install build
 
         # Build requirements
-        pip install -U -r requirements.txt -r requirements_dev.txt
+        pip install -r requirements.txt -r requirements_dev.txt
 
     - name: Build source distribution
       run: python -m build --no-isolation --sdist python
