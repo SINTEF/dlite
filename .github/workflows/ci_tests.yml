@@ -56,7 +56,6 @@ jobs:
         python3 --version
         python3 -m pip --version
         python3 -m pip install --upgrade pip
-        python3 -m pip install -U setuptools wheel
         python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
 
     - name: Check numpy

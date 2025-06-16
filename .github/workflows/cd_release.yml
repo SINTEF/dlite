@@ -138,8 +138,7 @@ jobs:
     - name: Install cibuildwheel
       run: |
         python -m pip install -U pip
-        python -m pip install -U setuptools wheel
-        python -m pip install -U cibuildwheel
+        python -m pip install -r requirements_dev.txt
 
     # See pyproject.toml (under python/) for cibuildwheel configuration
     - name: Build wheels
