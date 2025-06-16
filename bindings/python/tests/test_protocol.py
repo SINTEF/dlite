@@ -133,8 +133,6 @@ if False:
             "sftp", "json", location=f"{host}/tmp/blob.json", options=options
         )
 
-
-
     #v = con.load()
     #assert v.decode().startswith("[SemImageFile]")
     #
@@ -153,3 +151,11 @@ if False:
     #    con.save(data2, uuid="data2")
     #    data3 = con.load(uuid="data2")
     #    save_path(data3, outdir/"data3", overwrite=True)
+
+
+# Test zip plugin
+# ---------------
+zipfile = indir / "subdir.zip"
+zippath = "subdir/blob1.json"
+location = f"{zipfile}#{zippath}"
+blob1 = dlite.Instance.load(protocol="zip", driver="json", location=location)
