@@ -27,10 +27,6 @@ add_definitions(
   -DCURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR}
 )
 
-if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
-  unset(extra_link_libraries)
-endif()
-
 include(FindPythonModule)
 
 # Disable yaml test if PyYAML is not in installed
@@ -92,14 +88,30 @@ foreach(test ${tests})
   )
   add_dependencies(${test} copy-dlite-plugins-python)
 
+  # TEST RPATH/ RUNPATH
+  # ===================
+  # 
+  # These tests will be run from the Build directory only.
+  # Set absolute RPATHS to the other libraries.
+  # TODO: Change all paths to generators e.g. for dlite, dlite-utils etc as easier to maintain
+
+  set_target_properties(${test} PROPERTIES
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils;$<TARGET_FILE_DIR:dlite-plugins-python>"
+    )
+
   add_test(
     NAME ${test}
     COMMAND ${RUNNER} ${test}
   )
 
 
+  if(WIN32)
+    set_property(TEST ${test} PROPERTY
+      ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:${dlite_BINARY_DIR}/src")
+  endif()
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${dlite_PATH_NATIVE},\\\;>")
   if (WIN32 AND PYTHON_IS_ANACONDA)
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")

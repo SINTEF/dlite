@@ -17,6 +17,7 @@
 #           - <var>_NATIVE: paths are converted to native paths
 #           - <var>_UNIX: paths are converted to Unix paths
 #           - <var>_WINDOWS: paths are converted to Windows paths
+#           - <var>_CMAKE: paths are converted to CMake paths
 #   - MULTI_CONFIG_PATHS: Like `paths_var` but also appends config
 #         directories (specified with CONFIG_DIRS) to the value of
 #         `multipaths_var`.
@@ -54,31 +55,33 @@ function(make_platform_paths)
     set(names "${CMAKE_CONFIGURATION_TYPES}")
   endif()
 
-  set(conversions NATIVE UNIX WINDOWS)  # skip CMAKE postfix
+  set(conversions NATIVE UNIX WINDOWS CMAKE)
 
   # Create new variables for platform-specific paths
   set(vars ${paths_vars} ${multi_paths_vars})
   foreach(var ${vars})
     list(REMOVE_DUPLICATES ${var})
-    foreach(conv ${conversions})
-      set(${var}_${conv} "")
-    endforeach()
-    foreach(path ${${var}})
-      file(TO_CMAKE_PATH path "${path}")
-      list(APPEND ${var}_UNIX "${path}")
-      string(REGEX REPLACE "^/([a-zA-Z])/" "\\1:\\\\" path "${path}") # /C/other/sub -> C:\other/sub
-      string(REPLACE "/" "${win_dirsep}" path "${path}")
-      list(APPEND ${var}_WINDOWS "${path}")
-    endforeach()
+
+    list(TRANSFORM "${var}" REPLACE "^([a-zA-Z]):[/\\]" "/\\1/" OUTPUT_VARIABLE ${var}_UNIX) # C:\other/sub -> /C/other/sub
+    string(REPLACE "\\" "/" ${var}_UNIX "${${var}_UNIX}")
     string(REPLACE ";" ":" ${var}_UNIX "${${var}_UNIX}")
+
+    list(TRANSFORM "${var}" REPLACE "^/([a-zA-Z])/" "\\1:\\\\" OUTPUT_VARIABLE ${var}_WINDOWS) # /C/other/sub -> C:\other/sub
+    string(REPLACE "/" "${win_dirsep}" ${var}_WINDOWS "${${var}_WINDOWS}")
+
+    # If compiling using Windows, could be using bash or other Unix shells or generators which would want native Unix paths
+    # The SHELL_PATH genex appears to deal with the Windows to Unix drive conversion for MSYS2
+    # if(WIN32 AND NOT ${NATIVE_PATH_TYPE_UNIX})
     if(WIN32)
       set(${var}_NATIVE "${${var}_WINDOWS}")
     else()
       set(${var}_NATIVE "${${var}_UNIX}")
     endif()
+    cmake_path(CONVERT "${${var}_NATIVE}" TO_CMAKE_PATH_LIST ${var}_CMAKE)
   endforeach()
 
   # Append config dirs to `multi_paths_vars`
+  # TODO: Does the list need ; changed to : on Unix? CONFIG_DIRS is not currently used
   foreach(var ${multi_paths_vars})
     foreach(conv ${conversions})
       foreach(name ${names})

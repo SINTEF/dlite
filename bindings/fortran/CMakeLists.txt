@@ -15,6 +15,34 @@ target_link_libraries(dlite-fortran
   dlite-utils
   )
 
+# LIBRARY RPATH/ RUNPATH: dlite-fortran
+# =====================================
+# 
+# At build, set absolute RPATHS to the other libraries.
+# 
+# At install the library will be loaded from the directory:
+# 
+#   ${CMAKE_INSTALL_PREFIX}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/dlite
+#   - OR - using CMake dlite directory variables:
+#   ${DLITE_PYTHONPATH}/dlite
+# 
+# The two linked libraries will be copied into the above noted folder at install.
+
+if(APPLE)
+  set_target_properties(dlite-fortran PROPERTIES
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils"
+    # TODO: The linker seems to include "@loader_path" itself; can't determine how, not in link.txt
+    # Not sure if the linker brings in RPATHS from linked libraries or not
+    # INSTALL_RPATH "@loader_path"
+    )
+else()
+  set_target_properties(dlite-fortran PROPERTIES
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils"
+    INSTALL_RPATH "$ORIGIN"
+    )
+endif()
 
 ## create list of modules to install from ${sources}
 set(modules "")

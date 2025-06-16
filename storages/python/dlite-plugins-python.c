@@ -186,6 +186,7 @@ char *helper(const DLiteStoragePlugin *api)
 {
   PyObject *v=NULL, *pyclassdoc=NULL, *open=NULL, *pyopendoc=NULL;
   PyObject *class = (PyObject *)api->data;
+  PyObject *inspect=NULL, *getdoc=NULL;
   const char *classname, *classdoc=NULL, *opendoc=NULL;
   char *doc=NULL;
   Py_ssize_t n=0, clen=0, olen=0, i, newlines=0;
@@ -206,9 +207,23 @@ char *helper(const DLiteStoragePlugin *api)
     if (!(open = PyObject_GetAttrString(class, "open")))
       FAILCODE1(dliteAttributeError, "cannot access %s.open()", classname);
     if (PyObject_HasAttrString(open, "__doc__")) {
+
+#if PY_VERSION_HEX < 0x030d0000  /* Python < 3.13 */
+      // Get de-indented function docstring using inspect.getdoc(open)
+      //
+      // Aligns pre-Python 3.13 behaviour with new behaviour which was
+      // implemented into CPython in: https://github.com/python/cpython/pull/106411
+      if (!(inspect = PyImport_ImportModule("inspect")))
+        FAILCODE(dliteAttributeError, "cannot import inspect module");
+      if (!((getdoc = PyObject_GetAttrString(inspect, "getdoc")) && PyCallable_Check(getdoc)))
+        FAILCODE(dliteAttributeError, "cannot access inspect.getdoc() or is not callable as expected");
+      if (!(pyopendoc = PyObject_CallFunctionObjArgs(getdoc, open, NULL)))
+        FAILCODE1(dliteAttributeError, "cannot call inspect.getdoc() with %s.open", classname);
+#else
       if (!(pyopendoc = PyObject_GetAttrString(open, "__doc__")))
         FAILCODE1(dliteAttributeError, "cannot access %s.open.__doc__",
                   classname);
+#endif
       if (!(opendoc = PyUnicode_AsUTF8AndSize(pyopendoc, &olen)))
         FAILCODE1(dliteAttributeError, "cannot read %s.open.__doc__",
                   classname);
@@ -235,7 +250,12 @@ char *helper(const DLiteStoragePlugin *api)
   Py_XDECREF(v);
   Py_XDECREF(pyclassdoc);
   Py_XDECREF(open);
+  #if PY_VERSION_HEX < 0x030d0000  /* Python < 3.13 */
+    Py_XDECREF(getdoc);
+    Py_XDECREF(inspect);
+  #endif
   Py_XDECREF(pyopendoc);
+
   return doc;
 }
 

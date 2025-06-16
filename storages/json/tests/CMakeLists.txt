@@ -7,10 +7,6 @@ set(tests
 
 add_definitions(-DDLITE_ROOT=${dlite_SOURCE_DIR})
 
-if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
-  unset(extra_link_libraries)
-endif()
-
 # We are linking to dlite-plugins-json DLL - this require that this
 # DLL is in the PATH on Windows. Copying the DLL to the current
 # BINARY_DIR is a simple way to ensure this.
@@ -31,16 +27,6 @@ if(WITH_PYTHON)
   list(APPEND dlite_PATH ${Python3_LIBDIR})
 endif()
 
-set(dlite_PATH_NATIVE "")
-foreach(path ${dlite_PATH})
-  list(APPEND dlite_PATH_NATIVE1 $<SHELL_PATH:${path}>)
-endforeach()
-if(WIN32)
-  string(REPLACE ";" "\;" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
-else()
-  string(REPLACE ";" ":" dlite_PATH_NATIVE "${dlite_PATH_NATIVE1}")
-endif()
-
 foreach(test ${tests})
   add_executable(${test} ${test}.c)
   target_link_libraries(${test}
@@ -54,6 +40,18 @@ foreach(test ${tests})
     ${dlite-src_SOURCE_DIR}/tests
     )
   add_dependencies(${test} copy-dlite-plugins-json)
+  
+# TEST RPATH/ RUNPATH
+# ===================
+# 
+# These tests will be run from the Build directory only.
+# Set absolute RPATHS to the other libraries.
+# TODO: Change all paths to generators e.g. for dlite, dlite-utils etc as easier to maintain
+
+  set_property(TARGET ${test} PROPERTY
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils;$<TARGET_FILE_DIR:dlite-plugins-json>"
+    )
 
   add_test(
     NAME ${test}
@@ -61,7 +59,7 @@ foreach(test ${tests})
     )
 
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${dlite_PATH_NATIVE},\\\;>")
   if (WIN32 AND PYTHON_IS_ANACONDA)
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "PYTHONHOME=${Python3_RUNTIME_LIBRARY_DIRS}")

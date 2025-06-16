@@ -1354,11 +1354,7 @@ PyObject *dlite_run_file(const char *path, PyObject *globals, PyObject *locals)
     argout = Py_None;
     Py_INCREF(argout);
   }
-#if SWIG_VERSION > 0x040101
-  $result = SWIG_Python_AppendOutput($result, argout, 0);
-#else
-  $result = SWIG_Python_AppendOutput($result, argout);
-#endif
+  $result = SWIG_AppendOutput($result, argout);
 }
 
 

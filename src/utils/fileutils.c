@@ -521,9 +521,9 @@ char *fu_winpath(const char *path, char *dest, size_t size, const char *pathsep)
         n += snprintf(dest+n, POS(size-n), "%.*s", len, p);
       }
       if (*endptr) n += snprintf(dest+n, POS(size-n), ";");
+      for (q=dest; *q; q++) if (*q == '/') *q = '\\';
     }
   }
-  for (q=dest; *q; q++) if (*q == '/') *q = '\\';
 
   /* Remove repeated dirsep's */
   for (d=q=dest; *q; d++, q++) {

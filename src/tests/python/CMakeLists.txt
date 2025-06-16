@@ -6,10 +6,6 @@ set(tests
   test_python_mapping
   )
 
-if(MSVC)  # Unset extra_link_libraries on MSVC to avoid linking against None.lib
-  unset(extra_link_libraries)
-endif()
-
 add_definitions(
   -DTESTDIR=${CMAKE_CURRENT_SOURCE_DIR}
   -DDLITE_ROOT=${dlite_SOURCE_DIR}
@@ -30,13 +26,25 @@ foreach(test ${tests})
     ${dlite-src_SOURCE_DIR}/tests
   )
 
+  # TEST RPATH/ RUNPATH
+  # ===================
+  # 
+  # These tests will be run from the Build directory only.
+  # Set absolute RPATHS to the other libraries.
+  # TODO: Change all paths to generators e.g. for dlite, dlite-utils etc as easier to maintain
+
+  set_property(TARGET ${test} PROPERTY
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils"
+    )
+
   add_test(
     NAME ${test}
     COMMAND ${RUNNER} ${test}
     )
 
   set_property(TEST ${test} PROPERTY
-    ENVIRONMENT "PATH=${dlite_PATH_NATIVE}")
+    ENVIRONMENT_MODIFICATION "PATH=path_list_prepend:$<JOIN:${dlite_PATH_NATIVE},\\\;>")
   if(MINGW)
     set_property(TEST ${test} APPEND PROPERTY
       ENVIRONMENT "WINEPATH=${dlite_WINEPATH_NATIVE}")
@@ -47,7 +55,7 @@ foreach(test ${tests})
   endif()
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "PYTHONPATH=${dlite_PYTHONPATH_NATIVE}")
-  if (NOT WIN32)
+  if (UNIX AND NOT APPLE)
   set_property(TEST ${test} APPEND PROPERTY
     ENVIRONMENT "LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH_NATIVE}")
   endif()
