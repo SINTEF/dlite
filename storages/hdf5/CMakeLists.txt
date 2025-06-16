@@ -25,22 +25,45 @@ target_include_directories(dlite-plugins-hdf5 PUBLIC
   ${HDF5_INCLUDE_DIRS}
   )
 
+# PLUGIN RPATH/ RUNPATH: dlite-plugins-hdf5
+# =========================================
+# 
+# At build, set absolute RPATHS to the other libraries.
+# 
+# At install the library will be loaded from the directory:
+# 
+#   ${CMAKE_INSTALL_PREFIX}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/dlite/share/dlite/storage-plugins
+#   - OR - using CMake dlite directory variables:
+#   ${DLITE_PYTHONPATH}/dlite/share/dlite/storage-plugins
+# 
+# 
+# Needs to locate the libraries in:
+# 
+#   ${DLITE_PYTHONPATH}/dlite
+# 
+# 
+# The two linked libraries will be copied into the above noted folder at install.
+
+if(APPLE)
+  set_target_properties(dlite-plugins-hdf5 PROPERTIES
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils"
+    INSTALL_RPATH "@loader_path/../../.."
+    )
+else()
+  set_target_properties(dlite-plugins-hdf5 PROPERTIES
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src;${dlite_BINARY_DIR}/src/utils"
+    INSTALL_RPATH "$ORIGIN/../../.."
+    )
+endif()
+
 if(${HDF5_DEPENDENCIES})
   add_dependencies(dlite-plugins-hdf5 ${HDF5_DEPENDENCIES} uuidProj)
 endif()
 
 set_target_properties(dlite-plugins-hdf5 PROPERTIES
   WINDOWS_EXPORT_ALL_SYMBOLS ON
-  )
-
-# Simplify plugin search path for testing in build tree, copy target
-# to ${dlite_BINARY_DIR}/plugins
-ADD_CUSTOM_COMMAND(
-  TARGET dlite-plugins-hdf5
-  POST_BUILD
-  COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    $<TARGET_FILE:dlite-plugins-hdf5>
-    ${dlite_BINARY_DIR}/plugins
   )
 
 install(

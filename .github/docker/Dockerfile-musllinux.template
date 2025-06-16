@@ -86,8 +86,6 @@ RUN \
   for minor in ${PY_MINORS}; do \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache -U pip && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
-      -U setuptools wheel && \
-    python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -r /tmp/requirements.txt \
       -r /tmp/requirements_dev.txt \
       -r /tmp/requirements_full.txt; \

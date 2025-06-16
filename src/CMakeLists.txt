@@ -7,8 +7,10 @@ if(MSVC AND ${CMAKE_VERSION} VERSION_LESS "3.12.10")
 endif()
 
 
+#-----------------------------------------------------
 # Generate config headers
-# -----------------------
+#-----------------------------------------------------
+add_subdirectory(utils)
 configure_file(config.h.in config.h)
 configure_file(config-paths.h.in config-paths.h)
 
@@ -21,7 +23,6 @@ dlite_genenv(${CMAKE_CURRENT_BINARY_DIR}/config-paths.h NATIVE)
 # Compile library
 #-----------------------------------------------------
 
-add_subdirectory(utils)
 # Support driver and mapping plugins written in Python
 if(WITH_PYTHON)
   add_subdirectory(pyembed)
@@ -79,12 +80,34 @@ endif()
 if(WITH_PYTHON)
   list(APPEND include_directories_extra ${Python3_INCLUDE_DIRS})
   if(NOT WITH_STATIC_PYTHON)
-    list(APPEND link_libraries_extra ${Python3_LIBRARIES})
+    # Force Linux to use the full path to the Python library instead of the SONAME
+    add_library(python_lib SHARED IMPORTED)
+    set_target_properties(python_lib PROPERTIES
+      # Unix
+      IMPORTED_LOCATION ${Python3_LIBRARIES}
+      IMPORTED_NO_SONAME TRUE
+      # Windows
+      IMPORTED_IMPLIB ${Python3_LIBRARIES} # .lib or .dll.a
+      # IMPORTED_LOCATION # .dll
+      )
+    list(APPEND link_libraries_extra python_lib)
   endif()
-  # Python requires the intl library
-  find_library(INTL_LIBRARY intl)
-  if(INTL_LIBRARY)
-    list(APPEND link_libraries_extra ${INTL_LIBRARY})
+  # Python uses the intl library only for the gettext & locale modules
+  if(NOT APPLE)
+    find_library(Intl_LIBRARY intl)
+  endif()
+  # macOS does not natively have gettext. It is usually supplied by Homebrew
+  # or Macports. This dependancy adds complexity for the user and elevates
+  # the deployment target unnecessaily for little gained functionality.
+  # intl is not linked in this buiild for macOS unless Intl_LIBRARY is provided
+  # at configure
+  if(Intl_LIBRARY)
+    if(Intl_IS_BUILT_IN)
+      message(STATUS "Found intl: Contained in the C standard library")
+    else()
+      list(APPEND link_libraries_extra ${Intl_LIBRARY})
+      message(STATUS "Found intl: ${Intl_LIBRARY}")
+    endif()
   endif()
 endif()
 
@@ -129,11 +152,34 @@ endif()
 target_link_libraries(dlite ${link_args})
 target_link_libraries(dlite-static ${link_args})
 
-set_target_properties(dlite PROPERTIES
-  WINDOWS_EXPORT_ALL_SYMBOLS ON
-  BUILD_RPATH "$ORIGIN/"
-  INSTALL_RPATH "$ORIGIN/"
-  )
+# LIBRARY RPATH/ RUNPATH: dlite
+# =============================
+# 
+# At build, set absolute RPATHS to the other library.
+# 
+# At install the library will be loaded from the directory:
+# 
+#   ${CMAKE_INSTALL_PREFIX}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/dlite
+#   - OR - using CMake dlite directory variables:
+#   ${DLITE_PYTHONPATH}/dlite
+# 
+# The linked library will be copied into the above noted folder at install.
+
+if(APPLE)
+  set_target_properties(dlite PROPERTIES
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src/utils"
+    INSTALL_RPATH "@loader_path"
+    )
+else()
+  set_target_properties(dlite PROPERTIES
+    WINDOWS_EXPORT_ALL_SYMBOLS ON
+    BUILD_WITH_INSTALL_RPATH FALSE
+    BUILD_RPATH "${dlite_BINARY_DIR}/src/utils"
+    INSTALL_RPATH "$ORIGIN"
+    )
+endif()
+
 set_target_properties(dlite-static PROPERTIES
   POSITION_INDEPENDENT_CODE ON
   )

@@ -25,6 +25,12 @@
 #endif
 
 
+// Within dlite-utils
+#if !defined(HAVE_SETENV) && defined(HAVE__PUTENV_S)
+extern int setenv(const char *name, const char *value, int overwrite);
+#endif
+
+
 /* Convenient macros */
 #define PYFAILCODE(code, msg) do { \
     dlite_pyembed_err(code, msg); goto fail; } while (0)

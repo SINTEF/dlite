@@ -8,6 +8,7 @@ on:
 
 env:
   container_registry: ghcr.io
+  CIBW_DEBUG_TRACEBACK: TRUE
 
 jobs:
   build_wheels:
@@ -59,20 +60,36 @@ jobs:
           #   py_minors: 8,13
 
           # 64-bit (Intel) macOS
-          # See issue #221: https://github.com/SINTEF/dlite/issues/221
-          # - os: macos-10.15
-          #   system_type: ["macosx", ""]
-          #   arch: x86_64
-          #   py_minors: 7,10
+          - os: macos-13
+            system_type: ["macosx", ""]
+            arch: x86_64
+            py_minors: 8,13
+            deployment-target: "10.13"
+
+          # 64-bit (Apple Silicon) macOS
+          - os: macos-14
+            system_type: ["macosx", ""]
+            arch: arm64
+            py_minors: 8,13
+            deployment-target: "11.0"
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - uses: actions/setup-python@v5
+      - name: Install Python for running cibuildwheel
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.${{ contains(matrix.py_minors, ',') && 'x' || matrix.py_minors }}"
-          architecture: ${{ matrix.arch == '' && 'x86' || 'x64' }}
+          python-version: "3.13.5"
+          architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
+
+      # https://cibuildwheel.pypa.io/en/stable/faq/#macos-building-cpython-38-wheels-on-arm64
+      - name: Install Python3.8 from python.org for macOS compiling
+        if: matrix.os == 'macos-14'
+        run: |
+          url="https://www.python.org/ftp/python/3.8.10/python-3.8.10-macos11.pkg"
+          curl $url -o python-3.8.10-macos11.pkg
+          sudo installer -pkg python-3.8.10-macos11.pkg -target /
 
       - name: Login to GitHub Container Registry
         if: startsWith(matrix.os, 'ubuntu')
@@ -84,9 +101,8 @@ jobs:
 
       - name: Install cibuildwheel
         run: |
-          python -m pip install -U pip
-          python -m pip install -U setuptools wheel
-          python -m pip install -U cibuildwheel
+          python -m pip install --upgrade pip
+          python -m pip install -r requirements_wheels.txt
 
       # See pyproject.toml (under python/) for cibuildwheel configuration
       - name: Build wheels with cibuildwheel
@@ -95,6 +111,7 @@ jobs:
           python -m cibuildwheel --output-dir wheelhouse python
         env:
           CIBW_BUILD: cp3${{ contains(matrix.py_minors, ',') && format('{{{0}}}', matrix.py_minors) || matrix.py_minors }}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
+          CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment-target }}"
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
           CIBW_MANYLINUX_I686_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
           CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_x86_64:latest
