@@ -161,12 +161,19 @@ location = f"{zipfile}#{zippath}"
 blob1 = dlite.Instance.load(protocol="zip", driver="json", location=location)
 assert blob1.uri == "http://onto-ns.com/data/blob1"
 
-# Download blob1 from GitHub
-url1 = "https://github.com/SINTEF/dlite/raw/refs/heads/zip-protocol/bindings/python/tests/input/subdir.zip#subdir/blob1.json"
-blob = dlite.Instance.load(protocol="zip", driver="json", location=url1)
-assert blob.uri == "http://onto-ns.com/data/blob1"
+if requests:
+    # Download blob1 from GitHub
+    url1 = (
+        "https://github.com/SINTEF/dlite/raw/refs/heads/zip-protocol/"
+        "bindings/python/tests/input/subdir.zip#subdir/blob1.json"
+    )
+    blob = dlite.Instance.load(protocol="zip", driver="json", location=url1)
+    assert blob.uri == "http://onto-ns.com/data/blob1"
 
-# Access blob2 from cache
-url2 = "https://github.com/SINTEF/dlite/raw/refs/heads/zip-protocol/bindings/python/tests/input/subdir.zip#subdir/blob2.json"
-blob2 = dlite.Instance.load(protocol="zip", driver="json", location=url2)
-assert blob2.uri == "http://onto-ns.com/data/blob2"
+    # Access blob2 from cache
+    url2 = (
+        "https://github.com/SINTEF/dlite/raw/refs/heads/zip-protocol/"
+        "bindings/python/tests/input/subdir.zip#subdir/blob2.json"
+    )
+    blob2 = dlite.Instance.load(protocol="zip", driver="json", location=url2)
+    assert blob2.uri == "http://onto-ns.com/data/blob2"
