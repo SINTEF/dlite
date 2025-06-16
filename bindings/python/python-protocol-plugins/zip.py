@@ -4,7 +4,7 @@ from urllib.parse import urlparse
 import hashlib
 import re
 import requests
-import zipfile
+from zipfile import ZipFile
 
 import dlite
 from dlite.options import Options
@@ -33,10 +33,10 @@ class zip(dlite.DLiteProtocolBase):
         if re.match("^https?:.*", path):
             key = hashlib.shake_128(path.encode()).hexdigest(6)
             zipfile = get_cachedir() / f"cache-{key}.zip"
-            if nocache or not self.zipfile.exists():
+            if nocache or not zipfile.exists():
                 r = requests.get(path, timeout=float(opts["timeout"]))
                 r.raise_for_status()
-                with open(self.zipfile, "wb") as f:
+                with open(zipfile, "wb") as f:
                     f.write(r.content)
         else:
             zipfile = path
@@ -47,6 +47,6 @@ class zip(dlite.DLiteProtocolBase):
 
     def load(self, uuid=None):
         """Return data loaded from file within a zip archive."""
-        with zipfile.ZipFile(self.zipfile, mode="r") as fzip:
+        with ZipFile(self.zipfile, mode="r") as fzip:
             with fzip.open(self.zippath, mode="r") as f:
                 return f.read()
