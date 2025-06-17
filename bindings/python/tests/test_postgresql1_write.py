@@ -53,7 +53,7 @@ def ping_server(server="localhost", port=5432, timeout=3):
 
 
 # Check if postgresql server is running
-check_import("psycopg2", skip=True)
+check_import("psycopg", skip=True)
 ping_server()
 
 # Add metadata to search path

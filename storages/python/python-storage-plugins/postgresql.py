@@ -81,17 +81,17 @@ class postgresql(dlite.DLiteStorageBase):
         opts.setdefault("password", None)
         self.writable = False if opts.mode == "r" else True
 
+        # Construct postgresql connection url
+        conninfo = ["postgresql://"]
+        if opts.user:
+            conninfo.append(opts.user)
+            if opts.password:
+                conninfo.append(f":{opts.password}")
+            conninfo.append("@")
+        conninfo.append(f"{uri}/{opts.database}")
+
         # Connect to existing database
-        print("  host:", uri)
-        print("  user:", opts.user)
-        print("  database:", opts.database)
-        # print('  password:', opts.password)
-        self.conn = psycopg.connect(
-            host=uri,
-            database=opts.database,
-            user=opts.user,
-            password=opts.password,
-        )
+        self.conn = psycopg.connect("".join(conninfo))
 
         # Open a cursor to perform database operations
         self.cur = self.conn.cursor()
