@@ -8,8 +8,8 @@ import sys
 import warnings
 import fnmatch
 
-import psycopg2
-from psycopg2 import sql
+import psycopg
+from psycopg import sql
 
 import dlite
 from dlite.options import Options
@@ -86,7 +86,7 @@ class postgresql(dlite.DLiteStorageBase):
         print("  user:", opts.user)
         print("  database:", opts.database)
         # print('  password:', opts.password)
-        self.conn = psycopg2.connect(
+        self.conn = psycopg.connect(
             host=uri,
             database=opts.database,
             user=opts.user,
@@ -160,7 +160,7 @@ class postgresql(dlite.DLiteStorageBase):
         ]
         try:
             self.cur.execute(q, values)
-        except psycopg2.IntegrityError:
+        except psycopg.IntegrityError:
             self.conn.rollback()  # Instance already in database
             return
 
