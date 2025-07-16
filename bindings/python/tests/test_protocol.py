@@ -177,3 +177,8 @@ if requests:
     )
     blob2 = dlite.Instance.load(protocol="zip", driver="json", location=url2)
     assert blob2.uri == "http://onto-ns.com/data/blob2"
+
+    # Use the protocol API directly
+    pr = Protocol(protocol="zip", location=url2)
+    data = pr.load()
+    assert data.startswith(b'{\n  "f8e0')
