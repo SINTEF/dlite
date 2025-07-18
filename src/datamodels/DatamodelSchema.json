@@ -1,0 +1,43 @@
+{
+  "uri": "http://onto-ns.com/meta/0.1/DatamodelSchema",
+  "meta": "http://onto-ns.com/meta/0.1/BasicMetadataSchema",
+  "description": "Schema for datamodels. Datamodels are similar to SOFT entities, except that they may also contain relatoins.",
+  "dimensions": {
+    "ndimensions": "Number of dimensions.",
+    "nproperties": "Number of properties.",
+    "nrelations": "Number of relations."
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Datamodel name."
+    },
+    "version": {
+      "type": "string",
+      "description": "Datamodel version."
+    },
+    "namespace": {
+      "type": "string",
+      "description": "Datamodel namespace."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of datamodel."
+    },
+    "dimensions": {
+      "type": "dimension",
+      "shape": ["ndimensions"],
+      "description": "Datamodel dimensions."
+    },
+    "properties": {
+      "type": "property",
+      "shape": ["nproperties"],
+      "description": "Datamodel properties."
+    },
+    "relations": {
+      "type": "relation",
+      "shape": ["nrelations"],
+      "description": "Datamodel relations."
+    }
+  }
+}
