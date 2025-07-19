@@ -62,6 +62,7 @@ jobs:
             python-cffi:p
             python-numpy:p
             python-pyarrow:p
+            python-pytables:p
             python-pandas:p
             python-paramiko:p
             python-pip:p
@@ -275,7 +276,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release --rerun-failed --output-on-failure -V
+          ctest --build-config Release --output-on-failure -V
 
 
       - name: Test with all behavior changes disabled
@@ -287,7 +288,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release --rerun-failed --output-on-failure -V
+          ctest --build-config Release --output-on-failure -V
 
 
       - name: Test with all behavior changes enabled
@@ -299,7 +300,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release --rerun-failed --output-on-failure -V
+          ctest --build-config Release --output-on-failure -V
 
 
       - name: Build ${{ matrix.os }} wheel
