@@ -64,11 +64,9 @@ jobs:
             python-pandas:p
             python-paramiko:p
             python-pip:p
-            python-pyarrow:p
             python-pydantic-core:p
             python-rdflib:p
             python-yaml:p
-            python-pyarrow:p
             python-scikit-image:p
             cmake:p
             gcc:p
