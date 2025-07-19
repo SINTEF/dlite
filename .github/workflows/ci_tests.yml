@@ -61,6 +61,7 @@ jobs:
             python-argon2_cffi:p
             python-cffi:p
             python-numpy:p
+            python-pyarrow:p
             python-pandas:p
             python-paramiko:p
             python-pip:p
