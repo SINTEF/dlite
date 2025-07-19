@@ -138,6 +138,9 @@ jobs:
             python3 -m pip install --upgrade pip
             python3 -m pip --version
 
+            # Install pyarrow before main requirements to avoid building from source
+            python3 -m pip install pyarrow
+
             python3 -m pip install -c requirements_dev.txt setuptools wheel
 
             # requirements.txt is omitted as only contains numpy.
@@ -169,7 +172,8 @@ jobs:
             python3 -m pip install --upgrade pip
             python3 -m pip --version
 
-            python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
+            python3 -m pip install -r requirements.txt -r requirements_dev.txt
+            python3 -m pip install -r requirements_full.txt --no-deps
 
           fi
 
