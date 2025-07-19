@@ -1,10 +1,8 @@
-# Optional requirements - used by various plugins or additional features like mappings
+# Optional requirements - used by various plugins or additional features
 
-# RDF
-rdflib>=4.2.1,<8
-#tripper>=0.2.16,<0.3.1
-tripper @ git+https://github.com/EMMC-ASBL/tripper.git@master
-pint>=0.15,<1
+# Install other requirements
+-r requirements.txt
+-r requirements_mappings.txt
 
 # Plugins
 PyYAML>=5.4.1,<7

@@ -60,6 +60,7 @@ class minio(dlite.DLiteStorageBase):
             A DLite Instance corresponding to the given `id`.
         """
         uuid = dlite.get_uuid(id)
+        response = None
         try:
             response = self.client.get_object(
                 bucket_name=self.bucket_name,
@@ -67,6 +68,8 @@ class minio(dlite.DLiteStorageBase):
             )
             return dlite.Instance.from_json(response.data.decode())
         finally:
+            if response is None:
+                raise
             response.close()
             response.release_conn()
 
