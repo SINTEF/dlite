@@ -61,6 +61,7 @@ jobs:
             python-argon2_cffi:p
             python-cffi:p
             python-numpy:p
+            python-numexpr:p
             python-pyarrow:p
             python-pandas:p
             python-paramiko:p
@@ -141,6 +142,7 @@ jobs:
 
             # Install pyarrow before main requirements to avoid building from source
             python3 -m pip install pyarrow
+            python3 -m pip install blosc2 msgpack ndindex numexpr
 
             python3 -m pip install -c requirements_dev.txt setuptools wheel
 
