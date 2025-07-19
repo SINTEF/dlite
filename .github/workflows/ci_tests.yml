@@ -274,7 +274,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release --rerun-failed --output-on-failure
+          ctest --build-config Release --rerun-failed --output-on-failure -V
 
 
       - name: Test with all behavior changes disabled
@@ -286,7 +286,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release --rerun-failed --output-on-failure
+          ctest --build-config Release --rerun-failed --output-on-failure -V
 
 
       - name: Test with all behavior changes enabled
@@ -298,7 +298,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release --rerun-failed --output-on-failure
+          ctest --build-config Release --rerun-failed --output-on-failure -V
 
 
       - name: Build ${{ matrix.os }} wheel
