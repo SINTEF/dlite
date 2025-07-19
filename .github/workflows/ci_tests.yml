@@ -62,7 +62,7 @@ jobs:
             python-cffi:p
             python-numpy:p
             python-pyarrow:p
-            python-pytables:p
+            python-tables:p
             python-pandas:p
             python-paramiko:p
             python-pip:p
