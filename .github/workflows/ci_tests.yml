@@ -68,6 +68,7 @@ jobs:
             python-pydantic-core:p
             python-rdflib:p
             python-yaml:p
+            python-scikit-image:p
             cmake:p
             gcc:p
             hdf5:p
@@ -85,7 +86,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
 
-        # We do not install rdflib0-dev here, since we want to  
+        # We do not install rdflib0-dev here, since we want to
         # DLite both with and without rdflib (Redland) support and the
         # case with rdflib is already covered by the ci_build_wheel
         # workflow for Linux systems.
@@ -98,7 +99,7 @@ jobs:
             )
             sudo apt-get update --fix-missing
             sudo apt-get install ${APT_INSTALL[@]}
-                
+
           elif [[ ${{ matrix.os }} == macos* ]] ;
           then
             BREW_INSTALL=(
@@ -122,7 +123,7 @@ jobs:
             # a locked install requiring a venv.
             python3 -m venv --system-site-packages venv
             source venv/bin/activate
-            
+
             # Due to the way packages are installed in both the base MinGW Python
             # install for compiled packages and the remaining platform independant
             # packages are installed to the venv, the paths Python uses get mixed
@@ -192,7 +193,7 @@ jobs:
           uname -a
           python --version
           pip freeze
-      
+
 
       - name: Setup Fortran
         uses: fortran-lang/setup-fortran@v1
@@ -237,9 +238,9 @@ jobs:
               -G "Visual Studio 17 2022" \
               -DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE=x64 \
               -A x64
-          
+
           fi
- 
+
 
       - name: Build
         working-directory: build
