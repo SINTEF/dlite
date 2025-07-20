@@ -141,7 +141,7 @@ jobs:
             python3 -m pip install --upgrade pip
             python3 -m pip --version
 
-            python3 -m pip install -c requirements_dev.txt
+            python3 -m pip install -r requirements_dev.txt
 
             # Not all packages in requirements_full.txt are pre-build for MinGW.
             # Install some selected packages here
