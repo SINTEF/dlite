@@ -141,8 +141,8 @@ jobs:
             python3 -m pip --version
 
             # Install pyarrow before main requirements to avoid building from source
-            python3 -m pip install pyarrow
-            python3 -m pip install blosc2 msgpack ndindex numexpr
+            #python3 -m pip install pyarrow
+            python3 -m pip install blosc2 msgpack ndindex
 
             python3 -m pip install -c requirements_dev.txt setuptools wheel
 
