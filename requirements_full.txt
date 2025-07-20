@@ -7,7 +7,7 @@
 # Plugins
 isodate>=0.6,<1
 jinja2>=3.0,<4
-minio>=6.0,<8
+#minio>=6.0,<8
 openpyxl>=3.0.9,<3.2
 pandas>=1.2,<2.4
 paramiko>=3.0.0,<3.5.2
