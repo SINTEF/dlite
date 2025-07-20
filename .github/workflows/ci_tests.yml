@@ -127,7 +127,7 @@ jobs:
             source venv/bin/activate
 
             # Due to the way packages are installed in both the base MinGW Python
-            # install for compiled packages and the remaining platform independant
+            # install for compiled packages and the remaining platform independent
             # packages are installed to the venv, the paths Python uses get mixed
             # up, so we give a hint with the below env var. A ._pth file may work
             # instead. The env var __PYVENV_LAUNCHER__ should also work (and is better
@@ -141,16 +141,16 @@ jobs:
             python3 -m pip install --upgrade pip
             python3 -m pip --version
 
-            # Install pyarrow before main requirements to avoid building from source
-            #python3 -m pip install pyarrow
-            python3 -m pip install --only-binary=:all: numexpr msgpack
-            python3 -m pip install blosc2 ndindex
-
             python3 -m pip install -c requirements_dev.txt setuptools wheel
 
-            # requirements.txt is omitted as only contains numpy.
-            # This needs to be and is installed by pacman.
-            python3 -m pip install -r requirements_full.txt
+            # Not all packages in requirements_full.txt are pre-build for MinGW.
+            # Install some selected packages here
+            python3 -m pip install \
+              -r requirements.txt \
+              -r requirements_mappings.txt \
+              jinja2 \
+              pymongo \
+              mongomock
 
             # Note: Uses MinGW versions of dev tools cmake and swig are used for building
             # instead. Thus requirements_dev.txt is not used.
