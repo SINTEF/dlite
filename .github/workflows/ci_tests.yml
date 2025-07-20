@@ -153,7 +153,7 @@ jobs:
               mongomock
 
             # Make sure that we don't have minio installed
-            python3 -m pip uninstall minio
+            python3 -m pip --no-input uninstall minio
 
             # Note: Uses MinGW versions of dev tools cmake and swig are used for building
             # instead. Thus requirements_dev.txt is not used.
@@ -181,10 +181,10 @@ jobs:
             python3 -m pip --version
 
             python3 -m pip install -r requirements.txt -r requirements_dev.txt -r requirements_mappings.txt
-            python3 -m pip install -r requirements_full.txt --no-deps
+            python3 -m pip install --prefer-binary -r requirements_full.txt
 
             # Make sure that we don't have minio installed
-            python3 -m pip uninstall minio
+            python3 -m pip --no-input uninstall minio
 
           fi
 
