@@ -75,7 +75,8 @@ jobs:
             swig:p
             libxml2:p
             libxslt:p
-            #python-numexpr:p
+
+        #python-numexpr:p
 
       - name: Checkout repository
         uses: actions/checkout@v4
