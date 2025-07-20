@@ -141,7 +141,7 @@ jobs:
             python3 -m pip install --upgrade pip
             python3 -m pip --version
 
-            python3 -m pip install -c requirements_dev.txt setuptools wheel
+            python3 -m pip install -c requirements_dev.txt
 
             # Not all packages in requirements_full.txt are pre-build for MinGW.
             # Install some selected packages here
@@ -151,6 +151,9 @@ jobs:
               jinja2 \
               pymongo \
               mongomock
+
+            # Make sure that we don't have minio installed
+            python3 -m pip uninstall minio
 
             # Note: Uses MinGW versions of dev tools cmake and swig are used for building
             # instead. Thus requirements_dev.txt is not used.
@@ -179,6 +182,9 @@ jobs:
 
             python3 -m pip install -r requirements.txt -r requirements_dev.txt -r requirements_mappings.txt
             python3 -m pip install -r requirements_full.txt --no-deps
+
+            # Make sure that we don't have minio installed
+            python3 -m pip uninstall minio
 
           fi
 
