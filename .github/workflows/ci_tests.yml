@@ -279,6 +279,10 @@ jobs:
           then
             source ../venv/bin/activate
           fi
+
+          # XXX - just debugging - to be removed!
+          ctest -V -R minio_storage
+
           ctest --build-config Release --output-on-failure
 
 
