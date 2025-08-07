@@ -731,7 +731,7 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
   if (fu_pathsiter_deinit(iter)) goto fail;
 
   if (errors[0]) {
-    dlite_warn("Could not load the following Python plugins:\n%s"
+    dlite_info("Could not load the following Python plugins:\n%s"
                "You may have to install missing python package(s).\n",
                errors);
   }

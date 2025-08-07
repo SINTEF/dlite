@@ -159,14 +159,14 @@ endif()
 
 # Linker RPATH / RUNPATH
 # ----------------------
-# 
+#
 # Note: lib can be lib64 on some Linux platforms e.g. Fedora and SuSE.
 #   This includes the Python lib as per the documentation below:
 #   https://docs.python.org/3/using/configure.html#cmdoption-with-platlibdir
-# 
+#
 # Note: Ubuntu & Debian use 'Multipath' triplet subdirectories for libraries
 #   The compiler's target machine triplet can be obtained with `gcc -dumpmachine`
-# 
+#
 # Useful info at:
 # https://gitlab.kitware.com/cmake/community/-/wikis/doc/cmake/RPATH-handling
 
@@ -184,17 +184,6 @@ endif()
   # $ORIGIN is replaced at runtime by the directory the target is loaded from.
 
 
-# Install paths
-# -------------
-
-# Install path for CMake files
-if(WIN32 AND NOT CYGWIN)
-  set(DLITE_INSTALL_CMAKE_DIR "cmake")
-else()
-  set(DLITE_INSTALL_CMAKE_DIR "share/dlite/cmake")
-endif()
-
-
 # On some 32-bit systems (like manylinux2014_i686) we have to manually
 # link against -lutil -lm
 if(CMAKE_SIZEOF_VOID_P EQUAL 4)
@@ -202,32 +191,9 @@ if(CMAKE_SIZEOF_VOID_P EQUAL 4)
 endif()
 
 
-# ------------------------
-# Installation environment
-# ------------------------
-
-# Define installation directory names according to the GNU standards
-include(GNUInstallDirs)
-
-# Installation paths
-set(DLITE_ROOT ${CMAKE_INSTALL_PREFIX})
-set(DLITE_BUILD_ROOT ${dlite_BINARY_DIR})
-set(DLITE_INCLUDE_DIRS include/dlite)
-set(DLITE_LIBRARY_DIR  lib)
-set(DLITE_RUNTIME_DIR  bin)
-set(DLITE_DATA_DIR     share/dlite)
-
-include(MakePlatformPaths)
-make_platform_paths(
-  PATHS
-    DLITE_ROOT
-    DLITE_BUILD_ROOT
-    DLITE_INCLUDE_DIRS
-    DLITE_LIBRARY_DIR
-    DLITE_RUNTIME_DIR
-    DLITE_DATA_DIR
-  )
-
+# ---------------------
+# Optional dependencies
+# ---------------------
 
 #
 # hdf5
@@ -442,9 +408,6 @@ else()
   set(Python3_LIBRARIES "")
 endif()
 
-message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
-message(STATUS "DLITE_ROOT = ${DLITE_ROOT}")
-message(STATUS "DLITE_PKG_ROOT = ${DLITE_PKG_ROOT}")
 
 #
 # Fortran
@@ -460,11 +423,62 @@ if(WITH_FORTRAN)
   enable_fortran_compiler_flag_if_supported("-Werror")
 endif()
 
+
 # Unset extra_link_libraries if it is empty
 message(STATUS "extra_link_libraries = ${extra_link_libraries}")
 if(extra_link_libraries MATCHES "^[ \t\n\r;]*$")
   unset(extra_link_libraries)
 endif()
+
+
+# ------------------------
+# Installation environment
+# ------------------------
+
+# Define installation directory names according to the GNU standards
+include(GNUInstallDirs)
+
+# Installation paths
+set(DLITE_ROOT ${CMAKE_INSTALL_PREFIX})
+set(DLITE_BUILD_ROOT ${dlite_BINARY_DIR})
+set(DLITE_INCLUDE_DIRS include/dlite)
+set(DLITE_LIBRARY_DIR  lib)
+set(DLITE_RUNTIME_DIR  bin)
+set(DLITE_DATA_DIR     share/dlite)
+
+# Install path for CMake files
+if(WIN32 AND NOT CYGWIN)
+  set(DLITE_INSTALL_CMAKE_DIR "cmake")
+else()
+
+  if(Python3_FIND_VIRTUALENV)
+    set(DLITE_INSTALL_CMAKE_DIR "share/cmake")
+  else()
+    set(DLITE_INSTALL_CMAKE_DIR "${CMAKE_INSTALL_PREFIX}/share/cmake")
+  endif()
+message(STATUS "DLITE_INSTALL_CMAKE_DIR = ${DLITE_INSTALL_CMAKE_DIR}")
+
+
+endif()
+
+
+include(MakePlatformPaths)
+make_platform_paths(
+  PATHS
+    DLITE_ROOT
+    DLITE_BUILD_ROOT
+    DLITE_INCLUDE_DIRS
+    DLITE_LIBRARY_DIR
+    DLITE_RUNTIME_DIR
+    DLITE_DATA_DIR
+    DLITE_INSTALL_CMAKE_DIR
+  )
+
+
+message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
+message(STATUS "DLITE_ROOT = ${DLITE_ROOT}")
+message(STATUS "DLITE_PKG_ROOT = ${DLITE_PKG_ROOT}")
+
 
 
 # DLite install paths relative to DLITE_PKG_ROOT
@@ -808,20 +822,9 @@ set(dlite_TEMPLATES
 # DLITE_STORAGES - DLite storages (inc. metadata)
 set(dlite_STORAGES
   ${dlite_SOURCE_DIR}/examples/storages/*.json
+  ${dlite_SOURCE_DIR}/src/datamodels/*.json
 )
 
-
-#if(UNIX)
-#  string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
-#  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH  "${dlite_LD_LIBRARY_PATH}")
-#  string(REPLACE ";" ":" dlite_PYTHONPATH       "${dlite_PYTHONPATH}")
-#  string(REPLACE ";" ":" dlite_STORAGE_PLUGINS  "${dlite_STORAGE_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_PYTHON_STORAGE_PLUGINS  "${dlite_PYTHON_STORAGE_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_PYTHON_MAPPING_PLUGINS  "${dlite_PYTHON_MAPPING_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_PYTHON_PROTOCOL_PLUGINS  "${dlite_PYTHON_PROTOCOL_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
-#endif()
 
 make_platform_paths(
   PATHS
@@ -880,20 +883,17 @@ set(test_env
   "DLITE_STORAGES:                    ${DLITE_STORAGES}"
   " "
   "========== Test environment ========="
-  "export DLITE_ROOT=${DLITE_ROOT}"
-  "export PATH=${dlite_PATH_NATIVE}"
+  "PATH=${dlite_PATH_NATIVE}"
   "dlite_PATH=${dlite_PATH}"
-  "export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}"
-  "export PYTHONPATH=${dlite_PYTHONPATH_NATIVE}"
   "PYTHONPATH=${dlite_PYTHONPATH}"
   " "
-  "export DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}"
-  "export DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}"
-  "export DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}"
-  "export DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}"
-  "export DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS=${dlite_PYTHON_PROTOCOL_PLUGINS}"
-  "export DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}"
-  "export DLITE_STORAGES='${dlite_STORAGES}'"
+  "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}"
+  "DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}"
+  "DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}"
+  "DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}"
+  "DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS=${dlite_PYTHON_PROTOCOL_PLUGINS}"
+  "DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}"
+  "DLITE_STORAGES='${dlite_STORAGES}'"
   " "
   "========== Python ==================="
   "Python3_LIBRARIES:          ${Python3_LIBRARIES}"
