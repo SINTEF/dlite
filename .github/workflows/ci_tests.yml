@@ -68,6 +68,9 @@ jobs:
             python-pyarrow:p
             python-paramiko:p
             python-pydantic-core:p
+            python-rdflib:p
+            python-yaml:p
+            python-scikit-image:p
             cmake:p
             gcc:p
             hdf5:p
