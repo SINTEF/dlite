@@ -54,7 +54,8 @@ static hid_t get_memtype(DLiteType type, size_t size)
   case dliteBlob:
     memtype = H5Tcopy(H5T_NATIVE_OPAQUE);
     if ((stat = H5Tset_size(memtype, size)) < 0)
-      return err(dliteMemoryError, "cannot set opaque memtype size to %lu", size);
+      return err(dliteMemoryError, "cannot set opaque memtype size to %d",
+                 (int)size);
     return memtype;
   case dliteInt:
     switch (size) {
@@ -62,7 +63,8 @@ static hid_t get_memtype(DLiteType type, size_t size)
     case 2:     return H5Tcopy(H5T_NATIVE_INT16);
     case 4:     return H5Tcopy(H5T_NATIVE_INT32);
     case 8:     return H5Tcopy(H5T_NATIVE_INT64);
-    default:    return errx(dliteValueError, "invalid int size: %lu", size);
+    default:    return errx(dliteValueError, "invalid int size: %d",
+                            (int)size);
     }
   case dliteBool:
   case dliteUInt:
@@ -71,23 +73,27 @@ static hid_t get_memtype(DLiteType type, size_t size)
     case 2:     return H5Tcopy(H5T_NATIVE_UINT16);
     case 4:     return H5Tcopy(H5T_NATIVE_UINT32);
     case 8:     return H5Tcopy(H5T_NATIVE_UINT64);
-    default:    return errx(dliteValueError, "invalid uint size: %lu", size);
+    default:    return errx(dliteValueError, "invalid uint size: %d",
+                            (int)size);
     }
   case dliteFloat:
     switch (size) {
     case sizeof(float):  return H5Tcopy(H5T_NATIVE_FLOAT);
     case sizeof(double): return H5Tcopy(H5T_NATIVE_DOUBLE);
-    default:             return errx(dliteValueError, "no native float with size %lu", size);
+    default:             return errx(dliteValueError,
+                                     "no native float with size %d", (int)size);
     }
   case dliteFixString:
     memtype = H5Tcopy(H5T_C_S1);
     if ((stat = H5Tset_size(memtype, size)) < 0)
-      return err(dliteValueError, "cannot set string memtype size to %lu", size);
+      return err(dliteValueError, "cannot set string memtype size to %d",
+                 (int)size);
     return memtype;
 
   case dliteStringPtr:
     if (size != sizeof(char *))
-      return errx(dliteValueError, "size for DStringPtr must equal pointer size");
+      return errx(dliteValueError,
+                  "size for DStringPtr must equal pointer size");
     memtype = H5Tcopy(H5T_C_S1);
     if ((stat = H5Tset_size(memtype, H5T_VARIABLE)) < 0)
       return err(dliteAttributeError, "cannot set DStringPtr memtype size");
@@ -188,7 +194,7 @@ static int get_data(const DLiteDataModel *d, hid_t group,
     DFAIL1(dliteStorageLoadError, d, "cannot get data space of '%s'", name);
   if ((dndims = H5Sget_simple_extent_ndims(dspace)) < 0)
     DFAIL1(dliteStorageLoadError, d, "cannot get number of dimimensions of '%s'", name);
-  if (!(ddims = calloc(sizeof(hsize_t), dndims)))
+  if (!(ddims = calloc(dndims, sizeof(hsize_t))))
     FAILCODE(dliteMemoryError, "allocation failure");
   if ((stat = H5Sget_simple_extent_dims(dspace, ddims, NULL)) < 0)
     DFAIL1(dliteStorageLoadError, d, "cannot get shape of '%s'", name);
@@ -197,12 +203,12 @@ static int get_data(const DLiteDataModel *d, hid_t group,
   if (dndims == 0 && ndims == 1)
     dndims++;
   else if (dndims != (int)ndims) {
-    DFAIL3(dliteIndexError, d, "trying to read '%s' with ndims=%lu, but ndims=%d",
-           name, ndims, dndims);
+    DFAIL3(dliteIndexError, d, "trying to read '%s' with ndims=%d, but ndims=%d",
+           name, (int)ndims, dndims);
     for (i=0; i<ndims; i++)
       if (ddims[i] != (hsize_t)((shape) ? shape[i] : 1))
-        DFAIL4(dliteIndexError, d, "dimension %lu of '%s': expected %lu, got %d",
-               i, name, (shape) ? shape[i] : 1, (int)ddims[i]);
+        DFAIL4(dliteIndexError, d, "dimension %d of '%s': expected %d, got %d",
+               (int)i, name, (shape) ? (int)shape[i] : 1, (int)ddims[i]);
   }
   for (i=0; i<ndims; i++) nmemb *= (shape) ? shape[i] : 1;
 

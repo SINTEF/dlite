@@ -76,15 +76,15 @@ swig_add_library(dlitepy
 
 # LIBRARY RPATH/ RUNPATH: dlitepy
 # ===============================
-# 
+#
 # At build, this and the other libraries will be copied to the same directory.
-# 
+#
 # This library will be loaded by Python as an extension module from the directory:
-# 
+#
 #   ${CMAKE_INSTALL_PREFIX}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/dlite
 #   - OR - using CMake dlite directory variables:
 #   ${DLITE_PYTHONPATH}/dlite
-# 
+#
 # The two linked libraries will be copied into the above noted folder at install.
 
 if(APPLE)
@@ -166,7 +166,7 @@ add_custom_command(
     ${pkgdir}
   BYPRODUCTS
     ${pkgdir}
-    ${pkgdir}/dlite.py
+    #${pkgdir}/dlite.py
   )
 
 add_custom_target(python_package ALL DEPENDS ${abs_targets} ${package_targets})
