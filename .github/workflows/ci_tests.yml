@@ -58,13 +58,15 @@ jobs:
           path-type: inherit
           pacboy: >-
             python:p
+            python-pip:p
             python-argon2_cffi:p
             python-cffi:p
             python-numpy:p
+            python-rdflib:p
+            python-yaml:p
             python-pandas:p
-            python-paramiko:p
-            python-pip:p
             python-pyarrow:p
+            python-paramiko:p
             python-pydantic-core:p
             python-rdflib:p
             python-yaml:p
@@ -143,10 +145,13 @@ jobs:
 
             # requirements.txt is omitted as only contains numpy.
             # This needs to be and is installed by pacman.
+
+            # Remove packages installed with pacman from requirements_full.txt
+            sed -i -e '/PyYAML/d' -e '/pandas/d' -e '/pyarrow/d' -e '/paramiko/d' requirements_full.txt
             python3 -m pip install -r requirements_full.txt
 
-            # Note: Uses MinGW versions of dev tools cmake and swig are used for building
-            # instead. Thus requirements_dev.txt is not used.
+            # Note: Uses MinGW versions of dev tools cmake and swig are used
+            # for building instead. Thus requirements_dev.txt is not used.
 
           # Ubuntu and macOS
           elif [[ ${{ matrix.os }} == ubuntu* ]] || [[ ${{ matrix.os }} == macos* ]] ;
