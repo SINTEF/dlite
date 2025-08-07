@@ -133,8 +133,6 @@ if False:
             "sftp", "json", location=f"{host}/tmp/blob.json", options=options
         )
 
-
-
     #v = con.load()
     #assert v.decode().startswith("[SemImageFile]")
     #
@@ -153,3 +151,43 @@ if False:
     #    con.save(data2, uuid="data2")
     #    data3 = con.load(uuid="data2")
     #    save_path(data3, outdir/"data3", overwrite=True)
+
+
+# Test zip plugin
+# ---------------
+zipfile = indir / "subdir.zip"
+zippath = "subdir/blob1.json"
+location = f"{zipfile}#{zippath}"
+blob1 = dlite.Instance.load(protocol="zip", driver="json", location=location)
+assert blob1.uri == "http://onto-ns.com/data/blob1"
+
+if requests:
+    # Download blob1 from GitHub
+    url1 = (
+        "https://github.com/SINTEF/dlite/raw/refs/heads/master/"
+        "bindings/python/tests/input/subdir.zip#subdir/blob1.json"
+    )
+    blob = dlite.Instance.load(protocol="zip", driver="json", location=url1)
+    assert blob.uri == "http://onto-ns.com/data/blob1"
+
+    # Access blob2 from cache
+    url2 = (
+        "https://github.com/SINTEF/dlite/raw/refs/heads/zip-protocol/"
+        "bindings/python/tests/input/subdir.zip#subdir/blob2.json"
+    )
+    blob2 = dlite.Instance.load(protocol="zip", driver="json", location=url2)
+    assert blob2.uri == "http://onto-ns.com/data/blob2"
+
+    # Use the protocol API directly
+    pr = Protocol(protocol="zip", location=url2)
+    data = pr.load()
+    assert data.startswith(b'{\n  "f8e0')
+
+    # Test Instance.from_url() against Zenodo
+    zenodo_url = (
+        "https://zenodo.org/record/1486184/files/github-mark.zip?download=1"
+    )
+    file_inside_zip = "github-mark.svg"
+    pr = Protocol(protocol="zip", location=f"{zenodo_url}#{file_inside_zip}")
+    data3 = pr.load()
+    assert data3.startswith(b'<svg width="1024" height="1024" ')

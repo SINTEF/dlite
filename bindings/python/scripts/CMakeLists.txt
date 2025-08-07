@@ -79,7 +79,7 @@ test_success(
 )
 
 # The "dimensions" keyword is required
-test_failure(
+test_success(
   dlite-validate-no-dimensions
   dlite-validate NoDimensions.json
 )

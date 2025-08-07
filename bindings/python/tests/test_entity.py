@@ -134,7 +134,7 @@ with raises(dlite.DLiteStorageLoadError):
     Instance.from_location("json", "non-existing-path...")
 
 
-# Test for issue #352 - improved error message for missing dimensions
+# Test for implicit metadata dimensions
 json_repr = """
 {
   "uri": "http://onto-ns.com/ex/0.1/test",
@@ -145,8 +145,10 @@ json_repr = """
   }
 }
 """
-with raises(dlite.DLiteParseError):
-    dlite.Instance.from_json(json_repr)
+meta = dlite.Instance.from_json(json_repr)
+assert meta.ndimensions == 0
+assert meta.nproperties == 1
+assert meta.getprop("x").type == "int64"
 
 
 # Test copy
