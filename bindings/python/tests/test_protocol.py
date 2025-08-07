@@ -172,7 +172,7 @@ if requests:
 
     # Access blob2 from cache
     url2 = (
-        "https://github.com/SINTEF/dlite/raw/refs/heads/zip-protocol/"
+        "https://github.com/SINTEF/dlite/raw/refs/heads/master/"
         "bindings/python/tests/input/subdir.zip#subdir/blob2.json"
     )
     blob2 = dlite.Instance.load(protocol="zip", driver="json", location=url2)
