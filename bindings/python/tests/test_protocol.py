@@ -182,3 +182,12 @@ if requests:
     pr = Protocol(protocol="zip", location=url2)
     data = pr.load()
     assert data.startswith(b'{\n  "f8e0')
+
+    # Test Instance.from_url() against Zenodo
+    zenodo_url = (
+        "https://zenodo.org/record/1486184/files/github-mark.zip?download=1"
+    )
+    file_inside_zip = "github-mark.svg"
+    pr = Protocol(protocol="zip", location=f"{zenodo_url}#{file_inside_zip}")
+    data3 = pr.load()
+    assert data3.startswith(b'<svg width="1024" height="1024" ')
