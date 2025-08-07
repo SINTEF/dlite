@@ -826,18 +826,6 @@ set(dlite_STORAGES
 )
 
 
-#if(UNIX)
-#  string(REPLACE ";" ":" dlite_PATH             "${dlite_PATH}")
-#  string(REPLACE ";" ":" dlite_LD_LIBRARY_PATH  "${dlite_LD_LIBRARY_PATH}")
-#  string(REPLACE ";" ":" dlite_PYTHONPATH       "${dlite_PYTHONPATH}")
-#  string(REPLACE ";" ":" dlite_STORAGE_PLUGINS  "${dlite_STORAGE_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_MAPPING_PLUGINS  "${dlite_MAPPING_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_PYTHON_STORAGE_PLUGINS  "${dlite_PYTHON_STORAGE_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_PYTHON_MAPPING_PLUGINS  "${dlite_PYTHON_MAPPING_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_PYTHON_PROTOCOL_PLUGINS  "${dlite_PYTHON_PROTOCOL_PLUGINS}")
-#  string(REPLACE ";" ":" dlite_TEMPLATES        "${dlite_TEMPLATES}")
-#endif()
-
 make_platform_paths(
   PATHS
     dlite_LD_LIBRARY_PATH
@@ -895,20 +883,17 @@ set(test_env
   "DLITE_STORAGES:                    ${DLITE_STORAGES}"
   " "
   "========== Test environment ========="
-  "export DLITE_ROOT=${DLITE_ROOT}"
-  "export PATH=${dlite_PATH_NATIVE}"
+  "PATH=${dlite_PATH_NATIVE}"
   "dlite_PATH=${dlite_PATH}"
-  "export LD_LIBRARY_PATH=${dlite_LD_LIBRARY_PATH}"
-  "export PYTHONPATH=${dlite_PYTHONPATH_NATIVE}"
   "PYTHONPATH=${dlite_PYTHONPATH}"
   " "
-  "export DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}"
-  "export DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}"
-  "export DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}"
-  "export DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}"
-  "export DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS=${dlite_PYTHON_PROTOCOL_PLUGINS}"
-  "export DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}"
-  "export DLITE_STORAGES='${dlite_STORAGES}'"
+  "DLITE_STORAGE_PLUGIN_DIRS=${dlite_STORAGE_PLUGINS}"
+  "DLITE_MAPPING_PLUGIN_DIRS=${dlite_MAPPING_PLUGINS}"
+  "DLITE_PYTHON_STORAGE_PLUGIN_DIRS=${dlite_PYTHON_STORAGE_PLUGINS}"
+  "DLITE_PYTHON_MAPPING_PLUGIN_DIRS=${dlite_PYTHON_MAPPING_PLUGINS}"
+  "DLITE_PYTHON_PROTOCOL_PLUGIN_DIRS=${dlite_PYTHON_PROTOCOL_PLUGINS}"
+  "DLITE_TEMPLATE_DIRS=${dlite_TEMPLATES}"
+  "DLITE_STORAGES='${dlite_STORAGES}'"
   " "
   "========== Python ==================="
   "Python3_LIBRARIES:          ${Python3_LIBRARIES}"
