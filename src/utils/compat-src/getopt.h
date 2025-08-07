@@ -12,7 +12,7 @@ extern "C" {
 #endif // __cplusplus
 
 #ifdef HAVE_GETOPT
-#include <getopt.h>
+#include <getopt.h>  // cppcheck-suppress preprocessorErrorDirective
 #else
 #ifndef _GETOPT_H_
 #define _GETOPT_H_

@@ -1,6 +1,8 @@
 import json
+import os
 import sys
 import warnings
+from pathlib import Path
 from typing import Dict, List, Mapping, Optional, Sequence
 
 # dataclasses is a rather new feature of Python, lets not require it...
@@ -587,3 +589,36 @@ def _get_referred_instances(inst, include_meta, references):
                         )
     if include_meta:
         _get_referred_instances(inst.meta, include_meta, references)
+
+
+def get_cachedir(create: bool = True) -> "Path":
+    """Returns cross-platform path to dlite cache directory.
+
+    If `create` is true, create the cache directory if it doesn't exists.
+
+    The XDG_CACHE_HOME environment variable is used if it exists.
+    """
+    site_cachedir = os.getenv("XDG_CACHE_HOME")
+    finaldir = None
+    if not site_cachedir:
+        if sys.platform.startswith("win32"):
+            site_cachedir = Path.home() / "AppData" / "Local"
+            finaldir = "Cache"
+        elif sys.platform.startswith("darwin"):
+            site_cachedir = Path.home() / "Library" / "Caches"
+        else:  # Default to UNIX
+            site_cachedir = Path.home() / ".cache"  # type: ignore
+    cachedir = Path(site_cachedir) / "dlite"  # type: ignore
+    if finaldir:
+        cachedir /= finaldir
+
+    if create:
+        try:
+            cachedir.mkdir(parents=True, exist_ok=True)
+        except PermissionError as exc:
+            warnings.warn(
+                f"{exc}: {cachedir}",
+                category=PermissionWarning,
+            )
+
+    return cachedir
