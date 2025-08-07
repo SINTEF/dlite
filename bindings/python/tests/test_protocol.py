@@ -164,7 +164,7 @@ assert blob1.uri == "http://onto-ns.com/data/blob1"
 if requests:
     # Download blob1 from GitHub
     url1 = (
-        "https://github.com/SINTEF/dlite/raw/refs/heads/zip-protocol/"
+        "https://github.com/SINTEF/dlite/raw/refs/heads/master/"
         "bindings/python/tests/input/subdir.zip#subdir/blob1.json"
     )
     blob = dlite.Instance.load(protocol="zip", driver="json", location=url1)
