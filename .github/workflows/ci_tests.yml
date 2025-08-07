@@ -58,6 +58,7 @@ jobs:
           path-type: inherit
           pacboy: >-
             python:p
+            python-pip:p
             python-argon2_cffi:p
             python-cffi:p
             python-numpy:p
@@ -143,17 +144,15 @@ jobs:
 
             python3 -m pip install -r requirements_dev.txt
 
-            # Not all packages in requirements_full.txt are pre-build for MinGW.
-            # Install some selected packages here
-            python3 -m pip install \
-              -r requirements.txt \
-              -r requirements_mappings.txt \
-              jinja2 \
-              pymongo \
-              mongomock
+            # requirements.txt is omitted as only contains numpy.
+            # This needs to be and is installed by pacman.
 
-            # Note: Uses MinGW versions of dev tools cmake and swig are used for building
-            # instead. Thus requirements_dev.txt is not used.
+            # Remove packages installed with pacman from requirements_full.txt
+            sed -i -e '/PyYAML/d' -e '/pandas/d' -e '/pyarrow/d' -e '/paramiko/d' requirements_full.txt
+            python3 -m pip install -r requirements_full.txt
+
+            # Note: Uses MinGW versions of dev tools cmake and swig are used
+            # for building instead. Thus requirements_dev.txt is not used.
 
           # Ubuntu and macOS
           elif [[ ${{ matrix.os }} == ubuntu* ]] || [[ ${{ matrix.os }} == macos* ]] ;
