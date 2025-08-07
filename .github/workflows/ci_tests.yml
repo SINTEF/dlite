@@ -85,7 +85,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
 
-        # We do not install rdflib0-dev here, since we want to  
+        # We do not install rdflib0-dev here, since we want to
         # DLite both with and without rdflib (Redland) support and the
         # case with rdflib is already covered by the ci_build_wheel
         # workflow for Linux systems.
@@ -98,7 +98,7 @@ jobs:
             )
             sudo apt-get update --fix-missing
             sudo apt-get install ${APT_INSTALL[@]}
-                
+
           elif [[ ${{ matrix.os }} == macos* ]] ;
           then
             BREW_INSTALL=(
@@ -122,7 +122,7 @@ jobs:
             # a locked install requiring a venv.
             python3 -m venv --system-site-packages venv
             source venv/bin/activate
-            
+
             # Due to the way packages are installed in both the base MinGW Python
             # install for compiled packages and the remaining platform independant
             # packages are installed to the venv, the paths Python uses get mixed
@@ -142,7 +142,8 @@ jobs:
 
             # requirements.txt is omitted as only contains numpy.
             # This needs to be and is installed by pacman.
-            python3 -m pip install -r requirements_full.txt
+            echo "*** Install binary wheels"
+            python3 -m pip install --only-binary=:all: -r requirements_full.txt
 
             # Note: Uses MinGW versions of dev tools cmake and swig are used for building
             # instead. Thus requirements_dev.txt is not used.
@@ -192,7 +193,7 @@ jobs:
           uname -a
           python --version
           pip freeze
-      
+
 
       - name: Setup Fortran
         uses: fortran-lang/setup-fortran@v1
@@ -237,9 +238,9 @@ jobs:
               -G "Visual Studio 17 2022" \
               -DCMAKE_VS_PLATFORM_TOOLSET_HOST_ARCHITECTURE=x64 \
               -A x64
-          
+
           fi
- 
+
 
       - name: Build
         working-directory: build
