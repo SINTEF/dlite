@@ -200,6 +200,11 @@ they are accessed from the same namespace.
 A metadata dimension simply provides a *name* and a human *description* of a
 given dimension of an array property.
 
+**Convention**: For metadata schemata, should the dimension names start with an
+"n" followed by the name of a property how's length is defined by the dimension.
+For example, the dimension that determine the number of properties in a metadata
+schema should be named "nproperties".
+
 
 ### Property
 A property describes an element or item of an instance and has the following
@@ -212,12 +217,17 @@ attributes:
 - *shape*: The dimensions of multi-dimensional properties.
   This is a list of dimension expressions referring to the dimensions defined above.
   For instance, if a data model have dimensions with names `H`, `K` and `L` and
-  a property with shape `["K", "H+1"]`, the property of an instance of this data model
-  with dimension values `H=2, K=2, L=6` will have shape `[2, 3]`.
+  a property with shape `["K", "H+1"]`, the property of an instance of this data
+  model with dimension values `H=2, K=2, L=6` will have shape `[2, 3]`.
 - *unit*: The unit of the property.
 - *description*: A human description of the property.
 
 Please note that *dims* is a now deprecated alias for *shape*.
+
+**Convention**: If a metadata schema has an array property of type 'dimension',
+'property' or 'relation', it should be named "dimensions", "properties" and
+"relations", respectively.  Their shape should be `["ndimensions"]`,
+`["nproperties"]` and `["nrelations"]`, respectively.
 
 
 ### Relation
