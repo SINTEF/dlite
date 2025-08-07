@@ -94,5 +94,5 @@ with dlite.Storage("minio", "play.min.io", options=options) as s:
     s.delete(uuid2)
     s.delete(uuid1)
     s.delete(uuid0)
-
+    s.flush()
     assert s.get_uuids() == []

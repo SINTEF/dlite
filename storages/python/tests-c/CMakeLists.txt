@@ -47,10 +47,10 @@ if(NOT PY_PYMONGO)
   list(REMOVE_ITEM tests test_bson_storage)
 endif()
 
-# Disable postgresql tests if psycopg2 is not installed or if pgconf.h
+# Disable postgresql tests if psycopg is not installed or if pgconf.h
 # cannot be found
-find_python_module(psycopg2)
-if(NOT PY_PSYCOPG2 OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
+find_python_module(psycopg)
+if(NOT PY_PSYCOPG OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
   add_test(NAME test_postgresql_storage
     COMMAND ${CMAKE_COMMAND} -E echo "disabled")
   add_test(NAME test_postgresql_storage2
@@ -90,7 +90,7 @@ foreach(test ${tests})
 
   # TEST RPATH/ RUNPATH
   # ===================
-  # 
+  #
   # These tests will be run from the Build directory only.
   # Set absolute RPATHS to the other libraries.
   # TODO: Change all paths to generators e.g. for dlite, dlite-utils etc as easier to maintain

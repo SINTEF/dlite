@@ -26,7 +26,7 @@ instances, metadata, collections, etc).
 
 - **postgresql**: A generic PostgreSQL plugin.  See below for how to enable the
   tests.
-  Requires: psycopg2
+  Requires: psycopg
 
 - **pyrdf**: Plugin for serialising to/deserialising from RDF using rdflib.
   Requires: rdflib
