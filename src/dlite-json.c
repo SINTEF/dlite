@@ -627,17 +627,15 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
 
   /* Parse dimensions */
   if (dlite_meta_is_metameta(meta)) {
-    /* For metadata, dimension sizes are inferred from the size of
+    /* For metadata are dimension sizes inferred from the size of
        "dimensions", "properties" and "relations". */
-    size_t n=0;
-    if ((t = jsmn_item(src, obj, "dimensions"))) dims[n++] = t->size;
-    if ((t = jsmn_item(src, obj, "properties"))) dims[n++] = t->size;
-    if ((t = jsmn_item(src, obj, "relations")))  dims[n++] = t->size;
-    if (n != meta->_ndimensions)
-      FAILCODE1(dliteParseError, "metadata does not confirm to schema, "
-                "please check dimensions, properties and/or relations: %s",
-                id);
-
+    for (i=0; i < meta->_ndimensions; i++) {
+      DLiteDimension *d = meta->_dimensions + i;
+      if (d->name[0] != 'n')
+        FAILCODE2(dliteParseError, "dimension name '%s' of metadata '%s' "
+                  "does not start with 'n'", d->name, id);
+      if ((t = jsmn_item(src, obj, d->name+1))) dims[i] = t->size;
+    }
   } else {
     if (meta->_ndimensions > 0) {
       if (!(item = jsmn_item(src, obj, "dimensions")))
@@ -652,24 +650,11 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
           DLiteDimension *d = meta->_dimensions + i;
           if (!(t = jsmn_item(src, item, d->name)))
             FAIL2("missing dimension \"%s\" in %s", d->name, id);
-          if (dlite_meta_is_metameta(meta)) {
-            const jsmntok_t *tt;
-            if (t->type != JSMN_STRING)
-              FAIL1("expected dimension description, got: %.6s...",
-                    src + t->start);
-            if (d->name[0] != 'n')
-              FAIL1("meta-metadata dimension names should start with \"n\": %s",
-                    d->name);
-            if (!(tt = jsmn_item(src, obj, d->name+1)))
-              FAIL1("no metadata array named %s", d->name+1);
-            dims[i] = tt->size;
-          } else {
-            if (t->type == JSMN_PRIMITIVE)
-              dims[i] = atoi(src + t->start);
-            else
-              FAIL3("value '%.*s' of dimension should be an integer: %s",
-                    t->end-t->start, src+t->start, id);
-          }
+          if (t->type == JSMN_PRIMITIVE)
+            dims[i] = atoi(src + t->start);
+          else
+            FAIL3("value '%.*s' of dimension should be an integer: %s",
+                  t->end-t->start, src+t->start, id);
         }
       } else {
         FAIL1("\"dimensions\" of data instances must be a json object: %s", id);
@@ -720,6 +705,7 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
       size_t *pdims = DLITE_PROP_DIMS(inst, i);
       void *ptr = DLITE_PROP(inst, i);
       if (DLITE_PROP_NDIM(inst, i) > 0) ptr = *(void **)ptr;
+
       if ((t = jsmn_item(src, base, p->name))) {
         if (t->type == JSMN_ARRAY) {
           if (dlite_property_jscan(src, t, NULL, ptr, p, pdims, 0) < 0)
@@ -742,10 +728,12 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
           if (dlite_property_scan(version, ptr, p, pdims, 0) < 0) goto fail;
         } else if (strcmp(p->name, "namespace") == 0) {
           if (dlite_property_scan(namespace, ptr, p, pdims, 0) < 0) goto fail;
-        } else
+        } else if (!p->ndims) {
           warnx("missing property \"%s\" in %s", p->name, id);
-      } else
+        }
+      } else {
         FAIL2("missing property \"%s\" in %s", p->name, id);
+      }
 
       if (meta->_loadprop) meta->_loadprop(inst, i);
     }
