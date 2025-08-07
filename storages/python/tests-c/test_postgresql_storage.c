@@ -27,7 +27,7 @@ char *options = "database=" DATABASE ";user=" USER;
 // should be skipped
 MU_TEST(test_for_psycopg)
 {
-  if (!dlite_pyembed_has_module("psycopg2")) exit(44);
+  if (!dlite_pyembed_has_module("psycopg")) exit(44);
 }
 
 
@@ -48,7 +48,7 @@ MU_TEST(test_save)
   int n, i;
   char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests-c/*.json";
 
-  mu_check(dlite_storage_plugin_path_append(paths) >= 0);
+  mu_check(dlite_storage_paths_append(paths) >= 0);
   mu_check((meta = dlite_instance_load_url("json://Person.json?mode=r")));
   mu_check((inst = dlite_instance_create((DLiteMeta *)meta, dims, "ada")));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "name", &name));

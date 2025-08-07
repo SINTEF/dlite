@@ -29,11 +29,11 @@ if(NOT PY_PYMONGO)
   list(REMOVE_ITEM python-tests test_bson_storage_python)
 endif()
 
-# Disable PostgreSQL test if psycopg2 is not installed
-find_python_module(psycopg2)
-if(NOT PY_PSYCOPG2)
+# Disable PostgreSQL test if psycopg is not installed
+find_python_module(psycopg)
+if(NOT PY_PSYCOPG)
   add_test(NAME test_postgresql_storage_python
-    COMMAND ${CMAKE_COMMAND} -E echo "disabled (no psycopg2)")
+    COMMAND ${CMAKE_COMMAND} -E echo "disabled (no psycopg)")
   set_property(TEST test_postgresql_storage_python PROPERTY DISABLED True)
   list(REMOVE_ITEM python-tests test_postgresql_storage_python)
 endif()

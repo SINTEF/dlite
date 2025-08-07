@@ -26,7 +26,7 @@ char *options = "database=" DATABASE ";user=" USER;
 // should be skipped
 MU_TEST(test_for_psycopg)
 {
-  if (!dlite_pyembed_has_module("psycopg2")) exit(44);
+  if (!dlite_pyembed_has_module("psycopg")) exit(44);
 }
 
 
