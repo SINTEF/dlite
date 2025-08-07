@@ -14,7 +14,7 @@ thisdir = Path(__file__).resolve().parent
 
 
 # Check if postgresql server is running
-check_import("psycopg2", skip=True)
+check_import("psycopg", skip=True)
 ping_server()
 
 # Add metadata to search path
