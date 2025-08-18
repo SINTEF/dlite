@@ -9,6 +9,8 @@ requires = [
 build-backend = "setuptools.build_meta"
 
 [tool.cibuildwheel]
+enable = ["pypy"]
+archs = ["auto32", "auto64"]
 build-frontend = "pip"
 build-verbosity = 1
 
