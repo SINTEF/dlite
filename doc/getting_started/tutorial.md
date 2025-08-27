@@ -384,7 +384,7 @@ You can use the method `person.set_quantity` to set a property with a quantity o
 
 ```
 
-```note
+```{note}
 If you need in your program to use a specific units registry, use the function
 [`pint.set_application_registry()`]
 ```

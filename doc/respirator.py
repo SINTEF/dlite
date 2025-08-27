@@ -24,7 +24,7 @@ class DoxygenXML:
                  output_path: Union[str,Path],
                  template_path: Union[str, Path],
                  index_file = 'index.xml',
-                 filename_filter=".*\.h"):
+                 filename_filter=r".*\.h"):
         """
         initialize class
         """
