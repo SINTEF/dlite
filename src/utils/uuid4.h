@@ -11,10 +11,10 @@
 #define UUID4_VERSION "0.1.0"
 #define UUID4_LEN 37
 
-enum {
+typedef enum {
   UUID4_ESUCCESS =  0,
   UUID4_EFAILURE = -1
-};
+} uuid4ErrCodes;
 
 /**
   Writes a random version 4 UUID to `dst`.
