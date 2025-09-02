@@ -47,7 +47,7 @@ Appending to DLite path variables
 The `dlite` Python module defines the path variables listed in the table above.
 A Python script or application can configure new datamodels and plugins by appending to these variables.
 
-:::{example}
+:::{hint}
 Adding the sub-directory `datamodels` to the search path for datamodels, can be done with:
 
 ```python

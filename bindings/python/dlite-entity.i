@@ -105,10 +105,6 @@ Arguments:
     name: Dimension name.
     description: Dimension description.
 
-Attributes:
-    name: Dimension name.
-    description: Dimension description.
-
 ") _DLiteDimension;
 %rename(Dimension) _DLiteDimension;
 struct _DLiteDimension {
@@ -150,16 +146,6 @@ Arguments:
     unit: Optional. The unit for properties with a unit. The unit should
          be a valid unit label defined by EMMO or a custom ontology.
     description: Optional: A human description of the property.
-
-Attributes:
-    name: Property name.
-    size: Number of bytes needed to represent a single instance of `type`
-        in memory.
-    ref: Value of the `ref` argument.
-    ndims: Number of dimensions of the property. A scalar has `ndims=0`.
-    unit: The unit of the property.
-    description: Property description.
-    dims: Deprecated alias for shape.
 
 ") _DLiteProperty;
 %rename(Property) _DLiteProperty;
@@ -300,7 +286,7 @@ methods:
 
 For details, see the documentation of the individual class methods.
 
-Attributes:
+Arguments:
     uuid: The UUID of the instance.
     uri: The URI of the instance.
 

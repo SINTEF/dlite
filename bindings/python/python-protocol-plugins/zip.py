@@ -20,6 +20,7 @@ class zip(dlite.DLiteProtocolBase):
             location: A URL or path to a zip file.
                 If `location` is a URL, a local cache is created and reused.
             options: The following options are supported:
+
                 - timeout: Number of seconds before timing out when downloading
                   an URL.
                 - nocache: If true and path is a URL, the zip file will be
