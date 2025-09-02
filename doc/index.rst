@@ -11,7 +11,6 @@ DLite
 
    getting_started/index
    user_guide/index
-   api_reference/index
    contributors_guide/index
    license
 

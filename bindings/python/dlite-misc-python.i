@@ -32,9 +32,6 @@ class errctl():
             - "<stderr>": Write errors to stderr (default).
             - "<stdout>": Write errors to stdout.
 
-    Attributes:
-        filename: Filename to redirect errors to.
-
     """
     def __init__(self, hide=(), show=(), filename="<stderr>"):
         allcodes = [-i for i in range(1, _dlite._get_number_of_errors())]

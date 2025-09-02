@@ -16,10 +16,10 @@
  */
 
 /** Error codes */
-enum {
+typedef enum {
  fu_PathError=5870,
  fu_OpenDirectoryError,
-};
+} FUErrCodes;
 
 
 #if defined(__unix__) || (defined(__APPLE__) && defined(__MACH__))

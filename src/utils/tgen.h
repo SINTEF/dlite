@@ -241,7 +241,7 @@
 /**
    Error codes used by this library
 */
-enum {
+typedef enum {
   TGenOk=0,
   TGenAllocationError=2020,  /*!< Allocation error */
   TGenSyntaxError,           /*!< Syntax error */
@@ -251,7 +251,7 @@ enum {
   TGenMapError,              /*!< Error from the map library */
   TGenFormatError,           /*!< Invalid format specifier */
   TGenUserError,             /*!< Triggered by the {\@error:...} construct */
-};
+} TGenErrCodes;
 
 
 /**
