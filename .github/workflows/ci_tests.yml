@@ -37,14 +37,19 @@ jobs:
           - os: ubuntu-latest
             python-version: "3.8"
             subsystem: none
+            testargs: ""
           - os: ubuntu-latest
             python-version: "3.13"
             subsystem: none
+            testargs: ""
           - os: windows-latest
             python-version: "3.10"
             subsystem: none
+            # Installation of cppcheck seems to be broken on Windows at the moment...
+            testargs: "-E static-code-analysis"
           - os: windows-latest
             subsystem: mingw
+            testargs: "-E static-code-analysis"
 
     steps:
       - name: Setup MSYS2
@@ -276,7 +281,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release || ctest --build-config Release --rerun-failed --output-on-failure -V
+          ctest --build-config Release ${{ matrix.testargs }} || ctest --build-config Release --rerun-failed --output-on-failure -V ${{ matrix.testargs }}
 
 
       - name: Test with all behavior changes disabled
@@ -288,7 +293,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release || ctest --build-config Release --rerun-failed --output-on-failure -V
+          ctest --build-config Release ${{ matrix.testargs }} || ctest --build-config Release --rerun-failed --output-on-failure -V ${{ matrix.testargs }}
 
 
       - name: Test with all behavior changes enabled
@@ -300,7 +305,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release || ctest --build-config Release --rerun-failed --output-on-failure -V
+          ctest --build-config Release ${{ matrix.testargs }} || ctest --build-config Release --rerun-failed --output-on-failure -V ${{ matrix.testargs }}
 
 
       - name: Build ${{ matrix.os }} wheel
