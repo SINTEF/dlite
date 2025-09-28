@@ -93,3 +93,5 @@ RUN \
   rm -rf /ci/pip_cache
 
 {{ EXTRA_POST }}
+
+COPY .github/docker/build_and_test.sh /tmp/
