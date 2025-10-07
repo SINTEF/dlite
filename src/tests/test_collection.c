@@ -238,10 +238,11 @@ MU_TEST(test_collection_load)
   DLiteCollection *coll2;
   char *collpath = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/coll.json";
   FILE *fp = fopen(collpath, "r");
+  mu_check(fp);
   dlite_storage_paths_append(STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json");
   coll2 = (DLiteCollection *)
     dlite_json_fscan(fp, NULL, "http://onto-ns.com/meta/0.1/Collection");
-  fclose(fp);  // cppcheck-suppress nullPointerOutOfResources
+  fclose(fp);
 
   dlite_collection_decref(coll2);
 }
