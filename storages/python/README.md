@@ -110,8 +110,6 @@ install and setup a postgresql server on Fedora. Short instructions:
     postgres=# CREATE USER my_username WITH PASSWORD 'my_password';
     postgres=# CREATE DATABASE my_database OWNER my_username;
 
-
-
 The `test_postgresql`_storage test require local configurations of the
 PostgreSQL server.  The test is only enabled if a file pgconf.h can be
 found in the [tests-c/](tests-c/) sub-directory.  Example pgconf.h file:
