@@ -186,6 +186,7 @@ char *helper(const DLiteStoragePlugin *api)
 {
   PyObject *v=NULL, *pyclassdoc=NULL, *open=NULL, *pyopendoc=NULL;
   PyObject *class = (PyObject *)api->data;
+  PyObject *inspect=NULL, *getdoc=NULL;
   const char *classname, *classdoc=NULL, *opendoc=NULL;
   char *doc=NULL;
   Py_ssize_t n=0, clen=0, olen=0, i, newlines=0;
@@ -212,7 +213,6 @@ char *helper(const DLiteStoragePlugin *api)
       //
       // Aligns pre-Python 3.13 behaviour with new behaviour which was
       // implemented into CPython in: https://github.com/python/cpython/pull/106411
-      PyObject *inspect=NULL, *getdoc=NULL;
       if (!(inspect = PyImport_ImportModule("inspect")))
         FAILCODE(dliteAttributeError, "cannot import inspect module");
       if (!((getdoc = PyObject_GetAttrString(inspect, "getdoc")) && PyCallable_Check(getdoc)))
@@ -220,6 +220,8 @@ char *helper(const DLiteStoragePlugin *api)
       if (!(pyopendoc = PyObject_CallFunctionObjArgs(getdoc, open, NULL)))
         FAILCODE1(dliteAttributeError, "cannot call inspect.getdoc() with %s.open", classname);
 #else
+      UNUSED(getdoc);
+      UNUSED(inspect);
       if (!(pyopendoc = PyObject_GetAttrString(open, "__doc__")))
         FAILCODE1(dliteAttributeError, "cannot access %s.open.__doc__",
                   classname);
