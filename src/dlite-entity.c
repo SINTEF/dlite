@@ -332,29 +332,36 @@ size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims)
    with uuids available in the internal storage (istore) */
 char** dlite_istore_get_uuids(int* nuuids)
 {
-    instance_map_t* istore = _instance_store();
-    assert(istore);
-    const char* uuid;
-    map_iter_t iter;
+  instance_map_t* istore = _instance_store();
+  assert(istore);
+  const char* uuid;
+  map_iter_t iter;
 
-    iter = map_iter(istore);
-    *nuuids = 0;
-    while ((uuid = map_next(istore, &iter))) (*nuuids)++;
+  iter = map_iter(istore);
+  *nuuids = 0;
+  while ((uuid = map_next(istore, &iter))) (*nuuids)++;
 
-    char** uuids;
-    uuids = malloc((*nuuids + 1) * sizeof(char*));
+  char** uuids;
+  if (!(uuids = calloc((*nuuids + 1), sizeof(char*))))
+    FAILCODE(dliteMemoryError, "allocation failure");
 
-    int i = 0;
-    iter = map_iter(istore);
-    while ((uuid = map_next(istore, &iter))) {
-        {
-            uuids[i] = malloc(DLITE_UUID_LENGTH + 1);
-            strcpy(uuids[i], uuid);
-            i++;
-        }
-    }
-    uuids[i] = NULL;
-    return uuids;
+  int i = 0;
+  iter = map_iter(istore);
+  while ((uuid = map_next(istore, &iter))) {
+    if (!(uuids[i] = malloc(DLITE_UUID_LENGTH + 1)))
+      FAILCODE(dliteMemoryError, "allocation failure");
+    strcpy(uuids[i], uuid);
+    i++;
+  }
+  uuids[i] = NULL;
+  return uuids;
+
+ fail:
+  if (uuids) {
+    for (i=0; uuid[i]; i++) free(uuids[i]);
+    free(uuids);
+  }
+  return NULL;
 }
 
 /********************************************************************
