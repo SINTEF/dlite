@@ -139,6 +139,13 @@ main(int argc, char *argv)
   sname=malloc(TC_STRLEN_MAX);
   components=malloc(TC_MAX_NR_OF_ELEMENTS*sizeof(tc_components_strings));
 
+  /* needed to make cppcheck happy */
+  assert(iwsg);
+  assert(iwse);
+  assert(phname);
+  assert(sname);
+  assert(components);
+
   memset(iwsg,0,sizeof(TC_INT)*TC_NWSG);
   memset(iwse,0,sizeof(TC_INT)*TC_NWSE);
   memset(log_file_directory,0,sizeof(log_file_directory));

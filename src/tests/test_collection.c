@@ -241,7 +241,7 @@ MU_TEST(test_collection_load)
   dlite_storage_paths_append(STRINGIFY(dlite_SOURCE_DIR) "/src/tests/*.json");
   coll2 = (DLiteCollection *)
     dlite_json_fscan(fp, NULL, "http://onto-ns.com/meta/0.1/Collection");
-  fclose(fp);
+  fclose(fp);  // cppcheck-suppress nullPointerOutOfResources
 
   dlite_collection_decref(coll2);
 }

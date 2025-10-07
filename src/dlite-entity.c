@@ -1871,6 +1871,7 @@ int dlite_instance_set_dimension_size_by_index(DLiteInstance *inst,
   size_t j;
   int retval;
   int *dims = malloc(inst->meta->_ndimensions * sizeof(int));
+  if (!dims) return err(dliteMemoryError, "allocation failure");
   for (j=0; j < inst->meta->_ndimensions; j++) dims[j] = -1;
   dims[i] = size;
   retval = dlite_instance_set_dimension_sizes(inst, dims);
@@ -2118,6 +2119,7 @@ char *dlite_instance_default_uri(const DLiteInstance *inst)
 {
   int n = strlen(inst->meta->uri);
   char *buf = malloc(n + DLITE_UUID_LENGTH + 2);
+  if (!buf) return err(dliteMemoryError, "allocation failure"), NULL;
   memcpy(buf, inst->meta->uri, n);
   buf[n] = '/';
   memcpy(buf+n+1, inst->uuid, DLITE_UUID_LENGTH);
