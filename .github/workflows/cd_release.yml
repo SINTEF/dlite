@@ -136,7 +136,7 @@ jobs:
       shell: bash  # Enforce bash shell to make `sed` work also on Windows
 
     - name: Install Python for running cibuildwheel
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.13.5"
         architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
@@ -199,7 +199,7 @@ jobs:
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.13.5"
 
