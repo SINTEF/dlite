@@ -11,6 +11,7 @@ char* fvname(char* phase){
    char* tail = ")";
    char* string = (char*)malloc(1+strlen(head)+strlen(phase)+strlen(tail));
 
+   if (!string) return NULL;
    strcpy(string, head);
    strcat(string, phase);
    strcat(string, tail);
@@ -26,6 +27,7 @@ char* xname(char* phase,char* element){
    char* tail = ")";
    char* string = (char*)malloc(1+strlen(head)+strlen(phase)+strlen(middle)+strlen(element)+strlen(tail));
 
+   if (!string) return NULL;
    strcpy(string, head);
    strcat(string, phase);
    strcat(string, middle);
