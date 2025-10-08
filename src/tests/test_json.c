@@ -1,5 +1,6 @@
 #include "config.h"
 
+#include <assert.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -122,6 +123,7 @@ MU_TEST(test_sprint)
 int append(const char *str)
 {
   char *s = strdup(str);
+  assert(s);
   size_t size = strlen(s) + 1;
   int m, retval=0;
   //printf("\n--- append: '%s' ---\n", str);

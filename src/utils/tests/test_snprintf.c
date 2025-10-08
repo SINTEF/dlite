@@ -45,6 +45,8 @@ MU_TEST(test_snprintf)
   char *long_string = strdup("0123456789abcdef");
   int n;
 
+  mu_check(long_string);
+
   printf("\n\n--- test_snprintf\n");
   n = snprintf(buf, sizeof(buf), "%s", short_string);
   mu_assert_int_eq(strlen(short_string), n);

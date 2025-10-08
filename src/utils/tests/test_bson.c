@@ -215,6 +215,7 @@ MU_TEST(test_append_binary)
   mu_assert_int_eq(bson_docsize(doc), n);
 
   FILE *fp = fopen("test-append-binary.bson", "wb");
+  mu_check(fp);
   fwrite(doc, n, 1, fp);
   fclose(fp);
 }
