@@ -19,7 +19,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Set up git user
       run: |
@@ -124,7 +124,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     # This step is necessary because while this is done in the job above,
     # this job runs with the original commit SHA and does not have this change.
@@ -188,7 +188,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     # This step is necessary because while this is done in the job above,
     # this job runs with the original commit SHA and does not have this change.
