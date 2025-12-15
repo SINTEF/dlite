@@ -230,7 +230,7 @@ jobs:
 
     steps:
     - name: Retrieve wheels and sdist
-      uses: actions/download-artifact@v6
+      uses: actions/download-artifact@v7
       with:
         path: dist/
 
