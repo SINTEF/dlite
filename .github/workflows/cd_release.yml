@@ -176,7 +176,7 @@ jobs:
         CIBW_MUSLLINUX_I686_IMAGE:   ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_i686:latest
 
     - name: Store wheels for publishing
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         name: wheels_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
         path: wheelhouse/*.whl
@@ -215,7 +215,7 @@ jobs:
       run: python -m build --no-isolation --sdist python
 
     - name: Store sdist for publishing
-      uses: actions/upload-artifact@v5
+      uses: actions/upload-artifact@v6
       with:
         # Note that they are moved to a common directory sdist_____ (5 underscores, as in the name below)
         name: sdist_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
