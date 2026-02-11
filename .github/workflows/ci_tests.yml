@@ -183,6 +183,11 @@ jobs:
 
             python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
 
+            # Download cppcheck std.cfg
+            curl -L -o std.cfg https://raw.githubusercontent.com/danmar/cppcheck/master/cfg/std.cfg
+            mkdir -p $HOME/.local/share/Cppcheck
+            mv std.cfg $HOME/.local/share/Cppcheck/
+
           fi
 
 
