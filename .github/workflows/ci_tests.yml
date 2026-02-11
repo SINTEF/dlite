@@ -39,11 +39,11 @@ jobs:
             subsystem: none
             testargs: ""
           - os: ubuntu-latest
-            python-version: "3.13"
+            python-version: "3.14"
             subsystem: none
             testargs: ""
           - os: windows-latest
-            python-version: "3.10"
+            python-version: "3.14"
             subsystem: none
             # Installation of cppcheck seems to be broken on Windows at the moment...
             testargs: "-E static-code-analysis"
