@@ -109,11 +109,11 @@ jobs:
           # 32-bit Windows
 
           # 64-bit (Intel) macOS
-          - os: macos-14
-            system_type: ["macosx", ""]
-            arch: x86_64
-            py_minors: 8,9,10,11,12,13
-            deployment-target: "10.13"
+          #- os: macos-13
+          #  system_type: ["macosx", ""]
+          #  arch: x86_64
+          #  py_minors: 8,9,10,11,12,13
+          #  deployment-target: "10.13"
 
           # 64-bit (Apple Silicon) macOS
           - os: macos-14

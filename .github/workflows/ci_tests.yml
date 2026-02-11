@@ -30,18 +30,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.8", "3.14"]
-        subsystem: [none]
         include:
+          # ubuntu-latest-none-py3.14
           - os: ubuntu-latest
+            python-version: "3.14"
+            subsystem: none
             testargs: ""
+
+          # ubuntu-latest-none-py3.8
+          - os: ubuntu-latest
+            python-version: "3.8"
+            subsystem: none
+            testargs: ""
+
+          # macos-latest-none-py3.14
           - os: macos-latest
+            python-version: "3.14"
+            subsystem: none
             testargs: ""
+
+          # windows-latest-none-py3.14
           - os: windows-latest
+            python-version: "3.14"
             subsystem: none
             testargs: "-E static-code-analysis"
+
+          # windows-latest-mingw-py3.14
           - os: windows-latest
+            python-version: "3.14"
             subsystem: mingw
             testargs: "-E static-code-analysis"
 
