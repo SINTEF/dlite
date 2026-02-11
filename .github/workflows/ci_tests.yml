@@ -31,21 +31,15 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.10"]
+        python-version: ["3.8", "3.14"]
         subsystem: [none]
         include:
           - os: ubuntu-latest
-            python-version: "3.8"
-            subsystem: none
             testargs: ""
-          - os: ubuntu-latest
-            python-version: "3.14"
-            subsystem: none
+          - os: macos-latest
             testargs: ""
           - os: windows-latest
-            python-version: "3.14"
             subsystem: none
-            # Installation of cppcheck seems to be broken on Windows at the moment...
             testargs: "-E static-code-analysis"
           - os: windows-latest
             subsystem: mingw
