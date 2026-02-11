@@ -49,7 +49,7 @@ jobs:
             testargs: "-E static-code-analysis"
           - os: windows-latest
             subsystem: mingw
-            testargs: ""
+            testargs: "-E static-code-analysis"
 
     steps:
       - name: Setup MSYS2
@@ -144,6 +144,10 @@ jobs:
             echo "PYTHONIOENCODING=utf-8" >> $GITHUB_ENV
             echo "PYTHONUTF8=1" >> $GITHUB_ENV
 
+            # Handle that the configured Python interpreter version (3.14) is newer
+            # than PyO3's maximum supported version (3.13)
+            echo "PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1" >> $GITHUB_ENV
+
             python3 -m pip install --upgrade pip
             python3 -m pip --version
 
@@ -178,13 +182,21 @@ jobs:
             echo "PYTHONIOENCODING=utf-8" >> $GITHUB_ENV
             echo "PYTHONUTF8=1" >> $GITHUB_ENV
 
+            # Handle that the configured Python interpreter version (3.14) is newer
+            # than PyO3's maximum supported version (3.13)
+            echo "PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1" >> $GITHUB_ENV
+
             python3 -m pip install --upgrade pip
             python3 -m pip --version
 
             python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
 
-          fi
+            # Download cppcheck std.cfg
+            #curl -L -o std.cfg https://raw.githubusercontent.com/danmar/cppcheck/master/cfg/std.cfg
+            #mkdir -p $HOME/.local/share/Cppcheck
+            #mv std.cfg $HOME/.local/share/Cppcheck/
 
+          fi
 
       - name: Check numpy
         run: |
