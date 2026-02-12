@@ -26,7 +26,7 @@ jobs:
         - system: "manylinux"
           type: "_2_28"
           arch: "x86_64"
-          py_minors: "8 9 10 11 12 13"
+          py_minors: "8 9 10 11 12 13 14"
         #- system: "manylinux"
         #  type: "_2_28"
         #  arch: "x86_64"
@@ -44,7 +44,7 @@ jobs:
         - system: "musllinux"
           type: "_1_2"
           arch: "x86_64"
-          py_minors: "8 9 10 11 12 13"
+          py_minors: "8 9 10 11 12 13 14"
         #- system: "musllinux"
         #  type: "_1_1"
         #  arch: "x86_64"
@@ -58,7 +58,7 @@ jobs:
         - system: "manylinux"
           type: "2014"
           arch: "i686"
-          py_minors: "10 11 12 13"
+          py_minors: "10 11 12 13 14"
         #- system: "manylinux"
         #  type: "2010"
         #  arch: "i686"
@@ -84,7 +84,7 @@ jobs:
 
       - name: Setup cache
         if: github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.use_cache)
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .buildx-cache-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
           key: buildx-cache-${{ matrix.system }}${{ matrix.type }}-${{ matrix.arch }}-${{ github.sha }}
