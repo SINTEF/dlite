@@ -19,7 +19,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     - name: Set up git user
       run: |
@@ -80,19 +80,19 @@ jobs:
           - os: ubuntu-24.04
             system_type: ["manylinux", "_2_28"]
             arch: x86_64
-            py_minors: 8,9,10,11,12,13
+            py_minors: 8,9,10,11,12,13,14
 
           # 64-bit musllinux
           - os: ubuntu-24.04
             system_type: ["musllinux", "_1_2"]
             arch: x86_64
-            py_minors: 8,9,10,11,12,13
+            py_minors: 8,9,10,11,12,13,14
 
           # 32-bit manylinux
           - os: ubuntu-24.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 10,11,12,13
+            py_minors: 10,11,12,13,14
 
           # 32-bit musllinux
           - os: ubuntu-24.04
@@ -104,27 +104,27 @@ jobs:
           - os: windows-2019
             system_type: ["win", ""]
             arch: amd64
-            py_minors: '8,9,10,11,12,13'
+            py_minors: '8,9,10,11,12,13,14'
 
           # 32-bit Windows
 
           # 64-bit (Intel) macOS
-          - os: macos-13
-            system_type: ["macosx", ""]
-            arch: x86_64
-            py_minors: 8,9,10,11,12,13
-            deployment-target: "10.13"
+          #- os: macos-13
+          #  system_type: ["macosx", ""]
+          #  arch: x86_64
+          #  py_minors: 8,9,10,11,12,13
+          #  deployment-target: "10.13"
 
           # 64-bit (Apple Silicon) macOS
           - os: macos-14
             system_type: ["macosx", ""]
             arch: arm64
-            py_minors: 8,9,10,11,12,13
+            py_minors: 8,9,10,11,12,13,14
             deployment-target: "11.0"
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     # This step is necessary because while this is done in the job above,
     # this job runs with the original commit SHA and does not have this change.
@@ -136,7 +136,7 @@ jobs:
       shell: bash  # Enforce bash shell to make `sed` work also on Windows
 
     - name: Install Python for running cibuildwheel
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.13.5"
         architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
@@ -176,7 +176,7 @@ jobs:
         CIBW_MUSLLINUX_I686_IMAGE:   ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_i686:latest
 
     - name: Store wheels for publishing
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         name: wheels_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
         path: wheelhouse/*.whl
@@ -188,7 +188,7 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v5
+      uses: actions/checkout@v6
 
     # This step is necessary because while this is done in the job above,
     # this job runs with the original commit SHA and does not have this change.
@@ -199,7 +199,7 @@ jobs:
       run: sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
     - name: Set up Python
-      uses: actions/setup-python@v5
+      uses: actions/setup-python@v6
       with:
         python-version: "3.13.5"
 
@@ -215,7 +215,7 @@ jobs:
       run: python -m build --no-isolation --sdist python
 
     - name: Store sdist for publishing
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v5
       with:
         # Note that they are moved to a common directory sdist_____ (5 underscores, as in the name below)
         name: sdist_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
@@ -230,7 +230,7 @@ jobs:
 
     steps:
     - name: Retrieve wheels and sdist
-      uses: actions/download-artifact@v5
+      uses: actions/download-artifact@v6
       with:
         path: dist/
 

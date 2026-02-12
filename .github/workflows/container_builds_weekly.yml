@@ -26,7 +26,7 @@ jobs:
         - system: "manylinux"
           type: "_2_28"
           arch: "x86_64"
-          py_minors: "8 9 10 11 12 13"
+          py_minors: "8 9 10 11 12 13 14"
         #- system: "manylinux"
         #  type: "_2_28"
         #  arch: "x86_64"
@@ -44,7 +44,7 @@ jobs:
         - system: "musllinux"
           type: "_1_2"
           arch: "x86_64"
-          py_minors: "8 9 10 11 12 13"
+          py_minors: "8 9 10 11 12 13 14"
         #- system: "musllinux"
         #  type: "_1_1"
         #  arch: "x86_64"
@@ -58,7 +58,7 @@ jobs:
         - system: "manylinux"
           type: "2014"
           arch: "i686"
-          py_minors: "10 11 12 13"
+          py_minors: "10 11 12 13 14"
         #- system: "manylinux"
         #  type: "2010"
         #  arch: "i686"
@@ -77,7 +77,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Docker buildx
         uses: docker/setup-buildx-action@v3

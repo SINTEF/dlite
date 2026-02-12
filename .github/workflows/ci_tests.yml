@@ -30,21 +30,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest, macos-latest, windows-latest]
-        python-version: ["3.10"]
-        subsystem: [none]
         include:
+          # ubuntu-latest-none-py3.14
+          - os: ubuntu-latest
+            python-version: "3.14"
+            subsystem: none
+            testargs: ""
+
+          # ubuntu-latest-none-py3.8
           - os: ubuntu-latest
             python-version: "3.8"
             subsystem: none
-          - os: ubuntu-latest
-            python-version: "3.13"
+            testargs: ""
+
+          # macos-latest-none-py3.14
+          - os: macos-latest
+            python-version: "3.14"
             subsystem: none
+            testargs: ""
+
+          # windows-latest-none-py3.14
           - os: windows-latest
-            python-version: "3.10"
+            python-version: "3.14"
             subsystem: none
+            testargs: "-E static-code-analysis"
+
+          # windows-latest-mingw-py3.14
           - os: windows-latest
+            python-version: "3.14"
             subsystem: mingw
+            testargs: "-E static-code-analysis"
 
     steps:
       - name: Setup MSYS2
@@ -77,12 +92,13 @@ jobs:
             swig:p
             libxml2:p
             libxslt:p
+            cppcheck:p
 
       - name: Checkout repository
-        uses: actions/checkout@v5
+        uses: actions/checkout@v6
 
       - name: Setup Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         if: ${{ matrix.subsystem != 'mingw' }}
         with:
           python-version: ${{ matrix.python-version }}
@@ -138,6 +154,10 @@ jobs:
             echo "PYTHONIOENCODING=utf-8" >> $GITHUB_ENV
             echo "PYTHONUTF8=1" >> $GITHUB_ENV
 
+            # Handle that the configured Python interpreter version (3.14) is newer
+            # than PyO3's maximum supported version (3.13)
+            echo "PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1" >> $GITHUB_ENV
+
             python3 -m pip install --upgrade pip
             python3 -m pip --version
 
@@ -172,13 +192,21 @@ jobs:
             echo "PYTHONIOENCODING=utf-8" >> $GITHUB_ENV
             echo "PYTHONUTF8=1" >> $GITHUB_ENV
 
+            # Handle that the configured Python interpreter version (3.14) is newer
+            # than PyO3's maximum supported version (3.13)
+            echo "PYO3_USE_ABI3_FORWARD_COMPATIBILITY=1" >> $GITHUB_ENV
+
             python3 -m pip install --upgrade pip
             python3 -m pip --version
 
             python3 -m pip install -r requirements.txt -r requirements_full.txt -r requirements_dev.txt
 
-          fi
+            # Download cppcheck std.cfg
+            #curl -L -o std.cfg https://raw.githubusercontent.com/danmar/cppcheck/master/cfg/std.cfg
+            #mkdir -p $HOME/.local/share/Cppcheck
+            #mv std.cfg $HOME/.local/share/Cppcheck/
 
+          fi
 
       - name: Check numpy
         run: |
@@ -276,7 +304,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release || ctest --build-config Release --rerun-failed --output-on-failure -V
+          ctest --build-config Release ${{ matrix.testargs }} || ctest --build-config Release --rerun-failed --output-on-failure -V ${{ matrix.testargs }}
 
 
       - name: Test with all behavior changes disabled
@@ -288,7 +316,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release || ctest --build-config Release --rerun-failed --output-on-failure -V
+          ctest --build-config Release ${{ matrix.testargs }} || ctest --build-config Release --rerun-failed --output-on-failure -V ${{ matrix.testargs }}
 
 
       - name: Test with all behavior changes enabled
@@ -300,7 +328,7 @@ jobs:
           then
             source ../venv/bin/activate
           fi
-          ctest --build-config Release || ctest --build-config Release --rerun-failed --output-on-failure -V
+          ctest --build-config Release ${{ matrix.testargs }} || ctest --build-config Release --rerun-failed --output-on-failure -V ${{ matrix.testargs }}
 
 
       - name: Build ${{ matrix.os }} wheel

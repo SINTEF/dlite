@@ -8,7 +8,7 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS deployment v
 # XCode version: https://github.com/actions/runner-images?tab=readme-ov-file#available-images (version supported by GitHub Runner images)
 
 project(dlite
-  VERSION 0.5.29
+  VERSION 0.5.30
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
@@ -619,10 +619,15 @@ if(CPPCHECK)
     set(cppcheck_ignore_options "${cppcheck_ignore_options} -i ${dir}")
   endforeach()
 
+  # Bug in cppcheck 2.18.3
+  # We have to use --check-level=exhaustive to get rid of information output.
+  # Otherwise there will be a lot of information output which will make the
+  # test failing.
   add_test(
     NAME static-code-analysis
     COMMAND ${CPPCHECK}
-      --language=c -q --force --error-exitcode=2 --inline-suppr
+      --language=c -q --error-exitcode=2 --inline-suppr --force
+      --disable=information --check-level=exhaustive
       --cppcheck-build-dir=${dlite_BINARY_DIR}/cppcheck
       -i build -i python ${cppcheck_ignore_options}
       -I${dlite_SOURCE_DIR}/src -I${dlite_BINARY_DIR}/src

@@ -501,6 +501,7 @@ static librdf_node *new_uri_node(TripleStore *ts, const char *uri)
     size_t len_ns = strlen(ts->ns);
     size_t len_uri = strlen(uri);
     unsigned char *buf = malloc(len_ns + len_uri + 2);
+    if (!buf) return err(dliteMemoryError, "allocation failure"), NULL;
     memcpy(buf, ts->ns, len_ns);
     buf[len_ns] = ':';
     memcpy(buf + len_ns + 1, uri, len_uri + 1);
