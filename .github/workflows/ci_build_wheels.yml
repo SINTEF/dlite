@@ -23,20 +23,20 @@ jobs:
           - os: ubuntu-24.04
             system_type: ["manylinux", "_2_28"]
             arch: x86_64
-            py_minors: 8,13
+            py_minors: 8,14
 
           # 64-bit musllinux
           - os: ubuntu-24.04
             system_type: ["musllinux", "_1_2"]
             arch: x86_64
-            py_minors: 8,13
+            py_minors: 8,14
 
           # 32-bit manylinux
           # Python 3.8 does not have numpy2
           - os: ubuntu-24.04
             system_type: ["manylinux", "2014"]
             arch: i686
-            py_minors: 10,13
+            py_minors: 10,14
 
           # 32-bit musllinux
           # Python 3.8 does not have numpy2
@@ -50,7 +50,7 @@ jobs:
           - os: windows-2022
             system_type: ["win", ""]
             arch: amd64
-            py_minors: 8,13
+            py_minors: 8,14
 
           # 32-bit Windows
           # See issue #220: https://github.com/SINTEF/dlite/issues/220
@@ -60,17 +60,17 @@ jobs:
           #   py_minors: 8,13
 
           # 64-bit (Intel) macOS
-          - os: macos-13
-            system_type: ["macosx", ""]
-            arch: x86_64
-            py_minors: 8,13
-            deployment-target: "10.13"
+          #- os: macos-13
+          #  system_type: ["macosx", ""]
+          #  arch: x86_64
+          #  py_minors: 8,14
+          #  deployment-target: "10.13"
 
           # 64-bit (Apple Silicon) macOS
           - os: macos-14
             system_type: ["macosx", ""]
             arch: arm64
-            py_minors: 8,13
+            py_minors: 8,14
             deployment-target: "11.0"
 
     steps:
