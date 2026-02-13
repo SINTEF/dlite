@@ -240,8 +240,6 @@ jobs:
 
 
       - name: Configure CMake
-        env:
-          DLITE_IMPORTSKIP_EXITCODE: 1
         run: |
           if [[ "${{ matrix.subsystem }}" != none ]] ;
           then
