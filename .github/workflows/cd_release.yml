@@ -101,7 +101,7 @@ jobs:
             py_minors: 9,10,11
 
           # 64-bit Windows
-          - os: windows-2019
+          - os: windows-2022
             system_type: ["win", ""]
             arch: amd64
             py_minors: '8,9,10,11,12,13,14'
