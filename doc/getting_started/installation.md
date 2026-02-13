@@ -39,6 +39,7 @@ wheels are shown in the following table.
 | [musllinux_1_2]  | x86_64 | x   | x   | x    | x    | x    | x    | x    |
 | [musllinux_1_2]  | i686   |     | x   | x    | x    |      |      |      |
 | windows          | x86_64 | x   | x   | x    | x    | x    | x    | x    |  
+| maxos-14         | arm64  | x   | x   | x    | x    | x    | x    | x    |  
 
 
 Development installation
