@@ -130,6 +130,9 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          # Do not install tripper
+          sed -i -e '/tripper/d' requirements_full.txt
+
           # MinGW
           if [[ "${{ matrix.subsystem }}" != none ]] ;
           then
@@ -167,7 +170,7 @@ jobs:
             # This needs to be and is installed by pacman.
 
             # Remove packages installed with pacman from requirements_full.txt
-            sed -i -e '/PyYAML/d' -e '/pandas/d' -e '/pyarrow/d' -e '/paramiko/d' -e '/tripper/d' requirements_full.txt
+            sed -i -e '/PyYAML/d' -e '/pandas/d' -e '/pyarrow/d' -e '/paramiko/d' requirements_full.txt
             python3 -m pip install -r requirements_full.txt
 
             # Note: Uses MinGW versions of dev tools cmake and swig are used
