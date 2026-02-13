@@ -37,15 +37,15 @@ jobs:
         sed -i "s|TAG_NAME|${GITHUB_REF#refs/tags/}|" "${TAG_MSG}"
         git tag -af -F "${TAG_MSG}" ${GITHUB_REF#refs/tags/}
 
-    - name: Update '${{ env.PUBLISH_UPDATE_BRANCH }}'
-      uses: CasperWA/push-protected@v2
-      with:
-        token: ${{ secrets.RELEASE_PAT }}
-        branch: ${{ env.PUBLISH_UPDATE_BRANCH }}
-        sleep: 15
-        force: true
-        tags: true
-        unprotect_reviews: true
+    #- name: Update '${{ env.PUBLISH_UPDATE_BRANCH }}'
+    #  uses: CasperWA/push-protected@v2
+    #  with:
+    #    token: ${{ secrets.RELEASE_PAT }}
+    #    branch: ${{ env.PUBLISH_UPDATE_BRANCH }}
+    #    sleep: 15
+    #    force: true
+    #    tags: true
+    #    unprotect_reviews: true
 
     - name: Get tagged versions
       run: echo "PREVIOUS_VERSION=$(git tag -l --sort -version:refname | sed -n 2p)" >> $GITHUB_ENV
