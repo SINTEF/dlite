@@ -130,6 +130,9 @@ jobs:
 
       - name: Install Python dependencies
         run: |
+          # Do not install tripper
+          sed -i -e '/tripper/d' requirements_full.txt
+
           # MinGW
           if [[ "${{ matrix.subsystem }}" != none ]] ;
           then
@@ -237,8 +240,6 @@ jobs:
 
 
       - name: Configure CMake
-        env:
-          DLITE_IMPORTSKIP_EXITCODE: 1
         run: |
           if [[ "${{ matrix.subsystem }}" != none ]] ;
           then
