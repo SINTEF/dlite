@@ -30,18 +30,20 @@ jobs:
         git config --global user.name "${GIT_USER_NAME}"
         git config --global user.email "${GIT_USER_EMAIL}"
 
-    - name: Update version and tag
+    - name: Update version 
       run: |
         # git pull origin ${{ env.PUBLISH_UPDATE_BRANCH }}
         sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
         git add CMakeLists.txt
         git commit -m "Release ${GITHUB_REF#refs/tags/}"
-
-        TAG_MSG=.github/utils/release_tag_msg.txt
-        sed -i "s|TAG_NAME|${GITHUB_REF#refs/tags/}|" "${TAG_MSG}"
-        git tag -af -F "${TAG_MSG}" ${GITHUB_REF#refs/tags/}
-        git push --tags origin ${{ env.PUBLISH_UPDATE_BRANCH }}
+        
+        # TAG is already added by github
+        #TAG_MSG=.github/utils/release_tag_msg.txt
+        #sed -i "s|TAG_NAME|${GITHUB_REF#refs/tags/}|" "${TAG_MSG}"
+        #git tag -af -F "${TAG_MSG}" ${GITHUB_REF#refs/tags/}
+        #git push --tags origin ${{ env.PUBLISH_UPDATE_BRANCH }}
+        git push origin ${{ env.PUBLISH_UPDATE_BRANCH }}
 
     #- name: Update '${{ env.PUBLISH_UPDATE_BRANCH }}'
     #  uses: CasperWA/push-protected@v2
