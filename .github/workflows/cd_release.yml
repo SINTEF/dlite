@@ -22,6 +22,7 @@ jobs:
       uses: actions/checkout@v6
       with:
         fetch-depth: 0
+        ref: ${{ env.PUBLISH_UPDATE_BRANCH }}
         token: ${{ secrets.RELEASE_PAT }}
 
     - name: Set up git user
@@ -31,7 +32,7 @@ jobs:
 
     - name: Update version and tag
       run: |
-        git pull origin ${{ env.PUBLISH_UPDATE_BRANCH }}
+        # git pull origin ${{ env.PUBLISH_UPDATE_BRANCH }}
         sed -i -E -e "s|^ +VERSION +[0-9.]+$|  VERSION ${GITHUB_REF#refs/tags/v}|" CMakeLists.txt
 
         git add CMakeLists.txt
