@@ -297,25 +297,6 @@ jobs:
         cd ..
         ls -lah dist
 
-    - name: Normalize distribution filenames for PyPI
-      shell: bash
-      run: |
-        shopt -s nullglob
-
-        for f in dist/DLite_Python-*; do
-          nf="$(echo "$f" | sed 's|dist/DLite_Python-|dist/dlite_python-|')"
-          echo "Renaming $f -> $nf"
-          mv "$f" "$nf"
-        done
-
-        for f in dist/DLite-Python-*; do
-          nf="$(echo "$f" | sed 's|dist/DLite-Python-|dist/dlite_python-|')"
-          echo "Renaming $f -> $nf"
-          mv "$f" "$nf"
-        done
-
-        ls -lah dist
-
     # - name: Publish package to Test PyPI
     #   uses: pypa/gh-action-pypi-publish@release/v1
     #   with:
