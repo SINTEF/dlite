@@ -8,7 +8,7 @@ set(CMAKE_OSX_DEPLOYMENT_TARGET "10.13" CACHE STRING "Minimum macOS deployment v
 # XCode version: https://github.com/actions/runner-images?tab=readme-ov-file#available-images (version supported by GitHub Runner images)
 
 project(dlite
-  VERSION 0.5.39
+  VERSION 0.5.40
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
