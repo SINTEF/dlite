@@ -110,6 +110,12 @@ jobs:
           python -m cibuildwheel --print-build-identifiers python
           python -m cibuildwheel --output-dir wheelhouse python
         env:
+          CIBW_BUILD_VERBOSITY: "3"
+          CIBW_BEFORE_BUILD: |
+            python -V
+            which python
+            python -m pip --version
+            python -m pip install -U pip setuptools wheel
           CIBW_BUILD: cp3${{ contains(matrix.py_minors, ',') && format('{{{0}}}', matrix.py_minors) || matrix.py_minors }}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
           CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment-target }}"
           CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
