@@ -1,4 +1,5 @@
 """Test dlite.table.Table"""
+import dlite
 from dlite.table import Table
 
 
@@ -9,5 +10,10 @@ table = [
 ]
 
 t = Table(table, baseuri="http://onto-ns.com/meta/test/0.1/")
-datamodels = t.get_datamodels()
-print(datamodels[0])
+dm1, dm2 = t.get_datamodels()
+
+assert isinstance(dm1, dlite.Metadata)
+assert isinstance(dm2, dlite.Metadata)
+assert dm1.getprop("symbol").name == "symbol"
+assert dm1.getprop("symbol").type == "string"
+assert dm1.getprop("symbol").shape.tolist() == ["len", "nsymbols"]
