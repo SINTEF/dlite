@@ -1,0 +1,3 @@
+identifier,description,title,datumName,datumType,datumUnit,datumMapping,datumName[x],datumType[x],datumShape[x]
+http://onto-ns.com/meta/test/0.1/m1,"First data model.","Datamodel 1",length,float64,cm,emmo:Length,,,
+http://onto-ns.com/meta/test/0.1/m2,"Second data model.","Datamodel 2",key,string,,,indices,int,"N,M"
