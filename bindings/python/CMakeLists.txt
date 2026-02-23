@@ -12,6 +12,7 @@ set(py_sources
   dataset.py
   quantity.py
   testutils.py
+  table.py
   )
 
 # Python sub-packages
