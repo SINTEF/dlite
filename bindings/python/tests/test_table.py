@@ -1,4 +1,6 @@
 """Test dlite.table.Table"""
+from pathlib import Path
+
 import dlite
 from dlite.table import Table
 
@@ -17,3 +19,18 @@ assert isinstance(dm2, dlite.Metadata)
 assert dm1.getprop("symbol").name == "symbol"
 assert dm1.getprop("symbol").type == "string"
 assert dm1.getprop("symbol").shape.tolist() == ["len", "nsymbols"]
+
+
+thisdir = Path(__file__).resolve().parent
+indir = thisdir / "input"
+t2 = Table.from_csv(indir / "datamodels.csv")
+m1, m2 = t2.get_datamodels()
+
+assert isinstance(m1, dlite.Metadata)
+assert isinstance(m2, dlite.Metadata)
+assert m1.description == "First data model."
+assert m1.getprop("length").type == "float64"
+assert m1.getprop("length").unit == "cm"
+assert m2.getprop("key").type == "string"
+assert m2.getprop("indices").type == "int64"
+assert m2.getprop("indices").shape.tolist() == ["N", "M"]

@@ -1,5 +1,7 @@
 """Utilities for reading and writing DLite instances from and to tables."""
+import csv
 import re
+from pathlib import Path
 from typing import TYPE_CHECKING
 
 import dlite
@@ -63,7 +65,11 @@ class Table():
                 d[k] = row[i].strip()
             if not re.match("^[a-z]+://", d["uri"]):
                 if not baseuri:
-                    raise MissingBaseURIError(f"Missing base uri argument for: {d['uri']}")
+                    raise ValueError(
+                        f"Datamodel '{d['uri']}' has no namespace. "
+                        "A default namespace can be provided with the "
+                        "`baseuri` argument."
+                    )
                 d["uri"] = baseuri + d["uri"]
 
             # Parse property mappings
@@ -182,7 +188,7 @@ class Table():
             return list(reader)
 
         if isinstance(csvfile, (str, Path)):
-            with openfile(csvfile, mode="rt", encoding=encoding) as f:
+            with open(csvfile, mode="rt", encoding=encoding) as f:
                 table = read(f, dialect)
         else:
             table = read(csvfile, dialect)
