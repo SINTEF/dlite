@@ -6,17 +6,16 @@ on:
 
 jobs:
   update-dependabot-branch:
+    steps:
 
-    name: Debugging info
-    run: |
-      echo "*** github.repository_owner: ${{ github.repository_owner }}"
-      echo "*** github.event.pull_request.head.ref: ${{ github.event.pull_request.head.ref }}"
-      echo "*** github.actor: ${{ github.actor }}"
+    - name: Debugging info
+      run: |
+        echo "*** github.repository_owner: ${{ github.repository_owner }}"
+        echo "*** github.event.pull_request.head.ref: ${{ github.event.pull_request.head.ref }}"
+        echo "*** github.actor: ${{ github.actor }}"
 
-
-
-    name: External
-    uses: SINTEF/ci-cd/.github/workflows/ci_automerge_prs.yml@v2.9.2
-    if: github.repository_owner == 'SINTEF' && startsWith(github.event.pull_request.head.ref, 'dependabot/') && github.actor == 'dependabot[bot]'
-    secrets:
-      PAT: ${{ secrets.RELEASE_PAT }}
+      - name: External
+        uses: SINTEF/ci-cd/.github/workflows/ci_automerge_prs.yml@v2.9.2
+        if: github.repository_owner == 'SINTEF' && startsWith(github.event.pull_request.head.ref, 'dependabot/') && github.actor == 'dependabot[bot]'
+        secrets:
+          PAT: ${{ secrets.RELEASE_PAT }}
