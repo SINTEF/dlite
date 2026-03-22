@@ -1,4 +1,4 @@
-name: CI - Activate auto-merging for Dependabot PRs
+name: CI - Activate auto-merging for Dependabot PRs (debugging...)
 
 on:
   pull_request_target:
