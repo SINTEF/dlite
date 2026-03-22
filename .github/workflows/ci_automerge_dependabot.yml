@@ -12,8 +12,8 @@ jobs:
     secrets:
       PAT: ${{ secrets.RELEASE_PAT }}
 
- debug-contexts:
-   runs-on: ubuntu-latest
+  debug-contexts:
+    runs-on: ubuntu-latest
     steps:
       - name: Dump github context (selected fields)
         run: |
