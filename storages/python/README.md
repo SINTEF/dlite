@@ -94,7 +94,7 @@ blob
 Specialised plugin for reading and writing a binary blob to file.  The
 content is specified using the metadata
 http://onto-ns.com/meta/0.1/Blob (defined in the json file
-[$DLITE_SOURCE_DIR/storages/python/python-storage-plugins/blob.json](https://github.com/SINTEF/dlite/blob/master/storages/python/python-storage-plugins/blob.json)). 
+[$DLITE_SOURCE_DIR/storages/python/python-storage-plugins/blob.json](https://github.com/SINTEF/dlite/blob/master/storages/python/python-storage-plugins/blob.json)).
 It will be installed in the default metadata search path and seamless
 accessible.
 
@@ -104,11 +104,15 @@ postgresql
 Generic plugin for reading and writing to a PostgreSQL database.
 
 See https://docs.fedoraproject.org/en-US/quick-docs/postgresql/ for how to
-install and setup a postgresql server on Fedora.
+install and setup a postgresql server on Fedora. Short instructions:
 
-The test_postgresql_storage test require local configurations of the
+    sudo -u postgres psql
+    postgres=# CREATE USER my_username WITH PASSWORD 'my_password';
+    postgres=# CREATE DATABASE my_database OWNER my_username;
+
+The `test_postgresql`_storage test require local configurations of the
 PostgreSQL server.  The test is only enabled if a file pgconf.h can be
-found in the [tests-c/](tests-c/) sub-directory with the following content:
+found in the [tests-c/](tests-c/) sub-directory.  Example pgconf.h file:
 
     #define HOST "pg_server_host"
     #define USER "my_username"

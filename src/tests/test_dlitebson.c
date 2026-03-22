@@ -26,6 +26,7 @@ MU_TEST(test_write_meta)
   mu_assert_int_eq(bson_docsize(doc), n);
 
   FILE *fp = fopen("test-entity.bson", "wb");
+  mu_check(fp);
   fwrite(doc, n, 1, fp);
   fclose(fp);
 }
@@ -48,6 +49,7 @@ MU_TEST(test_write_instance)
   mu_assert_int_eq(bson_docsize(doc), n);
 
   FILE *fp = fopen("test-data.bson", "wb");
+  mu_check(fp);
   fwrite(doc, n, 1, fp);
   fclose(fp);
 
@@ -60,6 +62,7 @@ MU_TEST(test_load_instance)
   unsigned char doc[1024];
 
   FILE *fp = fopen("test-data.bson", "rb");
+  mu_check(fp);
   fread(doc, 1, sizeof(doc), fp);
   fclose(fp);
 
@@ -79,6 +82,7 @@ MU_TEST(test_load_meta)
   unsigned char doc[4096];
   char *path = STRINGIFY(dlite_SOURCE_DIR) "/src/tests/Chemistry.bson";
   FILE *fp = fopen(path, "rb");
+  mu_check(fp);
   fread(doc, 1, sizeof(doc), fp);
   fclose(fp);
 

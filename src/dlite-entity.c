@@ -332,29 +332,36 @@ size_t dlite_instance_size(const DLiteMeta *meta, const size_t *dims)
    with uuids available in the internal storage (istore) */
 char** dlite_istore_get_uuids(int* nuuids)
 {
-    instance_map_t* istore = _instance_store();
-    assert(istore);
-    const char* uuid;
-    map_iter_t iter;
+  instance_map_t* istore = _instance_store();
+  assert(istore);
+  const char* uuid;
+  map_iter_t iter;
 
-    iter = map_iter(istore);
-    *nuuids = 0;
-    while ((uuid = map_next(istore, &iter))) (*nuuids)++;
+  iter = map_iter(istore);
+  *nuuids = 0;
+  while ((uuid = map_next(istore, &iter))) (*nuuids)++;
 
-    char** uuids;
-    uuids = malloc((*nuuids + 1) * sizeof(char*));
+  char** uuids;
+  if (!(uuids = calloc((*nuuids + 1), sizeof(char*))))
+    FAILCODE(dliteMemoryError, "allocation failure");
 
-    int i = 0;
-    iter = map_iter(istore);
-    while ((uuid = map_next(istore, &iter))) {
-        {
-            uuids[i] = malloc(DLITE_UUID_LENGTH + 1);
-            strcpy(uuids[i], uuid);
-            i++;
-        }
-    }
-    uuids[i] = NULL;
-    return uuids;
+  int i = 0;
+  iter = map_iter(istore);
+  while ((uuid = map_next(istore, &iter))) {
+    if (!(uuids[i] = malloc(DLITE_UUID_LENGTH + 1)))
+      FAILCODE(dliteMemoryError, "allocation failure");
+    strcpy(uuids[i], uuid);
+    i++;
+  }
+  uuids[i] = NULL;
+  return uuids;
+
+ fail:
+  if (uuids) {
+    for (i=0; uuid[i]; i++) free(uuids[i]);
+    free(uuids);
+  }
+  return NULL;
 }
 
 /********************************************************************
@@ -1864,6 +1871,7 @@ int dlite_instance_set_dimension_size_by_index(DLiteInstance *inst,
   size_t j;
   int retval;
   int *dims = malloc(inst->meta->_ndimensions * sizeof(int));
+  if (!dims) return err(dliteMemoryError, "allocation failure");
   for (j=0; j < inst->meta->_ndimensions; j++) dims[j] = -1;
   dims[i] = size;
   retval = dlite_instance_set_dimension_sizes(inst, dims);
@@ -2111,6 +2119,7 @@ char *dlite_instance_default_uri(const DLiteInstance *inst)
 {
   int n = strlen(inst->meta->uri);
   char *buf = malloc(n + DLITE_UUID_LENGTH + 2);
+  if (!buf) return err(dliteMemoryError, "allocation failure"), NULL;
   memcpy(buf, inst->meta->uri, n);
   buf[n] = '/';
   memcpy(buf+n+1, inst->uuid, DLITE_UUID_LENGTH);

@@ -341,6 +341,10 @@ const PluginAPI *plugin_get_api(PluginInfo *info, const char *name, int errcode)
 void plugin_load_all(PluginInfo *info)
 {
   char *pattern = malloc(strlen(DSL_EXT) + 2);
+  if (!pattern) {
+    err(pluginMemoryError, "allocation failure");
+    return;
+  }
   pattern[0] = '*';
   strcpy(pattern+1, DSL_EXT);
   while (1)

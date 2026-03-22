@@ -237,7 +237,7 @@ version = re.search(
 share = Path(".") / "share" / "dlite"
 
 setup(
-    name="DLite-Python",
+    name="dlite-python",
     version=version,
     author="SINTEF",
     author_email="jesper.friis@sintef.no",
@@ -265,12 +265,13 @@ setup(
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: 3.12",
         "Programming Language :: Python :: 3.13",
+        "Programming Language :: Python :: 3.14",
         "Topic :: Software Development :: Libraries :: Python Modules",
     ],
     build_requires=requirements_dev,
     install_requires=requirements,
     #extras_require=extra_requirements,
-    packages=["DLite-Python"],
+    packages=["dlite-python"],
     scripts=[
         str(SOURCE_DIR / "bindings" / "python" / "scripts" / "dlite-validate"),
         str(SOURCE_DIR / "cmake" / "patch-activate.sh"),

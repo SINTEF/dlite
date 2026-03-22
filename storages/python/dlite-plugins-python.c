@@ -220,6 +220,8 @@ char *helper(const DLiteStoragePlugin *api)
       if (!(pyopendoc = PyObject_CallFunctionObjArgs(getdoc, open, NULL)))
         FAILCODE1(dliteAttributeError, "cannot call inspect.getdoc() with %s.open", classname);
 #else
+      UNUSED(getdoc);
+      UNUSED(inspect);
       if (!(pyopendoc = PyObject_GetAttrString(open, "__doc__")))
         FAILCODE1(dliteAttributeError, "cannot access %s.open.__doc__",
                   classname);

@@ -1487,7 +1487,7 @@ mymemcpy(void *dst, void *src, size_t len)
 	/* No need for optimization, we use this only to replace va_copy(3). */
 	while (len-- > 0)
 		*to++ = *from++;
-	return dst;
+	return dst;  // cppcheck-suppress uninitvar
 }
 #endif	/* NEED_MYMEMCPY */
 
