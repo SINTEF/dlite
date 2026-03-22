@@ -276,6 +276,14 @@ int dlite_storage_hotlist_add(const DLiteStorage *s);
 int dlite_storage_hotlist_remove(const DLiteStorage *s);
 
 /**
+  Returns instance with given `id` from the hotlist, or NULL if no
+  such instance can be found in the hotlist.
+*/
+DLiteInstance *dlite_storage_hotlist_load(const char *id);
+
+
+# if 0  // Skip hotlist iterator
+/**
   Initialise hotlist iterator `iter`.
 
   Returns non-zero on error.
@@ -294,6 +302,7 @@ dlite_storage_hotlist_iter_next(DLiteStorageHotlistIter *iter);
   Returns non-zero on error.
 */
 int dlite_storage_hotlist_iter_deinit(DLiteStorageHotlistIter *iter);
+#endif  // Skip hotlist iterator
 
 
 #endif /* _DLITE_STORAGE_H */

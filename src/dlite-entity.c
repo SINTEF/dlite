@@ -681,8 +681,8 @@ DLiteInstance *dlite_instance_has(const char *id, bool check_storages)
 DLiteInstance *dlite_instance_get(const char *id)
 {
   DLiteInstance *inst=NULL;
-  DLiteStorageHotlistIter hiter;
-  const DLiteStorage *hs;
+  //DLiteStorageHotlistIter hiter;
+  //const DLiteStorage *hs;
   DLiteStoragePathIter *iter;
   const char *url;
 
@@ -693,20 +693,21 @@ DLiteInstance *dlite_instance_get(const char *id)
   }
 
   /* ...otherwise look it up in hotlisted storages */
-  dlite_storage_hotlist_iter_init(&hiter);
-  while ((hs = dlite_storage_hotlist_iter_next(&hiter))) {
-    DLiteInstance *inst;
-    ErrTry:
-      inst = _instance_load_casted(hs, id, NULL, 0);
-    ErrCatch(dliteStorageLoadError):  // suppressed error
-      break;  // breaks ErrCatch, not the while loop
-    ErrEnd;
-    if (inst) {
-      dlite_storage_hotlist_iter_deinit(&hiter);
-      return inst;
-    }
-  }
-  dlite_storage_hotlist_iter_deinit(&hiter);
+  if ((inst = dlite_storage_hotlist_load(id))) return inst;
+  //dlite_storage_hotlist_iter_init(&hiter);
+  //while ((hs = dlite_storage_hotlist_iter_next(&hiter))) {
+  //  DLiteInstance *inst;
+  //  ErrTry:
+  //    inst = _instance_load_casted(hs, id, NULL, 0);
+  //  ErrCatch(dliteStorageLoadError):  // suppressed error
+  //    break;  // breaks ErrCatch, not the while loop
+  //  ErrEnd;
+  //  if (inst) {
+  //    dlite_storage_hotlist_iter_deinit(&hiter);
+  //    return inst;
+  //  }
+  //}
+  //dlite_storage_hotlist_iter_deinit(&hiter);
 
   /* ...otherwise look it up in storages */
   if (!(iter = dlite_storage_paths_iter_start())) return NULL;

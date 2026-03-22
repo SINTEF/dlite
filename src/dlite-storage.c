@@ -99,6 +99,12 @@ DLiteStorage *dlite_storage_open(const char *driver, const char *location,
     dlite_storage_hotlist_add(s);
 
   s->refcount = 1;
+  //s->api->refcount++;
+
+  printf("*** storage open: %p: %s\n", (void *)s->api, s->api->name);
+  printf("  * location=%s\n", s->location);
+  //printf("  * api->refcount=%d\n", s->api->refcount);
+
   return s;
  fail:
   if (s) free(s);
@@ -147,6 +153,10 @@ int dlite_storage_close(DLiteStorage *s)
 
   if (s->flags & dliteReadable && s->flags & dliteGeneric)
     dlite_storage_hotlist_remove(s);
+
+  printf("*** storage close: %p: %s\n", (void *)s->api, s->api->name);
+  printf("  * location=%s\n", s->location);
+  //printf("  * api->refcount=%d\n", s->api->refcount);
 
   stat |= s->api->close(s);
   free(s->location);
@@ -516,9 +526,19 @@ int dlite_storage_hotlist_add(const DLiteStorage *s)
 {
   Globals *g;
   DLiteStorageHotlist *h;
+  size_t i;
   assert(s);
   if (!(g = get_globals())) return -1;
   h = &g->hotlist;
+
+  printf("*** Add hotlist: %p: %s\n", (void *)(s->api), s->api->name);
+  printf("  * lococation=%s\n", s->location);
+  printf("  * length=%lu, nmemb=%lu\n", h->length, h->nmemb);
+
+  // Do not add a storage if it already is in the hotlist
+  for (i=0; i < h->nmemb; i++)
+    if (h->storages[i] == s) return 0;
+
   if (h->length <= h->nmemb) {
     size_t newlength = h->length + HOTLIST_CHUNK_LENGTH;
     const DLiteStorage **storages = realloc((DLiteStorage **)h->storages,
@@ -529,6 +549,8 @@ int dlite_storage_hotlist_add(const DLiteStorage *s)
   }
   assert(h->length > h->nmemb);
   h->storages[h->nmemb++] = s;
+
+  printf("  * length=%lu, nmemb=%lu\n", h->length, h->nmemb);
   return 0;
 }
 
@@ -544,6 +566,15 @@ int dlite_storage_hotlist_remove(const DLiteStorage *s)
   assert(s);
   if (!(g = get_globals())) return -1;
   h = &g->hotlist;
+
+  printf("*** Remove hotlist: %p: %s\n", (void *)(s->api), s->api->name);
+  printf("  * lococation=%s\n", s->location);
+  printf("  * length=%lu, nmemb=%lu\n", h->length, h->nmemb);
+  printf("  * s=%p\n", (void *)s);
+  for (i=0; i < h->nmemb; i++)
+    printf("  * api[%lu]=%p, s=%p\n", i, (void *)h->storages[i]->api, (void *)h->storages[i]);
+
+
   for (i=0; i < h->nmemb; i++) {
     if (h->storages[i] == s) {
       removed = i;
@@ -564,8 +595,43 @@ int dlite_storage_hotlist_remove(const DLiteStorage *s)
     h->length = length;
     h->storages = storages;
   }
+
+  printf("  * length=%lu, nmemb=%lu\n", h->length, h->nmemb);
   return (removed >= 0) ? 0 : 1;
 }
+
+// Forward declaration
+DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
+                                     const char *metaid, int lookup);
+
+/* Returns instance with given `id` from the hotlist, or NULL if no
+   such instance can be found in the hotlist. */
+DLiteInstance *dlite_storage_hotlist_load(const char *id)
+{
+  Globals *g;
+  DLiteStorageHotlist *h;
+  size_t i;
+  if (!(g = get_globals())) return NULL;
+  h = &g->hotlist;
+
+  printf("*** Hotlist load: %s\n", id);
+  printf("  * length=%lu, nmemb=%lu\n", h->length, h->nmemb);
+
+  for (i=0; i < h->nmemb; i++) {
+    DLiteInstance *inst;
+    const DLiteStorage *s = h->storages[i];
+    if ((inst = _instance_load_casted(s, id, NULL, 0))) {
+      printf("  * api=%p\n", (void *)s->api);
+      printf("  * lococation=%s\n", s->location);
+
+      return inst;
+    }
+  }
+  return NULL;
+}
+
+
+#if 0  // Skip hotlist iterator
 
 /* Initialise hotlist iterator `iter`.
    Returns non-zero on error. */
@@ -595,3 +661,5 @@ int dlite_storage_hotlist_iter_deinit(DLiteStorageHotlistIter *iter)
   UNUSED(iter);
   return 0;
 }
+
+#endif  // Skip hotlist iterator

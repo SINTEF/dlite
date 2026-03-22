@@ -18,6 +18,7 @@ set(tests
   test_schemas
   test_arrays
   test_ref
+  test_multiple_storage
 )
 
 list(APPEND tests test_json_entity)
@@ -55,7 +56,7 @@ foreach(test ${tests})
 
   # TEST RPATH/ RUNPATH
   # ===================
-  # 
+  #
   # These tests will be run from the Build directory only.
   # Set absolute RPATHS to the other libraries.
   # TODO: Change all paths to generators e.g. for dlite, dlite-utils etc as easier to maintain
