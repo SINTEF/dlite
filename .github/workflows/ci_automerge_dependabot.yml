@@ -2,7 +2,9 @@ name: CI - Activate auto-merging for Dependabot PRs
 
 on:
   pull_request_target:
-    branches: [ci/dependabot-updates]
+    branches:
+      - ci/dependabot-updates
+      - dependabot/github_actions/ci/dependabot-updates/docker/build-push-action-7
 
 jobs:
   update-dependabot-branch:
