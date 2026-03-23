@@ -80,7 +80,7 @@ jobs:
         uses: actions/checkout@v6
 
       - name: Setup Docker buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
 
       - name: Setup cache
         if: github.event_name != 'workflow_dispatch' || fromJSON(github.event.inputs.use_cache)
@@ -131,7 +131,7 @@ jobs:
 
       - name: Build and push Docker image
         if: env.BUILD_NEW_IMAGE == 'true'
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: .
           file: docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
