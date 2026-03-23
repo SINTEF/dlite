@@ -4,6 +4,13 @@
 # Exit on errors and treat unbound variables as errors
 set -eu
 
+SYSTEM=$(uname -s)
+TYPE=""
+ARCH=$(arch)
+#PY_MINORS="10 11 12 13 14"
+PY_MINORS="10 14"
+
+
 echo "SYSTEM=$SYSTEM"
 echo "TYPE=$TYPE"
 echo "ARCH=$ARCH"
@@ -12,6 +19,7 @@ echo "PY_MINORS=$PY_MINORS"
 for minor in $PY_MINORS; do
 
     python=python3.$minor
+    tmpdir=/tmp/dlite/cp3${minor}-${SYSTEM}${TYPE}_${ARCH}
     tmpdir=/tmp/dlite/cp3${minor}-${SYSTEM}${TYPE}_${ARCH}
     builddir=$tmpdir/build
 
