@@ -12,8 +12,8 @@ for minor in $PY_MINORS; do
 
     python=python3.$minor
     tmpdir=/tmp/cp3${minor}
-    venvdir=$tmpdir/venv
-    builddir=$tmpdir/build
+    venvdir=$tmpdir-venv
+    builddir=$tmpdir-build
 
     # Activate virtual environment
     source $venvdir/bin/activate
