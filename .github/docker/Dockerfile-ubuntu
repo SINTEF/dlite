@@ -1,0 +1,66 @@
+# -*- Mode: Dockerfile -*-
+#
+# Build:
+#
+#     cd dlite  # cd to DLite root directory
+#     docker build -f .github/docker/Dockerfile-ci_tests -t dlite-ci-image:latest .
+#
+# Run:
+#
+#     docker run --rm -it \
+#         --volume $PWD:/io \
+#         --user $(id -u):$(id -g):z \
+#         dlite-ubuntu:latest \
+#         /bin/bash
+#
+
+
+FROM ubuntu:latest
+
+ARG PY_MINORS="10 11 12 13 14"
+
+COPY \
+    requirements.txt \
+    requirements_full.txt \
+    requirements_dev.txt \
+    .github/docker/build_and_test.sh \
+    /tmp/
+
+# Enable rpmfusion for additional packages
+RUN \
+    apt-get update -y --fix-missing && \
+    apt-get install -y \
+        software-properties-common \
+        build-essential \
+        libssl-dev \
+        zlib1g-dev \
+        libbz2-dev \
+        libsqlite3-dev \
+        librdf0-dev \
+        librasqal3-dev \
+        libcurl4-openssl-dev \
+        libxslt1-dev \
+        libxml2-dev \
+        libhdf5-dev \
+        git && \
+    add-apt-repository -y ppa:deadsnakes/ppa
+
+# Install python versions and create virtual environments with all
+# python requirements. Activate the environment with
+#
+#     source /tmp/cp3${minor}-venv/bin/activate
+#
+RUN \
+  for minor in ${PY_MINORS}; do \
+    apt-get install -y \
+      python3.${minor} \
+      python3.${minor}-dev \
+      python3.${minor}-venv && \
+    python3.${minor} -m venv /tmp/cp3${minor}-venv; \
+    . /tmp/cp3${minor}-venv/bin/activate && \
+    python3.${minor} -m pip install --no-cache-dir -U pip && \
+    python3.${minor} -m pip install --no-cache-dir \
+      -r /tmp/requirements.txt \
+      -r /tmp/requirements_dev.txt \
+      -r /tmp/requirements_full.txt; \
+  done

@@ -1,0 +1,66 @@
+# -*- Mode: Dockerfile -*-
+#
+# Build:
+#
+#     cd dlite  # cd to DLite root directory
+#     docker build -f .github/docker/Dockerfile-ci_tests -t dlite-ci-image:latest .
+#
+# Run:
+#
+#     docker run --rm -it \
+#         --volume $PWD:/io \
+#         --user $(id -u):$(id -g):z \
+#         dlite-ci-image:latest \
+#         /bin/bash
+#
+
+
+FROM fedora:43
+
+ARG PY_MINORS="10 11 12 13 14"
+
+COPY \
+    requirements.txt \
+    requirements_full.txt \
+    requirements_dev.txt \
+    .github/docker/build_and_test.sh \
+    /tmp/
+
+# Enable rpmfusion for additional packages
+RUN \
+  dnf update -y && \
+  dnf install -y --skip-broken \
+    https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %{fedora}).noarch.rpm \
+    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %{fedora}).noarch.rpm && \
+  dnf install -y \
+    redland-devel \
+    rasqal-devel \
+    libcurl-devel \
+    libxslt-devel \
+    libxml2-devel \
+    hdf5-devel \
+    gcc \
+    gcc-g++ \
+    cppcheck \
+    git
+
+# Install python versions and create virtual environments with all
+# python requirements. Activate the environment with
+#
+#     source /tmp/cp3${minor}-venv/bin/activate
+#
+RUN \
+  for minor in ${PY_MINORS}; do \
+    dnf install -y \
+      python3.${minor} \
+      python3.${minor}-libs \
+      python3.${minor}-devel; \
+    python3.${minor} -m venv /tmp/cp3${minor}-venv; \
+    source /tmp/cp3${minor}-venv/bin/activate; \
+    python3.${minor} -m pip install --no-cache-dir -U pip && \
+    python3.${minor} -m pip install --no-cache-dir \
+      -r /tmp/requirements.txt \
+      -r /tmp/requirements_dev.txt \
+    -r /tmp/requirements_full.txt; \
+    deactivate; \
+  done
