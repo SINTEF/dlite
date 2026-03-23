@@ -2,7 +2,9 @@ name: CI - Activate auto-merging for Dependabot PRs
 
 on:
   pull_request_target:
-    branches: [ci/dependabot-updates]
+    branches:
+      - ci/dependabot-updates
+      - dependabot/github_actions/ci/dependabot-updates/docker/build-push-action-7
 
 jobs:
   update-dependabot-branch:
@@ -11,3 +13,31 @@ jobs:
     if: github.repository_owner == 'SINTEF' && startsWith(github.event.pull_request.head.ref, 'dependabot/') && github.actor == 'dependabot[bot]'
     secrets:
       PAT: ${{ secrets.RELEASE_PAT }}
+
+
+  debug-contexts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dump github context (selected fields)
+        run: |
+          echo "actor: ${{ github.actor }}"
+          echo "repo owner: ${{ github.repository_owner }}"
+          echo "event_name: ${{ github.event_name }}"
+          echo "base.ref: ${{ github.event.pull_request.base.ref }}"
+          echo "head.ref: ${{ github.event.pull_request.head.ref }}"
+          echo "head.label: ${{ github.event.pull_request.head.label }}"
+          echo "isDependabotRef: ${{ startsWith(github.event.pull_request.head.ref, 'dependabot/') }}"
+          echo "repo: ${{ github.repository }}"
+
+      #- name: Dump entire github context (JSON)
+      #  env:
+      #    GITHUB_JSON: ${{ toJson(github) }}
+      #  run: |
+      #    echo "$GITHUB_JSON" | sed 's/\\n/\n/g'
+
+      #- name: Dump event payload file
+      #  run: |
+      #    echo "Event path: $GITHUB_EVENT_PATH"
+      #    cat "$GITHUB_EVENT_PATH" | head -n 200
+      #    # If jq is available, pretty-print:
+      #    if command -v jq >/dev/null 2>&1; then jq . "$GITHUB_EVENT_PATH" | head -n 200; fi
