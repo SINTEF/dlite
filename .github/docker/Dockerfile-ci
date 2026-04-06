@@ -10,12 +10,12 @@
 #     docker run --rm -it \
 #         --volume $PWD:/io \
 #         --user $(id -u):$(id -g):z \
-#         dlite-ci-image:latest \
+#         dlite-ubuntu:latest \
 #         /bin/bash
 #
 
 
-FROM fedora:43
+FROM ubuntu:latest
 
 ARG PY_MINORS="10 11 12 13 14"
 
@@ -28,21 +28,22 @@ COPY \
 
 # Enable rpmfusion for additional packages
 RUN \
-  dnf update -y && \
-  dnf install -y --skip-broken \
-    https://mirrors.rpmfusion.org/free/fedora/rpmfusion-free-release-$(rpm -E %{fedora}).noarch.rpm \
-    https://mirrors.rpmfusion.org/nonfree/fedora/rpmfusion-nonfree-release-$(rpm -E %{fedora}).noarch.rpm && \
-  dnf install -y \
-    redland-devel \
-    rasqal-devel \
-    libcurl-devel \
-    libxslt-devel \
-    libxml2-devel \
-    hdf5-devel \
-    gcc \
-    gcc-g++ \
-    cppcheck \
-    git
+    apt-get update -y --fix-missing && \
+    apt-get install -y \
+        software-properties-common \
+        build-essential \
+        libssl-dev \
+        zlib1g-dev \
+        libbz2-dev \
+        libsqlite3-dev \
+        librdf0-dev \
+        librasqal3-dev \
+        libcurl4-openssl-dev \
+        libxslt1-dev \
+        libxml2-dev \
+        libhdf5-dev \
+        git && \
+    add-apt-repository -y ppa:deadsnakes/ppa
 
 # Install python versions and create virtual environments with all
 # python requirements. Activate the environment with
@@ -51,16 +52,15 @@ RUN \
 #
 RUN \
   for minor in ${PY_MINORS}; do \
-    dnf install -y \
+    apt-get install -y \
       python3.${minor} \
-      python3.${minor}-libs \
-      python3.${minor}-devel; \
+      python3.${minor}-dev \
+      python3.${minor}-venv && \
     python3.${minor} -m venv /tmp/cp3${minor}-venv; \
-    source /tmp/cp3${minor}-venv/bin/activate; \
+    . /tmp/cp3${minor}-venv/bin/activate && \
     python3.${minor} -m pip install --no-cache-dir -U pip && \
     python3.${minor} -m pip install --no-cache-dir \
       -r /tmp/requirements.txt \
       -r /tmp/requirements_dev.txt \
-    -r /tmp/requirements_full.txt; \
-    deactivate; \
+      -r /tmp/requirements_full.txt; \
   done
