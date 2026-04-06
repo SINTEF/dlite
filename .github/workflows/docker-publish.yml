@@ -1,4 +1,4 @@
-name: Docker
+name: Publish docker images
 
 # This workflow uses actions that are not certified by GitHub.
 # They are provided by a third-party and are governed by
@@ -24,7 +24,7 @@ env:
 
 jobs:
   build:
-
+    name: Build containers
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -33,7 +33,74 @@ jobs:
       # with sigstore/fulcio when running outside of PRs.
       id-token: write
 
+    Strategy:
+      fail-fast: false
+      matrix:
+        include:
+
+        # 64-bit manylinux
+        - system: "manylinux"
+          arch: "x86_64"
+          distribution: "almalinux"
+          base_image: "quay.io/pypa/manylinux_2_28_x86_64:latest"
+          py_minors: "8 9 10 11 12 13 14"
+
+        # 32-bit manylinux
+        - system: "manylinux"
+          type: "2014"
+          arch: "i686"
+          #distribution: "almalinux"
+          #base_image: "quay.io/pypa/manylinux_2_28_i686:latest"
+          distribution: "centos"
+          base_image: "quay.io/pypa/manylinux2014_i686:latest"
+          py_minors: "10 11 12 13 14"
+
+        # 64-bit musllinux
+        - system: "musllinux"
+          arch: "x86_64"
+          distribution: "alpine"
+          base_image: "quay.io/pypa/musllinux_1_2_x86_64:latest"
+          py_minors: "8 9 10 11 12 13 14"
+
+        # 32-bit musllinux
+        - system: "musllinux"
+          arch: "i686"
+          distribution: "alpine"
+          base_image: "quay.io/pypa/musllinux_1_2_i686:latest"
+          py_minors: "9 10 11"
+
+        # ubuntu ci tests
+        - system: "ubuntu"
+          arch: "x86_64"
+          distribution: "ubuntu:latest"
+          base_image: "ubuntu:latest"
+          py_minors: "9 10 11"
+
     steps:
+      - name: Define environment variables
+        run: |
+          # System string
+          echo "SYSTEM=${{ matrix.system }}_${{ matrix.arch }}" >> "$GITHUB_ENV"
+          # Docker template
+          echo "TEMPLATE=Dockerfile-${{ matrix.distribution }}" >> "$GITHUB_ENV"
+          # Relative path to Dockerfile to build
+          echo "DOCKERFILE=docker_build/Dockerfile-$SYSTEM" >> "$GITHUB_ENV"
+          # Filename to store SHA hash of the Dockerfile
+          echo "SHA_FILENAME=$SYSTEM:latest.sha.txt" >> "$GITHUB_ENV"
+          # The base image to use when building the docker container
+          echo "IMAGE=quay.io/pypa/$SYSTEM:latest" >> "$GITHUB_ENV"
+          # Cache directory for checking whether to (re)build docker container
+          echo "CACHE_DIR=.buildx-cache-$SYSTEM" >> "$GITHUB_ENV"
+
+      - name: Create docker file
+        run: |
+          mkdir -p docker_build
+          bash .github/docker/mkdockerfile.sh \
+            {{ matrix.distribution }} \
+            {{ matrix.base_image }} \
+            {{ matrix.py_minors }} \
+            > ${DOCKERFILE}
+
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -65,7 +132,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.0.0
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY }}/$IMAGE
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
@@ -74,6 +141,7 @@ jobs:
         uses: docker/build-push-action@v5.0.0
         with:
           context: .
+          file: $DOCKERFILE
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
