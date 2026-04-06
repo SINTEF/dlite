@@ -134,8 +134,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.0.0
         with:
-          #images: ${{ env.REGISTRY }}/${IMAGE}
-          images: ${{ env.REGISTRY }}/${{ github.repository }}/${SYSTEM}
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          flavor: latest=true
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
