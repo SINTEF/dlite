@@ -101,6 +101,8 @@ jobs:
         run: |
           mkdir -p docker_build
           sed \
+            -e "s|{{ SYSTEM }}|${{ matrix.system }}|" \
+            -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
             -e "s|{{ BASE_IMAGE }}|${{ matrix.base_image }}|" \
             -e "s|{{ PY_MINORS }}|${{ matrix.py_minors }}|" \
             .github/docker/Dockerfile-${{ matrix.distribution }} \

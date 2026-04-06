@@ -1,6 +1,9 @@
 # -*- Mode: Dockerfile -*-
 # Dockerfile for building Alpine-based Python pypi package
 #
+# Copy this template file and replace:
+# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
+#
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
@@ -28,7 +31,7 @@ RUN \
         #libxslt1-dev \
         #libxml2-dev \
 
-ARG PY_MINORS="10 14"
+ARG PY_MINORS="{{ PY_MINORS }}"
 
 COPY \
     requirements*.txt \

@@ -1,12 +1,11 @@
 # -*- Mode: Dockerfile -*-
 # Dockerfile for building Python pypi package with Alpine
 #
-# Usage:
-#
 # Copy this template file and replace:
-# - `{{ BASE_IMAGE }}` system, ex: manylinux2014_i686
+# - `{{ SYSTEM }}` system, ex: musllinux
+# - `{{ ARCH }}` architecture, ex: x86_64
+# - `{{ BASE_IMAGE }}` base image, ex: quay.io/pypa/musllinux_1_2_x86_64:latest
 # - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
-# Remove the `.template` suffix from the copy.
 #
 # Examples
 # --------
@@ -30,7 +29,8 @@
 #
 
 # Reference: https://github.com/pypa/manylinux
-FROM {{ BASE_IMAGE }}
+FROM quay.io/pypa/musllinux_1_2_{{ ARCH }}:latest
+#FROM {{ BASE_IMAGE }}
 
 # Do not use distutils distributed with setuptools
 # This is due to base changes in the distutils API, removing msvccompiler,

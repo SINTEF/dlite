@@ -1,12 +1,11 @@
 # -*- Mode: Dockerfile -*-
 # Dockerfile for building CentOS-based Python pypi package
 #
-# Usage:
-#
 # Copy this template file and replace:
-# - `{{ BASE_IMAGE }}` system, ex: manylinux2014_i686
+# - `{{ SYSTEM }}` system, ex: manylinux
+# - `{{ ARCH }}` architecture, ex: i686
+# - `{{ BASE_IMAGE }}` base image, ex: quay.io/pypa/manylinux2014_i686:latest
 # - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
-# Remove the `.template` suffix from the copy.
 #
 # Examples
 # --------
@@ -30,7 +29,7 @@
 #
 
 # Reference: https://github.com/pypa/manylinux
-FROM {{ BASE_IMAGE }}
+FROM quay.io/pypa/manylinux2014_{{ ARCH }}:latest
 
 COPY requirements*.txt /tmp/
 
