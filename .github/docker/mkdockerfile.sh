@@ -10,6 +10,7 @@ PY_MINORS=$3
 
 THISDIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)"
 
+set -x
 sed \
     -e "s|{{ BASE_IMAGE }}|${BASE_IMAGE}|" \
     -e "s|{{ PY_MINORS }}|${PY_MINORS}|" \
