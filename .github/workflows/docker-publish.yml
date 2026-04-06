@@ -18,8 +18,9 @@ on:
 env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
-  # github.repository as <account>/<repo>
-  #IMAGE_NAME: ${{ github.repository }}
+
+  ACTIONS_STEP_DEBUG: false
+  ACTIONS_RUNNER_DEBUG: false
 
 
 jobs:
@@ -87,7 +88,7 @@ jobs:
           # Relative path to Dockerfile to build
           echo "DOCKERFILE=docker_build/Dockerfile-${SYSTEM}" >> "$GITHUB_ENV"
           # The base image to use when building the docker container
-          echo "IMAGE=${{ github.repository }}/${SYSTEM}:latest" >> "$GITHUB_ENV"
+          echo "IMAGE=${{ github.repository }}/${SYSTEM}" >> "$GITHUB_ENV"
           # Filename to store SHA hash of the Dockerfile
           #echo "SHA_FILENAME=${SYSTEM}.sha.txt" >> "$GITHUB_ENV"
           # Cache directory for checking whether to (re)build docker container
@@ -99,20 +100,11 @@ jobs:
       - name: Create docker file
         run: |
           mkdir -p docker_build
-          ls -al
-          ls .github/docker
           sed \
             -e "s|{{ BASE_IMAGE }}|${{ matrix.base_image }}|" \
             -e "s|{{ PY_MINORS }}|${{ matrix.py_minors }}|" \
             .github/docker/Dockerfile-${{ matrix.distribution }} \
             > ${DOCKERFILE}
-          ls -al docker_build
-
-          #bash .github/docker/mkdockerfile.sh \
-          #  ${{ matrix.distribution }} \
-          #  ${{ matrix.base_image }} \
-          #  ${{ matrix.py_minors }} \
-          #  > ${DOCKERFILE}
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
@@ -142,7 +134,8 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.0.0
         with:
-          images: ${{ env.REGISTRY }}/$IMAGE
+          #images: ${{ env.REGISTRY }}/${IMAGE}
+          images: ${{ env.REGISTRY }}/${{ github.repository }}/${SYSTEM}
 
       # Build and push Docker image with Buildx (don't push on PR)
       # https://github.com/docker/build-push-action
