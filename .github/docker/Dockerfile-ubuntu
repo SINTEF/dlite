@@ -1,29 +1,12 @@
 # -*- Mode: Dockerfile -*-
+# Dockerfile for building Alpine-based Python pypi package
 #
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker build -f .github/docker/Dockerfile-ci -t dlite-ci:latest .
-#
-# Run:
-#
-#     docker run --rm -it \
-#         --volume $PWD:/io \
-#         --user $(id -u):$(id -g):z \
-#         dlite-ci:latest \
-#         /bin/bash
-#
-
+#     docker run --rm -it --volume $PWD:/io adlite-ubuntu:latest /bin/bash
 
 FROM ubuntu:latest
-
-#ARG PY_MINORS="10 14"
-ARG PY_MINORS="14"
-
-COPY \
-    requirements*.txt \
-    .github/docker/build_and_test.sh \
-    /tmp/
 
 # Enable rpmfusion for additional packages
 RUN \
@@ -44,6 +27,13 @@ RUN \
         #libcurl4-openssl-dev \
         #libxslt1-dev \
         #libxml2-dev \
+
+ARG PY_MINORS="10 14"
+
+COPY \
+    requirements*.txt \
+    .github/docker/build_and_test.sh \
+    /tmp/
 
 # Install python versions and create virtual environments with all
 # python requirements. Activate the environment with

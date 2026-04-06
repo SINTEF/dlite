@@ -1,12 +1,11 @@
 # -*- Mode: Dockerfile -*-
-# Dockerfile for building Python pypi package with musllinux
+# Dockerfile for building Python pypi package with Alpine
 #
 # Usage:
 #
 # Copy this template file and replace:
-# - `{{ TYPE }}` system type, ex: _1_2
-# - `{{ ARCH }}` architecture, ex: x86_64
-# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "8 9 10 11 12"
+# - `{{ BASE_IMAGE }}` system, ex: manylinux2014_i686
+# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
 # Remove the `.template` suffix from the copy.
 #
 # Examples
@@ -14,24 +13,24 @@
 #
 # Generate dockerfile:
 #
-#     .github/docker/run.sh dockerfile -s musllinux -t _1_2 -a x86_64
+#     .github/docker/mkdockerfile.sh \
+#         alpine \
+#         quay.io/pypa/musllinux_1_1_x86_64:latest \
+#         "8 9 10 11 12 13 14" \
+#         > Dockerfile-musllinux_x86_64 .
 #
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker build -t dlite-musllinux_1_2_x86_64 \
-#         -f .github/docker/dockerfiles/Dockerfile-musllinux_1_2_x86_64 .
+#     docker build -t dlite-musllinux_x86_64 -f Dockerfile-musllinux_x86_64 .
 #
 # Run (for debugging):
 #
-#     docker run --rm -it \
-#         --volume $PWD:/io \
-#         dlite-musllinux_1_2_x86_64 \
-#         /bin/bash
+#     docker run --rm -it --volume $PWD:/io dlite-musllinux_x86_64 /bin/bash
 #
-FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}
 
-COPY requirements.txt requirements_full.txt requirements_dev.txt /tmp/
+# Reference: https://github.com/pypa/manylinux
+FROM {{ BASE_IMAGE }}
 
 # Do not use distutils distributed with setuptools
 # This is due to base changes in the distutils API, removing msvccompiler,
@@ -71,6 +70,8 @@ RUN \
   sed \
     -e '/mongomock/d' \
     -i /tmp/requirements_dev.txt
+
+COPY requirements*.txt /tmp/
 
 ARG PY_MINORS="{{ PY_MINORS }}"
 

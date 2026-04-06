@@ -4,9 +4,7 @@
 # Usage:
 #
 # Copy this template file and replace:
-# - `{{ SYSTEM }}` system, ex: manylinux, musllinux
-# - `{{ TYPE }}` major glibc version, ex: _2_24, _2_28, _2_34
-# - `{{ ARCH }}` architecture, ex:  x86_64, i686
+# - `{{ BASE_IMAGE }}` system, ex: manylinux_2_28_x86_64
 # - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "8 9 10 11 12 13"
 # Remove the `.template` suffix from the copy.
 #
@@ -15,27 +13,24 @@
 #
 # Generate dockerfile:
 #
-#     .github/docker/run.sh dockerfile -s manylinux -t _2_28 -a x86_64
+#     .github/docker/mkdockerfile.sh \
+#         almalinux \
+#         quay.io/pypa/manylinux_2_28_x86_64:latest \
+#         "8 9 10 11 12 13 14" \
+#         > Dockerfile-manylinux_x86_64 .
 #
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker build -t dlite-manylinux_2_28_x86_64 \
-#         -f .github/docker/dockerfiles/Dockerfile-manylinux_2_28_x86_64 .
+#     docker build -t dlite-manylinux_x86_64 -f Dockerfile-manylinux_x86_64 .
 #
 # Run (for debugging):
 #
-#     docker run --rm -it \
-#         --volume $PWD:/io \
-#         --user $(id -u):$(id -g) \
-#         dlite-manylinux_2_28_x86_64 \
-#         /bin/bash
+#     docker run --rm -it --volume $PWD:/io dlite-manylinux_x86_64 /bin/bash
 #
 
 # Reference: https://github.com/pypa/manylinux
-FROM quay.io/pypa/{{ SYSTEM }}{{ TYPE }}_{{ ARCH }}:latest
-
-COPY requirements*.txt /tmp/
+FROM {{ BASE_IMAGE }}
 
 # Enable rpmfusion for additional packages
 RUN \
@@ -62,6 +57,8 @@ RUN \
     # Install required Python packages
 
 ARG PY_MINORS="{{ PY_MINORS }}"
+
+COPY requirements*.txt /tmp/
 
 RUN \
   mkdir -p /ci/pip_cache && \

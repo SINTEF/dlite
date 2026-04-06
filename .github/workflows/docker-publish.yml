@@ -96,12 +96,6 @@ jobs:
       - name: Create docker file
         run: |
           mkdir -p docker_build
-          echo distribution=${{ matrix.distribution }}
-          echo base_image=${{ matrix.base_image }}
-          echo py_minors=${{ matrix.py_minors }}
-          echo DOCKERFILE=$DOCKERFILE
-          echo DOCKERFILE=$DOCKERFILE
-          echo DOCKERFILE=$DOCKERFILE
           bash .github/docker/mkdockerfile.sh \
             ${{ matrix.distribution }} \
             ${{ matrix.base_image }} \
