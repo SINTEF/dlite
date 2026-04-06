@@ -96,11 +96,18 @@ jobs:
       - name: Create docker file
         run: |
           mkdir -p docker_build
-          bash .github/docker/mkdockerfile.sh \
-            ${{ matrix.distribution }} \
-            ${{ matrix.base_image }} \
-            ${{ matrix.py_minors }} \
+          sed \
+            -e "s|{{ BASE_IMAGE }}|${{ matrix.base_image }}|" \
+            -e "s|{{ PY_MINORS }}|${{ matrix.py_minors }}|" \
+            .github/docker//Dockerfile-${{ matrix.distribution }} \
             > ${DOCKERFILE}
+          ls -al docker_build
+
+          #bash .github/docker/mkdockerfile.sh \
+          #  ${{ matrix.distribution }} \
+          #  ${{ matrix.base_image }} \
+          #  ${{ matrix.py_minors }} \
+          #  > ${DOCKERFILE}
 
       - name: Checkout repository
         uses: actions/checkout@v4
