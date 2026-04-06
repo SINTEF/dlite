@@ -88,4 +88,4 @@ RUN \
   done && \
   rm -rf /ci/pip_cache
 
-COPY .github/docker/run.sh .github/docker/IMAGES.txt /tmp/
+#COPY .github/docker/run.sh .github/docker/IMAGES.txt /tmp/
