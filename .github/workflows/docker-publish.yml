@@ -81,7 +81,7 @@ jobs:
           # Relative path to Dockerfile to build
           echo "DOCKERFILE=docker_build/Dockerfile-${SYSTEM}" >> "$GITHUB_ENV"
           # The base image to use when building the docker container
-          echo "IMAGE=${{ github.repository }}/${SYSTEM}" >> "$GITHUB_ENV"
+          echo "IMAGE=ghcr.io/sintef/dlite/${SYSTEM}" >> "$GITHUB_ENV"
           # Filename to store SHA hash of the Dockerfile
           #echo "SHA_FILENAME=${SYSTEM}.sha.txt" >> "$GITHUB_ENV"
           # Cache directory for checking whether to (re)build docker container
@@ -128,7 +128,7 @@ jobs:
         id: meta
         uses: docker/metadata-action@v5.0.0
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          images: ${{ env.IMAGE }}
           flavor: latest=true
 
       # Build and push Docker image with Buildx (don't push on PR)
@@ -142,7 +142,7 @@ jobs:
           #push: ${{ github.event_name != 'pull_request' }}
           #tags: ${{ steps.meta.outputs.tags }}
           push: true
-          tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}
+          tags: ${{ env.IMAGE }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max

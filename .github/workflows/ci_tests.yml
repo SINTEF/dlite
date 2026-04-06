@@ -42,7 +42,7 @@ jobs:
 
       - name: Run tests inside the container
         env:
-          IMAGE: ghcr.io/${{ github.repository }}/ubuntu_x86_64:latest
+          IMAGE: ghcr.io/sintef/dlite/ubuntu_x86_64:latest
         run: |
           docker run \
             --volume $PWD:/io \
