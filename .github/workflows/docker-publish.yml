@@ -80,17 +80,18 @@ jobs:
       - name: Define environment variables
         run: |
           # System string
-          echo "SYSTEM=${{ matrix.system }}_${{ matrix.arch }}" >> "$GITHUB_ENV"
+          SYSTEM="${{ matrix.system }}_${{ matrix.arch }}"
+          echo "SYSTEM=$SYSTEM" >> "$GITHUB_ENV"
           # Docker template
           echo "TEMPLATE=Dockerfile-${{ matrix.distribution }}" >> "$GITHUB_ENV"
           # Relative path to Dockerfile to build
-          echo "DOCKERFILE=docker_build/Dockerfile-${{ env.SYSTEM }}" >> "$GITHUB_ENV"
+          echo "DOCKERFILE=docker_build/Dockerfile-${SYSTEM}" >> "$GITHUB_ENV"
           # Filename to store SHA hash of the Dockerfile
-          echo "SHA_FILENAME=${{ env.SYSTEM }}:latest.sha.txt" >> "$GITHUB_ENV"
+          echo "SHA_FILENAME=$env.{SYSTEM}:latest.sha.txt" >> "$GITHUB_ENV"
           # The base image to use when building the docker container
-          echo "IMAGE=quay.io/pypa/${{ env.SYSTEM }}:latest" >> "$GITHUB_ENV"
+          echo "IMAGE=quay.io/pypa/${SYSTEM}:latest" >> "$GITHUB_ENV"
           # Cache directory for checking whether to (re)build docker container
-          echo "CACHE_DIR=.buildx-cache-${{ env.SYSTEM  }}" >> "$GITHUB_ENV"
+          echo "CACHE_DIR=.buildx-cache-${SYSTEM}" >> "$GITHUB_ENV"
 
       - name: Create docker file
         run: |
