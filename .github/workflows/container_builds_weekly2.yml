@@ -1,4 +1,4 @@
-name: Weekly build of docker images
+name: Weekly build of docker images 2
 
 on:
   schedule:
@@ -35,64 +35,52 @@ jobs:
       fail-fast: false
       matrix:
         include:
+
         # 64-bit manylinux
         - system: "manylinux"
-          type: "_2_28"
           arch: "x86_64"
+          distribution: "almalinux"
+          base_image: "quay.io/pypa/manylinux_2_28_x86_64:latest"
           py_minors: "8 9 10 11 12 13 14"
-        #- system: "manylinux"
-        #  type: "_2_28"
-        #  arch: "x86_64"
-        #  py_minors: "8 9 10 11 12"
-        #- system: "manylinux"
-        #  type: "2014"
-        #  arch: "x86_64"
-        #  py_minors: "8 9 10 11 12"
-        #- system: "manylinux"
-        #  type: "2010"
-        #  arch: "x86_64"
-        #  py_minors: "8 9"
-
-        # 64-bit musllinux
-        - system: "musllinux"
-          type: "_1_2"
-          arch: "x86_64"
-          py_minors: "8 9 10 11 12 13 14"
-        #- system: "musllinux"
-        #  type: "_1_1"
-        #  arch: "x86_64"
-        #  py_minors: "8 9 10 11"
-        #- system: "musllinux"
-        #  type: "_1_2"
-        #  arch: "x86_64"
-        #  py_minors: "8 9 10 11"
 
         # 32-bit manylinux
         - system: "manylinux"
           type: "2014"
           arch: "i686"
+          #distribution: "almalinux"
+          #base_image: "quay.io/pypa/manylinux_2_28_i686:latest"
+          distribution: "centos"
+          base_image: "quay.io/pypa/manylinux2014_i686:latest"
           py_minors: "10 11 12 13 14"
-        #- system: "manylinux"
-        #  type: "2010"
-        #  arch: "i686"
-        #  py_minors: "8 9"
+
+        # 64-bit musllinux
+        - system: "musllinux"
+          arch: "x86_64"
+          distribution: "alpine"
+          base_image: "quay.io/pypa/musllinux_1_2_x86_64:latest"
+          py_minors: "8 9 10 11 12 13 14"
 
         # 32-bit musllinux
-        # Seems that pyyaml depends on distutils, which is only available on Python 3.11 and below
         - system: "musllinux"
-          type: "_1_2"
           arch: "i686"
+          distribution: "alpine"
+          base_image: "quay.io/pypa/musllinux_1_2_i686:latest"
           py_minors: "9 10 11"
-        #- system: "musllinux"
-        #  type: "_1_1"
-        #  arch: "i686"
-        #  py_minors: "8 9 10 11"
+
+        # ubuntu ci tests
+        - system: "ubuntu"
+          arch: "x86_64"
+          distribution: "ubuntu:latest"
+          base_image: "ubuntu:latest"
+          py_minors: "9 10 11"
 
     steps:
       - name: Define environment variables
         run: |
           # System string
-          echo "SYSTEM=${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}"
+          echo "SYSTEM=${{ matrix.system }}_${{ matrix.arch }}" >> "$GITHUB_ENV"
+          # Docker template
+          echo "TEMPLATE=Dockerfile-${{ matrix.distribution }}" >> "$GITHUB_ENV"
           # Relative path to Dockerfile to build
           echo "DOCKERFILE=docker_build/Dockerfile-$SYSTEM" >> "$GITHUB_ENV"
           # Filename to store SHA hash of the Dockerfile
@@ -113,15 +101,16 @@ jobs:
         uses: actions/cache@v5
         with:
           path: .buildx-cache-$SYSTEM
-          #key: buildx-cache-${{ matrix.system }}${{ matrix.type }}-${{ matrix.arch }}-${{ github.sha }}
-          #restore-keys: buildx-cache-${{ matrix.system }}${{ matrix.type }}-${{ matrix.arch }}-
           key: buildx-cache-${SYSTEM}-${{ github.sha }}
           restore-keys: buildx-cache-${SYSTEM}-
 
       - name: Create docker file
         run: |
           mkdir -p docker_build
-          bash .github/docker/gen_dockerfile.sh ${{ matrix.system }} ${{ matrix.type }} ${{ matrix.arch }} "${{ matrix.py_minors }}" \
+          bash .github/docker/mkdockerfile.sh \
+            {{ matrix.distribution }} \
+            {{ matrix.base_image }} \
+            {{ matrix.py_minors }} \
             > ${DOCKERFILE}
 
       - name: Create file with SHA hashes
