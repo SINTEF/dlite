@@ -19,7 +19,7 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
   # github.repository as <account>/<repo>
-  IMAGE_NAME: ${{ github.repository }}
+  #IMAGE_NAME: ${{ github.repository }}
 
 
 jobs:
@@ -86,16 +86,17 @@ jobs:
           echo "TEMPLATE=Dockerfile-${{ matrix.distribution }}" >> "$GITHUB_ENV"
           # Relative path to Dockerfile to build
           echo "DOCKERFILE=docker_build/Dockerfile-${SYSTEM}" >> "$GITHUB_ENV"
-          # Filename to store SHA hash of the Dockerfile
-          echo "SHA_FILENAME=$env.{SYSTEM}:latest.sha.txt" >> "$GITHUB_ENV"
           # The base image to use when building the docker container
-          echo "IMAGE=quay.io/pypa/${SYSTEM}:latest" >> "$GITHUB_ENV"
+          echo "IMAGE=${{ github.repository }}/${SYSTEM}:latest" >> "$GITHUB_ENV"
+          # Filename to store SHA hash of the Dockerfile
+          #echo "SHA_FILENAME=${SYSTEM}.sha.txt" >> "$GITHUB_ENV"
           # Cache directory for checking whether to (re)build docker container
-          echo "CACHE_DIR=.buildx-cache-${SYSTEM}" >> "$GITHUB_ENV"
+          #echo "CACHE_DIR=.buildx-cache-${SYSTEM}" >> "$GITHUB_ENV"
 
       - name: Create docker file
         run: |
           mkdir -p docker_build
+          echo "DOCKERFILE=$DOCKERFILE"
           bash .github/docker/mkdockerfile.sh \
             {{ matrix.distribution }} \
             {{ matrix.base_image }} \
