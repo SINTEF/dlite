@@ -51,10 +51,13 @@ RUN \
   # It's necessary to be in /opt/_internal because the internal libraries
   # exist here.
   cd /opt/_internal && \
-  tar -Jxvf static-libs-for-embedding-only.tar.xz && \
-  # Filter out challenging packages from requirements_full.txt
+  tar -Jxvf static-libs-for-embedding-only.tar.xz
+
+COPY requirements*.txt /tmp/
+
+# Filter out challenging packages from requirements_full.txt
     #-e 's/^pydantic.*/pydantic<2/' \
-  sed \
+RUN sed \
     -e '/pandas/d' \
     -e '/pyarrow/d' \
     -e '/tables/d' \
@@ -71,7 +74,6 @@ RUN \
     -e '/mongomock/d' \
     -i /tmp/requirements_dev.txt
 
-COPY requirements*.txt /tmp/
 
 ARG PY_MINORS="{{ PY_MINORS }}"
 
@@ -85,7 +87,6 @@ RUN \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -r /tmp/requirements.txt \
       -r /tmp/requirements_dev.txt \
-      -r /tmp/requirements_wheels.txt \
       -r /tmp/requirements_full.txt; \
   done && \
   rm -rf /ci/pip_cache
