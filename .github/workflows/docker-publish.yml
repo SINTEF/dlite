@@ -8,12 +8,12 @@ name: Publish docker images
 on:
   schedule:
     - cron: '22 4 * * 1'
-  push:
-    branches: [ "master" ]
-    # Publish semver tags as releases.
-    tags: [ 'v*.*.*' ]
-  pull_request:
-    branches: [ "master" ]
+  #push:
+  #  branches: [ "master" ]
+  #  # Publish semver tags as releases.
+  #  tags: [ 'v*.*.*' ]
+  #pull_request:
+  #  branches: [ "master" ]
 
 env:
   # Use docker.io for Docker Hub if empty
