@@ -93,6 +93,9 @@ jobs:
           # Cache directory for checking whether to (re)build docker container
           #echo "CACHE_DIR=.buildx-cache-${SYSTEM}" >> "$GITHUB_ENV"
 
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
       - name: Create docker file
         run: |
           mkdir -p docker_build
@@ -110,9 +113,6 @@ jobs:
           #  ${{ matrix.base_image }} \
           #  ${{ matrix.py_minors }} \
           #  > ${DOCKERFILE}
-
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
       # Install the cosign tool except on PR
       # https://github.com/sigstore/cosign-installer
