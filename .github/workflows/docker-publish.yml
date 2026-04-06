@@ -73,7 +73,7 @@ jobs:
         # ubuntu ci tests
         - system: "ubuntu"
           arch: "x86_64"
-          distribution: "ubuntu:latest"
+          distribution: "ubuntu"
           base_image: "ubuntu:latest"
           py_minors: "9 10 11"
 
