@@ -139,8 +139,10 @@ jobs:
         with:
           context: .
           file: ${{ env.DOCKERFILE }}
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
+          #push: ${{ github.event_name != 'pull_request' }}
+          #tags: ${{ steps.meta.outputs.tags }}
+          push: true
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE }}
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
