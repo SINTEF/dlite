@@ -4,17 +4,28 @@
 # Copy this template file and replace:
 # - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
 #
+# Generate dockerfile:
+#
+#     .github/docker/mkdockerfile.sh \
+#         ubuntu \
+#         ubuntu:latest \
+#         "8 9 10 11 12 13 14" \
+#         > Dockerfile-ubuntu .
+#
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker run --rm -it --volume $PWD:/io adlite-ubuntu:latest /bin/bash
+#     docker build -t dlite-ubuntu -f Dockerfile-ubuntu .
+#
+# Run (for debugging):
+#
+#     docker run --rm -it --volume $PWD:/io dlite-ubuntu:latest /bin/bash
 
 FROM ubuntu:latest
 
 # Enable rpmfusion for additional packages
 RUN \
     apt-get update -y --fix-missing && \
-    add-apt-repository -y ppa:deadsnakes/ppa
     apt-get install -y --fix-missing \
         software-properties-common \
         build-essential \
@@ -22,6 +33,7 @@ RUN \
         libhdf5-dev \
         pkg-config \
         git && \
+    add-apt-repository -y ppa:deadsnakes/ppa
         #libssl-dev \
         #zlib1g-dev \
         #libbz2-dev \
