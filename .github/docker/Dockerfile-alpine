@@ -4,7 +4,6 @@
 # Copy this template file and replace:
 # - `{{ SYSTEM }}` system, ex: musllinux
 # - `{{ ARCH }}` architecture, ex: x86_64
-# - `{{ BASE_IMAGE }}` base image, ex: quay.io/pypa/musllinux_1_2_x86_64:latest
 # - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
 #
 # Examples
@@ -30,7 +29,6 @@
 
 # Reference: https://github.com/pypa/manylinux
 FROM quay.io/pypa/musllinux_1_2_{{ ARCH }}:latest
-#FROM {{ BASE_IMAGE }}
 
 # Do not use distutils distributed with setuptools
 # This is due to base changes in the distutils API, removing msvccompiler,
@@ -82,7 +80,7 @@ RUN \
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
     echo && \
-    echo "---------- Install Python 3.$minor ------------" && \
+    echo "---------- Python 3.$minor - install requirements ------------" && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache -U pip && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -r /tmp/requirements.txt \

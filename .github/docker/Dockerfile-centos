@@ -4,7 +4,6 @@
 # Copy this template file and replace:
 # - `{{ SYSTEM }}` system, ex: manylinux
 # - `{{ ARCH }}` architecture, ex: i686
-# - `{{ BASE_IMAGE }}` base image, ex: quay.io/pypa/manylinux2014_i686:latest
 # - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
 #
 # Examples
@@ -12,16 +11,13 @@
 #
 # Generate dockerfile:
 #
-#     .github/docker/mkdockerfile.sh \
-#         centos \
-#         quay.io/pypa/manylinux2014_i686:latest \
-#         "8 9 10 11 12 13 14" \
-#         > Dockerfile-manylinux_i686 .
+#     .github/docker/run.sh dockerfile
 #
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker build -t dlite-manylinux_i686 -f Dockerfile-manylinux_i686 .
+#     docker build -t dlite-manylinux_i686 \
+#       -f .github/docker/dockerfiles/Dockerfile-manylinux_i686 .
 #
 # Run (for debugging):
 #
@@ -30,8 +26,6 @@
 
 # Reference: https://github.com/pypa/manylinux
 FROM quay.io/pypa/manylinux2014_{{ ARCH }}:latest
-
-COPY requirements*.txt /tmp/
 
 # Enable rpmfusion for additional packages
 RUN \
@@ -50,9 +44,12 @@ RUN \
   # It's necessary to be in /opt/_internal because the internal libraries
   # exist here.
   cd /opt/_internal && \
-  tar -Jxvf static-libs-for-embedding-only.tar.xz && \
-  # Filter out challenging packages from requirements
-  sed \
+  tar -Jxvf static-libs-for-embedding-only.tar.xz
+
+
+# Filter out challenging packages from requirements
+COPY requirements*.txt /tmp/
+RUN sed \
     -e '/mongomock/d' \
     -i  /tmp/requirements_dev.txt
 
@@ -61,6 +58,8 @@ ARG PY_MINORS="{{ PY_MINORS }}"
 RUN \
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
+    echo && \
+    echo "---------- Python 3.$minor - install requirements ------------" && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache -U pip && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -r /tmp/requirements.txt \

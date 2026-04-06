@@ -43,39 +43,32 @@ jobs:
         - system: "manylinux"
           arch: "x86_64"
           distribution: "almalinux"
-          base_image: "quay.io/pypa/manylinux_2_28_x86_64:latest"
           py_minors: "8 9 10 11 12 13 14"
 
         # 32-bit manylinux
         - system: "manylinux"
-          type: "2014"
           arch: "i686"
           #distribution: "almalinux"
-          #base_image: "quay.io/pypa/manylinux_2_28_i686:latest"
           distribution: "centos"
-          base_image: "quay.io/pypa/manylinux2014_i686:latest"
           py_minors: "10 11 12 13 14"
 
         # 64-bit musllinux
         - system: "musllinux"
           arch: "x86_64"
           distribution: "alpine"
-          base_image: "quay.io/pypa/musllinux_1_2_x86_64:latest"
           py_minors: "8 9 10 11 12 13 14"
 
         # 32-bit musllinux
         - system: "musllinux"
           arch: "i686"
           distribution: "alpine"
-          base_image: "quay.io/pypa/musllinux_1_2_i686:latest"
           py_minors: "9 10 11"
 
         # ubuntu ci tests
         - system: "ubuntu"
           arch: "x86_64"
           distribution: "ubuntu"
-          base_image: "ubuntu:latest"
-          py_minors: "9 10 11"
+          py_minors: "8 14"
 
     steps:
       - name: Define environment variables
@@ -103,7 +96,6 @@ jobs:
           sed \
             -e "s|{{ SYSTEM }}|${{ matrix.system }}|" \
             -e "s|{{ ARCH }}|${{ matrix.arch }}|" \
-            -e "s|{{ BASE_IMAGE }}|${{ matrix.base_image }}|" \
             -e "s|{{ PY_MINORS }}|${{ matrix.py_minors }}|" \
             .github/docker/Dockerfile-${{ matrix.distribution }} \
             > ${DOCKERFILE}

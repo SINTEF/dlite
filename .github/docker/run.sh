@@ -1,0 +1,296 @@
+#!/bin/bash
+#
+# Parsing options and execute "command" function
+# Intended to be sourced by the other scripts
+#
+set -eu
+
+help() {
+    cat <<EOF
+Usage: run.sh [OPTIONS] [STEP]
+Execute all steps up to the provided steps:
+  - dockerfile: Generate dockerfiles.
+  - build_docker: Build docker image.
+  - test_docker: Build and test DLite in docker image.
+  - build_wheel: Build wheel.
+  - test_wheel: Test wheel (default).
+  - all: Run all steps
+
+Options:
+  -h, --help                 Print this help and exit.
+  -s, --system SYSTEM        Only run for this system. Ex: manylinux
+  -t, --type TYPE            Only run for this system type. Ex: _2_28
+  -a, --arch ARCH            Only run for this architecture. Ex: x86_64
+  -p, --pyminor PY_MINOR     Comma-separated list of minor Python version
+                             numbers to run. Ex: 10,14
+  -r, --rootdir DIR          DLite root directory.
+  -d, --dockerfiles-dir DIR  Write dockerfiles to this directory.
+
+EOF
+}
+
+log() {
+    echo "*** $1"
+}
+
+# Usage: intersect LIST1 LIST2
+# Return the intersection between comma-separated lists
+intersect() {
+    result=
+    for a in $1; do
+        for b in $2; do
+            [ "$a" = "$b" ] && result="$result $a"
+        done
+    done
+    echo $result
+}
+
+###########################################################
+##  Commands
+###########################################################
+dockerfile() {
+    log "Generate: $(realpath -m --relative-to=$PWD $DOCKERFILE)"
+    sed \
+        -e "s|{{ SYSTEM }}|${SYSTEM}|" \
+        -e "s|{{ TYPE }}|${TYPE}|" \
+        -e "s|{{ ARCH }}|${ARCH}|" \
+        -e "s|{{ PY_MINORS }}|${PY_MINORS}|" \
+        "$TEMPLATE" > "$DOCKERFILE"
+}
+
+build_docker() {
+    $run_deps && dockerfile
+    log "Build docker image: $DOCKERIMAGE"
+    docker build -t $DOCKERIMAGE -f "$DOCKERFILE" "$rootdir"
+}
+
+build_dlite() {
+    $run_deps && build_docker
+    log "Build DLite"
+    docker run --rm --volume $rootdir:/io $DOCKERIMAGE \
+        /tmp/run.sh _build_dlite \
+        --system=$SYSTEM \
+        --type=$TYPE \
+        --arch=$ARCH \
+        --pyminors="$PY_MINORS" \
+        --rootdir=/io
+}
+
+
+_build_dlite() {
+    log "Build DLite internal"
+    for minor in $PY_MINORS; do
+        python="$(which python3.$minor)"
+        builddir=/tmp/build-cp3$minor-${SYSTEM}_$ARCH
+        installdir=$($python -c "import sys; print(sys.prefix)")
+        libdir=$($python -c "import sysconfig; print(sysconfig.get_config_var('LIBDIR'))")
+        np_include=$($python -c "import numpy; print(numpy.get_include())")
+        mkdir -p $builddir
+        cd $builddir
+        cmake \
+            -DWITH_DOC=OFF \
+            -DALLOW_WARNINGS=ON \
+            -DPython3_FIND_IMPLEMENTATIONS=CPython \
+            -DPython3_EXECUTABLE=$python \
+            -DPython3_NumPy_INCLUDE_DIRS="$np_include" \
+            -DCMAKE_INSTALL_PREFIX=$installdir \
+            -DCMAKE_CONFIGURATION_TYPES:STRING=$buildtype \
+            -DPython_USE_STATIC_LIBS=TRUE \
+            -DCMAKE_EXE_LINKER_FLAGS="$libdir/libpython3.$minor.a" \
+            -DBUILD_SHARED_LIBS=OFF \
+            -DCMAKE_FIND_LIBRARY_SUFFIXES=".a" \
+            -DCMAKE_POSITION_INDEPENDENT_CODE=ON \
+            /io
+        #-Ddlite_PYTHON_BUILD_REDISTRIBUTABLE_PACKAGE=YES \
+            #-DPython3_FIND_VIRTUALENV=FIRST \
+        #-DWITH_HDF5=OFF
+    done
+    cmake --build .
+    cmake --install .
+}
+
+test_docker() {
+    $run_deps && build_docker
+    log "Build and test DLite in docker image: $DOCKERIMAGE"
+    docker run
+    docker build -t $DOCKERIMAGE -f "$DOCKERFILE" "$rootdir"
+}
+
+build_wheel() {
+    $run_deps && build_docker
+    log "Build wheel from image: $DOCKERIMAGE"
+    mkdir -p $rootdir/python/wheels
+    chmod a+w $rootdir/python/wheels
+    first=${PY_MINORS%% *}
+    last=${PY_MINORS##* }
+    [ $first = $last ] && seq="$first" || seq="$first $last"
+    for minor in $PY_MINORS; do
+        build=cp3$minor-${SYSTEM}_$ARCH
+        wheeldir="$rootdir/python/wheels/$build"
+        [ -d "$wheeldir" ] && rm -rf "$wheeldir/*" && mkdir -p "$wheeldir"
+        log "build=$build"
+        log "rootdir=$rootdir"
+        log "wheeldir=$wheeldir"
+        CIBW_BUILD=$build \
+        CIBW_BUILD_VERBOSITY=3 \
+        CIBW_MANYLINUX_X86_64_IMAGE=dlite-manylinux_x86_64 \
+        CIBW_MANYLINUX_I686_IMAGE=dlite-manylinux_i686 \
+        CIBW_MUSLLINUX_X86_64_IMAGE=dlite-musllinux_x86_64 \
+        CIBW_MUSLLINUX_I686_IMAGE=dlite-musllinux_i686 \
+        CIBW_ENVIRONMENT_MACOS="MACOSX_DEPLOYMENT_TARGET=11.0" \
+        CIBW_PROJECT_REQUIRES_PYTHON=">=3.10" \
+        CIBW_TEST_COMMAND="ctest" \
+        python3.$minor \
+            -m cibuildwheel \
+            --output-dir $wheeldir \
+            --platform linux \
+            "$rootdir/python";
+    done
+}
+
+#    docker run --rm --volume $rootdir:/io $DOCKERIMAGE \
+#        /tmp/run.sh _build_wheel \
+#        --system=$SYSTEM \
+#        --type=$TYPE \
+#        --arch=$ARCH \
+#        --pyminors="$PY_MINORS" \
+#        --rootdir=/io
+#}
+#
+#_build_wheel() {
+#    log "internal build..."
+#    first=${PY_MINORS%% *}
+#    last=${PY_MINORS##* }
+#    [ $first = $last ] && seq="$first" || seq="$first $last"
+#    for minor in $PY_MINORS; do
+#        build=cp3$minor-${SYSTEM}_$ARCH
+#        wheeldir=/io/python/wheels/$build
+#        [ -d $wheeldir ] && rm -rf $wheeldir/* && mkdir -p $wheeldir
+#        log "build=$build"
+#        log "rootdir=$rootdir"
+#        log "wheeldir=$wheeldir"
+#        CIBW_BUILD=$build \
+#        CIBW_BUILD_VERBOSITY=3 \
+#        CIBW_MANYLINUX_X86_64_IMAGE=dlite-manylinux_x86_64 \
+#        CIBW_MANYLINUX_I686_IMAGE=dlite-manylinux_i686 \
+#        CIBW_MUSLLINUX_X86_64_IMAGE=dlite-musllinux_x86_64 \
+#        CIBW_MUSLLINUX_I686_IMAGE=dlite-musllinux_i686 \
+#        CIBW_ENVIRONMENT_MACOS="MACOSX_DEPLOYMENT_TARGET=11.0" \
+#        CIBW_PROJECT_REQUIRES_PYTHON=">=3.10" \
+#        python3.$minor \
+#            -m cibuildwheel \
+#            --output-dir $wheeldir \
+#            --platform linux \
+#            "$rootdir/python";
+#    done
+#}
+
+
+
+# Defaults
+DOCKERDIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd -P)"
+ROOTDIR="$(realpath ${DOCKERDIR}/../..)"
+cd "$ROOTDIR"
+
+step=test_wheel
+system=
+type=
+arch=
+pyminors=
+run_deps=true
+rootdir="$ROOTDIR"
+dockerfilesdir="$DOCKERDIR/dockerfiles"
+buildtype=Debug  # Release or Debug
+
+
+# Parse options
+TEMP=$(getopt \
+           -o hs:t:a:p:nr:d: \
+           --long help,system:,type:,arch:,pyminors:,nodeps,rootdir:,dockerfiles-dir: \
+           -- "$@")
+[ $? != 0 ] && exit 1
+eval set -- "$TEMP"
+while true; do
+    case "$1" in
+        -h|--help)             help; exit 0;;
+        -s|--system)           system="$2"; shift 2;;
+        -t|--type)             type="$2"; shift 2;;
+        -a|--arch)             arch="$2"; shift 2;;
+        -p|--pyminors)         pyminors="$2"; shift 2;;
+        -n|--no-deps)          run_deps=false; shift;;
+        -r|--rootdir)          rootdir=$2; shift 2;;
+        -d|--dockerfiles-dir)  dockerfilesdir="$2"; shift 2;;
+        --)                    shift; break;;
+    esac
+done
+[ $# -eq 0 ] && echo -e "Usage: run.sh [OPTIONS] STEP\nMissing STEP" && exit 1
+[ -n "$1" ] && step=$1
+
+# Convert pyminors to space-separated string
+pyminors="$(echo $pyminors | tr , ' ')"
+
+# Execute command on all systems, types and architectures
+while read -r SYSTEM TYPE ARCH OS DIST PY_MINORS; do
+    # Skip comment lines
+    echo "$SYSTEM" | grep -q -E "^#|^$" && continue
+
+    # Convert PY_MINORS to space-separated string
+    PY_MINORS="$(echo $PY_MINORS | tr , ' ')"
+
+    # Filter out cases to not run
+    [ -n "$system" -a "$SYSTEM" != "$system" ] && continue
+    [ -n "$type" -a "$TYPE" != "$type" ] && continue
+    [ -n "$arch" -a "$ARCH" != "$arch" ] && continue
+    [ -n "$pyminors" ] && PY_MINORS=$(intersect "$PY_MINORS" "$pyminors")
+
+    # Dockerfile template
+    TEMPLATE="$DOCKERDIR/Dockerfile-$DIST"
+
+    # Generated dockerfile
+    #DOCKERFILE="$dockerfilesdir/Dockerfile-${SYSTEM}${TYPE}_${ARCH}"
+    DOCKERFILE="$dockerfilesdir/Dockerfile-${SYSTEM}_${ARCH}"
+
+    # Name of docker image to build
+    #DOCKERIMAGE=dlite-${SYSTEM}${TYPE}_${ARCH}
+    DOCKERIMAGE=dlite-${SYSTEM}_${ARCH}
+
+    # Run step
+    $step
+
+done < $DOCKERDIR/IMAGES.txt
+
+
+exit
+
+
+default_types() {
+    case $SYSTEM in
+        manylinux)  echo "2014 _2_28";;
+        musllinux)  echo "_1_2";;
+        *)          echo "Unknown system: $system" >>2; exit 1;;
+    esac
+}
+
+ROOT_DIR="${DOCKERDIR}"/../..
+REL_DIR="${DOCKERDIR##*/dlite/}"
+[[ -v outdir ]] || outdir="$DOCKERDIR/dockerfiles"
+
+#echo "DOCKERDIR=$DOCKERDIR"
+#echo "REL_DIR=$REL_DIR"
+echo "outdir=$outdir"
+
+
+
+
+
+
+# Execute command on all systems, types and architectures
+for SYSTEM in $SYSTEMS; do
+    [[ -v TYPES ]] && types=$TYPES || types=$(default_types)
+    for TYPE in $types; do
+        for ARCH in $ARCHS; do
+            #command
+            echo "** SYSTEM=$SYSTEM, TYPE=$TYPE, ARCH=$ARCH"
+        done
+    done
+done

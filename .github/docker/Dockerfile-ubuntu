@@ -57,6 +57,8 @@ COPY \
 #
 RUN \
   for minor in ${PY_MINORS}; do \
+    echo && \
+    echo "---------- Python 3.$minor - install requirements ------------" && \
     apt-get install -y \
       python3.${minor} \
       python3.${minor}-dev \
