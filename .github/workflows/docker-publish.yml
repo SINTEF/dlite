@@ -19,10 +19,6 @@ env:
   # Use docker.io for Docker Hub if empty
   REGISTRY: ghcr.io
 
-  ACTIONS_STEP_DEBUG: false
-  ACTIONS_RUNNER_DEBUG: false
-
-
 jobs:
   build:
     name: Build and publish docker image
