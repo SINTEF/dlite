@@ -138,8 +138,7 @@ jobs:
           #push: ${{ github.event_name != 'pull_request' }}
           #tags: ${{ steps.meta.outputs.tags }}
           push: true
-          load: true
-          tags: ${{ env.IMAGE }}
+          tags: ${{ env.IMAGE }}:latest
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
