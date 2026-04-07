@@ -10,7 +10,9 @@ on:
     - cron: '22 4 * * 1'
   push:
     branches: [ "master" ]
-    tabs: [ 'v*.*.*' ]
+    tags: [ 'v*.*.*' ]
+  pull_request:
+    branches: [ "master" ]
   workflow_dispatch:  # Allow to trigger the workflow manually
 
 env:
