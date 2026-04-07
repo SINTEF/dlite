@@ -10,11 +10,6 @@ jobs:
     steps:
     - uses: actions/checkout@v6
 
-    - name: Update submodules
-      run: |
-        git submodule init
-        git submodule update
-
     - name: Install dependencies
       run: |
         sudo apt-get install cppcheck

@@ -8,6 +8,9 @@ name: Publish docker images
 on:
   schedule:
     - cron: '22 4 * * 1'
+  push:
+    branches: [ "master" ]
+    tabs: [ 'v*.*.*' ]
   workflow_dispatch:  # Allow to trigger the workflow manually
 
 env:
