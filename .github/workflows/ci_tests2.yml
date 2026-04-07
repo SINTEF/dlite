@@ -1,0 +1,32 @@
+name: CI tests2
+
+# This CI builds DLite and runs (almost) all tests.
+#
+# The following plugins are not tested here, since they depend on an external service:
+#
+# Protocol plugins:
+#   - sftp
+#
+# Storage plugins:
+#   - postgresql
+#   - mongodb
+#   - redis
+#
+# Please remember to update respective plugin docstring if this list changes.
+#
+
+# TODO: Split jobs from configure, then build, then package, install etc
+# TODO: Windows builds: Native using VS (MSVCRT & UCRT libraries), Native using VS plus Anaconda, MingW, CYGWIN, Cross compiled with MingW on Ubuntu, Cross compiled on ? as 32bit (i686)?
+on:
+  push:
+  pull_request:
+
+jobs:
+  newtest:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/sintef/dlite/ubuntu_x86_64:latest
+
+    steps:
+      - name: Run tests inside container
+        run: bash /tmp/buildand_test.sh
