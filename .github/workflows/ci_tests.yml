@@ -1,27 +1,23 @@
 name: CI tests
 
 # This CI builds DLite and runs (almost) all tests.
-#
-# The following plugins are not tested here, since they depend on an external service:
-#
-# Protocol plugins:
-#   - sftp
-#
-# Storage plugins:
-#   - postgresql
-#   - mongodb
-#   - redis
-#
-# Please remember to update respective plugin docstring if this list changes.
-#
 
-# TODO: Split jobs from configure, then build, then package, install etc
-# TODO: Windows builds: Native using VS (MSVCRT & UCRT libraries), Native using VS plus Anaconda, MingW, CYGWIN, Cross compiled with MingW on Ubuntu, Cross compiled on ? as 32bit (i686)?
-on:
-  push:
-  pull_request:
+on: [push]
+
+env:
+  DLITETEST_MONGODB_USER: user
+  DLITETEST_MONGODB_SERVER: localhost
+
 
 jobs:
+  generate_passwords:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate passwords
+        run: echo "POSTGRES_PASSWORD=$(openssl rand -hex 12)" >> $GITHUB_ENV
+        run: echo "DLITETEST_MONGODB_PASSWORD=$(openssl rand -hex 12)" >> $GITHUB_ENV
+
   test:
     runs-on: ubuntu-latest
 
@@ -36,9 +32,34 @@ jobs:
           --health-timeout 3s
           --health-retries 5
 
+      postgresql:
+        image: postgres
+        ports: 5432:5432
+        options: >-
+          -e POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
+          -e POSTGRES_USER=user
+          -e POSTGRES_DB=db
+
+      mongo:
+        image: mongo
+        ports: 27017:27017
+        options: >-
+          -e MONGO_INITDB_ROOT_PASSWORD=${{ env.DLITETEST_MONGODB_PASSWORD }}
+          -e MONGO_INITDB_ROOT_USERNAME=${{ env.DLITETEST_MONGODB_USER }}
+          -e MONGO_INITDB_ROOT_DB=db
+
     steps:
       - name: Checkout repo
         uses: actions/checkout@v4
+
+      - name: Add pgconf.h file
+        run: |
+          cat <<EOF > storages/python/tests-c/pgconf.h
+          #define HOST "localhost"
+          #define USER "user"
+          #define DATABASE "db"
+          #define PASSWORD "$POSTGRES_PASSWORD"
+          EOF
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
