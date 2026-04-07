@@ -15,11 +15,9 @@ name: CI tests2
 # Please remember to update respective plugin docstring if this list changes.
 #
 
-# TODO: Split jobs from configure, then build, then package, install etc
-# TODO: Windows builds: Native using VS (MSVCRT & UCRT libraries), Native using VS plus Anaconda, MingW, CYGWIN, Cross compiled with MingW on Ubuntu, Cross compiled on ? as 32bit (i686)?
 on:
   push:
-  pull_request:
+  #pull_request:
 
 jobs:
   newtest:
