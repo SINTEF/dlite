@@ -24,9 +24,12 @@ on:
 jobs:
   newtest:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
     container:
       image: ghcr.io/sintef/dlite/ubuntu_x86_64:latest
 
     steps:
       - name: Run tests inside container
-        run: bash /tmp/buildand_test.sh
+        run: bash /tmp/build_and_test.sh
