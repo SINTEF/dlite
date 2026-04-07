@@ -131,7 +131,7 @@ jobs:
 
       - name: Build and push Docker image
         if: env.BUILD_NEW_IMAGE == 'true'
-        uses: docker/build-push-action@v7
+        uses: docker/build-push-action@v7.0.0
         with:
           context: .
           file: docker_build_wheel/Dockerfile-${{ matrix.system }}${{ matrix.type }}_${{ matrix.arch }}
