@@ -4,20 +4,9 @@ name: CI tests
 
 on: [push]
 
-env:
-  DLITETEST_MONGODB_USER: user
-  DLITETEST_MONGODB_SERVER: localhost
-
-
 jobs:
   generate_passwords:
     runs-on: ubuntu-latest
-
-    steps:
-      - name: Generate passwords
-        run: |
-          echo "POSTGRES_PASSWORD=$(openssl rand -hex 12)" >> $GITHUB_ENV
-          echo "DLITETEST_MONGODB_PASSWORD=$(openssl rand -hex 12)" >> $GITHUB_ENV
 
   test:
     runs-on: ubuntu-latest
@@ -25,7 +14,8 @@ jobs:
     services:
       redis:
         image: redis:7
-        ports: ["6379:6379"]
+        ports:
+          - 6379:6379
         options: >-
           --health-cmd "redis-cli ping"
           --health-interval 5s
@@ -34,18 +24,20 @@ jobs:
 
       postgresql:
         image: postgres:15
-        ports: ["5432:5432"]
+        ports:
+          - 5432:5432
         options: >-
-          -e POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
           -e POSTGRES_USER=user
+          -e POSTGRES_PASSWORD=pgpass
           -e POSTGRES_DB=db
 
       mongo:
-        image: mongo
-        ports: ["27017:27017"]
+        image: mongo:latest
+        ports:
+          - 27017:27017
         options: >-
-          -e MONGO_INITDB_ROOT_PASSWORD=${{ env.DLITETEST_MONGODB_PASSWORD }}
-          -e MONGO_INITDB_ROOT_USERNAME=${{ env.DLITETEST_MONGODB_USER }}
+          -e MONGO_INITDB_ROOT_USERNAME=user
+          -e MONGO_INITDB_ROOT_PASSWORD=mongopass
           -e MONGO_INITDB_ROOT_DB=db
 
     steps:
@@ -58,7 +50,7 @@ jobs:
           #define HOST "localhost"
           #define USER "user"
           #define DATABASE "db"
-          #define PASSWORD "$POSTGRES_PASSWORD"
+          #define PASSWORD "pgpass"
           EOF
 
       - name: Log in to Container Registry
