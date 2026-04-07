@@ -18,10 +18,11 @@ name: CI tests (old)
 # TODO: Split jobs from configure, then build, then package, install etc
 # TODO: Windows builds: Native using VS (MSVCRT & UCRT libraries), Native using VS plus Anaconda, MingW, CYGWIN, Cross compiled with MingW on Ubuntu, Cross compiled on ? as 32bit (i686)?
 on:
+  # Run on push/merge to master
   push:
-    # Run only on push to master
     branches:
       - master
+  workflow_dispatch:  # Allow to trigger the workflow manually
 
 jobs:
   build:
