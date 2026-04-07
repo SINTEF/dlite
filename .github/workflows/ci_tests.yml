@@ -33,9 +33,8 @@ jobs:
           --health-retries 5
 
       postgresql:
-        image: postgres
+        image: postgres:15
         ports: ["5432:5432"]
-          -
         options: >-
           -e POSTGRES_PASSWORD=${{ env.POSTGRES_PASSWORD }}
           -e POSTGRES_USER=user
