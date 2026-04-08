@@ -10,10 +10,10 @@ help() {
 Usage: run.sh [OPTIONS] [STEP]
 Execute all steps up to the provided steps:
   - dockerfile: Generate dockerfiles.
-  - build_docker: Build docker image.
-  - test_docker: Build and test DLite in docker image.
-  - build_wheel: Build wheel.
-  - test_wheel: Test wheel (default).
+  - build_docker: Build docker image (depends: dockerfile)
+  - test_docker: Build and test DLite in docker image (depends: build_docker)
+  - build_wheel: Build wheel (depends: build_docker)
+  - test_wheel: Test wheel (default) (depends: build_docker)
   - all: Run all steps
 
 Options:
@@ -23,6 +23,7 @@ Options:
   -a, --arch ARCH            Only run for this architecture. Ex: x86_64
   -p, --pyminor PY_MINOR     Comma-separated list of minor Python version
                              numbers to run. Ex: 10,14
+  -n, --no-deps              Whether to not run dependent commands first.
   -r, --rootdir DIR          DLite root directory.
   -d, --dockerfiles-dir DIR  Write dockerfiles to this directory.
 
@@ -34,7 +35,7 @@ log() {
 }
 
 # Usage: intersect LIST1 LIST2
-# Return the intersection between comma-separated lists
+# Return the intersection between lists
 intersect() {
     result=
     for a in $1; do
@@ -261,44 +262,9 @@ while read -r SYSTEM TYPE ARCH OS DIST PY_MINORS; do
     #echo "DIST=$DIST"
     #echo "TEMPLATE=$TEMPLATE"
     #echo "DOCKERFILE=$DOCKERFILE"
+    #echo "DOCKERIMAGE=$DOCKERIMAGE"
 
     # Run step
     $step
 
 done < $DOCKERDIR/IMAGES.txt
-
-
-exit
-
-
-default_types() {
-    case $SYSTEM in
-        manylinux)  echo "2014 _2_28";;
-        musllinux)  echo "_1_2";;
-        *)          echo "Unknown system: $system" >>2; exit 1;;
-    esac
-}
-
-ROOT_DIR="${DOCKERDIR}"/../..
-REL_DIR="${DOCKERDIR##*/dlite/}"
-[[ -v outdir ]] || outdir="$DOCKERDIR/dockerfiles"
-
-#echo "DOCKERDIR=$DOCKERDIR"
-#echo "REL_DIR=$REL_DIR"
-echo "outdir=$outdir"
-
-
-
-
-
-
-# Execute command on all systems, types and architectures
-for SYSTEM in $SYSTEMS; do
-    [[ -v TYPES ]] && types=$TYPES || types=$(default_types)
-    for TYPE in $types; do
-        for ARCH in $ARCHS; do
-            #command
-            echo "** SYSTEM=$SYSTEM, TYPE=$TYPE, ARCH=$ARCH"
-        done
-    done
-done

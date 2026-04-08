@@ -38,8 +38,6 @@ for minor in $PY_MINORS; do
     echo "=== Python 3.$minor: Run all tests ==="
     ctest -j || ctest --rerun-failed --output-on-failure -V
 
-    exit  # XXX
-
     echo
     echo "=== Python 3.$minor: Test with all behavior changes disabled ==="
     export DLITE_BEHAVIOR=OFF
