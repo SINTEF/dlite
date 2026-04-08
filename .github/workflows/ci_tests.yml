@@ -19,14 +19,14 @@ jobs:
           --health-timeout 3s
           --health-retries 5
 
-      postgresql:
-        image: postgres:15
-        ports:
-          - 5432:5432
-        options: >-
-          -e POSTGRES_USER=user
-          -e POSTGRES_PASSWORD=pgpass
-          -e POSTGRES_DB=db
+      #postgresql:
+      #  image: postgres:15
+      #  ports:
+      #    - 5432:5432
+      #  options: >-
+      #    -e POSTGRES_USER=user
+      #    -e POSTGRES_PASSWORD=pgpass
+      #    -e POSTGRES_DB=db
 
       mongo:
         image: mongo:latest
@@ -41,14 +41,14 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      - name: Add pgconf.h file
-        run: |
-          cat <<EOF > storages/python/tests-c/pgconf.h
-          #define HOST "localhost"
-          #define USER "user"
-          #define DATABASE "db"
-          #define PASSWORD "pgpass"
-          EOF
+      #- name: Add pgconf.h file
+      #  run: |
+      #    cat <<EOF > storages/python/tests-c/pgconf.h
+      #    #define HOST "localhost"
+      #    #define USER "user"
+      #    #define DATABASE "db"
+      #    #define PASSWORD "pgpass"
+      #    EOF
 
       - name: Log in to Container Registry
         uses: docker/login-action@v3
