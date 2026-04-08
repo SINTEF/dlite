@@ -1,0 +1,73 @@
+# -*- Mode: Dockerfile -*-
+# Dockerfile for building Alpine-based Python pypi package
+#
+# Copy this template file and replace:
+# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
+#
+# Generate dockerfile:
+#
+#     .github/docker/run dockerfile
+#
+# Build:
+#
+#     cd dlite  # cd to DLite root directory
+#     docker build -t dlite-ubuntu \
+#         -f .github/docker/dockerfiles/Dockerfile-ubuntu_x86_64 .
+#
+# Run (for debugging):
+#
+#     docker run --rm -it --volume $PWD:/io dlite-ubuntu:latest /bin/bash
+
+FROM ubuntu:latest
+
+# Enable rpmfusion for additional packages
+RUN \
+    apt-get update -y --fix-missing && \
+    apt-get install -y --fix-missing \
+        software-properties-common \
+        build-essential \
+        librdf0-dev \
+        libhdf5-dev \
+        pkg-config \
+        git && \
+    add-apt-repository -y ppa:deadsnakes/ppa
+        #libssl-dev \
+        #zlib1g-dev \
+        #libbz2-dev \
+        #libsqlite3-dev \
+        #librasqal3-dev \
+        #libcurl4-openssl-dev \
+        #libxslt1-dev \
+        #libxml2-dev \
+
+ARG PY_MINORS="{{ PY_MINORS }}"
+
+COPY \
+    requirements*.txt \
+    .github/docker/build_and_test.sh \
+    /tmp/
+
+# Install python versions and create virtual environments with all
+# python requirements. Activate the environment with
+#
+#     source /tmp/cp3${minor}-venv/bin/activate
+#
+RUN \
+  for minor in ${PY_MINORS}; do \
+    echo && \
+    echo "---------- Python 3.$minor - install requirements ------------" && \
+    apt-get install -y \
+      python3.${minor} \
+      python3.${minor}-dev \
+      python3.${minor}-venv && \
+    python3.${minor} -m venv /tmp/cp3${minor}-venv; \
+    . /tmp/cp3${minor}-venv/bin/activate && \
+    python3.${minor} -m pip install --no-cache-dir -U pip && \
+    python3.${minor} -m pip install --no-cache-dir \
+      -r /tmp/requirements.txt \
+      -r /tmp/requirements_mappings.txt \
+      -r /tmp/requirements_dev.txt \
+      -r /tmp/requirements_full.txt; \
+  done
+
+CMD /tmp/build_and_test.sh
