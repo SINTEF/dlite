@@ -1,12 +1,11 @@
 name: CD - Deploy documentation to GH Pages
 
 on:
+  # Run on push/merge to master
   push:
-    branches: ["master"]
-  pull_request:
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
+    branches:
+      - master
+  workflow_dispatch:  # Allow to trigger the workflow manually
 
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:

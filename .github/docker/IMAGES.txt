@@ -1,0 +1,10 @@
+# SYSTEM   TYPE    ARCH    OS              DIST         PY_MINORS
+manylinux  _2_28   x86_64  ubuntu-latest   almalinux    10,11,12,13,14
+manylinux  2014    i686    ubuntu-latest   centos       10,11
+musllinux  _1_2    x86_64  ubuntu-latest   alpine       10,11,12,13,14
+musllinux  _1_2    i686    ubuntu-latest   alpine       10,11,12,13,14
+ubuntu     ""      x86_64  ubuntu-latest   ubuntu       10,14
+#maxosx     ""      arm64   macos-latest    ""           10,11,12,13,14
+#win        ""      amd64   windows-latest  ""           10,11,12,13,14
+#win32      ""      ""      windows-latest  ""           10,11,12,13,14
+#msys2      ""      x86_64  windows-latest  ""           10,11,12,13,14

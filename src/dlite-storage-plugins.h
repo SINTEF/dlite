@@ -54,10 +54,10 @@
 
 
 /** Initial segment of all DLiteDataModel plugin data structures. */
-#define DLiteDataModel_HEAD                                        \
-  const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */    \
-  DLiteStorage *s;             /*!< Pointer to storage */          \
-  char uuid[37];               /*!< UUID for the stored data */
+#define DLiteDataModel_HEAD                                           \
+  const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */       \
+  DLiteStorage *s;                /*!< Pointer to storage */          \
+  char uuid[37];                  /*!< UUID for the stored data */
 
 
 /** Map to instance pointer */
