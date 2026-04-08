@@ -2,6 +2,11 @@ name: CI tests
 
 # This CI builds DLite and runs (almost) all tests.
 
+# TODO:
+# - Generate random passwords for the services and save them in
+#   environment variables using `openssl rand -base64 12`
+# - Enable the postgres and mongo services and update tests to use them.
+
 on: [push]
 
 jobs:
@@ -19,7 +24,7 @@ jobs:
           --health-timeout 3s
           --health-retries 5
 
-      #postgresql:
+      #postgres:
       #  image: postgres:15
       #  ports:
       #    - 5432:5432
@@ -28,14 +33,14 @@ jobs:
       #    -e POSTGRES_PASSWORD=pgpass
       #    -e POSTGRES_DB=db
 
-      mongo:
-        image: mongo:latest
-        ports:
-          - 27017:27017
-        options: >-
-          -e MONGO_INITDB_ROOT_USERNAME=user
-          -e MONGO_INITDB_ROOT_PASSWORD=mongopass
-          -e MONGO_INITDB_ROOT_DB=db
+      #mongo:
+      #  image: mongo:latest
+      #  ports:
+      #    - 27017:27017
+      #  options: >-
+      #    -e MONGO_INITDB_ROOT_USERNAME=user
+      #    -e MONGO_INITDB_ROOT_PASSWORD=mongopass
+      #    -e MONGO_INITDB_ROOT_DB=db
 
     steps:
       - name: Checkout repo
