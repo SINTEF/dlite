@@ -49,6 +49,10 @@ class MetadataNotDefinedError(dlite.DLiteError):
     """Metadata is not found in the internal instance store."""
 
 
+class PermissionWarning(Warning):
+    """Mission permissions."""
+
+
 def uncaught_exception_hook(exetype, value, trace):
     """A exception hook that allows exceptions to define an
     `exit_code` attribute that will make Python exit with that code if
