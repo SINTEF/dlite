@@ -5,6 +5,14 @@ import dlite
 from dlite.table import Table
 
 
+thisdir = Path(__file__).resolve().parent
+indir = thisdir / "input"
+
+# Not sure why, but this import seems to prevent the segfault
+import test_storage
+
+
+
 table = [
     ("identifier", "label", "description", "datumName[1]", "datumType[1]", "datumName[2]", "datumType[2]", "datumShape[2]"),
     ("dm1",        "dm1",   "...",         "mass",         "float64",      "symbol",       "string",       "len,nsymbols"),
@@ -21,8 +29,6 @@ assert dm1.getprop("symbol").type == "string"
 assert dm1.getprop("symbol").shape.tolist() == ["len", "nsymbols"]
 
 
-thisdir = Path(__file__).resolve().parent
-indir = thisdir / "input"
 t2 = Table.from_csv(indir / "datamodels.csv")
 m1, m2 = t2.get_datamodels()
 
