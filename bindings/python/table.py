@@ -246,20 +246,19 @@ class Table():
             keep_links=False,
             rich_text=False,
         )
-        # Get sheet
+        # Get worksheet
         ws = wb[wb.sheetnames[sheet] if isinstance(sheet, int) else sheet]
 
         # Get cell range
         if cellrange:
             cr = ws[cellrange]
         else:
-            # By default has 256 columns. We only want the columns for which
-            # the header is non-empty.
-            nrows = len([None for row in ws.rows if row[0].value])
-            ncols = len([None for cell in next(ws.rows) if cell.value])
+            # Find first non-empty rows and columns
+            nrows = next((i for i, r in enumerate(ws.values) if not r[0]), 0)
+            ncols = next((i for i, v in enumerate(next(ws.values)) if not v), 0)
             cr = ws.iter_rows(max_row=nrows, max_col=ncols)
 
-        table = [[cell.value if cell else "" for cell in row] for row in cr]
+        table = [[cell.value for cell in row] for row in cr]
 
         return Table(
             table = table,
