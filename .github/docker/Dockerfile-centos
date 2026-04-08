@@ -11,7 +11,7 @@
 #
 # Generate dockerfile:
 #
-#     .github/docker/run.sh dockerfile
+#     .github/docker/run dockerfile
 #
 # Build:
 #

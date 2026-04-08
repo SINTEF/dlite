@@ -50,6 +50,7 @@ intersect() {
 ###########################################################
 dockerfile() {
     log "Generate: $(realpath -m --relative-to=$PWD $DOCKERFILE)"
+    mkdir -p $(dirname "$DOCKERFILE")
     sed \
         -e "s|{{ SYSTEM }}|${SYSTEM}|" \
         -e "s|{{ TYPE }}|${TYPE}|" \
@@ -253,6 +254,13 @@ while read -r SYSTEM TYPE ARCH OS DIST PY_MINORS; do
     # Name of docker image to build
     #DOCKERIMAGE=dlite-${SYSTEM}${TYPE}_${ARCH}
     DOCKERIMAGE=dlite-${SYSTEM}_${ARCH}
+
+    #echo "SYSTEM=$SYSTEM"
+    #echo "TYPE=$TYPE"
+    #echo "ARCH=$ARCH"
+    #echo "DIST=$DIST"
+    #echo "TEMPLATE=$TEMPLATE"
+    #echo "DOCKERFILE=$DOCKERFILE"
 
     # Run step
     $step
