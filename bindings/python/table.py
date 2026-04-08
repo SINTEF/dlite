@@ -155,11 +155,12 @@ class Table():
             dialect: A subclass of csv.Dialect, or the name of the dialect,
                 specifying how the `csvfile` is formatted.  For more details,
                 see [Dialects and Formatting Parameters].
-            datamodel_mappings: Mapping of DLite datamodel fields (uri, dimensions,
-                description) to table header names. 'dimensions' is normally not
-                provided, in which case it will be inferred from `property_mappngs`.
-            property_mappings: Mapping of DLite property fields (name, type, ref,
-                unit, shape, description) to table header names.
+            datamodel_mappings: Mapping of DLite datamodel fields (uri,
+                dimensions, description) to table header names. 'dimensions'
+                is normally not provided, in which case it will be inferred
+                from `property_mappngs`.
+            property_mappings: Mapping of DLite property fields (name, type,
+                ref, unit, shape, description) to table header names.
             baseuri: Base URI to use if the data model  URI has no namespace.
             kwargs: Additional keyword arguments overriding individual
                 formatting parameters.  For more details, see
@@ -195,6 +196,73 @@ class Table():
 
         return Table(
             table=table,
+            datamodel_mappings=datamodel_mappings,
+            property_mappings=property_mappings,
+            baseuri=baseuri,
+        )
+
+    @staticmethod
+    def from_excel(
+        excelfile: "Union[Path, str]",
+        sheet: "Union[str, int]" = 0,
+        cellrange: "Optional[str]" = None,
+        datamodel_mappings: dict = DEFAULT_DATAMODEL_MAPPINGS,
+        property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
+        baseuri: "Optional[str]" = None,
+        **kwargs,
+    ) -> "Table":
+        """Parse a csv file using the standard library csv module.
+
+        Arguments:
+            excelfile: Name of excel file to parse.
+            sheet: Sheet name or number to load.
+            cellrange: Cell range to load. Examples: "A1:C4", "A:C", "1:4".
+                The default is to read all cells.
+            dialect: A subclass of csv.Dialect, or the name of the dialect,
+                specifying how the `csvfile` is formatted.  For more details,
+                see [Dialects and Formatting Parameters].
+            datamodel_mappings: Mapping of DLite datamodel fields (uri,
+                dimensions, description) to table header names. 'dimensions'
+                is normally not provided, in which case it will be inferred
+                from `property_mappngs`.
+            property_mappings: Mapping of DLite property fields (name, type,
+                ref, unit, shape, description) to table header names.
+            baseuri: Base URI to use if the data model  URI has no namespace.
+            kwargs: Additional keyword arguments overriding individual
+                formatting parameters.  For more details, see
+                [Dialects and Formatting Parameters].
+
+        Returns:
+            New Table instance.
+
+        """
+        from openpyxl import load_workbook
+
+        wb = load_workbook(
+            excelfile,
+            read_only=True,
+            keep_vba=False,
+            data_only=True,
+            keep_links=False,
+            rich_text=False,
+        )
+        # Get sheet
+        ws = wb[wb.sheetnames[sheet] if isinstance(sheet, int) else sheet]
+
+        # Get cell range
+        if cellrange:
+            cr = ws[cellrange]
+        else:
+            # By default has 256 columns. We only want the columns for which
+            # the header is non-empty.
+            nrows = len([None for row in ws.rows if row[0].value])
+            ncols = len([None for cell in next(ws.rows) if cell.value])
+            cr = ws.iter_rows(max_row=nrows, max_col=ncols)
+
+        table = [[cell.value if cell else "" for cell in row] for row in cr]
+
+        return Table(
+            table = table,
             datamodel_mappings=datamodel_mappings,
             property_mappings=property_mappings,
             baseuri=baseuri,
