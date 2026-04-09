@@ -41,12 +41,17 @@ class DMTable():
 
         Arguments:
             table: Table to load, represented as a sequence of sequences.
-            datamodel_mappings: Mapping of DLite datamodel fields (uri, dimensions,
-                description) to table header names. 'dimensions' is normally not
-                provided, in which case it will be inferred from `property_mappings`.
-            property_mappings: Mapping of DLite property fields (name, type, ref,
-                unit, shape, description) to table header names.
-            baseuri: Base URI to use if the data model  URI has no namespace.
+            datamodel_mappings: Mapping of DLite datamodel fields (uri,
+                dimensions, description) to table header names. 'dimensions'
+                is normally not provided, in which case it will be inferred
+                from `property_mappings`.
+            property_mappings: Mapping of DLite property fields (name, type,
+                ref, unit, shape, description) to table header names.
+            baseuri: Base URI to use if the data model identifier (the column
+                that "uri" is mapped to) has no namespace.
+                For example, if `baseuri="http://example.com/data/0.1/"` for
+                a column with identifier "blah" will result in the URI
+                "http://example.com/data/0.1/blah".
 
         """
         self.datamodels = {}  # Maps uri to datamodel dict
@@ -67,8 +72,8 @@ class DMTable():
                 if not baseuri:
                     raise ValueError(
                         f"Datamodel '{d['uri']}' has no namespace. "
-                        "A default namespace can be provided with the "
-                        "`baseuri` argument."
+                        "Provide a default namespace with the `baseuri` "
+                        "argument."
                     )
                 d["uri"] = baseuri + d["uri"]
 
@@ -161,7 +166,9 @@ class DMTable():
                 from `property_mappngs`.
             property_mappings: Mapping of DLite property fields (name, type,
                 ref, unit, shape, description) to table header names.
-            baseuri: Base URI to use if the data model  URI has no namespace.
+            baseuri: Base URI to use if the identifier has no namespace.
+                See the corresponding argument of the __init__() method for
+                details.
             kwargs: Additional keyword arguments overriding individual
                 formatting parameters.  For more details, see
                 [Dialects and Formatting Parameters].
@@ -227,7 +234,9 @@ class DMTable():
                 from `property_mappngs`.
             property_mappings: Mapping of DLite property fields (name, type,
                 ref, unit, shape, description) to table header names.
-            baseuri: Base URI to use if the data model  URI has no namespace.
+            baseuri: Base URI to use if the identifier has no namespace.
+                See the corresponding argument of the __init__() method for
+                details.
             kwargs: Additional keyword arguments overriding individual
                 formatting parameters.  For more details, see
                 [Dialects and Formatting Parameters].
