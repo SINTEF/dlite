@@ -105,7 +105,7 @@ class DMTable():
         return d
 
     def _get_property_idicts(self, header: "Sequence[str]") -> "list[dict]":
-        """Help function that return a list of dicts mapping property fields to
+        """Help function that returns a list of dicts mapping property fields to
         corresponding header indices."""
         typelabel = self.property_mappings["type"]
         headidx = {h: i for i, h in enumerate(header)}
