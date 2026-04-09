@@ -1,6 +1,10 @@
 name: Static code analysis
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:  # Allow to trigger the workflow manually
 
 jobs:
   static-analysis:
