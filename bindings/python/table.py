@@ -83,7 +83,7 @@ class DMTable():
                 dims = {}
                 for k, i in idict.items():
                     value = row[i] if row[i] else ""
-                    if k == "shape":
+                    if k == "shape" and value.strip():
                         prop[k] = [s.strip() for s in value.strip("[]").split(",")]
                         for dim in prop[k]:
                             dims[dim] = f"{dim} dimension"
