@@ -100,7 +100,7 @@ class DMTable():
             self.datamodels[d["uri"]] = d
 
     def _get_datamodel_idict(self, header: "Sequence[str]") -> "dict":
-        """Help function that return a dict mapping datamodel fields to
+        """Help function that returns a dict mapping datamodel fields to
         corresponding header indices."""
         revmap = {v: k for k, v in self.datamodel_mappings.items()}
         d = {}
@@ -110,7 +110,7 @@ class DMTable():
         return d
 
     def _get_property_idicts(self, header: "Sequence[str]") -> "list[dict]":
-        """Help function that return a list of dicts mapping property fields to
+        """Help function that returns a list of dicts mapping property fields to
         corresponding header indices."""
         typelabel = self.property_mappings["type"]
         headidx = {h: i for i, h in enumerate(header)}
@@ -156,14 +156,14 @@ class DMTable():
         Arguments:
             csvfile: Name of CSV file to parse or an iterable of strings.
             encoding: The encoding of the csv file.  Note that Excel may
-                encode as "ISO-8859" (which was commonly used in the 1990th).
+                encode as "ISO-8859" (which was commonly used in the 1990s).
             dialect: A subclass of csv.Dialect, or the name of the dialect,
                 specifying how the `csvfile` is formatted.  For more details,
                 see [Dialects and Formatting Parameters].
             datamodel_mappings: Mapping of DLite datamodel fields (uri,
                 dimensions, description) to table header names. 'dimensions'
                 is normally not provided, in which case it will be inferred
-                from `property_mappngs`.
+                from `property_mappings`.
             property_mappings: Mapping of DLite property fields (name, type,
                 ref, unit, shape, description) to table header names.
             baseuri: Base URI to use if the identifier has no namespace.
@@ -231,7 +231,7 @@ class DMTable():
             datamodel_mappings: Mapping of DLite datamodel fields (uri,
                 dimensions, description) to table header names. 'dimensions'
                 is normally not provided, in which case it will be inferred
-                from `property_mappngs`.
+                from `property_mappings`.
             property_mappings: Mapping of DLite property fields (name, type,
                 ref, unit, shape, description) to table header names.
             baseuri: Base URI to use if the identifier has no namespace.
