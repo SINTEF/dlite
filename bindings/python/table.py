@@ -224,7 +224,7 @@ class DMTable():
             datamodel_mappings: Mapping of DLite datamodel fields (uri,
                 dimensions, description) to table header names. 'dimensions'
                 is normally not provided, in which case it will be inferred
-                from `property_mappngs`.
+                from `property_mappings`.
             property_mappings: Mapping of DLite property fields (name, type,
                 ref, unit, shape, description) to table header names.
             baseuri: Base URI to use if the data model  URI has no namespace.
