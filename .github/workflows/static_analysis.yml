@@ -1,6 +1,10 @@
 name: Static code analysis
 
-on: [push]
+on:
+  push:
+    branches:
+      - master
+  workflow_dispatch:  # Allow to trigger the workflow manually
 
 jobs:
   static-analysis:
@@ -9,11 +13,6 @@ jobs:
 
     steps:
     - uses: actions/checkout@v6
-
-    - name: Update submodules
-      run: |
-        git submodule init
-        git submodule update
 
     - name: Install dependencies
       run: |

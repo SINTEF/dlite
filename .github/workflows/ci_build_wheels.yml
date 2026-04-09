@@ -1,10 +1,11 @@
 name: CI build wheels
 
 on:
-  pull_request:
+  # Run on push/merge to master
+  push:
     branches:
       - master
-  workflow_dispatch:
+  workflow_dispatch:  # Allow to trigger the workflow manually
 
 env:
   container_registry: ghcr.io

@@ -110,7 +110,7 @@ if requests and yaml:
 
 # Test sftp plugin
 # ----------------
-if paramiko:
+if paramiko and "USER" in os.environ:
     host = os.getenv("SFTP_HOST", "localhost")
     port = os.getenv("SFTP_PORT", "22")
     username = os.getenv("SFTP_USERNAME", getpass.getuser())
