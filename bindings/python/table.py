@@ -95,7 +95,7 @@ class DMTable():
             self.datamodels[d["uri"]] = d
 
     def _get_datamodel_idict(self, header: "Sequence[str]") -> "dict":
-        """Help function that return a dict mapping datamodel fields to
+        """Help function that returns a dict mapping datamodel fields to
         corresponding header indices."""
         revmap = {v: k for k, v in self.datamodel_mappings.items()}
         d = {}
