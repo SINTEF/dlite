@@ -1,43 +1,31 @@
 # -*- Mode: Dockerfile -*-
-# Dockerfile for building Python pypi package with musllinux
-#
-# Usage:
+# Dockerfile for building Python pypi package with Alpine
 #
 # Copy this template file and replace:
-# - `{{ TYPE }}` with a valid musllinux type, e.g. '_1_1' or '_1_2'
-# - `{{ ARCH }}` architecture, ex:  x86_64, i686
-# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "8 9 10 11 12"
-# - `{{ EXTRA_PRE }}` extra commands before installation
-# - `{{ EXTRA_POST }}` extra commands after installation
-# Remove the `.template` suffix from the copy.
+# - `{{ SYSTEM }}` system, ex: musllinux
+# - `{{ ARCH }}` architecture, ex: x86_64
+# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
 #
 # Examples
 # --------
 #
 # Generate dockerfile:
 #
-#     .github/docker/gen_dockerfile.sh musllinux _1_2 x86_64 > \
-#         .github/docker/dockerfiles/Dockerfile-musllinux_1_2_x86_64
+#     .github/docker/run dockerfile
 #
 # Build:
 #
 #     cd dlite  # cd to DLite root directory
-#     docker build -t dlite-musllinux_1_2_x86_64 \
-#         -f .github/docker/dockerfiles/Dockerfile-musllinux_1_2_x86_64 .
+#     docker build -t dlite-musllinux_x86_64 \
+#         -f .github/docker/dockerfiles/Dockerfile-musllinux_x86_64 .
 #
 # Run (for debugging):
 #
-#     docker run --rm -it \
-#         --volume $PWD:/io \
-#         --user $(id -u):$(id -g) \
-#         dlite-musllinux_1_2_x86_64 \
-#         /bin/bash
+#     docker run --rm -it --volume $PWD:/io dlite-musllinux_x86_64 /bin/bash
 #
-FROM quay.io/pypa/musllinux{{ TYPE }}_{{ ARCH }}:latest
 
-COPY requirements.txt requirements_full.txt requirements_dev.txt /tmp/
-
-{{ EXTRA_PRE }}
+# Reference: https://github.com/pypa/manylinux
+FROM quay.io/pypa/musllinux_1_2_{{ ARCH }}:latest
 
 # Do not use distutils distributed with setuptools
 # This is due to base changes in the distutils API, removing msvccompiler,
@@ -58,10 +46,13 @@ RUN \
   # It's necessary to be in /opt/_internal because the internal libraries
   # exist here.
   cd /opt/_internal && \
-  tar -Jxvf static-libs-for-embedding-only.tar.xz && \
-  # Filter out challenging packages from requirements_full.txt
+  tar -Jxvf static-libs-for-embedding-only.tar.xz
+
+COPY requirements*.txt /tmp/
+
+# Filter out challenging packages from requirements_full.txt
     #-e 's/^pydantic.*/pydantic<2/' \
-  sed \
+RUN sed \
     -e '/pandas/d' \
     -e '/pyarrow/d' \
     -e '/tables/d' \
@@ -78,12 +69,15 @@ RUN \
     -e '/mongomock/d' \
     -i /tmp/requirements_dev.txt
 
+
 ARG PY_MINORS="{{ PY_MINORS }}"
 
 RUN \
   # Install required Python packages
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
+    echo && \
+    echo "---------- Python 3.$minor - install requirements ------------" && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache -U pip && \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -r /tmp/requirements.txt \
@@ -92,4 +86,4 @@ RUN \
   done && \
   rm -rf /ci/pip_cache
 
-{{ EXTRA_POST }}
+#COPY .github/docker/run.sh .github/docker/IMAGES.txt /tmp/
