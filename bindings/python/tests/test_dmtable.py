@@ -2,7 +2,7 @@
 from pathlib import Path
 
 import dlite
-from dlite.table import Table
+from dlite.dmtable import Table
 
 
 thisdir = Path(__file__).resolve().parent

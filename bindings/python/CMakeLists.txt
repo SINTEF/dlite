@@ -12,8 +12,8 @@ set(py_sources
   dataset.py
   quantity.py
   testutils.py
-  table.py
-  )
+  dmtable.py
+)
 
 # Python sub-packages
 set(py_packages
