@@ -27,7 +27,7 @@ DEFAULT_PROPERTY_MAPPINGS = {
 }
 
 
-class Table():
+class DMTable():
     """A class for loading DLite data models form tables."""
 
     def __init__(
@@ -37,7 +37,7 @@ class Table():
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
     ) -> None:
-        """Initialises a Table object from a list of lists.
+        """Initialises a DMTable object from a list of lists.
 
         Arguments:
             table: Table to load, represented as a sequence of sequences.
@@ -144,7 +144,7 @@ class Table():
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
         **kwargs,
-    ) -> "Table":
+    ) -> "DMTable":
         # pylint: disable=line-too-long
         """Parse a csv file using the standard library csv module.
 
@@ -167,7 +167,7 @@ class Table():
                 [Dialects and Formatting Parameters].
 
         Returns:
-            New Table instance.
+            New DMTable instance.
 
         References:
         [Dialects and Formatting Parameters]: https://docs.python.org/3/library/csv.html#dialects-and-formatting-parameters
@@ -194,7 +194,7 @@ class Table():
         else:
             table = read(csvfile, dialect)
 
-        return Table(
+        return DMTable(
             table=table,
             datamodel_mappings=datamodel_mappings,
             property_mappings=property_mappings,
@@ -210,7 +210,7 @@ class Table():
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
         **kwargs,
-    ) -> "Table":
+    ) -> "DMTable":
         """Parse a csv file using the standard library csv module.
 
         Arguments:
@@ -233,7 +233,7 @@ class Table():
                 [Dialects and Formatting Parameters].
 
         Returns:
-            New Table instance.
+            New DMTable instance.
 
         """
         from openpyxl import load_workbook
@@ -260,7 +260,7 @@ class Table():
 
         table = [[cell.value for cell in row] for row in cr]
 
-        return Table(
+        return DMTable(
             table = table,
             datamodel_mappings=datamodel_mappings,
             property_mappings=property_mappings,

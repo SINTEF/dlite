@@ -1,8 +1,8 @@
-"""Test dlite.table.Table"""
+"""Test dlite.table.DMTable"""
 from pathlib import Path
 
 import dlite
-from dlite.dmtable import Table
+from dlite.table import DMTable
 
 
 thisdir = Path(__file__).resolve().parent
@@ -18,7 +18,7 @@ table = [
     ("dm1",        "dm1",   "...",         "mass",         "float64",      "symbol",       "string",       "len,nsymbols"),
     ("dm2",        "dm2",   "...",         "name",         "string",       None,             "",           ""),
 ]
-t = Table(table, baseuri="http://onto-ns.com/meta/test/0.1/")
+t = DMTable(table, baseuri="http://onto-ns.com/meta/test/0.1/")
 dm1, dm2 = t.get_datamodels()
 assert isinstance(dm1, dlite.Metadata)
 assert isinstance(dm2, dlite.Metadata)
@@ -27,7 +27,7 @@ assert dm1.getprop("symbol").type == "string"
 assert dm1.getprop("symbol").shape.tolist() == ["len", "nsymbols"]
 
 # Test loading csv file
-t2 = Table.from_csv(indir / "datamodels.csv")
+t2 = DMTable.from_csv(indir / "datamodels.csv")
 m1, m2 = t2.get_datamodels()
 assert isinstance(m1, dlite.Metadata)
 assert isinstance(m2, dlite.Metadata)
@@ -39,7 +39,7 @@ assert m2.getprop("indices").type == "int64"
 assert m2.getprop("indices").shape.tolist() == ["N", "M"]
 
 # Test loading excel file
-t3 = Table.from_excel(indir / "datamodels.xlsx")
+t3 = DMTable.from_excel(indir / "datamodels.xlsx")
 m3, m4 = t3.get_datamodels()
 assert isinstance(m3, dlite.Metadata)
 assert isinstance(m4, dlite.Metadata)
@@ -51,7 +51,7 @@ assert m4.getprop("indices").type == "int64"
 assert m4.getprop("indices").shape.tolist() == ["N", "M"]
 
 # Test loading given sheet and cellrange from excel
-t4 = Table.from_excel(
+t4 = DMTable.from_excel(
     indir / "datamodels.xlsx", sheet="sheet1", cellrange="A1:G2"
 )
 m5, = t4.get_datamodels()

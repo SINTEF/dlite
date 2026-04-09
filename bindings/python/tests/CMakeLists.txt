@@ -34,7 +34,7 @@ set(tests
   test_plugin
   test_memory
   test_jstore
-  test_dmtable
+  test_table
 )
 
 foreach(test ${tests})
