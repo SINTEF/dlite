@@ -12,7 +12,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # Default mappings of DLite metadata fields to table header names
 DEFAULT_DATAMODEL_MAPPINGS = {
-    "uri": "identifier",
+    "uri": "@id",
     "dimensions": None,
     "description": "description",
 }

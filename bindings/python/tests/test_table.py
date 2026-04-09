@@ -14,7 +14,7 @@ import test_storage
 
 # Test loading a python table
 table = [
-    ("identifier", "label", "description", "datumName[1]", "datumType[1]", "datumName[2]", "datumType[2]", "datumShape[2]"),
+    ("@id", "label", "description", "datumName[1]", "datumType[1]", "datumName[2]", "datumType[2]", "datumShape[2]"),
     ("dm1",        "dm1",   "...",         "mass",         "float64",      "symbol",       "string",       "len,nsymbols"),
     ("dm2",        "dm2",   "...",         "name",         "string",       None,             "",           ""),
 ]
