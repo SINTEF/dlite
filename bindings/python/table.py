@@ -65,6 +65,7 @@ class DMTable():
         self.datamodel_mappings = datamodel_mappings
         self.property_mappings = property_mappings
 
+        # Get the indices of the columns that matches the mapped labels
         header = [h.strip() for h in table[0]]
         datamodel_idict = self._get_datamodel_idict(header)
         property_idicts = self._get_property_idicts(header)
