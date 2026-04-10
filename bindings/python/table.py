@@ -28,7 +28,13 @@ DEFAULT_PROPERTY_MAPPINGS = {
 
 
 class DMTable():
-    """A class for loading DLite data models form tables."""
+    """A class for loading DLite data models form tables.
+
+    A table with datamodels should contain some columns with pre-defined
+    header labels. For details, see the online documentation:
+    https://sintef.github.io/dlite/user_guide/datamodels.html
+
+    """
 
     def __init__(
         self,
