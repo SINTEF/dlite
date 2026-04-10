@@ -142,7 +142,7 @@ t2 = DMTable.from_csv(indir / "datamodels.csv")
 m1, m2 = t2.get_datamodels()
 ```
 
-The optional `datamodel_mappings` and `property_mappings` arguments of `DMTable.from_csv()` allows the user to provide custom mappings for the datamodel (`uri`, `description`) and property (`name`, `type`, `ref`, `unit`, `shape`, `description`) fields.
+The optional `datamodel_mappings` and `property_mappings` arguments of `DMTable.from_csv()` allow the user to provide custom mappings for the datamodel (`uri`, `description`) and property (`name`, `type`, `ref`, `unit`, `shape`, `description`) fields.
 
 
 The soft5 and soft7 formats
