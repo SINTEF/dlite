@@ -31,9 +31,10 @@ class DMTable():
     """A class for loading DLite data models form tables.
 
     A table with datamodels should contain some columns with pre-defined
-    header labels. For details, see the online documentation:
-    https://sintef.github.io/dlite/user_guide/datamodels.html
+    header labels. For details, see the [online documentation].
 
+    References:
+    [online documentation]: https://sintef.github.io/dlite/user_guide/datamodels.html#defining-multiple-datamodels-in-a-table
     """
 
     def __init__(

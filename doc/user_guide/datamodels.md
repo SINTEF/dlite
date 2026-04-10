@@ -81,7 +81,9 @@ An example of such a table is shown below.
 | http://onto-ns.com/meta/test/0.1/m1 | First data model.  | Datamodel 1 | length       | float64      | cm           | emmo:Length     |              |              |               |
 | http://onto-ns.com/meta/test/0.1/m2 | Second data model. | Datamodel 2 | key          | string       |              |                 | indices      | int          | N,M           |
 
-This table defines the following two datamodels:
+To illustrate that table may contain additional columns, not used for the generation of datamodels, a column 'title' has been added to the above example.
+
+The table defines the following two datamodels:
 
 ```yaml
 uri: http://onto-ns.com/meta/test/0.1/m1
@@ -104,7 +106,9 @@ properties:
     shape: ["N", "M"]
 ```
 
-where DLite the fields the fields in the datamodel are mapped to the table headers via the following mappings:
+The fields in the datamodel are mapped to the table headers via the following default mappings.
+
+Note that `dimensions` is inferred from the shapes of the properties.
 
 ```python
 # Default mappings of DLite metadata fields to table header names
