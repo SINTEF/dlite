@@ -144,6 +144,26 @@ m1, m2 = t2.get_datamodels()
 
 The optional `datamodel_mappings` and `property_mappings` arguments of `DMTable.from_csv()` allow the user to provide custom mappings for the datamodel (`uri`, `description`) and property (`name`, `type`, `ref`, `unit`, `shape`, `description`) fields.
 
+It is also possible to to give just the name in the `@id` or `uri` column.
+However, this requires that the `baseuri` argument is provided.
+The above table could then be rewritten as follows:
+
+| @id | description        | title       | datumName[1] | datumType[1] | datumUnit[1] | datumMapping[1] | datumName[2] | datumType[2] | datumShape[2] |
+|-----|--------------------|-------------|--------------|--------------|--------------|-----------------|--------------|--------------|---------------|
+| m1  | First data model.  | Datamodel 1 | length       | float64      | cm           | emmo:Length     |              |              |               |
+| m2  | Second data model. | Datamodel 2 | key          | string       |              |                 | indices      | int          | N,M           |
+
+and the python code to create the same datamodels as above would be:
+
+```python
+from dlite.table import DMTable
+t2 = DMTable.from_csv(indir / "datamodels.csv", baseuri="http://onto-ns.com/meta/test/0.1")
+m1, m2 = t2.get_datamodels()
+```
+
+Note that if the baseuri is not given and the `uri` is not a true IRI, an error will be raised.
+
+
 
 The soft5 and soft7 formats
 ---------------------------
