@@ -70,6 +70,101 @@ properties:
 ```
 
 
+Defining multiple datamodels in a table
+---------------------------------------
+The `dlite.table` Python module provides a simple tabular interface to define multiple datamodels. The table can either be an Excel or CSV file or an Python table (like a NumPy array or just a sequence of sequences).
+
+An example of such a table is shown below.
+
+| @id                                 | description        | title       | datumName[1] | datumType[1] | datumUnit[1] | datumMapping[1] | datumName[2] | datumType[2] | datumShape[2] |
+|-------------------------------------|--------------------|-------------|--------------|--------------|--------------|-----------------|--------------|--------------|---------------|
+| http://onto-ns.com/meta/test/0.1/m1 | First data model.  | Datamodel 1 | length       | float64      | cm           | emmo:Length     |              |              |               |
+| http://onto-ns.com/meta/test/0.1/m2 | Second data model. | Datamodel 2 | key          | string       |              |                 | indices      | int          | N,M           |
+
+To illustrate that table may contain additional columns, not used for the generation of datamodels, a column 'title' has been added to the above example.
+
+The table defines the following two datamodels:
+
+```yaml
+uri: http://onto-ns.com/meta/test/0.1/m1
+description: First data model.
+properties:
+  length:
+    type: float64
+    unit: cm
+
+uri: http://onto-ns.com/meta/test/0.1/m2
+description: Second data model.
+dimensions:
+  N: N dimension
+  M: M dimension
+properties:
+  key:
+    type: string
+  indices:
+    type: int64
+    shape: ["N", "M"]
+```
+
+The fields in the datamodel are mapped to the table headers via the following default mappings.
+
+Note that `dimensions` is inferred from the shapes of the properties.
+
+```python
+# Default mappings of DLite metadata fields to table header names
+DEFAULT_DATAMODEL_MAPPINGS = {
+    "uri": "@id",
+    "dimensions": None,
+    "description": "description",
+}
+# Default mappings of DLite property fields to table header names
+DEFAULT_PROPERTY_MAPPINGS = {
+    "name": "datumName",
+    "type": "datumType",
+    "ref": "datumRef",
+    "unit": "datumUnit",
+    "shape": "datumShape",
+    "description": "datumDescription",
+}
+```
+
+> [!NOTE]
+> The that a square bracket (`[...]`) is appended to the property header labels.
+> The content of these brackets have (currently) no semantic meaning, but are used to indicate what columns that belong to the same property.
+
+Assuming that the above table is stored in a CSV file called `datamodels.csv`.
+Python objects `m1` and `m2` for these datamodels can then be created with the following code
+
+```python
+from dlite.table import DMTable
+
+t2 = DMTable.from_csv(indir / "datamodels.csv")
+m1, m2 = t2.get_datamodels()
+```
+
+The optional `datamodel_mappings` and `property_mappings` arguments of `DMTable.from_csv()` allow the user to provide custom mappings for the datamodel (`uri`, `description`) and property (`name`, `type`, `ref`, `unit`, `shape`, `description`) fields.
+
+It is also possible to to give just the name in the `@id` or `uri` column.
+However, this requires that the `baseuri` argument is provided.
+The above table could then be rewritten as follows:
+
+| @id | description        | title       | datumName[1] | datumType[1] | datumUnit[1] | datumMapping[1] | datumName[2] | datumType[2] | datumShape[2] |
+|-----|--------------------|-------------|--------------|--------------|--------------|-----------------|--------------|--------------|---------------|
+| m1  | First data model.  | Datamodel 1 | length       | float64      | cm           | emmo:Length     |              |              |               |
+| m2  | Second data model. | Datamodel 2 | key          | string       |              |                 | indices      | int          | N,M           |
+
+and the python code to create the same datamodels as above would be:
+
+```python
+from dlite.table import DMTable
+t2 = DMTable.from_csv(indir / "datamodels.csv", baseuri="http://onto-ns.com/meta/test/0.1")
+m1, m2 = t2.get_datamodels()
+```
+
+Note that if the baseuri is not given and the `uri` is not a true IRI, an error will be raised.
+
+
+
 The soft5 and soft7 formats
 ---------------------------
 For historical reasons are there two formats for the YAML and JSON representations.
