@@ -62,9 +62,14 @@ assert m41.getprop("length").unit == "cm"
 
 # Test loading another csv file
 t5 = DMTable.from_csv(indir / "datamodels2.csv")
+# Line to be added in csv
+# http://onto-ns.com/meta/test/0.1/m52,"Antother data model.","Datamodel 5.2",length,float64,cm,,indices,int,
+#m51, m52 = t5.get_datamodels()
 m51, = t5.get_datamodels()
 assert isinstance(m51, dlite.Metadata)
 assert m51.description == "First data model."
+assert m51.ndimensions == 2 
+assert m51.nproperties == 2
 assert m51.getprop("length").type == "float64"
 assert m51.getprop("length").unit == "cm"
 assert m51.getprop("length").shape.tolist() == ["N", "M"]
