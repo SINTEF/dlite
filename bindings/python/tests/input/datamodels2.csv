@@ -1,0 +1,2 @@
+@id,description,title,datumName,datumType,datumUnit,datumShape,datumName[x],datumType[x],datumShape[x]
+http://onto-ns.com/meta/test/0.1/m51,"First data model.","Datamodel 5.1",length,float64,cm,"N, M",indices,int,"N"

@@ -86,9 +86,9 @@ class DMTable():
                 d["uri"] = baseuri + d["uri"]
 
             # Parse property mappings
+            dims = {}
             for idict in property_idicts:
                 prop = {}
-                dims = {}
                 for k, i in idict.items():
                     value = row[i] if row[i] else ""
                     if k == "shape" and value.strip():
@@ -102,8 +102,8 @@ class DMTable():
                         d["properties"].append(prop)
                     else:
                         d["properties"] = [prop]
-                if dims:
-                    d["dimensions"] = dims
+            if dims:
+                d["dimensions"] = dims
 
             self.datamodels[d["uri"]] = d
 
