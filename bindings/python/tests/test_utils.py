@@ -201,3 +201,55 @@ ds.add({
     "dimensions": [0],
     "properties": {"relations": []},
 })
+
+
+
+dict_shape_emptystr = {
+    'uri': 'http://onto-ns.com/meta/test/0.1/m52',
+    'description': 'Antother data model.',
+    'properties': [
+        {
+            'name': 'length',
+            'type': 'float64',
+            'unit': 'cm',
+            'shape': ''
+        },{
+            'name': 'indices', 
+            'type': 'int', 
+            'shape': ''
+        },
+    ],
+}
+
+
+
+assert isinstance(
+
+
+
+dict_invaliddm = {
+    'http://onto-ns.com/meta/test/0.1/invalid1': {
+        'uri': 'http://onto-ns.com/meta/test/0.1/invalid1',
+        'description': 'Invalid data model.',
+        'properties': [
+            {
+                'name': 'length',
+                'type': 'float64',
+                'unit': 'cm',
+                'shape': ''
+            },{
+                'name': 'indices', 
+                'type': 'intu', #invalid unit type 
+                'shape': ''
+            },
+        ],
+    },
+}
+
+assert correct exception
+assert no instance with uri 'http://onto-ns.com/meta/test/0.1/invalid1'
+
+
+
+
+
