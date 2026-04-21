@@ -12,6 +12,7 @@ from dlite.utils import (
     HAVE_DATACLASSES,
     HAVE_PYDANTIC,
 )
+from dlite.testutils import raises
 
 
 thisdir = Path(__file__).absolute().parent
@@ -67,7 +68,7 @@ d = {
 }
 
 inst = instance_from_dict(d)
-print(inst)
+#print(inst)
 
 
 Person = dlite.Instance.from_url(f"json://{entitydir}/Person.json")
@@ -81,6 +82,44 @@ inst1 = instance_from_dict(d1)
 
 d2 = Person.asdict()
 inst2 = instance_from_dict(d2)
+
+
+# Shape must be a sequence of strings
+dict_badshape = {
+    'uri': 'http://onto-ns.com/meta/test/0.1/badshape',
+    'description': 'Antother data model.',
+    'properties': [
+        {
+            'name': 'length',
+            'type': 'float64',
+            'unit': 'cm',
+            'shape': "",
+        },
+    ],
+}
+with raises(dlite.DLiteParseError, dlite.DLiteIOError):
+    inst3 = instance_from_dict(dict_badshape)
+
+# No instance should be created on error
+assert not dlite.has_instance("http://onto-ns.com/meta/test/0.1/badshape")
+
+# Instance should not be created on error
+dict_invalidtype = {
+    'http://onto-ns.com/meta/test/0.1/invalid1': {
+        'uri': 'http://onto-ns.com/meta/test/0.1/invalid1',
+        'description': 'Invalid data model.',
+        'properties': [
+            {
+                'name': 'indices',
+                'type': 'intu', #invalid unit type
+                'shape': ''
+            },
+        ],
+    },
+}
+with raises(dlite.DLiteIOError, dlite.DLiteTypeError):
+    inst4 = instance_from_dict(dict_invalidtype)
+assert not dlite.has_instance("http://onto-ns.com/meta/test/0.1/invalid1")
 
 
 if HAVE_DATACLASSES:
@@ -201,55 +240,3 @@ ds.add({
     "dimensions": [0],
     "properties": {"relations": []},
 })
-
-
-
-dict_shape_emptystr = {
-    'uri': 'http://onto-ns.com/meta/test/0.1/m52',
-    'description': 'Antother data model.',
-    'properties': [
-        {
-            'name': 'length',
-            'type': 'float64',
-            'unit': 'cm',
-            'shape': ''
-        },{
-            'name': 'indices', 
-            'type': 'int', 
-            'shape': ''
-        },
-    ],
-}
-
-
-
-assert isinstance(
-
-
-
-dict_invaliddm = {
-    'http://onto-ns.com/meta/test/0.1/invalid1': {
-        'uri': 'http://onto-ns.com/meta/test/0.1/invalid1',
-        'description': 'Invalid data model.',
-        'properties': [
-            {
-                'name': 'length',
-                'type': 'float64',
-                'unit': 'cm',
-                'shape': ''
-            },{
-                'name': 'indices', 
-                'type': 'intu', #invalid unit type 
-                'shape': ''
-            },
-        ],
-    },
-}
-
-assert correct exception
-assert no instance with uri 'http://onto-ns.com/meta/test/0.1/invalid1'
-
-
-
-
-
