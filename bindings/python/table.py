@@ -62,7 +62,7 @@ class DMTable():
                 "http://example.com/data/0.1/blah".
 
         """
-        self.datamodels = {}  # Maps uri to datamodel dict
+        self.dmdicts = {}  # Maps uri to datamodel dict
         self.datamodel_mappings = datamodel_mappings
         self.property_mappings = property_mappings
 
@@ -92,10 +92,12 @@ class DMTable():
                 prop = {}
                 for k, i in idict.items():
                     value = row[i] if row[i] else ""
-                    if k == "shape" and value.strip():
-                        prop[k] = [s.strip() for s in value.strip("[]").split(",")]
-                        for dim in prop[k]:
-                            dims[dim] = f"{dim} dimension"
+
+                    if k == "shape":
+                        if value.strip():
+                            prop[k] = [s.strip() for s in value.strip("[]").split(",")]
+                            for dim in prop[k]:
+                                dims[dim] = f"{dim} dimension"
                     else:
                         prop[k] = value.strip()
                 if prop["name"]:
@@ -106,7 +108,7 @@ class DMTable():
             if dims:
                 d["dimensions"] = dims
 
-            self.datamodels[d["uri"]] = d
+            self.dmdicts[d["uri"]] = d
 
     def _get_datamodel_idict(self, header: "Sequence[str]") -> "dict":
         """Help function that returns a dict mapping datamodel fields to
@@ -147,7 +149,7 @@ class DMTable():
 
     def get_datamodels(self) -> "list[dlite.Metadata]":
         """Return a list with all datamodels parsed from the table."""
-        return [dlite.Metadata.from_dict(d) for d in self.datamodels.values()]
+        return [dlite.Metadata.from_dict(d) for d in self.dmdicts.values()]
 
     @staticmethod
     def from_csv(

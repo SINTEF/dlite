@@ -16,11 +16,12 @@ import test_storage
 # Test loading a python table
 table = [
     ("@id", "label", "description", "datumName[1]", "datumType[1]", "datumName[2]", "datumType[2]", "datumShape[2]"),
-    ("dm1",        "dm1",   "...",         "mass",         "float64",      "symbol",       "string",       "len,nsymbols"),
-    ("dm2",        "dm2",   "...",         "name",         "string",       None,             "",           ""),
+    ("dm1", "dm1",   "...",         "mass",         "float64",      "symbol",       "string",       "len,nsymbols"),
+    ("dm2", "dm2",   "...",         "name",         "string",       None,            "",            ""),
+    ("dm3", "dm3",   "...",         "length",       "float",        "scalar",        "float64",     ""),
 ]
 t1 = DMTable(table, baseuri="http://onto-ns.com/meta/test/0.1/")
-dm11, dm12 = t1.get_datamodels()
+dm11, dm12, dm13 = t1.get_datamodels()
 assert isinstance(dm11, dlite.Metadata)
 assert isinstance(dm12, dlite.Metadata)
 assert dm11.getprop("symbol").name == "symbol"
