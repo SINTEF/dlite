@@ -3,6 +3,7 @@ from pathlib import Path
 
 import dlite
 from dlite.table import DMTable
+from dlite.testutils import importcheck
 
 
 thisdir = Path(__file__).resolve().parent
@@ -39,26 +40,27 @@ assert m22.getprop("indices").type == "int64"
 assert m22.getprop("indices").shape.tolist() == ["N", "M"]
 
 # Test loading excel file
-t3 = DMTable.from_excel(indir / "datamodels.xlsx")
-m33, m34 = t3.get_datamodels()
-assert isinstance(m33, dlite.Metadata)
-assert isinstance(m34, dlite.Metadata)
-assert m33.description == "First data model."
-assert m33.getprop("length").type == "float64"
-assert m33.getprop("length").unit == "cm"
-assert m34.getprop("key").type == "string"
-assert m34.getprop("indices").type == "int64"
-assert m34.getprop("indices").shape.tolist() == ["N", "M"]
+if importcheck("openpyxl"):
+    t3 = DMTable.from_excel(indir / "datamodels.xlsx")
+    m33, m34 = t3.get_datamodels()
+    assert isinstance(m33, dlite.Metadata)
+    assert isinstance(m34, dlite.Metadata)
+    assert m33.description == "First data model."
+    assert m33.getprop("length").type == "float64"
+    assert m33.getprop("length").unit == "cm"
+    assert m34.getprop("key").type == "string"
+    assert m34.getprop("indices").type == "int64"
+    assert m34.getprop("indices").shape.tolist() == ["N", "M"]
 
-# Test loading given sheet and cellrange from excel
-t4 = DMTable.from_excel(
-    indir / "datamodels.xlsx", sheet="sheet1", cellrange="A1:G2"
-)
-m41, = t4.get_datamodels()
-assert isinstance(m41, dlite.Metadata)
-assert m41.description == "First data model."
-assert m41.getprop("length").type == "float64"
-assert m41.getprop("length").unit == "cm"
+    # Test loading given sheet and cellrange from excel
+    t4 = DMTable.from_excel(
+        indir / "datamodels.xlsx", sheet="sheet1", cellrange="A1:G2"
+    )
+    m41, = t4.get_datamodels()
+    assert isinstance(m41, dlite.Metadata)
+    assert m41.description == "First data model."
+    assert m41.getprop("length").type == "float64"
+    assert m41.getprop("length").unit == "cm"
 
 # Test loading another csv file
 t5 = DMTable.from_csv(indir / "datamodels2.csv")
@@ -68,13 +70,10 @@ t5 = DMTable.from_csv(indir / "datamodels2.csv")
 m51, = t5.get_datamodels()
 assert isinstance(m51, dlite.Metadata)
 assert m51.description == "First data model."
-assert m51.ndimensions == 2 
+assert m51.ndimensions == 2
 assert m51.nproperties == 2
 assert m51.getprop("length").type == "float64"
 assert m51.getprop("length").unit == "cm"
 assert m51.getprop("length").shape.tolist() == ["N", "M"]
 assert m51.getprop("indices").type == "int64"
 assert m51.getprop("indices").shape.tolist() == ["N"]
-
-
-
