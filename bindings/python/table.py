@@ -95,7 +95,10 @@ class DMTable():
 
                     if k == "shape":
                         if value.strip():
-                            prop[k] = [s.strip() for s in value.strip("[]").split(",")]
+                            prop[k] = [
+                                s.strip()
+                                for s in value.strip().strip("[]").split(",")
+                            ]
                             for dim in prop[k]:
                                 dims[dim] = f"{dim} dimension"
                     else:
