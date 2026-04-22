@@ -1,6 +1,7 @@
 """Utilities for reading and writing DLite instances from and to tables."""
 import csv
 import re
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -255,14 +256,23 @@ class DMTable():
         """
         from openpyxl import load_workbook
 
-        wb = load_workbook(
-            excelfile,
-            read_only=True,
-            keep_vba=False,
-            data_only=True,
-            keep_links=False,
-            rich_text=False,
-        )
+        # load_workbook() warns about missing default style, but
+        # doesn't provide a way to specify it. Ignore the warning!
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                category=UserWarning,
+                module=re.escape('openpyxl.styles.stylesheet')
+            )
+            wb = load_workbook(
+                excelfile,
+                read_only=True,
+                keep_vba=False,
+                data_only=True,
+                keep_links=False,
+                rich_text=False,
+            )
+
         # Get worksheet
         ws = wb[wb.sheetnames[sheet] if isinstance(sheet, int) else sheet]
 
