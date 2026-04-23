@@ -4,6 +4,7 @@ from pathlib import Path
 
 import dlite
 from dlite.table import DMTable
+from dlite.testutils import importcheck
 
 
 thisdir = Path(__file__).resolve().parent
@@ -16,16 +17,30 @@ import test_storage
 # Test loading a python table
 table = [
     ("@id", "label", "description", "datumName[1]", "datumType[1]", "datumName[2]", "datumType[2]", "datumShape[2]"),
-    ("dm1",        "dm1",   "...",         "mass",         "float64",      "symbol",       "string",       "len,nsymbols"),
-    ("dm2",        "dm2",   "...",         "name",         "string",       None,             "",           ""),
+    ("dm1", "dm1",   "...",         "mass",         "float64",      "symbol",       "string",       "len,nsymbols"),
+    ("dm2", "dm2",   "...",         "name",         "string",       None,            "",            ""),
+    ("dm3", "dm3",   "...",         "length",       "float",        "scalar",        "float64",     ""),
 ]
 t1 = DMTable(table, baseuri="http://onto-ns.com/meta/test/0.1/")
-dm11, dm12 = t1.get_datamodels()
+dm11, dm12, dm13 = t1.get_datamodels()
 assert isinstance(dm11, dlite.Metadata)
-assert isinstance(dm12, dlite.Metadata)
+assert dm11.ndimensions == 2
+assert dm11.nproperties == 2
 assert dm11.getprop("symbol").name == "symbol"
 assert dm11.getprop("symbol").type == "string"
 assert dm11.getprop("symbol").shape.tolist() == ["len", "nsymbols"]
+
+assert isinstance(dm12, dlite.Metadata)
+assert dm12.ndimensions == 0
+assert dm12.nproperties == 1
+assert dm12.getprop("name").type == "string"
+
+assert isinstance(dm13, dlite.Metadata)
+assert dm13.ndimensions == 0
+assert dm13.nproperties == 2
+assert dm13.getprop("scalar").type == "float64"
+assert dm13.getprop("scalar").shape.tolist() == []
+
 
 # Test loading csv file
 t2 = DMTable.from_csv(indir / "datamodels.csv")

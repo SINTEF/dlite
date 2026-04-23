@@ -1,6 +1,7 @@
 """Utilities for reading and writing DLite instances from and to tables."""
 import csv
 import re
+import warnings
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -62,7 +63,7 @@ class DMTable():
                 "http://example.com/data/0.1/blah".
 
         """
-        self.datamodels = {}  # Maps uri to datamodel dict
+        self.dmdicts = {}  # Maps uri to datamodel dict
         self.datamodel_mappings = datamodel_mappings
         self.property_mappings = property_mappings
 
@@ -110,7 +111,7 @@ class DMTable():
             if dims:
                 d["dimensions"] = dims
 
-            self.datamodels[d["uri"]] = d
+            self.dmdicts[d["uri"]] = d
 
     def _get_datamodel_idict(self, header: "Sequence[str]") -> "dict":
         """Help function that returns a dict mapping datamodel fields to
@@ -151,7 +152,7 @@ class DMTable():
 
     def get_datamodels(self) -> "list[dlite.Metadata]":
         """Return a list with all datamodels parsed from the table."""
-        return [dlite.Metadata.from_dict(d) for d in self.datamodels.values()]
+        return [dlite.Metadata.from_dict(d) for d in self.dmdicts.values()]
 
     @staticmethod
     def from_csv(
@@ -260,14 +261,23 @@ class DMTable():
         """
         from openpyxl import load_workbook
 
-        wb = load_workbook(
-            excelfile,
-            read_only=True,
-            keep_vba=False,
-            data_only=True,
-            keep_links=False,
-            rich_text=False,
-        )
+        # load_workbook() warns about missing default style, but
+        # doesn't provide a way to specify it. Ignore the warning!
+        with warnings.catch_warnings():
+            warnings.filterwarnings(
+                "ignore",
+                category=UserWarning,
+                module=re.escape('openpyxl.styles.stylesheet')
+            )
+            wb = load_workbook(
+                excelfile,
+                read_only=True,
+                keep_vba=False,
+                data_only=True,
+                keep_links=False,
+                rich_text=False,
+            )
+
         # Get worksheet
         ws = wb[wb.sheetnames[sheet] if isinstance(sheet, int) else sheet]
 

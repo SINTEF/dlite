@@ -751,7 +751,9 @@ static DLiteInstance *parse_instance(const char *src, jsmntok_t *obj,
   if (uri) free(uri);
   if (metauri) free(metauri);
   if (!ok && inst) {
-    dlite_instance_decref(inst);
+    /* Metadata has an extra refcount, so loop until refcount is zero */
+    while (inst->_refcount)
+      dlite_instance_decref(inst);
     inst = NULL;
   }
   if (meta) dlite_meta_decref((DLiteMeta *)meta);
