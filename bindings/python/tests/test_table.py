@@ -1,4 +1,5 @@
 """Test dlite.table.DMTable"""
+import warnings
 from pathlib import Path
 
 import dlite
@@ -38,43 +39,66 @@ assert m22.getprop("key").type == "string"
 assert m22.getprop("indices").type == "int64"
 assert m22.getprop("indices").shape.tolist() == ["N", "M"]
 
-# Test loading excel file
-t3 = DMTable.from_excel(indir / "datamodels.xlsx")
-m33, m34 = t3.get_datamodels()
-assert isinstance(m33, dlite.Metadata)
-assert isinstance(m34, dlite.Metadata)
-assert m33.description == "First data model."
-assert m33.getprop("length").type == "float64"
-assert m33.getprop("length").unit == "cm"
-assert m34.getprop("key").type == "string"
-assert m34.getprop("indices").type == "int64"
-assert m34.getprop("indices").shape.tolist() == ["N", "M"]
-
-# Test loading given sheet and cellrange from excel
-t4 = DMTable.from_excel(
-    indir / "datamodels.xlsx", sheet="sheet1", cellrange="A1:G2"
-)
-m41, = t4.get_datamodels()
-assert isinstance(m41, dlite.Metadata)
-assert m41.description == "First data model."
-assert m41.getprop("length").type == "float64"
-assert m41.getprop("length").unit == "cm"
 
 # Test loading another csv file
-t5 = DMTable.from_csv(indir / "datamodels2.csv")
+t3 = DMTable.from_csv(indir / "datamodels2.csv")
 # Line to be added in csv
-# http://onto-ns.com/meta/test/0.1/m52,"Antother data model.","Datamodel 5.2",length,float64,cm,,indices,int,
-#m51, m52 = t5.get_datamodels()
-m51, = t5.get_datamodels()
-assert isinstance(m51, dlite.Metadata)
-assert m51.description == "First data model."
-assert m51.ndimensions == 2 
-assert m51.nproperties == 2
-assert m51.getprop("length").type == "float64"
-assert m51.getprop("length").unit == "cm"
-assert m51.getprop("length").shape.tolist() == ["N", "M"]
-assert m51.getprop("indices").type == "int64"
-assert m51.getprop("indices").shape.tolist() == ["N"]
+# http://onto-ns.com/meta/test/0.1/m32,"Antother data model.","Datamodel 5.2",length,float64,cm,,indices,int,
+#m31, m32 = t5.get_datamodels()
+m31, = t3.get_datamodels()
+assert isinstance(m31, dlite.Metadata)
+assert m31.description == "First data model."
+assert m31.ndimensions == 2
+assert m31.nproperties == 2
+assert m31.getprop("length").type == "float64"
+assert m31.getprop("length").unit == "cm"
+assert m31.getprop("length").shape.tolist() == ["N", "M"]
+assert m31.getprop("indices").type == "int64"
+assert m31.getprop("indices").shape.tolist() == ["N"]
 
 
+# Test loading excel file
+if importcheck("openpyxl"):
+    t4 = DMTable.from_excel(indir / "datamodels.xlsx")
+    m43, m44 = t4.get_datamodels()
+    assert isinstance(m43, dlite.Metadata)
+    assert isinstance(m44, dlite.Metadata)
+    assert m43.description == "First data model."
+    assert m43.getprop("length").type == "float64"
+    assert m43.getprop("length").unit == "cm"
+    assert m44.getprop("key").type == "string"
+    assert m44.getprop("indices").type == "int64"
+    assert m44.getprop("indices").shape.tolist() == ["N", "M"]
 
+    # Test loading given sheet and cellrange from excel
+    t5 = DMTable.from_excel(
+        indir / "datamodels.xlsx", sheet="sheet1", cellrange="A1:G2"
+    )
+    m51, = t5.get_datamodels()
+    assert isinstance(m51, dlite.Metadata)
+    assert m51.description == "First data model."
+    assert m51.getprop("length").type == "float64"
+    assert m51.getprop("length").unit == "cm"
+
+
+# Test saving to triplestore (slow...)
+if importcheck("tripper") and importcheck("rdflib"):
+    from tripper import Triplestore, EMMO, OWL, RDF, RDFS, SKOS
+    from tripper.utils import en
+
+    ts = Triplestore("rdflib")
+    with warnings.catch_warnings():
+        warnings.filterwarnings("ignore", "more than one unit with symbol.*", UserWarning)
+        t2.to_triplestore(ts)
+
+    #print(ts.serialize())
+    m1 = "http://onto-ns.com/meta/test/0.1/m1"
+    assert ts.has(m1, RDF.type, OWL.Class)
+    assert ts.has(m1, RDFS.subClassOf, EMMO.Dataset)
+    assert ts.has(m1, SKOS.prefLabel, en("M1"))
+
+    length = "http://onto-ns.com/meta/test/0.1/m1#length"
+    assert ts.has(length, RDF.type, OWL.Class)
+    assert ts.has(length, RDFS.subClassOf, EMMO.Datum)
+    assert ts.has(length, RDFS.subClassOf, EMMO.DoubleData)
+    assert ts.has(length, SKOS.prefLabel, en("Length"))

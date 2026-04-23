@@ -13,7 +13,7 @@ from uuid import uuid4
 
 from tripper import Literal, Namespace, Triplestore
 from tripper import MAP, OTEIO, OWL, RDF, RDFS, SKOS, XSD
-from tripper.utils import en
+from tripper.utils import en, expand_iri
 from tripper.errors import NoSuchIRIError
 
 import dlite
@@ -27,7 +27,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # XXX TODO - Make a local cache of EMMO such that we only download it once
 TS_EMMO = Triplestore("rdflib")
-TS_EMMO.parse("https://w3id.org/emmo/1.0.0")
+TS_EMMO.parse("https://w3id.org/emmo/1.0.4")
 
 EMMO_VERSIONIRI = TS_EMMO.value("https://w3id.org/emmo", OWL.versionIRI)
 
@@ -227,16 +227,30 @@ def metadata_to_rdf(
     # Create lookup table
     dct = meta.asdict()
 
+    prefixes = {
+        "map": MAP,
+        "oteio": OTEIO,
+        "owl": OWL,
+        "rdf": RDF,
+        "rdfs": RDFS,
+        "skos": SKOS,
+        "xsd": XSD,
+        "emmo": EMMO,
+    }
+
     # For adding mappings
     maps = defaultdict(list)
     for s, p, o in mappings:
+        s = expand_iri(s, prefixes=prefixes)
+        p = expand_iri(p, prefixes=prefixes)
+        o = expand_iri(o, prefixes=prefixes)
         uri = str(s).rstrip("/#")
         if p == MAP.mapsTo:
             name = str(s).split("#", 1)[-1]
-            prep = RDF.type if name in meta.dimnames() else RDFS.subClassOf
+            pred = RDF.type if name in meta.dimnames() else RDFS.subClassOf
         else:
-            prep = p
-        maps[uri].append((prep, o))
+            pred = p
+        maps[uri].append((pred, o))
 
     def addmap(uri, iri):
         """Add mapping relation to triples."""
