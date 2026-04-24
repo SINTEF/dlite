@@ -27,7 +27,9 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # XXX TODO - Make a local cache of EMMO such that we only download it once
 TS_EMMO = Triplestore("rdflib")
-TS_EMMO.parse("https://w3id.org/emmo/1.0.4")
+TS_EMMO.parse("https://w3id.org/emmo/1.0.3")
+#TS_EMMO.parse("https://w3id.org/emmo/1.0.4/disciplines/units/unit-individuals")
+#TS_EMMO.parse("https://w3id.org/emmo/unit-individuals")
 
 EMMO_VERSIONIRI = TS_EMMO.value("https://w3id.org/emmo", OWL.versionIRI)
 
