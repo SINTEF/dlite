@@ -6,7 +6,7 @@ and instances to and from an EMMO-based RDF representation.
 
 ![EMMO-based representation of a datamodel.](https://raw.githubusercontent.com/SINTEF/dlite/652-serialise-data-models-to-tbox/doc/_static/dataset-v2.svg)
 
-The figure above shown how the following simple [`FluidData`]
+The figure above show how the following simple [`FluidData`]
 datamodel is represented with EMMO.
 
 ```yaml

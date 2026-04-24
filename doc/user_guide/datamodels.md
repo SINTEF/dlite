@@ -112,20 +112,21 @@ Note that `dimensions` is inferred from the shapes of the properties.
 
 ```python
 # Default mappings of DLite metadata fields to table header names
-DEFAULT_DATAMODEL_MAPPINGS = {
-    "uri": "@id",
-    "dimensions": None,
-    "description": "description",
-}
+>>> DEFAULT_DATAMODEL_MAPPINGS = {
+...     "uri": "@id",
+...     "dimensions": None,
+...     "description": "description",
+... }
 # Default mappings of DLite property fields to table header names
-DEFAULT_PROPERTY_MAPPINGS = {
-    "name": "datumName",
-    "type": "datumType",
-    "ref": "datumRef",
-    "unit": "datumUnit",
-    "shape": "datumShape",
-    "description": "datumDescription",
-}
+>>> DEFAULT_PROPERTY_MAPPINGS = {
+...     "name": "datumName",
+...     "type": "datumType",
+...     "ref": "datumRef",
+...     "unit": "datumUnit",
+...     "shape": "datumShape",
+...     "description": "datumDescription",
+... }
+
 ```
 
 > [!NOTE]
@@ -136,10 +137,10 @@ Assuming that the above table is stored in a CSV file called `datamodels.csv`.
 Python objects `m1` and `m2` for these datamodels can then be created with the following code
 
 ```python
-from dlite.table import DMTable
+>>> from dlite.table import DMTable
+>>> t2 = DMTable.from_csv(indir / "datamodels.csv")
+>>> m1, m2 = t2.get_datamodels()
 
-t2 = DMTable.from_csv(indir / "datamodels.csv")
-m1, m2 = t2.get_datamodels()
 ```
 
 The optional `datamodel_mappings` and `property_mappings` arguments of `DMTable.from_csv()` allow the user to provide custom mappings for the datamodel (`uri`, `description`) and property (`name`, `type`, `ref`, `unit`, `shape`, `description`) fields.
@@ -156,12 +157,28 @@ The above table could then be rewritten as follows:
 and the python code to create the same datamodels as above would be:
 
 ```python
-from dlite.table import DMTable
-t2 = DMTable.from_csv(indir / "datamodels.csv", baseuri="http://onto-ns.com/meta/test/0.1")
-m1, m2 = t2.get_datamodels()
+>>> from dlite.table import DMTable
+>>> t2 = DMTable.from_csv(indir / "datamodels.csv", baseuri="http://onto-ns.com/meta/test/0.1")
+>>> m1, m2 = t2.get_datamodels()
+
 ```
 
 Note that if the baseuri is not given and the `uri` is not a true IRI, an error will be raised.
+
+
+### Storing the datamodels to a triplestore
+Continuing with example above, the DMTable class has a `to_triplestore()` method that can be used to store the datamodels to a triplestore using the [tripper] package.
+
+For example will the following
+
+```python
+>>> from tripper import Triplestore
+>>> ts = Triplestore("rdflib")
+>>> t2.to_triplestore(ts)
+
+```
+
+store all the datamodels in `t2` to the triplestore, representing them as proper EMMO datasets.
 
 
 
@@ -205,3 +222,4 @@ The [dlite-validate] tool can be used to check if a specific representation (in 
 [JSON]: https://www.json.org/
 [YAML]: https://yaml.org/
 [dlite-validate]: https://sintef.github.io/dlite/user_guide/tools.html#dlite-validate
+[tripper]: https://emmc-asbl.github.io/tripper/

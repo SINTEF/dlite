@@ -25,6 +25,7 @@ DEFAULT_PROPERTY_MAPPINGS = {
     "unit": "datumUnit",
     "shape": "datumShape",
     "description": "datumDescription",
+    "mapping": "datumMapping",
 }
 
 
@@ -91,19 +92,18 @@ class DMTable():
             for idict in property_idicts:
                 prop = {}
                 for k, i in idict.items():
-                    value = row[i] if row[i] else ""
+                    value = row[i].strip() if row[i] else ""
 
-                    if k == "shape":
-                        if value.strip():
+                    if k == "shape" and value:
                             prop[k] = [
                                 s.strip()
-                                for s in value.strip().strip("[]").split(",")
+                                for s in value.strip("[]").split(",")
                             ]
                             for dim in prop[k]:
                                 dims[dim] = f"{dim} dimension"
-                    else:
-                        prop[k] = value.strip()
-                if prop["name"]:
+                    elif value:
+                        prop[k] = value
+                if prop.get("name"):
                     if "properties" in d:
                         d["properties"].append(prop)
                     else:
@@ -299,8 +299,23 @@ class DMTable():
             baseuri=baseuri,
         )
 
+    def to_triplestore(self, ts: "Triplestore"):
+        """Save all datamodels to Tripper triplestore `ts`."""
 
-def csvsniff(sample):
+        # Import here since since dlite.dataset depends on tripper
+        from dlite.dataset import add_dataset
+
+        for uri, d in self.dmdicts.items():
+            meta = dlite.Metadata.from_dict(d)
+            mappings = []
+            for props in d["properties"]:
+                if "mapping" in props:
+                    iri = f"{uri}#{props['name']}"
+                    mappings.append((iri, "rdfs:subClassOf", props["mapping"]))
+            add_dataset(ts, meta, iri=uri, mappings=mappings)
+
+
+def csvsniff(sample: str) -> "csv.Dialect":
     """Custom csv sniffer.
 
     Analyse csv sample and returns a csv.Dialect instance.
