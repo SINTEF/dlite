@@ -27,7 +27,7 @@ if TYPE_CHECKING:  # pragma: no cover
 
 # XXX TODO - Make a local cache of EMMO such that we only download it once
 TS_EMMO = Triplestore("rdflib")
-TS_EMMO.parse("https://w3id.org/emmo/1.0.3")
+TS_EMMO.parse("https://w3id.org/emmo/1.0.0")
 #TS_EMMO.parse("https://w3id.org/emmo/1.0.4/disciplines/units/unit-individuals")
 #TS_EMMO.parse("https://w3id.org/emmo/unit-individuals")
 
@@ -243,9 +243,9 @@ def metadata_to_rdf(
     # For adding mappings
     maps = defaultdict(list)
     for s, p, o in mappings:
-        s = expand_iri(s, prefixes=prefixes)
-        p = expand_iri(p, prefixes=prefixes)
-        o = expand_iri(o, prefixes=prefixes)
+        s = expand_iri(str(s), prefixes=prefixes)
+        p = expand_iri(str(p), prefixes=prefixes)
+        o = expand_iri(str(o), prefixes=prefixes)
         uri = str(s).rstrip("/#")
         if p == MAP.mapsTo:
             name = str(s).split("#", 1)[-1]
