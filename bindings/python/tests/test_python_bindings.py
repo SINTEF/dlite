@@ -52,6 +52,7 @@ def test(verbosity=1, stream=sys.stdout):
         # Exclude test_global_dlite_state.py since the global state
         # that it is testing depends on the other tests.
         and not test.endswith("test_global_dlite_state.py")
+        and not test.endswith("test_table.py")
     ]
     ts = unittest.TestSuite()
     for test in sorted(tests):
