@@ -30,18 +30,19 @@ jobs:
         git config --global user.name "${GIT_USER_NAME}"
         git config --global user.email "${GIT_USER_EMAIL}"
 
+    - name: Extract version number from GITHUB_REF
+      shell: bash
+      run: |
+        VERSION=${GITHUB_REF#refs/tags/}
+        if [ "${VERSION:0:1} = "v" ]; then VERSION=${VERSION#v}; fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
     - name: Update version
       shell: bash
       run: |
-        # Extract version number from GITHUB_REF
-        VERSION=${GITHUB_REF#refs/tags/}
-        if [ "${VERSION:0:1} = "v" ]; then VERSION=${VERSION#v}; fi
+        echo "VERSION=${VERSION}"
 
-        # Store VERSION to GITHUB_ENV
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
-
-        # Update VERSION in CMakeLists.txt
-        sed -i "s/VERSION  *[0-9][^ ]*/VERSION $VERSION/" CMakeLists.txt
+        sed -i "s/VERSION  *[0-9][^ ]*/VERSION ${VERSION}/" CMakeLists.txt
 
         git add CMakeLists.txt
         git commit -m "Release ${VERSION}"
