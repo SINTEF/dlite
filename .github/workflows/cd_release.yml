@@ -43,7 +43,7 @@ jobs:
       run: |
         echo "VERSION=${VERSION}"
 
-        sed -i "s/VERSION  *[0-9][^ ]*/VERSION ${VERSION}/" CMakeLists.txt
+        sed -i "s/^ *VERSION  *[0-9][^ ]*/VERSION ${VERSION}/" CMakeLists.txt
 
         git add CMakeLists.txt
         git commit -m "Release ${VERSION}"
