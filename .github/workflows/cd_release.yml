@@ -45,15 +45,17 @@ jobs:
 
         sed -i "s/^ *VERSION  *[0-9][^ ]* *$/  VERSION ${VERSION}/" CMakeLists.txt
 
-        git add CMakeLists.txt
-        git commit -m "Release ${VERSION}"
+        if [ -n "$(git status --porcelain  -uno)" ]; then
+          git add CMakeLists.txt
+          git commit -m "Release ${VERSION}"
 
-        # TAG is already added by github
-        #TAG_MSG=.github/utils/release_tag_msg.txt
-        #sed -i "s|TAG_NAME|${GITHUB_REF#refs/tags/}|" "${TAG_MSG}"
-        #git tag -af -F "${TAG_MSG}" ${GITHUB_REF#refs/tags/}
-        #git push --tags origin ${{ env.PUBLISH_UPDATE_BRANCH }}
-        git push origin ${{ env.PUBLISH_UPDATE_BRANCH }}
+          # TAG is already added by github
+          #TAG_MSG=.github/utils/release_tag_msg.txt
+          #sed -i "s|TAG_NAME|${GITHUB_REF#refs/tags/}|" "${TAG_MSG}"
+          #git tag -af -F "${TAG_MSG}" ${GITHUB_REF#refs/tags/}
+          #git push --tags origin ${{ env.PUBLISH_UPDATE_BRANCH }}
+          git push origin ${{ env.PUBLISH_UPDATE_BRANCH }}
+        fi
 
     #- name: Update '${{ env.PUBLISH_UPDATE_BRANCH }}'
     #  uses: CasperWA/push-protected@v2
