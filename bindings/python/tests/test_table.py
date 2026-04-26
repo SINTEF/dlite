@@ -10,9 +10,6 @@ from dlite.testutils import importcheck
 thisdir = Path(__file__).resolve().parent
 indir = thisdir / "input"
 
-# Not sure why, but this import seems to prevent the segfault
-import test_storage
-
 
 # Test loading a python table
 table = [
