@@ -1,6 +1,6 @@
 # -*- Mode: cmake -*-
 #
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(  VERSION 0.5.42
 
 # macOS SDK 10.13 is supported by Xcode 15.0.1
 set(
