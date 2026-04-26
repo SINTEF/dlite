@@ -33,23 +33,18 @@ jobs:
     - name: Update version
       shell: bash
       run: |
-        python - <<'PY'
-        import re, os, pathlib
+        # Extract version number from GITHUB_REF
+        VERSION=${GITHUB_REF#refs/tags/}
+        if [ "${VERSION:0:1} = "v" ]; then VERSION=${VERSION#v}; fi
 
-        version = os.environ["GITHUB_REF"].removeprefix("refs/tags/v")
-        p = pathlib.Path("CMakeLists.txt")
-        txt = p.read_text()
+        # Store VERSION to GITHUB_ENV
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
 
-        new = re.sub(r'(?m)^( +VERSION +)[0-9.]+$', r'\g<1>' + version, txt)
-        if new == txt:
-            raise SystemExit("VERSION line not updated (pattern did not match)")
-
-        p.write_text(new)
-        print("Updated VERSION to", version)
-        PY
+        # Update VERSION in CMakeLists.txt
+        sed -i "s/VERSION  *[0-9][^ ]*/VERSION $VERSION/" CMakeLists.txt
 
         git add CMakeLists.txt
-        git commit -m "Release ${GITHUB_REF#refs/tags/}"
+        git commit -m "Release ${VERSION}"
 
         # TAG is already added by github
         #TAG_MSG=.github/utils/release_tag_msg.txt
@@ -306,4 +301,3 @@ jobs:
 
     - name: Publish package to PyPI
       uses: pypa/gh-action-pypi-publish@release/v1
-
