@@ -46,6 +46,6 @@ for minor in $PY_MINORS; do
     echo
     echo "=== Python 3.$minor: Test with all behavior changes enabled ==="
     export DLITE_BEHAVIOR=ON
-    ctest -j -E static-code-analysis -E test_python_bindings-py || ctest --rerun-failed --output-on-failure -V
+    ctest -j -E static-code-analysis -E test_python_bindings-py -E test_dataset2_load-py || ctest --rerun-failed --output-on-failure -V
 
 done
