@@ -25,6 +25,7 @@ DEFAULT_PROPERTY_MAPPINGS = {
     "unit": "datumUnit",
     "shape": "datumShape",
     "description": "datumDescription",
+    "mapping": "datumMapping",
 }
 
 
@@ -62,7 +63,7 @@ class DMTable():
                 "http://example.com/data/0.1/blah".
 
         """
-        self.datamodels = {}  # Maps uri to datamodel dict
+        self.dmdicts = {}  # Maps uri to datamodel dict
         self.datamodel_mappings = datamodel_mappings
         self.property_mappings = property_mappings
 
@@ -91,14 +92,18 @@ class DMTable():
             for idict in property_idicts:
                 prop = {}
                 for k, i in idict.items():
-                    value = row[i] if row[i] else ""
-                    if k == "shape" and value.strip():
-                        prop[k] = [s.strip() for s in value.strip("[]").split(",")]
-                        for dim in prop[k]:
-                            dims[dim] = f"{dim} dimension"
-                    else:
-                        prop[k] = value.strip()
-                if prop["name"]:
+                    value = row[i].strip() if row[i] else ""
+
+                    if k == "shape" and value:
+                            prop[k] = [
+                                s.strip()
+                                for s in value.strip("[]").split(",")
+                            ]
+                            for dim in prop[k]:
+                                dims[dim] = f"{dim} dimension"
+                    elif value:
+                        prop[k] = value
+                if prop.get("name"):
                     if "properties" in d:
                         d["properties"].append(prop)
                     else:
@@ -106,7 +111,7 @@ class DMTable():
             if dims:
                 d["dimensions"] = dims
 
-            self.datamodels[d["uri"]] = d
+            self.dmdicts[d["uri"]] = d
 
     def _get_datamodel_idict(self, header: "Sequence[str]") -> "dict":
         """Help function that returns a dict mapping datamodel fields to
@@ -147,7 +152,7 @@ class DMTable():
 
     def get_datamodels(self) -> "list[dlite.Metadata]":
         """Return a list with all datamodels parsed from the table."""
-        return [dlite.Metadata.from_dict(d) for d in self.datamodels.values()]
+        return [dlite.Metadata.from_dict(d) for d in self.dmdicts.values()]
 
     @staticmethod
     def from_csv(
@@ -294,8 +299,23 @@ class DMTable():
             baseuri=baseuri,
         )
 
+    def to_triplestore(self, ts: "Triplestore"):
+        """Save all datamodels to Tripper triplestore `ts`."""
 
-def csvsniff(sample):
+        # Import here since since dlite.dataset depends on tripper
+        from dlite.dataset import add_dataset
+
+        for uri, d in self.dmdicts.items():
+            meta = dlite.Metadata.from_dict(d)
+            mappings = []
+            for props in d["properties"]:
+                if "mapping" in props:
+                    iri = f"{uri}#{props['name']}"
+                    mappings.append((iri, "rdfs:subClassOf", props["mapping"]))
+            add_dataset(ts, meta, iri=uri, mappings=mappings)
+
+
+def csvsniff(sample: str) -> "csv.Dialect":
     """Custom csv sniffer.
 
     Analyse csv sample and returns a csv.Dialect instance.
