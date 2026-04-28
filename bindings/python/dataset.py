@@ -180,6 +180,10 @@ def get_unit_symbol(iri):
 
 def get_unit_iri(unit):
     """Returns the IRI for the given unit."""
+    # Fixes for EMMO units:
+    # make sure that dots are operator dots and not middle dots
+    # and that there is no literal escape on special symols
+    unit = unit.encode().decode('unicode_escape').replace("\u00b7", "\u22c5") 
     if not unit_cache:
         ts = TS_EMMO
         for predicate in (EMMO.unitSymbol, EMMO.ucumCode, EMMO.uneceCommonCode):
