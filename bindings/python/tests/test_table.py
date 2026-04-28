@@ -46,7 +46,7 @@ assert isinstance(m21, dlite.Metadata)
 assert isinstance(m22, dlite.Metadata)
 assert m21.description == "First data model."
 assert m21.getprop("length").type == "float64"
-assert m21.getprop("length").unit == "cm"
+assert m21.getprop("length").unit == "https://w3id.org/emmo#CentiMetre"
 assert m22.getprop("key").type == "string"
 assert m22.getprop("indices").type == "int64"
 assert m22.getprop("indices").shape.tolist() == ["N", "M"]
@@ -63,7 +63,7 @@ assert m31.description == "First data model."
 assert m31.ndimensions == 2
 assert m31.nproperties == 2
 assert m31.getprop("length").type == "float64"
-assert m31.getprop("length").unit == "cm"
+assert m31.getprop("length").unit == "https://w3id.org/emmo#CentiMetre"
 assert m31.getprop("length").shape.tolist() == ["N", "M"]
 assert m31.getprop("indices").type == "int64"
 assert m31.getprop("indices").shape.tolist() == ["N"]
@@ -77,7 +77,7 @@ if importcheck("openpyxl"):
     assert isinstance(m44, dlite.Metadata)
     assert m43.description == "First data model."
     assert m43.getprop("length").type == "float64"
-    assert m43.getprop("length").unit == "cm"
+    assert m43.getprop("length").unit == "https://w3id.org/emmo#CentiMetre"
     assert m44.getprop("key").type == "string"
     assert m44.getprop("indices").type == "int64"
     assert m44.getprop("indices").shape.tolist() == ["N", "M"]
@@ -90,7 +90,7 @@ if importcheck("openpyxl"):
     assert isinstance(m51, dlite.Metadata)
     assert m51.description == "First data model."
     assert m51.getprop("length").type == "float64"
-    assert m51.getprop("length").unit == "cm"
+    assert m51.getprop("length").unit == "https://w3id.org/emmo#CentiMetre"
 
 
 # Test saving to triplestore (slow...)

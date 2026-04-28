@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import dlite
+from dlite.dataset import MissingUnitError, get_unit_iri
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Optional, Sequence
@@ -45,6 +46,8 @@ class DMTable():
         datamodel_mappings: dict = DEFAULT_DATAMODEL_MAPPINGS,
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
+        unit_handling: "Literal['raise', 'ignore', 'create']" = "raise",
+
     ) -> None:
         """Initialises a DMTable object from a list of lists.
 
@@ -61,6 +64,10 @@ class DMTable():
                 For example, if `baseuri="http://example.com/data/0.1/"` for
                 a column with identifier "blah" will result in the URI
                 "http://example.com/data/0.1/blah".
+            unit_handling: How to handle missing units. May be:
+                - 'raise': Raise and MissingUnit exception (default)
+                - 'ignore': Ignore the unit.
+                - 'create': Create the unit.
 
         """
         self.dmdicts = {}  # Maps uri to datamodel dict
@@ -92,17 +99,30 @@ class DMTable():
             for idict in property_idicts:
                 prop = {}
                 for k, i in idict.items():
-                    value = row[i].strip() if row[i] else ""
+                    value = row[i].strip() if row[i] else None
+                    if not value:
+                        continue
 
-                    if k == "shape" and value:
+                    if k == "shape":
                             prop[k] = [
                                 s.strip()
                                 for s in value.strip("[]").split(",")
                             ]
                             for dim in prop[k]:
                                 dims[dim] = f"{dim} dimension"
-                    elif value:
+                    elif k == "unit":
+                        try:
+                            prop[k] = get_unit_iri(value)
+                        except MissingUnitError:
+                            if unit_handling == "except":
+                                raise
+                            elif unit_handling == "ignore":
+                                pass
+                            elif unit_handling == "create":
+                                raise NotImplementedError("DMTable unit_handling='create' not implemented")
+                    else:
                         prop[k] = value
+
                 if prop.get("name"):
                     if "properties" in d:
                         d["properties"].append(prop)

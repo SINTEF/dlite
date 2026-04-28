@@ -9,6 +9,7 @@ import re
 import warnings
 from collections import defaultdict
 from typing import TYPE_CHECKING
+from urllib.parse import urlparse
 from uuid import uuid4
 
 from tripper import Literal, Namespace, Triplestore
@@ -178,8 +179,20 @@ def get_unit_symbol(iri):
     raise KBError("No symbol value is defined for unit:", iri)
 
 
+def is_valid_url(url):
+    """Return whether `url` is a valid URL."""
+    try:
+        result = urlparse(url)
+    except ValueError:
+        return False
+    return result.scheme and result.netloc
+
+
 def get_unit_iri(unit):
     """Returns the IRI for the given unit."""
+    if is_valid_url(unit):
+        return unit
+
     if not unit_cache:
         ts = TS_EMMO
         for predicate in (EMMO.unitSymbol, EMMO.ucumCode, EMMO.uneceCommonCode):
