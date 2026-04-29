@@ -65,7 +65,7 @@ class DMTable():
                 a column with identifier "blah" will result in the URI
                 "http://example.com/data/0.1/blah".
             unit_handling: How to handle missing units. May be:
-                - 'raise': Raise and MissingUnit exception (default)
+                - 'raise': Raise a MissingUnit exception (default)
                 - 'ignore': Ignore the unit.
                 - 'create': Create the unit.
 
