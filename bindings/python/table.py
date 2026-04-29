@@ -134,6 +134,8 @@ class DMTable():
                                     "`unit_handling` must be 'raise', 'ignore' "
                                     f"or 'force'. Got '{unit_handling}'"
                                 )
+                        else:
+                            prop[k] = value
                     else:
                         prop[k] = value
 
@@ -196,6 +198,7 @@ class DMTable():
         datamodel_mappings: dict = DEFAULT_DATAMODEL_MAPPINGS,
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
+        unit_handling: "Literal['raise', 'ignore', 'force']" = "raise",
         **kwargs,
     ) -> "DMTable":
         # pylint: disable=line-too-long
@@ -217,6 +220,12 @@ class DMTable():
             baseuri: Base URI to use if the identifier has no namespace.
                 See the corresponding argument of the __init__() method for
                 details.
+            unit_handling: How to handle units that are not found in the EMMO
+                ontology.  Must be one of:
+                - 'raise': Raise a MissingUnit exception (default)
+                - 'ignore': Don't add the unit to the property.  Will issue
+                  a warning.
+                - 'force': Add the unit to the property. Will issue a warning.
             kwargs: Additional keyword arguments overriding individual
                 formatting parameters.  For more details, see
                 [Dialects and Formatting Parameters].
@@ -254,6 +263,7 @@ class DMTable():
             datamodel_mappings=datamodel_mappings,
             property_mappings=property_mappings,
             baseuri=baseuri,
+            unit_handling=unit_handling,
         )
 
     @staticmethod
@@ -264,7 +274,7 @@ class DMTable():
         datamodel_mappings: dict = DEFAULT_DATAMODEL_MAPPINGS,
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
-        **kwargs,
+        unit_handling: "Literal['raise', 'ignore', 'force']" = "raise",
     ) -> "DMTable":
         """Parse a csv file using the standard library csv module.
 
@@ -285,9 +295,12 @@ class DMTable():
             baseuri: Base URI to use if the identifier has no namespace.
                 See the corresponding argument of the __init__() method for
                 details.
-            kwargs: Additional keyword arguments overriding individual
-                formatting parameters.  For more details, see
-                [Dialects and Formatting Parameters].
+            unit_handling: How to handle units that are not found in the EMMO
+                ontology.  Must be one of:
+                - 'raise': Raise a MissingUnit exception (default)
+                - 'ignore': Don't add the unit to the property.  Will issue
+                  a warning.
+                - 'force': Add the unit to the property. Will issue a warning.
 
         Returns:
             New DMTable instance.
@@ -331,6 +344,7 @@ class DMTable():
             datamodel_mappings=datamodel_mappings,
             property_mappings=property_mappings,
             baseuri=baseuri,
+            unit_handling=unit_handling,
         )
 
     def to_triplestore(self, ts: "Triplestore"):

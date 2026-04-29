@@ -41,7 +41,7 @@ assert dm13.getprop("scalar").shape.tolist() == []
 
 
 # Test loading csv file
-t2 = DMTable.from_csv(indir / "datamodels.csv")
+t2 = DMTable.from_csv(indir / "datamodels.csv", unit_handling="force")
 m21, m22 = t2.get_datamodels()
 assert isinstance(m21, dlite.Metadata)
 assert isinstance(m22, dlite.Metadata)
