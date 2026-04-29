@@ -4,7 +4,8 @@ from pathlib import Path
 
 import dlite
 from dlite.table import DMTable
-from dlite.testutils import importcheck
+from dlite.testutils import importcheck, raises
+from dlite.dataset import MissingUnitError, UnknownUnitWarning
 
 
 thisdir = Path(__file__).resolve().parent
@@ -114,3 +115,38 @@ if importcheck("tripper") and importcheck("rdflib"):
     assert ts.has(length, RDFS.subClassOf, EMMO.Datum)
     assert ts.has(length, RDFS.subClassOf, EMMO.DoubleData)
     assert ts.has(length, SKOS.prefLabel, en("Length"))
+
+
+# Test invalid unit
+# Test loading a python table
+table = [
+    ("@id",     "@type",  "datumName[1]", "datumType[1]", "datumUnit[1]"),
+    ("ex:dm61", "ex:DM1", "mass",         "float64",      "cm"),
+    ("ex:dm62", "ex:DM1", "mass",         "float64",      "dansk mil"),
+]
+with raises(MissingUnitError):
+    t6 = DMTable(table, baseuri="http://onto-ns.com/meta/test/0.2/")
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", "dansk mil", UnknownUnitWarning)
+    t6 = DMTable(
+        table,
+        baseuri="http://onto-ns.com/meta/test/0.2/",
+        unit_handling="ignore"
+    )
+with dlite.HideDLiteWarnings():
+    dm61, dm62 = t6.get_datamodels()
+assert dm61.getprop("mass").unit == "cm"
+assert not dm62.getprop("mass").unit
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", "dansk mil", UnknownUnitWarning)
+    t7 = DMTable(
+        table,
+        baseuri="http://onto-ns.com/meta/test/0.3/",
+        unit_handling="force"
+    )
+with dlite.HideDLiteWarnings():
+    dm71, dm72 = t7.get_datamodels()
+assert dm71.getprop("mass").unit == "cm"
+assert dm72.getprop("mass").unit == "dansk mil"
