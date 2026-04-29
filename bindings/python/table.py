@@ -46,7 +46,7 @@ class DMTable():
         datamodel_mappings: dict = DEFAULT_DATAMODEL_MAPPINGS,
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
-        unit_handling: "Literal['raise', 'ignore', 'create']" = "raise",
+        unit_handling: "Literal['raise', 'ignore', 'force']" = "raise",
 
     ) -> None:
         """Initialises a DMTable object from a list of lists.
