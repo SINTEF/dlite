@@ -64,10 +64,12 @@ class DMTable():
                 For example, if `baseuri="http://example.com/data/0.1/"` for
                 a column with identifier "blah" will result in the URI
                 "http://example.com/data/0.1/blah".
-            unit_handling: How to handle missing units. May be:
+            unit_handling: How to handle units that are not found in the EMMO
+                ontology.  Must be one of:
                 - 'raise': Raise a MissingUnit exception (default)
-                - 'ignore': Ignore the unit.
-                - 'create': Create the unit.
+                - 'ignore': Don't add the unit to the property.  Will issue
+                  a warning.
+                - 'force': Add the unit to the property. Will issue a warning.
 
         """
         self.dmdicts = {}  # Maps uri to datamodel dict
@@ -117,18 +119,21 @@ class DMTable():
                             if unit_handling == "raise":
                                 raise
                             elif unit_handling == "ignore":
-                                warnings.warn(value, UnknownUnitWarning)
-                            elif unit_handling == "create":
-                                raise NotImplementedError(
-                                    "DMTable unit_handling='create' not "
-                                    "implemented"
+                                warnings.warn(
+                                    f"discarding unknown unit: {value}",
+                                    UnknownUnitWarning,
                                 )
+                            elif unit_handling == "force":
+                                warnings.warn(
+                                    f"forcing unknown unit: {value}",
+                                    UnknownUnitWarning,
+                                )
+                                prop[k] = value
                             else:
                                 raise dlite.DLiteValueError(
                                     "`unit_handling` must be 'raise', 'ignore' "
                                     f"or 'create'. Got '{unit_handling}'"
                                 )
-                        prop[k] = value
                     else:
                         prop[k] = value
 
