@@ -48,14 +48,6 @@ MU_TEST(test_load)
   mu_assert_int_eq(0, dlite_storage_close(s));
 }
 
-MU_TEST(test_unload_plugins)
-{
-  dlite_storage_plugin_unload_all();
-}
-
-
-
-
 
 /***********************************************************************/
 
@@ -65,7 +57,6 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_for_yaml);
   MU_RUN_TEST(test_save);
   MU_RUN_TEST(test_load);
-  MU_RUN_TEST(test_unload_plugins);
 }
 
 int main()

@@ -221,22 +221,6 @@ int dlite_storage_plugin_load_all()
 }
 
 /*
-  Unloads and unregisters all storage plugins.
-*/
-void dlite_storage_plugin_unload_all()
-{
-  PluginInfo *info;
-  char **p, **names;
-  if (!(info = get_storage_plugin_info())) return;
-  if (!(names = plugin_names(info))) return;
-  for (p=names; *p; p++) {
-    plugin_unload(info, *p);
-    free(*p);
-  }
-  free(names);
-}
-
-/*
   Returns a pointer to a new plugin iterator or NULL on error.  It
   should be free'ed with dlite_storage_plugin_iter_free().
  */
@@ -268,18 +252,6 @@ dlite_storage_plugin_iter_next(DLiteStoragePluginIter *iter)
 void dlite_storage_plugin_iter_free(DLiteStoragePluginIter *iter)
 {
   free(iter);
-}
-
-
-/*
-  Unloads and unregisters storage plugin with the given name.
-  Returns non-zero on error.
-*/
-int dlite_storage_plugin_unload(const char *name)
-{
-  PluginInfo *info;
-  if (!(info = get_storage_plugin_info())) return 1;
-  return plugin_unload(info, name);
 }
 
 
