@@ -49,11 +49,6 @@
           _dlite._load_all_storage_plugins()
 
       @classmethod
-      def unload_plugin(cls, name):
-          """Unload storage plugin with this name."""
-          _dlite._unload_storage_plugin(str(name))
-
-      @classmethod
       def plugin_help(cls, name):
           """Return documentation of storage plogin with this name."""
           return _dlite._storage_plugin_help(name)
