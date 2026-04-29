@@ -132,7 +132,7 @@ class DMTable():
                             else:
                                 raise dlite.DLiteValueError(
                                     "`unit_handling` must be 'raise', 'ignore' "
-                                    f"or 'create'. Got '{unit_handling}'"
+                                    f"or 'force'. Got '{unit_handling}'"
                                 )
                     else:
                         prop[k] = value

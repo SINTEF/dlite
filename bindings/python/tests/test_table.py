@@ -134,8 +134,19 @@ with warnings.catch_warnings():
         baseuri="http://onto-ns.com/meta/test/0.2/",
         unit_handling="ignore"
     )
-
 with dlite.HideDLiteWarnings():
     dm61, dm62 = t6.get_datamodels()
 assert dm61.getprop("mass").unit == "cm"
-assert dm62.getprop("mass").unit == "dansk mil"
+assert not dm62.getprop("mass").unit
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", "dansk mil", UnknownUnitWarning)
+    t7 = DMTable(
+        table,
+        baseuri="http://onto-ns.com/meta/test/0.3/",
+        unit_handling="force"
+    )
+with dlite.HideDLiteWarnings():
+    dm71, dm72 = t7.get_datamodels()
+assert dm71.getprop("mass").unit == "cm"
+assert dm72.getprop("mass").unit == "dansk mil"
