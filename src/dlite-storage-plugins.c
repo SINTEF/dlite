@@ -227,6 +227,7 @@ void dlite_storage_plugin_unload_all()
 {
   PluginInfo *info;
   char **p, **names;
+  dlite_storage_hotlist_clear();
   if (!(info = get_storage_plugin_info())) return;
   if (!(names = plugin_names(info))) return;
   for (p=names; *p; p++) {
