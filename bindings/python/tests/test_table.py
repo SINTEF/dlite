@@ -4,7 +4,8 @@ from pathlib import Path
 
 import dlite
 from dlite.table import DMTable
-from dlite.testutils import importcheck
+from dlite.testutils import importcheck, raises
+from dlite.dataset import MissingUnitError, UnknownUnitWarning
 
 
 thisdir = Path(__file__).resolve().parent
@@ -46,7 +47,7 @@ assert isinstance(m21, dlite.Metadata)
 assert isinstance(m22, dlite.Metadata)
 assert m21.description == "First data model."
 assert m21.getprop("length").type == "float64"
-assert m21.getprop("length").unit == "https://w3id.org/emmo#CentiMetre"
+assert m21.getprop("length").unit == "cm"
 assert m22.getprop("key").type == "string"
 assert m22.getprop("indices").type == "int64"
 assert m22.getprop("indices").shape.tolist() == ["N", "M"]
@@ -63,7 +64,7 @@ assert m31.description == "First data model."
 assert m31.ndimensions == 2
 assert m31.nproperties == 2
 assert m31.getprop("length").type == "float64"
-assert m31.getprop("length").unit == "https://w3id.org/emmo#CentiMetre"
+assert m31.getprop("length").unit == "cm"
 assert m31.getprop("length").shape.tolist() == ["N", "M"]
 assert m31.getprop("indices").type == "int64"
 assert m31.getprop("indices").shape.tolist() == ["N"]
@@ -77,7 +78,7 @@ if importcheck("openpyxl"):
     assert isinstance(m44, dlite.Metadata)
     assert m43.description == "First data model."
     assert m43.getprop("length").type == "float64"
-    assert m43.getprop("length").unit == "https://w3id.org/emmo#CentiMetre"
+    assert m43.getprop("length").unit == "cm"
     assert m44.getprop("key").type == "string"
     assert m44.getprop("indices").type == "int64"
     assert m44.getprop("indices").shape.tolist() == ["N", "M"]
@@ -90,7 +91,7 @@ if importcheck("openpyxl"):
     assert isinstance(m51, dlite.Metadata)
     assert m51.description == "First data model."
     assert m51.getprop("length").type == "float64"
-    assert m51.getprop("length").unit == "https://w3id.org/emmo#CentiMetre"
+    assert m51.getprop("length").unit == "cm"
 
 
 # Test saving to triplestore (slow...)
@@ -114,3 +115,27 @@ if importcheck("tripper") and importcheck("rdflib"):
     assert ts.has(length, RDFS.subClassOf, EMMO.Datum)
     assert ts.has(length, RDFS.subClassOf, EMMO.DoubleData)
     assert ts.has(length, SKOS.prefLabel, en("Length"))
+
+
+# Test invalid unit
+# Test loading a python table
+table = [
+    ("@id",     "@type",  "datumName[1]", "datumType[1]", "datumUnit[1]"),
+    ("ex:dm61", "ex:DM1", "mass",         "float64",      "cm"),
+    ("ex:dm62", "ex:DM1", "mass",         "float64",      "dansk mil"),
+]
+with raises(MissingUnitError):
+    t6 = DMTable(table, baseuri="http://onto-ns.com/meta/test/0.2/")
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", "dansk mil", UnknownUnitWarning)
+    t6 = DMTable(
+        table,
+        baseuri="http://onto-ns.com/meta/test/0.2/",
+        unit_handling="ignore"
+    )
+
+with dlite.HideDLiteWarnings():
+    dm61, dm62 = t6.get_datamodels()
+assert dm61.getprop("mass").unit == "cm"
+assert dm62.getprop("mass").unit == "dansk mil"

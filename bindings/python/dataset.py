@@ -77,7 +77,10 @@ EMMO_TYPES = {
 unit_cache = {}
 
 
-class MissingUnitError(ValueError):
+class MissingUnitError(dlite.DLiteValueError):
+    "Unit not found in ontology."
+
+class UnknownUnitWarning(Warning):
     "Unit not found in ontology."
 
 class UnsupportedTypeError(TypeError, NotImplementedError):

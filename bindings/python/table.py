@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import dlite
-from dlite.dataset import MissingUnitError, get_unit_iri
+from dlite.dataset import MissingUnitError, UnknownUnitWarning, get_unit_iri
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Optional, Sequence
@@ -112,14 +112,23 @@ class DMTable():
                                 dims[dim] = f"{dim} dimension"
                     elif k == "unit":
                         try:
-                            prop[k] = get_unit_iri(value)
+                            get_unit_iri(value)
                         except MissingUnitError:
-                            if unit_handling == "except":
+                            if unit_handling == "raise":
                                 raise
                             elif unit_handling == "ignore":
-                                pass
+                                warnings.warn(value, UnknownUnitWarning)
                             elif unit_handling == "create":
-                                raise NotImplementedError("DMTable unit_handling='create' not implemented")
+                                raise NotImplementedError(
+                                    "DMTable unit_handling='create' not "
+                                    "implemented"
+                                )
+                            else:
+                                raise dlite.DLiteValueError(
+                                    "`unit_handling` must be 'raise', 'ignore' "
+                                    f"or 'create'. Got '{unit_handling}'"
+                                )
+                        prop[k] = value
                     else:
                         prop[k] = value
 
