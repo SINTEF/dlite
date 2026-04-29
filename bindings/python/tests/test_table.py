@@ -5,7 +5,12 @@ from pathlib import Path
 import dlite
 from dlite.table import DMTable
 from dlite.testutils import importcheck, raises
-from dlite.dataset import MissingUnitError, UnknownUnitWarning
+if importcheck("tripper"):
+    HAVE_TRIPPER = True
+    from dlite.dataset import MissingUnitError, UnknownUnitWarning
+else:
+    HAVE_TRIPPER = False
+    UnknownUnitWarning = Warning
 
 
 thisdir = Path(__file__).resolve().parent
@@ -95,7 +100,7 @@ if importcheck("openpyxl"):
 
 
 # Test saving to triplestore (slow...)
-if importcheck("tripper") and importcheck("rdflib"):
+if HAVE_TRIPPER and importcheck("rdflib"):
     from tripper import Triplestore, EMMO, OWL, RDF, RDFS, SKOS
     from tripper.utils import en
 
@@ -124,11 +129,12 @@ table = [
     ("ex:dm61", "ex:DM1", "mass",         "float64",      "cm"),
     ("ex:dm62", "ex:DM1", "mass",         "float64",      "dansk mil"),
 ]
-with raises(MissingUnitError):
-    t6 = DMTable(table, baseuri="http://onto-ns.com/meta/test/0.2/")
+if HAVE_TRIPPER:
+    with raises(MissingUnitError):
+        t6 = DMTable(table, baseuri="http://onto-ns.com/meta/test/0.2/")
 
 with warnings.catch_warnings():
-    warnings.filterwarnings("ignore", "dansk mil", UnknownUnitWarning)
+    warnings.filterwarnings("ignore", category=UnknownUnitWarning)
     t6 = DMTable(
         table,
         baseuri="http://onto-ns.com/meta/test/0.2/",
@@ -137,10 +143,11 @@ with warnings.catch_warnings():
 with dlite.HideDLiteWarnings():
     dm61, dm62 = t6.get_datamodels()
 assert dm61.getprop("mass").unit == "cm"
-assert not dm62.getprop("mass").unit
+if HAVE_TRIPPER:
+    assert not dm62.getprop("mass").unit
 
 with warnings.catch_warnings():
-    warnings.filterwarnings("ignore", "dansk mil", UnknownUnitWarning)
+    warnings.filterwarnings("ignore", category=UnknownUnitWarning)
     t7 = DMTable(
         table,
         baseuri="http://onto-ns.com/meta/test/0.3/",
