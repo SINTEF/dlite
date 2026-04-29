@@ -6,7 +6,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import dlite
-from dlite.dataset import MissingUnitError, UnknownUnitWarning, get_unit_iri
+try:
+    import tripper
+except ModuleNotFoundError:
+    HAVE_TRIPPER = False
+else:
+    HAVE_TRIPPER = True
+    from dlite.dataset import MissingUnitError, UnknownUnitWarning, get_unit_iri
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Optional, Sequence
@@ -71,6 +77,11 @@ class DMTable():
                   a warning.
                 - 'force': Add the unit to the property. Will issue a warning.
 
+                Note: this option is only used if tripper is installed.
+                If tripper is not installed, the unit will not be looked up
+                in EMMO and behaviour will be the same as for
+                `unit_handling='force'`.
+
         """
         self.dmdicts = {}  # Maps uri to datamodel dict
         self.datamodel_mappings = datamodel_mappings
@@ -112,7 +123,7 @@ class DMTable():
                             ]
                             for dim in prop[k]:
                                 dims[dim] = f"{dim} dimension"
-                    elif k == "unit":
+                    elif k == "unit" and HAVE_TRIPPER:
                         try:
                             get_unit_iri(value)
                         except MissingUnitError:
