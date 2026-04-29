@@ -15,7 +15,7 @@ set(
 # (version supported by GitHub Runner images)
 
 project(dlite
-  VERSION 0.5.44
+  VERSION 0.5.45
   DESCRIPTION "Lightweight data-centric framework for semantic interoperability"
   HOMEPAGE_URL "https://github.com/SINTEF/dlite"
   LANGUAGES C
