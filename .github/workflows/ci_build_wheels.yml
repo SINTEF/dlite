@@ -5,7 +5,7 @@ on:
   push:
     branches:
       - master
-      - build-wheels
+      - build_wheels
   workflow_dispatch:  # Allow to trigger the workflow manually
 
 jobs:
