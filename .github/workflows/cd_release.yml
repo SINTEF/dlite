@@ -88,135 +88,22 @@ jobs:
 
   cd_build_wheels:
     name: Build wheels
-    runs-on: ${{ matrix.os }}
     if: github.repository == 'SINTEF/dlite' && startsWith(github.ref, 'refs/tags/v')
-    strategy:
-      fail-fast: false
-      matrix:
-        include:
-          # See ci_build_wheel.yml for a tested matrix of working combinations
-
-          # 64-bit manylinux
-          - os: ubuntu-24.04
-            system_type: ["manylinux", "_2_28"]
-            arch: x86_64
-            py_minors: 8,9,10,11,12,13,14
-
-          # 64-bit musllinux
-          - os: ubuntu-24.04
-            system_type: ["musllinux", "_1_2"]
-            arch: x86_64
-            py_minors: 8,9,10,11,12,13,14
-
-          # 32-bit manylinux
-          - os: ubuntu-24.04
-            system_type: ["manylinux", "2014"]
-            arch: i686
-            py_minors: 10,11,12,13,14
-
-          # 32-bit musllinux
-          - os: ubuntu-24.04
-            system_type: ["musllinux", "_1_2"]
-            arch: i686
-            py_minors: 9,10,11
-
-          # 64-bit Windows
-          - os: windows-2022
-            system_type: ["win", ""]
-            arch: amd64
-            py_minors: '8,9,10,11,12,13,14'
-
-          # 32-bit Windows
-
-          # 64-bit (Intel) macOS
-          #- os: macos-13
-          #  system_type: ["macosx", ""]
-          #  arch: x86_64
-          #  py_minors: 8,9,10,11,12,13
-          #  deployment-target: "10.13"
-
-          # 64-bit (Apple Silicon) macOS
-          - os: macos-14
-            system_type: ["macosx", ""]
-            arch: arm64
-            py_minors: 8,9,10,11,12,13,14
-            deployment-target: "11.0"
-
-    steps:
-    - name: Checkout repository
-      uses: actions/checkout@v6
-      with:
-        fetch-depth: 0
-
-    # This step is necessary because while this is done in the job above,
-    # this job runs with the original commit SHA and does not have this change.
-    # And to avoid checking out `master` (should someone push in-between all this),
-    # this seems like the most low-tech solution (instead of caching/using artifacts):
-    # Change the version in CMakeList.txt and build wheels
-    - name: Update version
-      shell: bash
-      run: |
-        python - <<'PY'
-        import re, os, pathlib
-
-        version = os.environ["GITHUB_REF"].removeprefix("refs/tags/v")
-        p = pathlib.Path("CMakeLists.txt")
-        txt = p.read_text()
-
-        new = re.sub(r'(?m)^( +VERSION +)[0-9.]+$', r'\g<1>' + version, txt)
-        if new == txt:
-            raise SystemExit("VERSION line not updated (pattern did not match)")
-
-        p.write_text(new)
-        print("Updated VERSION to", version)
-        PY
-
-    - name: Install Python for running cibuildwheel
-      uses: actions/setup-python@v6
-      with:
-        python-version: "3.13.5"
-        architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
-
-    # https://cibuildwheel.pypa.io/en/stable/faq/#macos-building-cpython-38-wheels-on-arm64
-    - name: Install Python3.8 from python.org for macOS compiling
-      if: matrix.os == 'macos-14'
-      run: |
-        url="https://www.python.org/ftp/python/3.8.10/python-3.8.10-macos11.pkg"
-        curl $url -o python-3.8.10-macos11.pkg
-        sudo installer -pkg python-3.8.10-macos11.pkg -target /
-
-    - name: Login to GitHub Container Registry
-      if: startsWith(matrix.os, 'ubuntu')
-      uses: docker/login-action@v4
-      with:
-        registry: ${{ env.CONTAINER_REGISTRY }}
-        username: ${{ github.actor }}
-        password: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Install cibuildwheel
-      run: |
-        python -m pip install --upgrade pip
-        python -m pip install -r requirements_wheels.txt
-
-    # See pyproject.toml (under python/) for cibuildwheel configuration
-    - name: Build wheels
-      run: |
-        python -m cibuildwheel --print-build-identifiers python
-        python -m cibuildwheel --output-dir wheelhouse python
-      env:
-        CIBW_BEFORE_BUILD: "python -m pip install -U pip setuptools wheel"
-        CIBW_BUILD: cp3${{ contains(matrix.py_minors, ',') && format('{{{0}}}', matrix.py_minors) || matrix.py_minors }}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
-        CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment-target }}"
-        CIBW_MANYLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
-        CIBW_MANYLINUX_I686_IMAGE:   ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
-        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_x86_64:latest
-        CIBW_MUSLLINUX_I686_IMAGE:   ${{ env.CONTAINER_REGISTRY }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_i686:latest
-
-    - name: Store wheels for publishing
-      uses: actions/upload-artifact@v7
-      with:
-        name: wheels_${{ matrix.os }}_${{ matrix.system_type[0] }}_${{ matrix.system_type[1] }}_${{ matrix.arch }}_${{ matrix.py_minors }}
-        path: wheelhouse/*.whl
+    uses: ./.github/workflows/reusable_build_wheels.yml
+    with:
+      container_registry: ghcr.io
+      update_version_from_tag: true
+      upload_artifacts: true
+      artifact_name_prefix: wheels
+      matrix_json: >-
+        [
+          {"os":"ubuntu-24.04","system_type":["manylinux","_2_28"],"arch":"x86_64","py_minors":"8,9,10,11,12,13,14"},
+          {"os":"ubuntu-24.04","system_type":["musllinux","_1_2"],"arch":"x86_64","py_minors":"8,9,10,11,12,13,14"},
+          {"os":"ubuntu-24.04","system_type":["manylinux","2014"],"arch":"i686","py_minors":"10,11,12,13,14"},
+          {"os":"ubuntu-24.04","system_type":["musllinux","_1_2"],"arch":"i686","py_minors":"9,10,11"},
+          {"os":"windows-2022","system_type":["win",""],"arch":"amd64","py_minors":"8,9,10,11,12,13,14"},
+          {"os":"macos-14","system_type":["macosx",""],"arch":"arm64","py_minors":"8,9,10,11,12,13,14","deployment-target":"11.0"}
+        ]
 
   build_sdist:
     name: Build sdist
