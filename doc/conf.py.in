@@ -68,25 +68,35 @@ suppress_warnings = ["myst.mathjax"]
 
 # Extension configuration
 
-dlite_share_plugins = [
-    plugin_dir.name
-    for plugin_dir in (
-        Path("@CMAKE_BINARY_DIR@/bindings/python/dlite/share/dlite")
-    ).iterdir()
-    if plugin_dir.is_dir()
+plugin_root = Path("@CMAKE_BINARY_DIR@/bindings/python/dlite/share/dlite")
+dlite_share_plugins = []
+if plugin_root.exists():
+    dlite_share_plugins = [
+        plugin_dir.name
+        for plugin_dir in plugin_root.iterdir()
+        if plugin_dir.is_dir()
+    ]
+
+# Prefer built package paths when present, but gracefully fall back to source
+# locations so Python API docs are still generated in partial build setups.
+candidate_autoapi_dirs = [
+    Path("@CMAKE_BINARY_DIR@/bindings/python/dlite"),
+    Path("@CMAKE_BINARY_DIR@/bindings/python"),
+    Path("@CMAKE_SOURCE_DIR@/bindings/python"),
 ]
 
-#autoapi_dirs = [
-#    "@CMAKE_BINARY_DIR@/bindings/python/dlite"
-#] + [
-#    f"@CMAKE_BINARY_DIR@/bindings/python/dlite/share/dlite/{plugin_dir}"
-#    for plugin_dir in dlite_share_plugins
-#]
-autoapi_dirs = ["@CMAKE_BINARY_DIR@/bindings/python/dlite"]
+autoapi_dirs = [str(p) for p in candidate_autoapi_dirs if p.exists()]
+if not autoapi_dirs:
+    autoapi_dirs = [str(candidate_autoapi_dirs[-1])]
 autoapi_type = "python"
 autoapi_file_patterns = ["*.py", "*.pyi"]
 autoapi_template_dir = "_templates/autoapi"
-autoapi_add_toctree_entry = True  # Toggle the most top-level index file
+autoapi_add_toctree_entry = False
+autoapi_ignore = [
+    "*/tests/*",
+    "*/scripts/*",
+    "*/doxy2swig.py",
+]
 autoapi_options = [
     "members",
     "undoc-members",
@@ -95,8 +105,7 @@ autoapi_options = [
     "special-members",
     "imported-members",
 ]
-autoapi_keep_files = True  # Should be False in production
-#autoapi_keep_files = False  # Should be False in production
+autoapi_keep_files = False
 autoapi_python_use_implicit_namespaces = True  # True to avoid namespace being `python.dlite`
 #autoapi_ignore = ["@CMAKE_BINARY_DIR@/doc/_build/autoapi/dlite/dlite"]
 

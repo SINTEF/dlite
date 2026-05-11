@@ -50,10 +50,9 @@ DLite
 .. toctree::
    :maxdepth: 2
    :caption: API Reference
-   :glob:
    :hidden:
 
-   Python API <autoapi/dlite/index>
+   Python API <autoapi/python/index>
    C-API <c-api/src>
 
 
