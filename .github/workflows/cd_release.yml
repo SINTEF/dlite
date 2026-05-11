@@ -98,7 +98,7 @@ jobs:
       matrix_json: >-
         [
           {"os":"ubuntu-24.04","system_type":["manylinux","_2_28"],"arch":"x86_64","py_minors":"8,9,10,11,12,13,14"},
-          {"os":"ubuntu-24.04","system_type":["musllinux","_1_2"],"arch":"x86_64","py_minors":"8,9,10,11,12,13,14"},
+          {"os":"ubuntu-24.04","system_type":["musllinux","_1_2"],"arch":"x86_64","py_minors":"8,14"},
           {"os":"ubuntu-24.04","system_type":["manylinux","2014"],"arch":"i686","py_minors":"10,11,12,13,14"},
           {"os":"ubuntu-24.04","system_type":["musllinux","_1_2"],"arch":"i686","py_minors":"9,10,11"},
           {"os":"windows-2022","system_type":["win",""],"arch":"amd64","py_minors":"8,9,10,11,12,13,14"},
