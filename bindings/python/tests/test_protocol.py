@@ -188,8 +188,8 @@ if requests:
         "https://zenodo.org/record/1486184/files/github-mark.zip?download=1"
     )
     file_inside_zip = "github-mark.svg"
-    pr = Protocol(protocol="zip", location=f"{zenodo_url}#{file_inside_zip}")
     try:
+        pr = Protocol(protocol="zip", location=f"{zenodo_url}#{file_inside_zip}")
         data3 = pr.load()
         assert data3.startswith(b'<svg width="1024" height="1024" ')
     except Exception as exc:
