@@ -5,17 +5,18 @@ on:
   push:
     branches:
       - master
+  release:
+    types:
+      - published
   workflow_dispatch:  # Allow to trigger the workflow manually
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+# Sets permissions of the GITHUB_TOKEN to allow pushing to gh-pages
 permissions:
-  contents: read
-  pages: write
-  id-token: write
+  contents: write
 
 # Allow one concurrent deployment
 concurrency:
-  group: pages-${{ github.ref }}
+  group: docs-${{ github.ref }}
   cancel-in-progress: true
 
 env:
@@ -24,19 +25,18 @@ env:
   PUBLISH_DIR: pages
 
 jobs:
-  compile:
+  compile-and-deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
           python-version: "3.13.5"
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v6
 
       - name: Install system dependencies
         run: |
@@ -79,22 +79,95 @@ jobs:
         run: make
         working-directory: build
 
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v5
-        with:
-          path: 'build/doc/html/'
+      - name: Determine deployment target
+        run: |
+          set -euo pipefail
 
-  deploy:
-    if: github.event_name != 'pull_request'
+          EVENT_NAME="${GITHUB_EVENT_NAME}"
+          REF_NAME="${GITHUB_REF_NAME}"
 
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+          if [[ "${EVENT_NAME}" == "push" ]]; then
+            echo "DOCS_TARGET=latest" >> "$GITHUB_ENV"
+            echo "COPY_TO_ROOT=true" >> "$GITHUB_ENV"
+            echo "COMMIT_MESSAGE=Update latest docs from master (${GITHUB_SHA::7})" >> "$GITHUB_ENV"
+          elif [[ "${EVENT_NAME}" == "release" ]]; then
+            TAG="${REF_NAME}"
+            echo "DOCS_TARGET=versions/${TAG}" >> "$GITHUB_ENV"
+            echo "COPY_TO_ROOT=false" >> "$GITHUB_ENV"
+            echo "COMMIT_MESSAGE=Publish docs for ${TAG}" >> "$GITHUB_ENV"
+          else
+            echo "DOCS_TARGET=latest" >> "$GITHUB_ENV"
+            echo "COPY_TO_ROOT=true" >> "$GITHUB_ENV"
+            echo "COMMIT_MESSAGE=Manual docs publish (${GITHUB_SHA::7})" >> "$GITHUB_ENV"
+          fi
 
-    runs-on: ubuntu-latest
-    needs: compile
+          echo "Docs target directory: ${DOCS_TARGET:-pending}"
 
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
+      - name: Checkout gh-pages branch
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -euo pipefail
+
+          REPO_URL="https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          if git ls-remote --exit-code --heads origin gh-pages >/dev/null 2>&1; then
+            git clone --branch gh-pages --single-branch "$REPO_URL" gh-pages
+          else
+            git clone --no-checkout "$REPO_URL" gh-pages
+            cd gh-pages
+            git checkout --orphan gh-pages
+            git rm -rf . || true
+            cd ..
+          fi
+
+      - name: Update docs content
+        run: |
+          set -euo pipefail
+
+          mkdir -p "gh-pages/${DOCS_TARGET}"
+          rsync -a --delete build/doc/html/ "gh-pages/${DOCS_TARGET}/"
+
+          if [[ "${COPY_TO_ROOT}" == "true" ]]; then
+            rsync -a --delete \
+              --exclude '.git/' \
+              --exclude 'versions/' \
+              --exclude 'latest/' \
+              --exclude '.nojekyll' \
+              --exclude 'versions.json' \
+              build/doc/html/ gh-pages/
+          fi
+
+          touch gh-pages/.nojekyll
+
+          mkdir -p gh-pages/versions
+          {
+            echo "["
+            find gh-pages/versions -mindepth 1 -maxdepth 1 -type d -printf '%f\n' \
+              | sort -Vr \
+              | awk 'BEGIN{first=1} {if(!first) printf ",\n"; printf "  \"%s\"", $0; first=0} END{printf "\n"}'
+            echo "]"
+          } > gh-pages/versions.json
+
+          if [[ -d gh-pages/latest ]]; then
+            cp gh-pages/versions.json gh-pages/latest/versions.json
+          fi
+
+          find gh-pages/versions -mindepth 1 -maxdepth 1 -type d -print0 | \
+            xargs -0 -r -I{} cp gh-pages/versions.json "{}/versions.json"
+
+      - name: Commit and push
+        run: |
+          set -euo pipefail
+
+          cd gh-pages
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git add -A
+          if git diff --cached --quiet; then
+            echo "No documentation changes to publish."
+            exit 0
+          fi
+
+          git commit -m "${COMMIT_MESSAGE}"
+          git push origin gh-pages
