@@ -138,7 +138,8 @@ html_theme_options = {
 }
 
 html_static_path = ["_static"]
-# html_css_files = ["custom.css"]
+html_css_files = ["version-switcher.css"]
+html_js_files = ["version-switcher.js"]
 
 intersphinx_mapping = {
     "numpy": ("https://numpy.org/doc/stable/", None),

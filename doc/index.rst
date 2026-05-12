@@ -3,6 +3,11 @@ DLite
 
 `A lightweight data-centric framework for semantic interoperability.`
 
+.. note::
+
+   The **latest** documentation tracks the current `master` branch.
+   Release snapshots are available under ``/versions/vX.Y.Z/``.
+
 .. toctree::
    :maxdepth: 2
    :caption: Contents
