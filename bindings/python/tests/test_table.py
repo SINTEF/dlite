@@ -51,8 +51,8 @@ m21, m22 = t2.get_datamodels()
 assert isinstance(m21, dlite.Metadata)
 assert isinstance(m22, dlite.Metadata)
 assert m21.description == "First data model."
-assert m21.getprop("length").type == "float64"
-assert m21.getprop("length").unit == "cm"
+assert m21.getprop("temperature").type == "float64"
+assert m21.getprop("temperature").unit == "°C"
 assert m22.getprop("key").type == "string"
 assert m22.getprop("indices").type == "int64"
 assert m22.getprop("indices").shape.tolist() == ["N", "M"]
@@ -115,11 +115,11 @@ if HAVE_TRIPPER and importcheck("rdflib"):
     assert ts.has(m1, RDFS.subClassOf, EMMO.Dataset)
     assert ts.has(m1, SKOS.prefLabel, en("M1"))
 
-    length = "http://onto-ns.com/meta/test/0.1/m1#length"
-    assert ts.has(length, RDF.type, OWL.Class)
-    assert ts.has(length, RDFS.subClassOf, EMMO.Datum)
-    assert ts.has(length, RDFS.subClassOf, EMMO.DoubleData)
-    assert ts.has(length, SKOS.prefLabel, en("Length"))
+    temp = "http://onto-ns.com/meta/test/0.1/m1#temperature"
+    assert ts.has(temp, RDF.type, OWL.Class)
+    assert ts.has(temp, RDFS.subClassOf, EMMO.Datum)
+    assert ts.has(temp, RDFS.subClassOf, EMMO.DoubleData)
+    assert ts.has(temp, SKOS.prefLabel, en("Temperature"))
 
 
 # Test invalid unit
