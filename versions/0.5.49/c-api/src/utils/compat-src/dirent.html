@@ -1,0 +1,1091 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dirent &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/utils/compat-src/dirent';</script>
+    <script src="../../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../../search.html" />
+    <link rel="next" title="getopt" href="getopt.html" />
+    <link rel="prev" title="compat-src" href="../compat-src.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../../utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="../bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../uuid4.html">uuid4</a></li>
+<li class="toctree-l3 current active has-children"><a class="reference internal" href="../compat-src.html">compat-src</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l4 current active"><a class="current reference internal" href="#">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/utils/compat-src/dirent.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../../_sources/c-api/src/utils/compat-src/dirent.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dirent</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47opendirPKc"><code class="docutils literal notranslate"><span class="pre">opendir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49_wopendirPKw"><code class="docutils literal notranslate"><span class="pre">_wopendir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47readdirP3DIR"><code class="docutils literal notranslate"><span class="pre">readdir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49_wreaddirP5_WDIR"><code class="docutils literal notranslate"><span class="pre">_wreaddir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49readdir_rP3DIRP6direntPP6dirent"><code class="docutils literal notranslate"><span class="pre">readdir_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411_wreaddir_rP5_WDIRP8_wdirentPP8_wdirent"><code class="docutils literal notranslate"><span class="pre">_wreaddir_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48closedirP3DIR"><code class="docutils literal notranslate"><span class="pre">closedir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410_wclosedirP5_WDIR"><code class="docutils literal notranslate"><span class="pre">_wclosedir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49rewinddirP3DIR"><code class="docutils literal notranslate"><span class="pre">rewinddir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411_wrewinddirP5_WDIR"><code class="docutils literal notranslate"><span class="pre">_wrewinddir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47scandirPKcPPP6direntPFiPK6direntEPFiPPK6direntPPK6direntE"><code class="docutils literal notranslate"><span class="pre">scandir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49alphasortPPK6direntPPK6dirent"><code class="docutils literal notranslate"><span class="pre">alphasort()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411versionsortPPK6direntPPK6dirent"><code class="docutils literal notranslate"><span class="pre">versionsort()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dirent_firstP5_WDIR"><code class="docutils literal notranslate"><span class="pre">dirent_first()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dirent_nextP5_WDIR"><code class="docutils literal notranslate"><span class="pre">dirent_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dirent_mbstowcs_sP6size_tPw6size_tPKc6size_t"><code class="docutils literal notranslate"><span class="pre">dirent_mbstowcs_s()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dirent_wcstombs_sP6size_tPc6size_tPKw6size_t"><code class="docutils literal notranslate"><span class="pre">dirent_wcstombs_s()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dirent_set_errnoi"><code class="docutils literal notranslate"><span class="pre">dirent_set_errno()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv46dirent"><code class="docutils literal notranslate"><span class="pre">dirent</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent5d_inoE"><code class="docutils literal notranslate"><span class="pre">dirent::d_ino</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent5d_offE"><code class="docutils literal notranslate"><span class="pre">dirent::d_off</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent8d_reclenE"><code class="docutils literal notranslate"><span class="pre">dirent::d_reclen</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent8d_namlenE"><code class="docutils literal notranslate"><span class="pre">dirent::d_namlen</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent6d_typeE"><code class="docutils literal notranslate"><span class="pre">dirent::d_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent6d_nameE"><code class="docutils literal notranslate"><span class="pre">dirent::d_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv43DIR"><code class="docutils literal notranslate"><span class="pre">DIR</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N3DIR3entE"><code class="docutils literal notranslate"><span class="pre">DIR::ent</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N3DIR5wdirpE"><code class="docutils literal notranslate"><span class="pre">DIR::wdirp</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dirent">
+<h1>dirent<a class="headerlink" href="#dirent" title="Link to this heading">#</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.WIN32_LEAN_AND_MEAN">
+<span class="target" id="dirent_8h_1ac7bef5d85e3dcd73eef56ad39ffc84a9"></span><span class="sig-name descname"><span class="n"><span class="pre">WIN32_LEAN_AND_MEAN</span></span></span><a class="headerlink" href="#c.WIN32_LEAN_AND_MEAN" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c._DIRENT_HAVE_D_TYPE">
+<span class="target" id="dirent_8h_1a1e6aefd9b3e29578655bcdf140e43fda"></span><span class="sig-name descname"><span class="n"><span class="pre">_DIRENT_HAVE_D_TYPE</span></span></span><a class="headerlink" href="#c._DIRENT_HAVE_D_TYPE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c._DIRENT_HAVE_D_NAMLEN">
+<span class="target" id="dirent_8h_1ae1c648e7f1fc47b1262f98d6f8ee4ea0"></span><span class="sig-name descname"><span class="n"><span class="pre">_DIRENT_HAVE_D_NAMLEN</span></span></span><a class="headerlink" href="#c._DIRENT_HAVE_D_NAMLEN" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.FILE_ATTRIBUTE_DEVICE">
+<span class="target" id="dirent_8h_1aacf8e3610f58598b1cb40df6d3e216a9"></span><span class="sig-name descname"><span class="n"><span class="pre">FILE_ATTRIBUTE_DEVICE</span></span></span><a class="headerlink" href="#c.FILE_ATTRIBUTE_DEVICE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IFMT">
+<span class="target" id="dirent_8h_1ab5bee51e9ee68b83ab11d4b340f7200b"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IFMT</span></span></span><a class="headerlink" href="#c.S_IFMT" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IFDIR">
+<span class="target" id="dirent_8h_1a11fb0652b963a735f3377eb1c9239f2d"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IFDIR</span></span></span><a class="headerlink" href="#c.S_IFDIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IFCHR">
+<span class="target" id="dirent_8h_1aef3a1d1ba22c83e30b5c834dd343b2a8"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IFCHR</span></span></span><a class="headerlink" href="#c.S_IFCHR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IFFIFO">
+<span class="target" id="dirent_8h_1ad764ca408f6c7de6840f58da5d58c076"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IFFIFO</span></span></span><a class="headerlink" href="#c.S_IFFIFO" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IFREG">
+<span class="target" id="dirent_8h_1a1aaa48b192a5dd3b6d7ee91fc98cd17d"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IFREG</span></span></span><a class="headerlink" href="#c.S_IFREG" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IREAD">
+<span class="target" id="dirent_8h_1a96c6486aa02a821aa4199525f5e79f60"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IREAD</span></span></span><a class="headerlink" href="#c.S_IREAD" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IWRITE">
+<span class="target" id="dirent_8h_1a40eb4ad4bcc675d265615042657c37b7"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IWRITE</span></span></span><a class="headerlink" href="#c.S_IWRITE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IEXEC">
+<span class="target" id="dirent_8h_1a49a6665b56f38f52ee9b157cefcf4d68"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IEXEC</span></span></span><a class="headerlink" href="#c.S_IEXEC" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IFIFO">
+<span class="target" id="dirent_8h_1a4966f25d9f03a7a06bc47ac729fd86cf"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IFIFO</span></span></span><a class="headerlink" href="#c.S_IFIFO" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IFBLK">
+<span class="target" id="dirent_8h_1a5c5b74a1cb1a1ae83572500b94e1938f"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IFBLK</span></span></span><a class="headerlink" href="#c.S_IFBLK" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IFLNK">
+<span class="target" id="dirent_8h_1afef163ce62372757e84bd9fc88c07aad"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IFLNK</span></span></span><a class="headerlink" href="#c.S_IFLNK" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IFSOCK">
+<span class="target" id="dirent_8h_1a28e80cd43106882904be148b2a397d42"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IFSOCK</span></span></span><a class="headerlink" href="#c.S_IFSOCK" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IRUSR">
+<span class="target" id="dirent_8h_1a84c7dbf5cf2fdfb690f76348b60a8cb7"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IRUSR</span></span></span><a class="headerlink" href="#c.S_IRUSR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IWUSR">
+<span class="target" id="dirent_8h_1ad70001754261c15a1bdc8e876c6d09d7"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IWUSR</span></span></span><a class="headerlink" href="#c.S_IWUSR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IXUSR">
+<span class="target" id="dirent_8h_1af10a35e3950795d6ee4e07157d000131"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IXUSR</span></span></span><a class="headerlink" href="#c.S_IXUSR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IRGRP">
+<span class="target" id="dirent_8h_1a4f5f280b929768113739fb34d6f7be8a"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IRGRP</span></span></span><a class="headerlink" href="#c.S_IRGRP" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IWGRP">
+<span class="target" id="dirent_8h_1ae6774871a90d9442f00abe18b87fee6e"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IWGRP</span></span></span><a class="headerlink" href="#c.S_IWGRP" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IXGRP">
+<span class="target" id="dirent_8h_1a042e69ac0e7dd56e5cfcd9e97d010323"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IXGRP</span></span></span><a class="headerlink" href="#c.S_IXGRP" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IROTH">
+<span class="target" id="dirent_8h_1a071147a0cb995036967c80f64b1f74b9"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IROTH</span></span></span><a class="headerlink" href="#c.S_IROTH" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IWOTH">
+<span class="target" id="dirent_8h_1a5303f49f26293acdb9533756c78322fb"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IWOTH</span></span></span><a class="headerlink" href="#c.S_IWOTH" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_IXOTH">
+<span class="target" id="dirent_8h_1a40223db1b95a04f5b28cceb3c34cfebd"></span><span class="sig-name descname"><span class="n"><span class="pre">S_IXOTH</span></span></span><a class="headerlink" href="#c.S_IXOTH" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PATH_MAX">
+<span class="target" id="dirent_8h_1ae688d728e1acdfe5988c7db45d6f0166"></span><span class="sig-name descname"><span class="n"><span class="pre">PATH_MAX</span></span></span><a class="headerlink" href="#c.PATH_MAX" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.FILENAME_MAX">
+<span class="target" id="dirent_8h_1aada6f64b4a36eb39c9b4cfd44eef7b36"></span><span class="sig-name descname"><span class="n"><span class="pre">FILENAME_MAX</span></span></span><a class="headerlink" href="#c.FILENAME_MAX" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.NAME_MAX">
+<span class="target" id="dirent_8h_1ac64541bdd81c961304b9babef1402640"></span><span class="sig-name descname"><span class="n"><span class="pre">NAME_MAX</span></span></span><a class="headerlink" href="#c.NAME_MAX" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DT_UNKNOWN">
+<span class="target" id="dirent_8h_1a293ce58a2d39f35c52f7f4516a857057"></span><span class="sig-name descname"><span class="n"><span class="pre">DT_UNKNOWN</span></span></span><a class="headerlink" href="#c.DT_UNKNOWN" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DT_REG">
+<span class="target" id="dirent_8h_1a9973595cf6775b1b29d7274ab4c0d623"></span><span class="sig-name descname"><span class="n"><span class="pre">DT_REG</span></span></span><a class="headerlink" href="#c.DT_REG" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DT_DIR">
+<span class="target" id="dirent_8h_1a1dcee67486bc4238096ecb61e2d9ffd1"></span><span class="sig-name descname"><span class="n"><span class="pre">DT_DIR</span></span></span><a class="headerlink" href="#c.DT_DIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DT_FIFO">
+<span class="target" id="dirent_8h_1a6fabe696c35bf34daa67931b4c245c7d"></span><span class="sig-name descname"><span class="n"><span class="pre">DT_FIFO</span></span></span><a class="headerlink" href="#c.DT_FIFO" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DT_SOCK">
+<span class="target" id="dirent_8h_1aaa6ed2fc54836a2c7d9b698923705f5e"></span><span class="sig-name descname"><span class="n"><span class="pre">DT_SOCK</span></span></span><a class="headerlink" href="#c.DT_SOCK" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DT_CHR">
+<span class="target" id="dirent_8h_1a7d0095c3caf2c334bf222608d02576d7"></span><span class="sig-name descname"><span class="n"><span class="pre">DT_CHR</span></span></span><a class="headerlink" href="#c.DT_CHR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DT_BLK">
+<span class="target" id="dirent_8h_1a212cebbaad682bc6c3bf798c8749abc5"></span><span class="sig-name descname"><span class="n"><span class="pre">DT_BLK</span></span></span><a class="headerlink" href="#c.DT_BLK" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DT_LNK">
+<span class="target" id="dirent_8h_1aa70b5cb1d9c30b1830cb6a5e835231c6"></span><span class="sig-name descname"><span class="n"><span class="pre">DT_LNK</span></span></span><a class="headerlink" href="#c.DT_LNK" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.IFTODT">
+<span class="target" id="dirent_8h_1af862352847d1b389ef162ec1222130a8"></span><span class="sig-name descname"><span class="n"><span class="pre">IFTODT</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.IFTODT" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DTTOIF">
+<span class="target" id="dirent_8h_1a74d60eb436b31daadb1fa753c65f024a"></span><span class="sig-name descname"><span class="n"><span class="pre">DTTOIF</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.DTTOIF" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_ISFIFO">
+<span class="target" id="dirent_8h_1a8ae224a2b1fa6eba69bb2bc34b864a24"></span><span class="sig-name descname"><span class="n"><span class="pre">S_ISFIFO</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.S_ISFIFO" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_ISDIR">
+<span class="target" id="dirent_8h_1a3746cdc5aac871e6f6504fbcbd29ef1d"></span><span class="sig-name descname"><span class="n"><span class="pre">S_ISDIR</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.S_ISDIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_ISREG">
+<span class="target" id="dirent_8h_1aad0f32c2c182238f2ff71c83e6ab65a0"></span><span class="sig-name descname"><span class="n"><span class="pre">S_ISREG</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.S_ISREG" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_ISLNK">
+<span class="target" id="dirent_8h_1a765eef536bcb3bd7bacdd675dc2fba13"></span><span class="sig-name descname"><span class="n"><span class="pre">S_ISLNK</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.S_ISLNK" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_ISSOCK">
+<span class="target" id="dirent_8h_1a397ddd128980f1ee034653da2e9d8f6e"></span><span class="sig-name descname"><span class="n"><span class="pre">S_ISSOCK</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.S_ISSOCK" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_ISCHR">
+<span class="target" id="dirent_8h_1aae33be85d242a1317f972cf2b189f03d"></span><span class="sig-name descname"><span class="n"><span class="pre">S_ISCHR</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.S_ISCHR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.S_ISBLK">
+<span class="target" id="dirent_8h_1a8b86a24d84c3cfce39cc832a017656ba"></span><span class="sig-name descname"><span class="n"><span class="pre">S_ISBLK</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.S_ISBLK" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c._D_EXACT_NAMLEN">
+<span class="target" id="dirent_8h_1a51769eed69c4f256aeae3beb4c91c5ae"></span><span class="sig-name descname"><span class="n"><span class="pre">_D_EXACT_NAMLEN</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">p</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c._D_EXACT_NAMLEN" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c._D_ALLOC_NAMLEN">
+<span class="target" id="dirent_8h_1a4e4e85e0a5552ee80184cb4150464fa2"></span><span class="sig-name descname"><span class="n"><span class="pre">_D_ALLOC_NAMLEN</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">p</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c._D_ALLOC_NAMLEN" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.wdirent">
+<span class="target" id="dirent_8h_1acced66b96e07a03662493638658986f4"></span><span class="sig-name descname"><span class="n"><span class="pre">wdirent</span></span></span><a class="headerlink" href="#c.wdirent" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.WDIR">
+<span class="target" id="dirent_8h_1aa97efcb21eb4eb1172ca3ac581309f09"></span><span class="sig-name descname"><span class="n"><span class="pre">WDIR</span></span></span><a class="headerlink" href="#c.WDIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.wopendir">
+<span class="target" id="dirent_8h_1a728bb1173e923c1ae0801c1d91370c0e"></span><span class="sig-name descname"><span class="n"><span class="pre">wopendir</span></span></span><a class="headerlink" href="#c.wopendir" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.wreaddir">
+<span class="target" id="dirent_8h_1a53e09ee78c993b9feebaf49cb47146f1"></span><span class="sig-name descname"><span class="n"><span class="pre">wreaddir</span></span></span><a class="headerlink" href="#c.wreaddir" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.wclosedir">
+<span class="target" id="dirent_8h_1a783634d83dcc99d8a393b22893acfe66"></span><span class="sig-name descname"><span class="n"><span class="pre">wclosedir</span></span></span><a class="headerlink" href="#c.wclosedir" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.wrewinddir">
+<span class="target" id="dirent_8h_1a8de41b9888772577edbb17b85dce573e"></span><span class="sig-name descname"><span class="n"><span class="pre">wrewinddir</span></span></span><a class="headerlink" href="#c.wrewinddir" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv47opendirPKc">
+<span id="_CPPv37opendirPKc"></span><span id="_CPPv27opendirPKc"></span><span id="opendir__cCP"></span><span class="target" id="dirent_8h_1a56af8d3cfb4a2b2f44e20b276db71f2a"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv43DIR" title="DIR"><span class="n"><span class="pre">DIR</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">opendir</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirname</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47opendirPKc" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49_wopendirPKw">
+<span id="_CPPv39_wopendirPKw"></span><span id="_CPPv29_wopendirPKw"></span><span id="_wopendir__wchar_tCP"></span><span class="target" id="dirent_8h_1a930234a4d128076584ce384e7807c22e"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="n"><span class="pre">_WDIR</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">_wopendir</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">wchar_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirname</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49_wopendirPKw" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv47readdirP3DIR">
+<span id="_CPPv37readdirP3DIR"></span><span id="_CPPv27readdirP3DIR"></span><span id="readdir__DIRP"></span><span class="target" id="dirent_8h_1aff48ec2514bda89769c968c66db181f3"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">readdir</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv43DIR" title="DIR"><span class="n"><span class="pre">DIR</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47readdirP3DIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49_wreaddirP5_WDIR">
+<span id="_CPPv39_wreaddirP5_WDIR"></span><span id="_CPPv29_wreaddirP5_WDIR"></span><span id="_wreaddir___WDIRP"></span><span class="target" id="dirent_8h_1ae86468574ed3ceddbbe2519f12ad7d1c"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">_wdirent</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">_wreaddir</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">_WDIR</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49_wreaddirP5_WDIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49readdir_rP3DIRP6direntPP6dirent">
+<span id="_CPPv39readdir_rP3DIRP6direntPP6dirent"></span><span id="_CPPv29readdir_rP3DIRP6direntPP6dirent"></span><span id="readdir_r__DIRP.direntP.direntPP"></span><span class="target" id="dirent_8h_1aba172ac13df3f453b85c5d68c5003213"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">readdir_r</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv43DIR" title="DIR"><span class="n"><span class="pre">DIR</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">entry</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49readdir_rP3DIRP6direntPP6dirent" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411_wreaddir_rP5_WDIRP8_wdirentPP8_wdirent">
+<span id="_CPPv311_wreaddir_rP5_WDIRP8_wdirentPP8_wdirent"></span><span id="_CPPv211_wreaddir_rP5_WDIRP8_wdirentPP8_wdirent"></span><span id="_wreaddir_r___WDIRP._wdirentP._wdirentPP"></span><span class="target" id="dirent_8h_1a16d55aa6c7a95b0cec5a4e1820f729b4"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_wreaddir_r</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">_WDIR</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">_wdirent</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">entry</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">_wdirent</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">result</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411_wreaddir_rP5_WDIRP8_wdirentPP8_wdirent" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv48closedirP3DIR">
+<span id="_CPPv38closedirP3DIR"></span><span id="_CPPv28closedirP3DIR"></span><span id="closedir__DIRP"></span><span class="target" id="dirent_8h_1a748b9bd26c040c2ad9107c9d8c1aab42"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">closedir</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv43DIR" title="DIR"><span class="n"><span class="pre">DIR</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48closedirP3DIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410_wclosedirP5_WDIR">
+<span id="_CPPv310_wclosedirP5_WDIR"></span><span id="_CPPv210_wclosedirP5_WDIR"></span><span id="_wclosedir___WDIRP"></span><span class="target" id="dirent_8h_1ad94806a93f9e8280fb5c7f692d6542bb"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_wclosedir</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">_WDIR</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410_wclosedirP5_WDIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49rewinddirP3DIR">
+<span id="_CPPv39rewinddirP3DIR"></span><span id="_CPPv29rewinddirP3DIR"></span><span id="rewinddir__DIRP"></span><span class="target" id="dirent_8h_1a8c3dfbe42ecbe0e78980597e340189aa"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rewinddir</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv43DIR" title="DIR"><span class="n"><span class="pre">DIR</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49rewinddirP3DIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411_wrewinddirP5_WDIR">
+<span id="_CPPv311_wrewinddirP5_WDIR"></span><span id="_CPPv211_wrewinddirP5_WDIR"></span><span id="_wrewinddir___WDIRP"></span><span class="target" id="dirent_8h_1acd2d7533e3cd98c4587bc73990d9f8f8"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_wrewinddir</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">_WDIR</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411_wrewinddirP5_WDIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv47scandirPKcPPP6direntPFiPK6direntEPFiPPK6direntPPK6direntE">
+<span id="_CPPv37scandirPKcPPP6direntPFiPK6direntEPFiPPK6direntPPK6direntE"></span><span id="_CPPv27scandirPKcPPP6direntPFiPK6direntEPFiPPK6direntPPK6direntE"></span><span class="target" id="dirent_8h_1a845ad73208335cab42e56d03f64c3d6b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">scandir</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirname</span></span>, <span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">namelist</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filter</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">)</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">compare</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">)</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47scandirPKcPPP6direntPFiPK6direntEPFiPPK6direntPPK6direntE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49alphasortPPK6direntPPK6dirent">
+<span id="_CPPv39alphasortPPK6direntPPK6dirent"></span><span id="_CPPv29alphasortPPK6direntPPK6dirent"></span><span id="alphasort__direntCPP.direntCPP"></span><span class="target" id="dirent_8h_1a2c77d7e189a8b8aa5df1e513d8e7e2f1"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">alphasort</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49alphasortPPK6direntPPK6dirent" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411versionsortPPK6direntPPK6dirent">
+<span id="_CPPv311versionsortPPK6direntPPK6dirent"></span><span id="_CPPv211versionsortPPK6direntPPK6dirent"></span><span id="versionsort__direntCPP.direntCPP"></span><span class="target" id="dirent_8h_1aa04e50c4dd7ed88e9beff756d29e6655"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">versionsort</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411versionsortPPK6direntPPK6dirent" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dirent_firstP5_WDIR">
+<span id="_CPPv312dirent_firstP5_WDIR"></span><span id="_CPPv212dirent_firstP5_WDIR"></span><span id="dirent_first___WDIRP"></span><span class="target" id="dirent_8h_1a11433e0800895fb8a56df9b410bdea29"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="n"><span class="pre">WIN32_FIND_DATAW</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dirent_first</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">_WDIR</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dirent_firstP5_WDIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411dirent_nextP5_WDIR">
+<span id="_CPPv311dirent_nextP5_WDIR"></span><span id="_CPPv211dirent_nextP5_WDIR"></span><span id="dirent_next___WDIRP"></span><span class="target" id="dirent_8h_1a8f083cf02d7debbcafb78d276948e99b"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="n"><span class="pre">WIN32_FIND_DATAW</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dirent_next</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">_WDIR</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dirp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411dirent_nextP5_WDIR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dirent_mbstowcs_sP6size_tPw6size_tPKc6size_t">
+<span id="_CPPv317dirent_mbstowcs_sP6size_tPw6size_tPKc6size_t"></span><span id="_CPPv217dirent_mbstowcs_sP6size_tPw6size_tPKc6size_t"></span><span id="dirent_mbstowcs_s__sP.wchar_tP.s.cCP.s"></span><span class="target" id="dirent_8h_1aead3f72cc4062f3d0a4a613c5cd29794"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dirent_mbstowcs_s</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pReturnValue</span></span>, <span class="kt"><span class="pre">wchar_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">wcstr</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeInWords</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">mbstr</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">count</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dirent_mbstowcs_sP6size_tPw6size_tPKc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dirent_wcstombs_sP6size_tPc6size_tPKw6size_t">
+<span id="_CPPv317dirent_wcstombs_sP6size_tPc6size_tPKw6size_t"></span><span id="_CPPv217dirent_wcstombs_sP6size_tPc6size_tPKw6size_t"></span><span id="dirent_wcstombs_s__sP.cP.s.wchar_tCP.s"></span><span class="target" id="dirent_8h_1af3e03a80974ee384ff3c529fef08d751"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dirent_wcstombs_s</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pReturnValue</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">mbstr</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sizeInBytes</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">wchar_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">wcstr</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">count</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dirent_wcstombs_sP6size_tPc6size_tPKw6size_t" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dirent_set_errnoi">
+<span id="_CPPv316dirent_set_errnoi"></span><span id="_CPPv216dirent_set_errnoi"></span><span id="dirent_set_errno__i"></span><span class="target" id="dirent_8h_1a1d22e9bf392cecbd177224e626d3ad98"></span><span class="k"><span class="pre">static</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dirent_set_errno</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">error</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dirent_set_errnoi" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv46dirent">
+<span id="_CPPv36dirent"></span><span id="_CPPv26dirent"></span><span class="target" id="structdirent"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dirent</span></span></span><a class="headerlink" href="#_CPPv46dirent" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6dirent5d_inoE">
+<span id="_CPPv3N6dirent5d_inoE"></span><span id="_CPPv2N6dirent5d_inoE"></span><span id="dirent::d_ino__l"></span><span class="target" id="structdirent_1acb6fecfb0e0f6fdc226dff8d56c3da4a"></span><span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">d_ino</span></span></span><a class="headerlink" href="#_CPPv4N6dirent5d_inoE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6dirent5d_offE">
+<span id="_CPPv3N6dirent5d_offE"></span><span id="_CPPv2N6dirent5d_offE"></span><span id="dirent::d_off__l"></span><span class="target" id="structdirent_1a8729dc83a5822a5f746299d260c2f9a0"></span><span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">d_off</span></span></span><a class="headerlink" href="#_CPPv4N6dirent5d_offE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6dirent8d_reclenE">
+<span id="_CPPv3N6dirent8d_reclenE"></span><span id="_CPPv2N6dirent8d_reclenE"></span><span id="dirent::d_reclen__unsigned-short"></span><span class="target" id="structdirent_1a90dc47836e8ef510437317876368859e"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">short</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">d_reclen</span></span></span><a class="headerlink" href="#_CPPv4N6dirent8d_reclenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6dirent8d_namlenE">
+<span id="_CPPv3N6dirent8d_namlenE"></span><span id="_CPPv2N6dirent8d_namlenE"></span><span id="dirent::d_namlen__s"></span><span class="target" id="structdirent_1a09ced068b03cdb339e34840c8b709621"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">d_namlen</span></span></span><a class="headerlink" href="#_CPPv4N6dirent8d_namlenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6dirent6d_typeE">
+<span id="_CPPv3N6dirent6d_typeE"></span><span id="_CPPv2N6dirent6d_typeE"></span><span id="dirent::d_type__i"></span><span class="target" id="structdirent_1ad6a736cb04c7295e8f97f708324b3500"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">d_type</span></span></span><a class="headerlink" href="#_CPPv4N6dirent6d_typeE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N6dirent6d_nameE">
+<span id="_CPPv3N6dirent6d_nameE"></span><span id="_CPPv2N6dirent6d_nameE"></span><span id="dirent::d_name__cA"></span><span class="target" id="structdirent_1a2db57e8744079cc6ae87dd367919957a"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">d_name</span></span></span><span class="p"><span class="pre">[</span></span><span class="n"><span class="pre">PATH_MAX</span></span><span class="w"> </span><span class="o"><span class="pre">+</span></span><span class="w"> </span><span class="m"><span class="pre">1</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N6dirent6d_nameE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv43DIR">
+<span id="_CPPv33DIR"></span><span id="_CPPv23DIR"></span><span id="DIR"></span><span class="target" id="structDIR"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DIR</span></span></span><a class="headerlink" href="#_CPPv43DIR" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N3DIR3entE">
+<span id="_CPPv3N3DIR3entE"></span><span id="_CPPv2N3DIR3entE"></span><span id="DIR::ent__dirent"></span><span class="target" id="structDIR_1a59e9f5211cbb2f8e5b2807ccfdd2a7fc"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv46dirent" title="dirent"><span class="n"><span class="pre">dirent</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ent</span></span></span><a class="headerlink" href="#_CPPv4N3DIR3entE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N3DIR5wdirpE">
+<span id="_CPPv3N3DIR5wdirpE"></span><span id="_CPPv2N3DIR5wdirpE"></span><span id="DIR::wdirp___WDIRP"></span><span class="target" id="structDIR_1a29362d4a3d7f809d0f5418b26cac5d41"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">_WDIR</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">wdirp</span></span></span><a class="headerlink" href="#_CPPv4N3DIR5wdirpE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../compat-src.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">compat-src</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="getopt.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">getopt</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47opendirPKc"><code class="docutils literal notranslate"><span class="pre">opendir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49_wopendirPKw"><code class="docutils literal notranslate"><span class="pre">_wopendir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47readdirP3DIR"><code class="docutils literal notranslate"><span class="pre">readdir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49_wreaddirP5_WDIR"><code class="docutils literal notranslate"><span class="pre">_wreaddir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49readdir_rP3DIRP6direntPP6dirent"><code class="docutils literal notranslate"><span class="pre">readdir_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411_wreaddir_rP5_WDIRP8_wdirentPP8_wdirent"><code class="docutils literal notranslate"><span class="pre">_wreaddir_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48closedirP3DIR"><code class="docutils literal notranslate"><span class="pre">closedir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410_wclosedirP5_WDIR"><code class="docutils literal notranslate"><span class="pre">_wclosedir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49rewinddirP3DIR"><code class="docutils literal notranslate"><span class="pre">rewinddir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411_wrewinddirP5_WDIR"><code class="docutils literal notranslate"><span class="pre">_wrewinddir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47scandirPKcPPP6direntPFiPK6direntEPFiPPK6direntPPK6direntE"><code class="docutils literal notranslate"><span class="pre">scandir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49alphasortPPK6direntPPK6dirent"><code class="docutils literal notranslate"><span class="pre">alphasort()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411versionsortPPK6direntPPK6dirent"><code class="docutils literal notranslate"><span class="pre">versionsort()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dirent_firstP5_WDIR"><code class="docutils literal notranslate"><span class="pre">dirent_first()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dirent_nextP5_WDIR"><code class="docutils literal notranslate"><span class="pre">dirent_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dirent_mbstowcs_sP6size_tPw6size_tPKc6size_t"><code class="docutils literal notranslate"><span class="pre">dirent_mbstowcs_s()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dirent_wcstombs_sP6size_tPc6size_tPKw6size_t"><code class="docutils literal notranslate"><span class="pre">dirent_wcstombs_s()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dirent_set_errnoi"><code class="docutils literal notranslate"><span class="pre">dirent_set_errno()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv46dirent"><code class="docutils literal notranslate"><span class="pre">dirent</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent5d_inoE"><code class="docutils literal notranslate"><span class="pre">dirent::d_ino</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent5d_offE"><code class="docutils literal notranslate"><span class="pre">dirent::d_off</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent8d_reclenE"><code class="docutils literal notranslate"><span class="pre">dirent::d_reclen</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent8d_namlenE"><code class="docutils literal notranslate"><span class="pre">dirent::d_namlen</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent6d_typeE"><code class="docutils literal notranslate"><span class="pre">dirent::d_type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N6dirent6d_nameE"><code class="docutils literal notranslate"><span class="pre">dirent::d_name</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv43DIR"><code class="docutils literal notranslate"><span class="pre">DIR</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N3DIR3entE"><code class="docutils literal notranslate"><span class="pre">DIR::ent</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N3DIR5wdirpE"><code class="docutils literal notranslate"><span class="pre">DIR::wdirp</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1298 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>fileutils &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/utils/fileutils';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="globmatch" href="globmatch.html" />
+    <link rel="prev" title="fileinfo" href="fileinfo.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/utils/fileutils.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/c-api/src/utils/fileutils.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>fileutils</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45FUDir"><code class="docutils literal notranslate"><span class="pre">FUDir</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410FUErrCodes"><code class="docutils literal notranslate"><span class="pre">FUErrCodes</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUErrCodes12fu_PathErrorE"><code class="docutils literal notranslate"><span class="pre">FUErrCodes::fu_PathError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUErrCodes21fu_OpenDirectoryErrorE"><code class="docutils literal notranslate"><span class="pre">FUErrCodes::fu_OpenDirectoryError</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410FUPlatform"><code class="docutils literal notranslate"><span class="pre">FUPlatform</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform17fuUnknownPlatformE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuUnknownPlatform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform8fuNativeE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuNative</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform6fuUnixE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuUnix</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform9fuWindowsE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuWindows</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform7fuAppleE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuApple</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform14fuLastPlatformE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuLastPlatform</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418fu_native_platformv"><code class="docutils literal notranslate"><span class="pre">fu_native_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421fu_supported_platform10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_supported_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416fu_platform_name10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_platform_name()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_platformPKc"><code class="docutils literal notranslate"><span class="pre">fu_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49fu_dirsep10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_dirsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_pathsep10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_pathsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_linesep10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_linesep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48fu_isabsPKc"><code class="docutils literal notranslate"><span class="pre">fu_isabs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412fu_iswinpathPKci"><code class="docutils literal notranslate"><span class="pre">fu_iswinpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47fu_joinPKcz"><code class="docutils literal notranslate"><span class="pre">fu_join()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_join_sepiPKcz"><code class="docutils literal notranslate"><span class="pre">fu_join_sep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412fu_vjoin_sepiPKc7va_list"><code class="docutils literal notranslate"><span class="pre">fu_vjoin_sep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_lastsepPKc"><code class="docutils literal notranslate"><span class="pre">fu_lastsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_dirnamePKc"><code class="docutils literal notranslate"><span class="pre">fu_dirname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_basenamePKc"><code class="docutils literal notranslate"><span class="pre">fu_basename()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47fu_stemPKc"><code class="docutils literal notranslate"><span class="pre">fu_stem()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_fileextPKc"><code class="docutils literal notranslate"><span class="pre">fu_fileext()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418fu_friendly_dirsepPc"><code class="docutils literal notranslate"><span class="pre">fu_friendly_dirsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_nextpathPKcPPcPKc"><code class="docutils literal notranslate"><span class="pre">fu_nextpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_winpathPKcPc6size_tPKc"><code class="docutils literal notranslate"><span class="pre">fu_winpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_unixpathPKcPc6size_tPKc"><code class="docutils literal notranslate"><span class="pre">fu_unixpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413fu_nativepathPKcPc6size_tPKc"><code class="docutils literal notranslate"><span class="pre">fu_nativepath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49fu_existsPKc"><code class="docutils literal notranslate"><span class="pre">fu_exists()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_realpathPKcPc"><code class="docutils literal notranslate"><span class="pre">fu_realpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_opendirPKc"><code class="docutils literal notranslate"><span class="pre">fu_opendir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_nextfileP5FUDir"><code class="docutils literal notranslate"><span class="pre">fu_nextfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_closedirP5FUDir"><code class="docutils literal notranslate"><span class="pre">fu_closedir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413fu_paths_initP7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417fu_paths_init_sepP7FUPathsPKcPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_init_sep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421fu_paths_set_platformP7FUPaths10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_paths_set_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421fu_paths_get_platformP7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_paths_get_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_deinitP7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_paths_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_stringPK7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_paths_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412fu_paths_getP7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_paths_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_insertP7FUPathsPKci"><code class="docutils literal notranslate"><span class="pre">fu_paths_insert()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416fu_paths_insertnP7FUPathsPKc6size_ti"><code class="docutils literal notranslate"><span class="pre">fu_paths_insertn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_appendP7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416fu_paths_appendnP7FUPathsPKc6size_t"><code class="docutils literal notranslate"><span class="pre">fu_paths_appendn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_extendP7FUPathsPKcPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_extend()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422fu_paths_extend_prefixP7FUPathsPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_extend_prefix()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421fu_paths_remove_indexP7FUPathsi"><code class="docutils literal notranslate"><span class="pre">fu_paths_remove_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_removeP7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414fu_paths_indexP7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413fu_startmatchPKcPK7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_startmatch()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412fu_nextmatchP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_nextmatch()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_endmatchP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_endmatch()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417fu_pathsiter_initPK7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_pathsiter_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417fu_pathsiter_nextP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_pathsiter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419fu_pathsiter_deinitP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_pathsiter_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47fu_globPKcPKc"><code class="docutils literal notranslate"><span class="pre">fu_glob()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_globnextP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_globnext()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_globendP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_globend()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418fu_iter_set_dirsepP6FUIteri"><code class="docutils literal notranslate"><span class="pre">fu_iter_set_dirsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_readfileP4FILE"><code class="docutils literal notranslate"><span class="pre">fu_readfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47FUPaths"><code class="docutils literal notranslate"><span class="pre">FUPaths</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths1nE"><code class="docutils literal notranslate"><span class="pre">FUPaths::n</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths4sizeE"><code class="docutils literal notranslate"><span class="pre">FUPaths::size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths5pathsE"><code class="docutils literal notranslate"><span class="pre">FUPaths::paths</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths8platformE"><code class="docutils literal notranslate"><span class="pre">FUPaths::platform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths7pathsepE"><code class="docutils literal notranslate"><span class="pre">FUPaths::pathsep</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="fileutils">
+<h1>fileutils<a class="headerlink" href="#fileutils" title="Link to this heading">#</a></h1>
+<p>Cross-platform file utility functions. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.FU_PATHS_CHUNKSIZE">
+<span class="target" id="fileutils_8h_1a2f51c26026094636a03b0320cffabe59"></span><span class="sig-name descname"><span class="n"><span class="pre">FU_PATHS_CHUNKSIZE</span></span></span><a class="headerlink" href="#c.FU_PATHS_CHUNKSIZE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Chunk size for path allocation </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv45FUDir">
+<span id="_CPPv35FUDir"></span><span id="_CPPv25FUDir"></span><span id="FUDir"></span><span class="target" id="fileutils_8h_1aeddefa88fb46aa0be3f7de91c17a6edc"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><a class="reference internal" href="compat-src/dirent.html#_CPPv43DIR" title="DIR"><span class="n"><span class="pre">DIR</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FUDir</span></span></span><a class="headerlink" href="#_CPPv45FUDir" title="Link to this definition">#</a><br /></dt>
+<dd><p>Directory state. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv410FUErrCodes">
+<span id="_CPPv310FUErrCodes"></span><span id="_CPPv210FUErrCodes"></span><span class="target" id="fileutils_8h_1a008977df9fa00995f099580462acc8c2"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FUErrCodes</span></span></span><a class="headerlink" href="#_CPPv410FUErrCodes" title="Link to this definition">#</a><br /></dt>
+<dd><p>Error codes </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10FUErrCodes12fu_PathErrorE">
+<span id="_CPPv3N10FUErrCodes12fu_PathErrorE"></span><span id="_CPPv2N10FUErrCodes12fu_PathErrorE"></span><span class="target" id="fileutils_8h_1a008977df9fa00995f099580462acc8c2a965f4a4c445756acb39900329483e918"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_PathError</span></span></span><a class="headerlink" href="#_CPPv4N10FUErrCodes12fu_PathErrorE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10FUErrCodes21fu_OpenDirectoryErrorE">
+<span id="_CPPv3N10FUErrCodes21fu_OpenDirectoryErrorE"></span><span id="_CPPv2N10FUErrCodes21fu_OpenDirectoryErrorE"></span><span class="target" id="fileutils_8h_1a008977df9fa00995f099580462acc8c2ac715b8e52223d0f352cbac60714a9602"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_OpenDirectoryError</span></span></span><a class="headerlink" href="#_CPPv4N10FUErrCodes21fu_OpenDirectoryErrorE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv410FUPlatform">
+<span id="_CPPv310FUPlatform"></span><span id="_CPPv210FUPlatform"></span><span class="target" id="fileutils_8h_1a69ceb721c52ec4cc5c844a73cb96fd44"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FUPlatform</span></span></span><a class="headerlink" href="#_CPPv410FUPlatform" title="Link to this definition">#</a><br /></dt>
+<dd><p>Platform </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10FUPlatform17fuUnknownPlatformE">
+<span id="_CPPv3N10FUPlatform17fuUnknownPlatformE"></span><span id="_CPPv2N10FUPlatform17fuUnknownPlatformE"></span><span class="target" id="fileutils_8h_1a69ceb721c52ec4cc5c844a73cb96fd44a6a90372d4ae1c3c7c88fd254a20b1fbe"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fuUnknownPlatform</span></span></span><a class="headerlink" href="#_CPPv4N10FUPlatform17fuUnknownPlatformE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Unknown platform </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10FUPlatform8fuNativeE">
+<span id="_CPPv3N10FUPlatform8fuNativeE"></span><span id="_CPPv2N10FUPlatform8fuNativeE"></span><span class="target" id="fileutils_8h_1a69ceb721c52ec4cc5c844a73cb96fd44ab1e66bed6fa7a5fbf142b682e7815dc5"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fuNative</span></span></span><a class="headerlink" href="#_CPPv4N10FUPlatform8fuNativeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Platform we are compiling on </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10FUPlatform6fuUnixE">
+<span id="_CPPv3N10FUPlatform6fuUnixE"></span><span id="_CPPv2N10FUPlatform6fuUnixE"></span><span class="target" id="fileutils_8h_1a69ceb721c52ec4cc5c844a73cb96fd44a60fc7fb79d2e767b80dbfe34c432b0de"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fuUnix</span></span></span><a class="headerlink" href="#_CPPv4N10FUPlatform6fuUnixE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Unix-like platforms; POSIX complient </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10FUPlatform9fuWindowsE">
+<span id="_CPPv3N10FUPlatform9fuWindowsE"></span><span id="_CPPv2N10FUPlatform9fuWindowsE"></span><span class="target" id="fileutils_8h_1a69ceb721c52ec4cc5c844a73cb96fd44a86181156c9d688c50b320a365553e9cc"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fuWindows</span></span></span><a class="headerlink" href="#_CPPv4N10FUPlatform9fuWindowsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Windows </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10FUPlatform7fuAppleE">
+<span id="_CPPv3N10FUPlatform7fuAppleE"></span><span id="_CPPv2N10FUPlatform7fuAppleE"></span><span class="target" id="fileutils_8h_1a69ceb721c52ec4cc5c844a73cb96fd44ab5808764300c69a50e12c0430ba8cd9c"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fuApple</span></span></span><a class="headerlink" href="#_CPPv4N10FUPlatform7fuAppleE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Apple </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10FUPlatform14fuLastPlatformE">
+<span id="_CPPv3N10FUPlatform14fuLastPlatformE"></span><span id="_CPPv2N10FUPlatform14fuLastPlatformE"></span><span class="target" id="fileutils_8h_1a69ceb721c52ec4cc5c844a73cb96fd44adbfea4f5709a00f70fea0b1a3f6f2091"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fuLastPlatform</span></span></span><a class="headerlink" href="#_CPPv4N10FUPlatform14fuLastPlatformE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Must always be the last </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418fu_native_platformv">
+<span id="_CPPv318fu_native_platformv"></span><span id="_CPPv218fu_native_platformv"></span><span id="fu_native_platform__void"></span><span class="target" id="fileutils_8h_1aa742a988c6a881d4692ad8c36221c503"></span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_native_platform</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418fu_native_platformv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns native platform. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421fu_supported_platform10FUPlatform">
+<span id="_CPPv321fu_supported_platform10FUPlatform"></span><span id="_CPPv221fu_supported_platform10FUPlatform"></span><span id="fu_supported_platform__FUPlatform"></span><span class="target" id="fileutils_8h_1afb5e377ba088dac924485331e0978790"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_supported_platform</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">platform</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421fu_supported_platform10FUPlatform" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if <code class="docutils literal notranslate"><span class="pre">platform</span></code> is supported. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416fu_platform_name10FUPlatform">
+<span id="_CPPv316fu_platform_name10FUPlatform"></span><span id="_CPPv216fu_platform_name10FUPlatform"></span><span id="fu_platform_name__FUPlatform"></span><span class="target" id="fileutils_8h_1a6435fa7608ca456c61cc82a504e6b2a3"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_platform_name</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">platform</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416fu_platform_name10FUPlatform" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a constant pointer to the name of <code class="docutils literal notranslate"><span class="pre">platform</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_platformPKc">
+<span id="_CPPv311fu_platformPKc"></span><span id="_CPPv211fu_platformPKc"></span><span id="fu_platform__cCP"></span><span class="target" id="fileutils_8h_1a265d363e707d4bd48285e8ad5a126631"></span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_platform</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_platformPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the platform number corresponding to <code class="docutils literal notranslate"><span class="pre">name</span></code> or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49fu_dirsep10FUPlatform">
+<span id="_CPPv39fu_dirsep10FUPlatform"></span><span id="_CPPv29fu_dirsep10FUPlatform"></span><span id="fu_dirsep__FUPlatform"></span><span class="target" id="fileutils_8h_1ab31435857ad38601c3ba496d968be7dd"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_dirsep</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">platform</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49fu_dirsep10FUPlatform" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to directory separator for <code class="docutils literal notranslate"><span class="pre">platform</span></code> or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410fu_pathsep10FUPlatform">
+<span id="_CPPv310fu_pathsep10FUPlatform"></span><span id="_CPPv210fu_pathsep10FUPlatform"></span><span id="fu_pathsep__FUPlatform"></span><span class="target" id="fileutils_8h_1acb239bca1be2b7cc7fbd1912941d1e7b"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_pathsep</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">platform</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410fu_pathsep10FUPlatform" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to path separator for <code class="docutils literal notranslate"><span class="pre">platform</span></code> or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410fu_linesep10FUPlatform">
+<span id="_CPPv310fu_linesep10FUPlatform"></span><span id="_CPPv210fu_linesep10FUPlatform"></span><span id="fu_linesep__FUPlatform"></span><span class="target" id="fileutils_8h_1a562509d958ce506d7cafb375550749a5"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_linesep</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">platform</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410fu_linesep10FUPlatform" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to line separator for <code class="docutils literal notranslate"><span class="pre">platform</span></code> or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv48fu_isabsPKc">
+<span id="_CPPv38fu_isabsPKc"></span><span id="_CPPv28fu_isabsPKc"></span><span id="fu_isabs__cCP"></span><span class="target" id="fileutils_8h_1a4379f16e9899bdb07d6abd0dd9c19364"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_isabs</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48fu_isabsPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if <code class="docutils literal notranslate"><span class="pre">path</span></code> is an absolute path. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412fu_iswinpathPKci">
+<span id="_CPPv312fu_iswinpathPKci"></span><span id="_CPPv212fu_iswinpathPKci"></span><span id="fu_iswinpath__cCP.i"></span><span class="target" id="fileutils_8h_1ac155bd4e17d0266fd400ae7a33eea032"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_iswinpath</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412fu_iswinpathPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if <code class="docutils literal notranslate"><span class="pre">path</span></code>, of length <code class="docutils literal notranslate"><span class="pre">len</span></code>, is a Windows path.</p>
+<p>A Windows path must start with a drive letter and colon (ex “C:”), but not followed by two forward slashes (ex “c://”, which is interpreted as an URL).</p>
+<p>Alternatively a Windows path can start with two backward slashes indicating a network (UNC) path. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv47fu_joinPKcz">
+<span id="_CPPv37fu_joinPKcz"></span><span id="_CPPv27fu_joinPKcz"></span><span id="fu_join__cCP.z"></span><span class="target" id="fileutils_8h_1ab5f6782a24ece32288ce65a735ce2525"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_join</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47fu_joinPKcz" title="Link to this definition">#</a><br /></dt>
+<dd><p>Joins a set of pathname components, inserting ‘/’ as needed. The first path component is <code class="docutils literal notranslate"><span class="pre">a</span></code>. The last argument must be NULL.</p>
+<p>If any component is an absolute path, all previous path components will be discarded. An empty last part will result in a path that ends with a separator.</p>
+<p>Returns a pointer to a malloc’ed string or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_join_sepiPKcz">
+<span id="_CPPv311fu_join_sepiPKcz"></span><span id="_CPPv211fu_join_sepiPKcz"></span><span id="fu_join_sep__i.cCP.z"></span><span class="target" id="fileutils_8h_1a26404aa416b6e62a03f5a5f0f2c042c6"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_join_sep</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sep</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_join_sepiPKcz" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#fileutils_8h_1ab5f6782a24ece32288ce65a735ce2525"><span class="std std-ref">fu_join()</span></a>, but takes path separator as first argument. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412fu_vjoin_sepiPKc7va_list">
+<span id="_CPPv312fu_vjoin_sepiPKc7va_list"></span><span id="_CPPv212fu_vjoin_sepiPKc7va_list"></span><span id="fu_vjoin_sep__i.cCP.va_list"></span><span class="target" id="fileutils_8h_1aed5d392bfb0860394aa1be974386325b"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_vjoin_sep</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">sep</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412fu_vjoin_sepiPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#fileutils_8h_1a26404aa416b6e62a03f5a5f0f2c042c6"><span class="std std-ref">fu_join_sep()</span></a>, but takes a va_list instead of a variable number of arguments. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410fu_lastsepPKc">
+<span id="_CPPv310fu_lastsepPKc"></span><span id="_CPPv210fu_lastsepPKc"></span><span id="fu_lastsep__cCP"></span><span class="target" id="fileutils_8h_1a1a69da90abbb60747062ab5915a5d95b"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_lastsep</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410fu_lastsepPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to the last directory separator in <code class="docutils literal notranslate"><span class="pre">path</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410fu_dirnamePKc">
+<span id="_CPPv310fu_dirnamePKc"></span><span id="_CPPv210fu_dirnamePKc"></span><span id="fu_dirname__cCP"></span><span class="target" id="fileutils_8h_1a0eb570ca5d4c8a39dbc2fbdf90c75727"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_dirname</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410fu_dirnamePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the directory component of <code class="docutils literal notranslate"><span class="pre">path</span></code> as a newly allocated string. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_basenamePKc">
+<span id="_CPPv311fu_basenamePKc"></span><span id="_CPPv211fu_basenamePKc"></span><span id="fu_basename__cCP"></span><span class="target" id="fileutils_8h_1ab95b937e254b0a203577f043ac37eed0"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_basename</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_basenamePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the final component of <code class="docutils literal notranslate"><span class="pre">path</span></code> as a newly allocated string. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv47fu_stemPKc">
+<span id="_CPPv37fu_stemPKc"></span><span id="_CPPv27fu_stemPKc"></span><span id="fu_stem__cCP"></span><span class="target" id="fileutils_8h_1adcc36107ca9c07237bd6987b20369a40"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_stem</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47fu_stemPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the final component of <code class="docutils literal notranslate"><span class="pre">path</span></code> without extension as a newly allocated string. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410fu_fileextPKc">
+<span id="_CPPv310fu_fileextPKc"></span><span id="_CPPv210fu_fileextPKc"></span><span id="fu_fileext__cCP"></span><span class="target" id="fileutils_8h_1ac405359420521641713cf10f9948320e"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_fileext</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410fu_fileextPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to file extension of <code class="docutils literal notranslate"><span class="pre">path</span></code> (what follows after the last “.”). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418fu_friendly_dirsepPc">
+<span id="_CPPv318fu_friendly_dirsepPc"></span><span id="_CPPv218fu_friendly_dirsepPc"></span><span id="fu_friendly_dirsep__cP"></span><span class="target" id="fileutils_8h_1a4a4304ab1888105b3f04a137ccec58c5"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_friendly_dirsep</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418fu_friendly_dirsepPc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Updates <code class="docutils literal notranslate"><span class="pre">path</span></code> to use more “user-friendly” directory separators.</p>
+<p>On Unix-like systems this function does nothing.</p>
+<p>On Windows, the following logic is applied:<ul class="simple">
+<li><p><p>path starts with “//” or “\”:                      ‘/’ -&gt; ‘’</p>
+<p>- path starts with “C:” (where C is any character): ‘’ -&gt; ‘/’</p>
+</p></li>
+<li><p>otherwise ‘’ -&gt; ‘/’</p></li>
+</ul>
+</p>
+<p>Returns a pointer to <code class="docutils literal notranslate"><span class="pre">path</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_nextpathPKcPPcPKc">
+<span id="_CPPv311fu_nextpathPKcPPcPKc"></span><span id="_CPPv211fu_nextpathPKcPPcPKc"></span><span id="fu_nextpath__cCP.cPP.cCP"></span><span class="target" id="fileutils_8h_1a029ae975593fa66524472caace90786c"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_nextpath</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">endptr</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_nextpathPKcPPcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Finds individual paths in <code class="docutils literal notranslate"><span class="pre">paths</span></code>, which should be a string of paths joined with <code class="docutils literal notranslate"><span class="pre">pathsep</span></code>.</p>
+<p>At the initial call, <code class="docutils literal notranslate"><span class="pre">*endptr</span></code> must point to NULL. On return will <code class="docutils literal notranslate"><span class="pre">endptr</span></code> be updated to point to the first character after the returned path. That is the next path separator or or the terminating NUL if there are no more paths left.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">pathsep</span></code> is not NULL, any character in <code class="docutils literal notranslate"><span class="pre">pathsep</span></code> will be used as a path separator. NULL corresponds to “;:”, except that the colon will not be considered as a path separator in the following two cases:<ul class="simple">
+<li><p>it is the second character in the path preceded by an alphabetic character and followed by forward or backward slash. Ex: <code class="docutils literal notranslate"><span class="pre">C:\xxx</span></code>.</p></li>
+<li><p>it is preceded by only alphabetic characters and followed by two forward slashes and a alphabetic character. Ex: <a class="reference external" href="http://xxx..">http://xxx..</a>.</p></li>
+</ul>
+</p>
+<p>Repeated path separators will be treated as a single path separator.</p>
+<p>Returns a pointer to the next path or NULL if there are no more paths left. On error is NULL returned and <code class="docutils literal notranslate"><span class="pre">*endptr</span></code> will not point to NUL.</p>
+<p><em>Example </em></p>
+<div class="highlight-cpp notranslate"><div class="highlight"><pre><span></span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">endptr</span><span class="o">=</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="o">*</span><span class="n">paths</span><span class="o">=</span><span class="s">&quot;C:</span><span class="se">\\</span><span class="s">aa</span><span class="se">\\</span><span class="s">bb.txt;/etc/fstab:http://example.com&quot;</span><span class="p">;</span>
+<span class="k">const</span><span class="w"> </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">p</span><span class="p">;</span>
+<span class="k">while</span><span class="w"> </span><span class="p">((</span><span class="n">p</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fu_pathsep</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span><span class="w"> </span><span class="o">&amp;</span><span class="n">endptr</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">)))</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;%.*s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">endptr</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">p</span><span class="p">,</span><span class="w"> </span><span class="n">p</span><span class="p">);</span>
+</pre></div>
+</div>
+<p>Should print <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">C</span><span class="p">:</span>\\<span class="n">aa</span>\\<span class="n">bb</span><span class="o">.</span><span class="n">txt</span>
+<span class="o">/</span><span class="n">etc</span><span class="o">/</span><span class="n">fstab</span>
+<span class="n">http</span><span class="p">:</span><span class="o">//</span><span class="n">example</span><span class="o">.</span><span class="n">com</span>
+</pre></div>
+</div>
+ </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The length of a returned path can be obtained with <code class="docutils literal notranslate"><span class="pre">endptr-p</span></code>. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410fu_winpathPKcPc6size_tPKc">
+<span id="_CPPv310fu_winpathPKcPc6size_tPKc"></span><span id="_CPPv210fu_winpathPKcPc6size_tPKc"></span><span id="fu_winpath__cCP.cP.s.cCP"></span><span class="target" id="fileutils_8h_1a935938624e63b4d8fd0fafc158660276"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_winpath</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410fu_winpathPKcPc6size_tPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Converts <code class="docutils literal notranslate"><span class="pre">path</span></code> to a valid Windows path and return a pointer to the result.</p>
+<p>The string <code class="docutils literal notranslate"><span class="pre">path</span></code> may be a single path or several paths. In the latter case they are separated with <a class="reference internal" href="#fileutils_8h_1a029ae975593fa66524472caace90786c"><span class="std std-ref">fu_nextpath()</span></a>. The <code class="docutils literal notranslate"><span class="pre">pathsep</span></code> argument is passed to it.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">dest</span></code> is not NULL, the converted path is written to the memory it points to and <code class="docutils literal notranslate"><span class="pre">dest</span></code> is returned. At most <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes is written.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">dest</span></code> is NULL, sufficient memory is allocated for performing the full convertion and a pointer to it is returned.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_unixpathPKcPc6size_tPKc">
+<span id="_CPPv311fu_unixpathPKcPc6size_tPKc"></span><span id="_CPPv211fu_unixpathPKcPc6size_tPKc"></span><span id="fu_unixpath__cCP.cP.s.cCP"></span><span class="target" id="fileutils_8h_1a07ab0136a5dd63a4551f55aab7274a7a"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_unixpath</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_unixpathPKcPc6size_tPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Converts <code class="docutils literal notranslate"><span class="pre">path</span></code> to a valid Unix path and return a pointer to the result.</p>
+<p>The string <code class="docutils literal notranslate"><span class="pre">path</span></code> may be a single path or several paths. In the latter case they are separated with <a class="reference internal" href="#fileutils_8h_1a029ae975593fa66524472caace90786c"><span class="std std-ref">fu_nextpath()</span></a>. The <code class="docutils literal notranslate"><span class="pre">pathsep</span></code> argument is passed to it.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">dest</span></code> is not NULL, the converted path is written to the memory it points to and <code class="docutils literal notranslate"><span class="pre">dest</span></code> is returned. At most <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes is written.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">dest</span></code> is NULL, sufficient memory is allocated for performing the full convertion and a pointer to it is returned.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413fu_nativepathPKcPc6size_tPKc">
+<span id="_CPPv313fu_nativepathPKcPc6size_tPKc"></span><span id="_CPPv213fu_nativepathPKcPc6size_tPKc"></span><span id="fu_nativepath__cCP.cP.s.cCP"></span><span class="target" id="fileutils_8h_1ab7afa0454b48ce4801195d546b661f2a"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_nativepath</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413fu_nativepathPKcPc6size_tPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Converts <code class="docutils literal notranslate"><span class="pre">path</span></code> native platform.</p>
+<p>Calls <a class="reference internal" href="#fileutils_8h_1a935938624e63b4d8fd0fafc158660276"><span class="std std-ref">fu_winpath()</span></a> or <a class="reference internal" href="#fileutils_8h_1a07ab0136a5dd63a4551f55aab7274a7a"><span class="std std-ref">fu_unixpath()</span></a> depending on current platform. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49fu_existsPKc">
+<span id="_CPPv39fu_existsPKc"></span><span id="_CPPv29fu_existsPKc"></span><span id="fu_exists__cCP"></span><span class="target" id="fileutils_8h_1a01186c670767f113f711c0bf0acef557"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_exists</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49fu_existsPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns zero if path exists. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_realpathPKcPc">
+<span id="_CPPv311fu_realpathPKcPc"></span><span id="_CPPv211fu_realpathPKcPc"></span><span id="fu_realpath__cCP.cP"></span><span class="target" id="fileutils_8h_1ad199df70f1b89540190bdc15500aab14"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_realpath</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">resolved_path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_realpathPKcPc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the canonicalized absolute pathname for <code class="docutils literal notranslate"><span class="pre">path</span></code>. Resolves symbolic links and references to ‘/./’, ‘/../’ and extra ‘/’. Note that <code class="docutils literal notranslate"><span class="pre">path</span></code> must exists.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">resolved_path</span></code> is NULL, the returned path is malloc()’ed. Otherwise, it must be a buffer of at least size PATH_MAX (on POSIX) or MAX_PATH (on Windows).</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410fu_opendirPKc">
+<span id="_CPPv310fu_opendirPKc"></span><span id="_CPPv210fu_opendirPKc"></span><span id="fu_opendir__cCP"></span><span class="target" id="fileutils_8h_1a7748e9977c64d28c774d5a96779ee778"></span><a class="reference internal" href="#_CPPv45FUDir" title="FUDir"><span class="n"><span class="pre">FUDir</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_opendir</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410fu_opendirPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Opens a directory and returns a handle to it. Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_nextfileP5FUDir">
+<span id="_CPPv311fu_nextfileP5FUDir"></span><span id="_CPPv211fu_nextfileP5FUDir"></span><span id="fu_nextfile__FUDirP"></span><span class="target" id="fileutils_8h_1afef51a28e275e746919bda1b81c4f259"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_nextfile</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv45FUDir" title="FUDir"><span class="n"><span class="pre">FUDir</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dir</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_nextfileP5FUDir" title="Link to this definition">#</a><br /></dt>
+<dd><p>Iterates over all files in a directory.</p>
+<p>Returns the name of next file or NULL if there are no more files. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_closedirP5FUDir">
+<span id="_CPPv311fu_closedirP5FUDir"></span><span id="_CPPv211fu_closedirP5FUDir"></span><span id="fu_closedir__FUDirP"></span><span class="target" id="fileutils_8h_1aa0ea381c7e2c7004536824bb11d579da"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_closedir</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv45FUDir" title="FUDir"><span class="n"><span class="pre">FUDir</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dir</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_closedirP5FUDir" title="Link to this definition">#</a><br /></dt>
+<dd><p>Closes directory handle. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413fu_paths_initP7FUPathsPKc">
+<span id="_CPPv313fu_paths_initP7FUPathsPKc"></span><span id="_CPPv213fu_paths_initP7FUPathsPKc"></span><span id="fu_paths_init__FUPathsP.cCP"></span><span class="target" id="fileutils_8h_1a1811b3d9d58853933f170cb00bcc32f3"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">envvar</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413fu_paths_initP7FUPathsPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initiates <code class="docutils literal notranslate"><span class="pre">paths</span></code>. If <code class="docutils literal notranslate"><span class="pre">envvar</span></code> is not NULL, it should be the name of an environment variable with initial search paths separated by the PATHSEP charecter.</p>
+<p>Returns the initial number of paths or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417fu_paths_init_sepP7FUPathsPKcPKc">
+<span id="_CPPv317fu_paths_init_sepP7FUPathsPKcPKc"></span><span id="_CPPv217fu_paths_init_sepP7FUPathsPKcPKc"></span><span id="fu_paths_init_sep__FUPathsP.cCP.cCP"></span><span class="target" id="fileutils_8h_1af7f2dc736cac722d90ff231ecbaf3507"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_init_sep</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">envvar</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417fu_paths_init_sepP7FUPathsPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#fileutils_8h_1a1811b3d9d58853933f170cb00bcc32f3"><span class="std std-ref">fu_paths_init()</span></a>, but allow custom path separator <code class="docutils literal notranslate"><span class="pre">pathsep</span></code>.</p>
+<p>Note that any character in <code class="docutils literal notranslate"><span class="pre">pathsep</span></code> works as a path separator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421fu_paths_set_platformP7FUPaths10FUPlatform">
+<span id="_CPPv321fu_paths_set_platformP7FUPaths10FUPlatform"></span><span id="_CPPv221fu_paths_set_platformP7FUPaths10FUPlatform"></span><span id="fu_paths_set_platform__FUPathsP.FUPlatform"></span><span class="target" id="fileutils_8h_1a6f70a5d45e43d3c9753c95939420ca22"></span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_set_platform</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">platform</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421fu_paths_set_platformP7FUPaths10FUPlatform" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets platform that <code class="docutils literal notranslate"><span class="pre">paths</span></code> should confirm to.</p>
+<p>Returns the previous platform or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421fu_paths_get_platformP7FUPaths">
+<span id="_CPPv321fu_paths_get_platformP7FUPaths"></span><span id="_CPPv221fu_paths_get_platformP7FUPaths"></span><span id="fu_paths_get_platform__FUPathsP"></span><span class="target" id="fileutils_8h_1ae270c460e91827b090b067556f8cd725"></span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_get_platform</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421fu_paths_get_platformP7FUPaths" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the current platform for <code class="docutils literal notranslate"><span class="pre">paths</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415fu_paths_deinitP7FUPaths">
+<span id="_CPPv315fu_paths_deinitP7FUPaths"></span><span id="_CPPv215fu_paths_deinitP7FUPaths"></span><span id="fu_paths_deinit__FUPathsP"></span><span class="target" id="fileutils_8h_1ab2259a3ce00cba0954d0c2e95cd7057f"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_deinit</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415fu_paths_deinitP7FUPaths" title="Link to this definition">#</a><br /></dt>
+<dd><p>Frees all memory allocated in <code class="docutils literal notranslate"><span class="pre">paths</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415fu_paths_stringPK7FUPaths">
+<span id="_CPPv315fu_paths_stringPK7FUPaths"></span><span id="_CPPv215fu_paths_stringPK7FUPaths"></span><span id="fu_paths_string__FUPathsCP"></span><span class="target" id="fileutils_8h_1ab15cddb582c3fa43f556b7171e400703"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_string</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415fu_paths_stringPK7FUPaths" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns an allocated string with all paths in <code class="docutils literal notranslate"><span class="pre">paths</span></code> separated by the path separator of the platform specified by <a class="reference internal" href="#fileutils_8h_1a6f70a5d45e43d3c9753c95939420ca22"><span class="std std-ref">fu_paths_set_platform()</span></a>.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412fu_paths_getP7FUPaths">
+<span id="_CPPv312fu_paths_getP7FUPaths"></span><span id="_CPPv212fu_paths_getP7FUPaths"></span><span id="fu_paths_get__FUPathsP"></span><span class="target" id="fileutils_8h_1a5351b2377053d8ef166afbef7557bd53"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_get</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412fu_paths_getP7FUPaths" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a NULL-terminated array of pointers to paths or NULL if <code class="docutils literal notranslate"><span class="pre">paths</span></code> is empty.</p>
+<p>The memory own by <code class="docutils literal notranslate"><span class="pre">paths</span></code> and should not be deallocated by the caller. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415fu_paths_insertP7FUPathsPKci">
+<span id="_CPPv315fu_paths_insertP7FUPathsPKci"></span><span id="_CPPv215fu_paths_insertP7FUPathsPKci"></span><span id="fu_paths_insert__FUPathsP.cCP.i"></span><span class="target" id="fileutils_8h_1a58fe3a1766d027e9fbac884914361848"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_insert</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415fu_paths_insertP7FUPathsPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inserts <code class="docutils literal notranslate"><span class="pre">path</span></code> into <code class="docutils literal notranslate"><span class="pre">paths</span></code> before position <code class="docutils literal notranslate"><span class="pre">n</span></code>. If <code class="docutils literal notranslate"><span class="pre">n</span></code> is negative, it counts from the end (like Python).</p>
+<p>Returns the index of the newly inserted element or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416fu_paths_insertnP7FUPathsPKc6size_ti">
+<span id="_CPPv316fu_paths_insertnP7FUPathsPKc6size_ti"></span><span id="_CPPv216fu_paths_insertnP7FUPathsPKc6size_ti"></span><span id="fu_paths_insertn__FUPathsP.cCP.s.i"></span><span class="target" id="fileutils_8h_1a57410a0fd52bcf2d13efa82c9b04b63c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_insertn</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416fu_paths_insertnP7FUPathsPKc6size_ti" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#fileutils_8h_1a58fe3a1766d027e9fbac884914361848"><span class="std std-ref">fu_paths_insert()</span></a>, but allows that <code class="docutils literal notranslate"><span class="pre">path</span></code> is not NUL-terminated.</p>
+<p>Inserts the <code class="docutils literal notranslate"><span class="pre">len</span></code> first bytes of <code class="docutils literal notranslate"><span class="pre">path</span></code> into <code class="docutils literal notranslate"><span class="pre">paths</span></code> before position <code class="docutils literal notranslate"><span class="pre">n</span></code>. If <code class="docutils literal notranslate"><span class="pre">len</span></code> is zero, this is equivalent to <a class="reference internal" href="#fileutils_8h_1a58fe3a1766d027e9fbac884914361848"><span class="std std-ref">fu_paths_insert()</span></a>.</p>
+<p>Returns the index of the newly inserted element or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415fu_paths_appendP7FUPathsPKc">
+<span id="_CPPv315fu_paths_appendP7FUPathsPKc"></span><span id="_CPPv215fu_paths_appendP7FUPathsPKc"></span><span id="fu_paths_append__FUPathsP.cCP"></span><span class="target" id="fileutils_8h_1a311f0271746c3d49143bbd30881a7b01"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_append</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415fu_paths_appendP7FUPathsPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Appends <code class="docutils literal notranslate"><span class="pre">path</span></code> to <code class="docutils literal notranslate"><span class="pre">paths</span></code>. Equivalent to <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fu_paths_insert</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="n">paths</span><span class="o">-&gt;</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+ Returns the index of the newly appended element or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416fu_paths_appendnP7FUPathsPKc6size_t">
+<span id="_CPPv316fu_paths_appendnP7FUPathsPKc6size_t"></span><span id="_CPPv216fu_paths_appendnP7FUPathsPKc6size_t"></span><span id="fu_paths_appendn__FUPathsP.cCP.s"></span><span class="target" id="fileutils_8h_1a587dace5487de887e1209f732fa8e352"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_appendn</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416fu_paths_appendnP7FUPathsPKc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Appends <code class="docutils literal notranslate"><span class="pre">path</span></code> to <code class="docutils literal notranslate"><span class="pre">paths</span></code>. Equivalent to <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fu_paths_insertn</span><span class="p">(</span><span class="n">paths</span><span class="p">,</span> <span class="n">path</span><span class="p">,</span> <span class="nb">len</span><span class="p">,</span> <span class="n">paths</span><span class="o">-&gt;</span><span class="n">n</span><span class="p">)</span>
+</pre></div>
+</div>
+ Returns the index of the newly inserted element or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415fu_paths_extendP7FUPathsPKcPKc">
+<span id="_CPPv315fu_paths_extendP7FUPathsPKcPKc"></span><span id="_CPPv215fu_paths_extendP7FUPathsPKcPKc"></span><span id="fu_paths_extend__FUPathsP.cCP.cCP"></span><span class="target" id="fileutils_8h_1a0a87b7b8fa22606474ca3161674c0389"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_extend</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415fu_paths_extendP7FUPathsPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Extends <code class="docutils literal notranslate"><span class="pre">paths</span></code> by appending all <code class="docutils literal notranslate"><span class="pre">pathsep</span></code>-separated paths in <code class="docutils literal notranslate"><span class="pre">s</span></code> to it. See <a class="reference internal" href="#fileutils_8h_1a029ae975593fa66524472caace90786c"><span class="std std-ref">fu_nextpath()</span></a> for a description of <code class="docutils literal notranslate"><span class="pre">pathsep</span></code>.</p>
+<p>Returns the index of the last appended element or zero if nothing is appended. On error, -1 is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422fu_paths_extend_prefixP7FUPathsPKcPKcPKc">
+<span id="_CPPv322fu_paths_extend_prefixP7FUPathsPKcPKcPKc"></span><span id="_CPPv222fu_paths_extend_prefixP7FUPathsPKcPKcPKc"></span><span id="fu_paths_extend_prefix__FUPathsP.cCP.cCP.cCP"></span><span class="target" id="fileutils_8h_1aa0c1cb80a07faf39d639d4f3f949efca"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_extend_prefix</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">prefix</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422fu_paths_extend_prefixP7FUPathsPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#fileutils_8h_1a0a87b7b8fa22606474ca3161674c0389"><span class="std std-ref">fu_paths_extend()</span></a>, but prefix all relative paths in <code class="docutils literal notranslate"><span class="pre">s</span></code> with <code class="docutils literal notranslate"><span class="pre">prefix</span></code> before appending them to <code class="docutils literal notranslate"><span class="pre">paths</span></code>.</p>
+<p>Returns the index of the last appended element or zero if nothing is appended. On error, -1 is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421fu_paths_remove_indexP7FUPathsi">
+<span id="_CPPv321fu_paths_remove_indexP7FUPathsi"></span><span id="_CPPv221fu_paths_remove_indexP7FUPathsi"></span><span id="fu_paths_remove_index__FUPathsP.i"></span><span class="target" id="fileutils_8h_1a7d753c638c97c670fec3a5ea62313904"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_remove_index</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421fu_paths_remove_indexP7FUPathsi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes path index <code class="docutils literal notranslate"><span class="pre">n</span></code> from <code class="docutils literal notranslate"><span class="pre">paths</span></code>. If <code class="docutils literal notranslate"><span class="pre">n</span></code> is negative, it counts from the end (like Python).</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415fu_paths_removeP7FUPathsPKc">
+<span id="_CPPv315fu_paths_removeP7FUPathsPKc"></span><span id="_CPPv215fu_paths_removeP7FUPathsPKc"></span><span id="fu_paths_remove__FUPathsP.cCP"></span><span class="target" id="fileutils_8h_1aa637b8feb4475f7470453cad4ca8dd30"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_remove</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415fu_paths_removeP7FUPathsPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes path <code class="docutils literal notranslate"><span class="pre">path</span></code>. Returns non-zero if there is no such path. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414fu_paths_indexP7FUPathsPKc">
+<span id="_CPPv314fu_paths_indexP7FUPathsPKc"></span><span id="_CPPv214fu_paths_indexP7FUPathsPKc"></span><span id="fu_paths_index__FUPathsP.cCP"></span><span class="target" id="fileutils_8h_1a2331a99abc0614cf81b1b51cab31064a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_paths_index</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414fu_paths_indexP7FUPathsPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns index of path <code class="docutils literal notranslate"><span class="pre">path</span></code> or -1 if there is no such path in <code class="docutils literal notranslate"><span class="pre">paths</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413fu_startmatchPKcPK7FUPaths">
+<span id="_CPPv313fu_startmatchPKcPK7FUPaths"></span><span id="_CPPv213fu_startmatchPKcPK7FUPaths"></span><span id="fu_startmatch__cCP.FUPathsCP"></span><span class="target" id="fileutils_8h_1ad09136dab20804f7aa18f71baf7f1f14"></span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_startmatch</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pattern</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413fu_startmatchPKcPK7FUPaths" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new iterator for finding files matching <code class="docutils literal notranslate"><span class="pre">pattern</span></code> in directories included in <code class="docutils literal notranslate"><span class="pre">paths</span></code>.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412fu_nextmatchP6FUIter">
+<span id="_CPPv312fu_nextmatchP6FUIter"></span><span id="_CPPv212fu_nextmatchP6FUIter"></span><span id="fu_nextmatch__FUIterP"></span><span class="target" id="fileutils_8h_1a5bcab092558277b6777600f17181803f"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_nextmatch</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412fu_nextmatchP6FUIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns name of the next file matching the pattern provided to <a class="reference internal" href="#fileutils_8h_1ad09136dab20804f7aa18f71baf7f1f14"><span class="std std-ref">fu_startmatch()</span></a> or NULL if there are no more matches.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The returned string is owned by the iterator. It will be overwritten by the next call to <a class="reference internal" href="#fileutils_8h_1a5bcab092558277b6777600f17181803f"><span class="std std-ref">fu_nextmatch()</span></a> and should not be changed. Use strdup() or strncpy() if a copy is needed.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The iterator will not be affected by adding or deleting paths during iteration. Hence, it is safe to insert a path or delete the path returned by <a class="reference internal" href="#fileutils_8h_1a5bcab092558277b6777600f17181803f"><span class="std std-ref">fu_nextmatch()</span></a>. But if you delete a yet non-visited path it will still be visited. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_endmatchP6FUIter">
+<span id="_CPPv311fu_endmatchP6FUIter"></span><span id="_CPPv211fu_endmatchP6FUIter"></span><span id="fu_endmatch__FUIterP"></span><span class="target" id="fileutils_8h_1ad951f373d64c8c69942cd9a392c2ba5c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_endmatch</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_endmatchP6FUIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Ends pattern matching iteration. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417fu_pathsiter_initPK7FUPathsPKc">
+<span id="_CPPv317fu_pathsiter_initPK7FUPathsPKc"></span><span id="_CPPv217fu_pathsiter_initPK7FUPathsPKc"></span><span id="fu_pathsiter_init__FUPathsCP.cCP"></span><span class="target" id="fileutils_8h_1a4299572599b04368e7c8e1fcdee89bc5"></span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_pathsiter_init</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pattern</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417fu_pathsiter_initPK7FUPathsPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new iterator over all files and directories in <code class="docutils literal notranslate"><span class="pre">paths</span></code>.</p>
+<p>An optional <code class="docutils literal notranslate"><span class="pre">pattern</span></code> can be provided to filter out file and directory names that doesn’t matches it. This pattern will only match against the base file/directory name, with the directory part stripped off.</p>
+<p>Returns NULL on error.</p>
+<p>This is very similar to <a class="reference internal" href="#fileutils_8h_1ad09136dab20804f7aa18f71baf7f1f14"><span class="std std-ref">fu_startmatch()</span></a>, but allows paths to be a mixture of directories and files with glob patterns. Is intended to be used together with <a class="reference internal" href="#fileutils_8h_1a1230d84ec482f8cde47fc6b4299a5b10"><span class="std std-ref">fu_pathsiter_next()</span></a> and <a class="reference internal" href="#fileutils_8h_1aced9e3a9b825708e0880da070b33c163"><span class="std std-ref">fu_pathsiter_deinit()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417fu_pathsiter_nextP6FUIter">
+<span id="_CPPv317fu_pathsiter_nextP6FUIter"></span><span id="_CPPv217fu_pathsiter_nextP6FUIter"></span><span id="fu_pathsiter_next__FUIterP"></span><span class="target" id="fileutils_8h_1a1230d84ec482f8cde47fc6b4299a5b10"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_pathsiter_next</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417fu_pathsiter_nextP6FUIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the next file or directory in the iterator <code class="docutils literal notranslate"><span class="pre">iter</span></code> created with fu_paths_iter_init(). NULL is returned on error or if there are no more file names to iterate over.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The iterator will not be affected by adding or deleting paths during iteration. Hence, it is safe to insert a path or delete the path returned by fu_pathiter_next(). But if you delete a yet non-visited path it will still be visited. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419fu_pathsiter_deinitP6FUIter">
+<span id="_CPPv319fu_pathsiter_deinitP6FUIter"></span><span id="_CPPv219fu_pathsiter_deinitP6FUIter"></span><span id="fu_pathsiter_deinit__FUIterP"></span><span class="target" id="fileutils_8h_1aced9e3a9b825708e0880da070b33c163"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_pathsiter_deinit</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419fu_pathsiter_deinitP6FUIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Deallocates iterator created with <a class="reference internal" href="#fileutils_8h_1a4299572599b04368e7c8e1fcdee89bc5"><span class="std std-ref">fu_pathsiter_init()</span></a>. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv47fu_globPKcPKc">
+<span id="_CPPv37fu_globPKcPKc"></span><span id="_CPPv27fu_globPKcPKc"></span><span id="fu_glob__cCP.cCP"></span><span class="target" id="fileutils_8h_1acb986bad8c807ace342ceeccddc93216"></span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_glob</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pattern</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47fu_globPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new iterator over files matching <code class="docutils literal notranslate"><span class="pre">pattern</span></code>. Only the last component of <code class="docutils literal notranslate"><span class="pre">pattern</span></code> may contain wildcards.</p>
+<p>Use <a class="reference internal" href="#fileutils_8h_1a0b50b2ad87b0dd224ba0d079fcc06a05"><span class="std std-ref">fu_globnext()</span></a> and <a class="reference internal" href="#fileutils_8h_1a67cc646fb817092b269fe83324fddeb1"><span class="std std-ref">fu_globend()</span></a> to iterate over matching files and end iteration, respectively. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_globnextP6FUIter">
+<span id="_CPPv311fu_globnextP6FUIter"></span><span id="_CPPv211fu_globnextP6FUIter"></span><span id="fu_globnext__FUIterP"></span><span class="target" id="fileutils_8h_1a0b50b2ad87b0dd224ba0d079fcc06a05"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_globnext</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_globnextP6FUIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns path to the next matching file. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410fu_globendP6FUIter">
+<span id="_CPPv310fu_globendP6FUIter"></span><span id="_CPPv210fu_globendP6FUIter"></span><span id="fu_globend__FUIterP"></span><span class="target" id="fileutils_8h_1a67cc646fb817092b269fe83324fddeb1"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_globend</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410fu_globendP6FUIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Ends glob pattern iteration. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418fu_iter_set_dirsepP6FUIteri">
+<span id="_CPPv318fu_iter_set_dirsepP6FUIteri"></span><span id="_CPPv218fu_iter_set_dirsepP6FUIteri"></span><span id="fu_iter_set_dirsep__FUIterP.i"></span><span class="target" id="fileutils_8h_1adbb39c3b57b4aa993b9d898f37b6d10b"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fu_iter_set_dirsep</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FUIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dirsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418fu_iter_set_dirsepP6FUIteri" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets the directory separator in returned by <a class="reference internal" href="#fileutils_8h_1a5bcab092558277b6777600f17181803f"><span class="std std-ref">fu_nextmatch()</span></a> and <a class="reference internal" href="#fileutils_8h_1a0b50b2ad87b0dd224ba0d079fcc06a05"><span class="std std-ref">fu_globnext()</span></a>. Defaults to DIRSEP. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411fu_readfileP4FILE">
+<span id="_CPPv311fu_readfileP4FILE"></span><span id="_CPPv211fu_readfileP4FILE"></span><span id="fu_readfile__FILEP"></span><span class="target" id="fileutils_8h_1a3b956890df671f4794e9f856b790fcef"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fu_readfile</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FILE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411fu_readfileP4FILE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Read <code class="docutils literal notranslate"><span class="pre">stream</span></code> into an malloc’ed buffer and return a pointer to the buffer. Returns NULL on error. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv47FUPaths">
+<span id="_CPPv37FUPaths"></span><span id="_CPPv27FUPaths"></span><span id="FUPaths"></span><span class="target" id="structFUPaths"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">FUPaths</span></span></span><a class="headerlink" href="#_CPPv47FUPaths" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;fileutils.h&gt;</em></div>
+<p>List of directory search pathes </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7FUPaths1nE">
+<span id="_CPPv3N7FUPaths1nE"></span><span id="_CPPv2N7FUPaths1nE"></span><span id="FUPaths::n__s"></span><span class="target" id="structFUPaths_1aaa3d1d0b9503a607de275862f1bfc285"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">n</span></span></span><a class="headerlink" href="#_CPPv4N7FUPaths1nE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Number of paths </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7FUPaths4sizeE">
+<span id="_CPPv3N7FUPaths4sizeE"></span><span id="_CPPv2N7FUPaths4sizeE"></span><span id="FUPaths::size__s"></span><span class="target" id="structFUPaths_1a989b97154f3016df61d11229bdd6fc84"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><a class="headerlink" href="#_CPPv4N7FUPaths4sizeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Allocated number of paths </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7FUPaths5pathsE">
+<span id="_CPPv3N7FUPaths5pathsE"></span><span id="_CPPv2N7FUPaths5pathsE"></span><span id="FUPaths::paths__cCPP"></span><span class="target" id="structFUPaths_1a836452663cf210d7c1fb7906b88c6241"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">paths</span></span></span><a class="headerlink" href="#_CPPv4N7FUPaths5pathsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>NULL-terminated array of pointers to paths </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7FUPaths8platformE">
+<span id="_CPPv3N7FUPaths8platformE"></span><span id="_CPPv2N7FUPaths8platformE"></span><span id="FUPaths::platform__FUPlatform"></span><span class="target" id="structFUPaths_1ab3be29d3ca9b4f50cb52cd40dea21516"></span><a class="reference internal" href="#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">platform</span></span></span><a class="headerlink" href="#_CPPv4N7FUPaths8platformE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Platform that returned paths should confirm to, defaults to native </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7FUPaths7pathsepE">
+<span id="_CPPv3N7FUPaths7pathsepE"></span><span id="_CPPv2N7FUPaths7pathsepE"></span><span id="FUPaths::pathsep__cCP"></span><span class="target" id="structFUPaths_1a54338b0f49b954f9338d44afe7979912"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">pathsep</span></span></span><a class="headerlink" href="#_CPPv4N7FUPaths7pathsepE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Path separator </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="fileinfo.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">fileinfo</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="globmatch.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">globmatch</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45FUDir"><code class="docutils literal notranslate"><span class="pre">FUDir</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410FUErrCodes"><code class="docutils literal notranslate"><span class="pre">FUErrCodes</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUErrCodes12fu_PathErrorE"><code class="docutils literal notranslate"><span class="pre">FUErrCodes::fu_PathError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUErrCodes21fu_OpenDirectoryErrorE"><code class="docutils literal notranslate"><span class="pre">FUErrCodes::fu_OpenDirectoryError</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410FUPlatform"><code class="docutils literal notranslate"><span class="pre">FUPlatform</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform17fuUnknownPlatformE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuUnknownPlatform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform8fuNativeE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuNative</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform6fuUnixE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuUnix</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform9fuWindowsE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuWindows</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform7fuAppleE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuApple</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10FUPlatform14fuLastPlatformE"><code class="docutils literal notranslate"><span class="pre">FUPlatform::fuLastPlatform</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418fu_native_platformv"><code class="docutils literal notranslate"><span class="pre">fu_native_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421fu_supported_platform10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_supported_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416fu_platform_name10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_platform_name()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_platformPKc"><code class="docutils literal notranslate"><span class="pre">fu_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49fu_dirsep10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_dirsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_pathsep10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_pathsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_linesep10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_linesep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48fu_isabsPKc"><code class="docutils literal notranslate"><span class="pre">fu_isabs()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412fu_iswinpathPKci"><code class="docutils literal notranslate"><span class="pre">fu_iswinpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47fu_joinPKcz"><code class="docutils literal notranslate"><span class="pre">fu_join()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_join_sepiPKcz"><code class="docutils literal notranslate"><span class="pre">fu_join_sep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412fu_vjoin_sepiPKc7va_list"><code class="docutils literal notranslate"><span class="pre">fu_vjoin_sep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_lastsepPKc"><code class="docutils literal notranslate"><span class="pre">fu_lastsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_dirnamePKc"><code class="docutils literal notranslate"><span class="pre">fu_dirname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_basenamePKc"><code class="docutils literal notranslate"><span class="pre">fu_basename()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47fu_stemPKc"><code class="docutils literal notranslate"><span class="pre">fu_stem()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_fileextPKc"><code class="docutils literal notranslate"><span class="pre">fu_fileext()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418fu_friendly_dirsepPc"><code class="docutils literal notranslate"><span class="pre">fu_friendly_dirsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_nextpathPKcPPcPKc"><code class="docutils literal notranslate"><span class="pre">fu_nextpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_winpathPKcPc6size_tPKc"><code class="docutils literal notranslate"><span class="pre">fu_winpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_unixpathPKcPc6size_tPKc"><code class="docutils literal notranslate"><span class="pre">fu_unixpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413fu_nativepathPKcPc6size_tPKc"><code class="docutils literal notranslate"><span class="pre">fu_nativepath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49fu_existsPKc"><code class="docutils literal notranslate"><span class="pre">fu_exists()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_realpathPKcPc"><code class="docutils literal notranslate"><span class="pre">fu_realpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_opendirPKc"><code class="docutils literal notranslate"><span class="pre">fu_opendir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_nextfileP5FUDir"><code class="docutils literal notranslate"><span class="pre">fu_nextfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_closedirP5FUDir"><code class="docutils literal notranslate"><span class="pre">fu_closedir()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413fu_paths_initP7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417fu_paths_init_sepP7FUPathsPKcPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_init_sep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421fu_paths_set_platformP7FUPaths10FUPlatform"><code class="docutils literal notranslate"><span class="pre">fu_paths_set_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421fu_paths_get_platformP7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_paths_get_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_deinitP7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_paths_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_stringPK7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_paths_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412fu_paths_getP7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_paths_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_insertP7FUPathsPKci"><code class="docutils literal notranslate"><span class="pre">fu_paths_insert()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416fu_paths_insertnP7FUPathsPKc6size_ti"><code class="docutils literal notranslate"><span class="pre">fu_paths_insertn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_appendP7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416fu_paths_appendnP7FUPathsPKc6size_t"><code class="docutils literal notranslate"><span class="pre">fu_paths_appendn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_extendP7FUPathsPKcPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_extend()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422fu_paths_extend_prefixP7FUPathsPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_extend_prefix()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421fu_paths_remove_indexP7FUPathsi"><code class="docutils literal notranslate"><span class="pre">fu_paths_remove_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415fu_paths_removeP7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414fu_paths_indexP7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_paths_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413fu_startmatchPKcPK7FUPaths"><code class="docutils literal notranslate"><span class="pre">fu_startmatch()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412fu_nextmatchP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_nextmatch()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_endmatchP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_endmatch()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417fu_pathsiter_initPK7FUPathsPKc"><code class="docutils literal notranslate"><span class="pre">fu_pathsiter_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417fu_pathsiter_nextP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_pathsiter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419fu_pathsiter_deinitP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_pathsiter_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47fu_globPKcPKc"><code class="docutils literal notranslate"><span class="pre">fu_glob()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_globnextP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_globnext()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410fu_globendP6FUIter"><code class="docutils literal notranslate"><span class="pre">fu_globend()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418fu_iter_set_dirsepP6FUIteri"><code class="docutils literal notranslate"><span class="pre">fu_iter_set_dirsep()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411fu_readfileP4FILE"><code class="docutils literal notranslate"><span class="pre">fu_readfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47FUPaths"><code class="docutils literal notranslate"><span class="pre">FUPaths</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths1nE"><code class="docutils literal notranslate"><span class="pre">FUPaths::n</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths4sizeE"><code class="docutils literal notranslate"><span class="pre">FUPaths::size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths5pathsE"><code class="docutils literal notranslate"><span class="pre">FUPaths::paths</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths8platformE"><code class="docutils literal notranslate"><span class="pre">FUPaths::platform</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7FUPaths7pathsepE"><code class="docutils literal notranslate"><span class="pre">FUPaths::pathsep</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

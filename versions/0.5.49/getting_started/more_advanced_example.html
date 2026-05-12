@@ -1,0 +1,716 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>More advanced example &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=5029451f"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'getting_started/more_advanced_example';</script>
+    <script src="../_static/version-switcher.js"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Full feature list" href="features.html" />
+    <link rel="prev" title="Tutorial" href="tutorial.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Getting started</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="tutorial.html">Tutorial</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../c-api/src/utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fgetting_started/more_advanced_example.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/getting_started/more_advanced_example.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>More advanced example</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="more-advanced-example">
+<h1>More advanced example<a class="headerlink" href="#more-advanced-example" title="Link to this heading">#</a></h1>
+<p>Let’s say that you have the following Python class:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;A person.</span>
+
+<span class="sd">    Arguments:</span>
+<span class="sd">        name: Full name.</span>
+<span class="sd">        age: Age of person.</span>
+<span class="sd">        skills: List of skills.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">age</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">skills</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">age</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">skills</span> <span class="o">=</span> <span class="n">skills</span>
+</pre></div>
+</div>
+<p>You want to describe this class semantically.
+This is done by defining the following metadata (using JSON) identifying the Python attributes with DLite properties.
+Here we define <code class="docutils literal notranslate"><span class="pre">name</span></code> to be a string, <code class="docutils literal notranslate"><span class="pre">age</span></code> to be a float and <code class="docutils literal notranslate"><span class="pre">skills</span></code> to be an array of <code class="docutils literal notranslate"><span class="pre">N</span></code> strings, where <code class="docutils literal notranslate"><span class="pre">N</span></code> is a name of a dimension.
+The metadata uniquely identifies itself with the “name”, “version” and “namespace” fields and “meta” refers to the metadata schema (meta-metadata) that this metadata is described by.
+Finally, human descriptions of the metadata itself, its dimensions and its properties are provided in the “description” fields.</p>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
+<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Person&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://onto-ns.com/meta&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://onto-ns.com/meta/0.3/EntitySchema&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A person.&quot;</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">&quot;dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;N&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Number of skills.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">],</span>
+<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Full name.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;year&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Age of person.&quot;</span>
+<span class="w">    </span><span class="p">},</span>
+<span class="w">    </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;skills&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;List of skills.&quot;</span>
+<span class="w">    </span><span class="p">}</span>
+<span class="w">  </span><span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>The metadata can be saved in file <code class="docutils literal notranslate"><span class="pre">Person.json</span></code>.
+In Python we can now make a DLite-aware subclass of <code class="docutils literal notranslate"><span class="pre">Person</span></code>, instantiate it, and serialise it to a storage:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
+
+<span class="c1"># Create a DLite-aware subclass of Person</span>
+<span class="n">DLitePerson</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">classfactory</span><span class="p">(</span><span class="s2">&quot;Person&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;json://Person.json&quot;</span><span class="p">)</span>
+
+<span class="c1"># Instantiate</span>
+<span class="n">person</span> <span class="o">=</span> <span class="n">DLitePerson</span><span class="p">(</span>
+    <span class="s2">&quot;Sherlock Holmes&quot;</span><span class="p">,</span>
+    <span class="mf">34.</span><span class="p">,</span>
+    <span class="p">[</span><span class="s2">&quot;observing&quot;</span><span class="p">,</span> <span class="s2">&quot;chemistry&quot;</span><span class="p">,</span> <span class="s2">&quot;violin&quot;</span><span class="p">,</span> <span class="s2">&quot;boxing&quot;</span><span class="p">],</span>
+<span class="p">)</span>
+
+<span class="c1"># Write to storage (here a JSON file)</span>
+<span class="n">person</span><span class="o">.</span><span class="n">dlite_inst</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;json://homes.json?mode=w&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>To access this new instance from C, you can first generate a header file from the meta data</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>dlite-codegen<span class="w"> </span>-f<span class="w"> </span>c-header<span class="w"> </span>-o<span class="w"> </span>person.h<span class="w"> </span>Person.json
+</pre></div>
+</div>
+<p>and then include it in your C program:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// homes.c -- sample program that loads instance from homes.json and prints it</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;dlite.h&gt;</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;person.h&quot;</span><span class="c1">  // header generated with dlite-codegen</span>
+
+<span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+<span class="w">  </span><span class="cm">/* URL of instance to load using the json driver.  The storage is</span>
+<span class="cm">     here the file &#39;homes.json&#39; and the instance we want to load in</span>
+<span class="cm">     this file is identified with the UUID following the hash (#)</span>
+<span class="cm">     sign. */</span>
+<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;json://homes.json#315088f2-6ebd-4c53-b825-7a6ae5c9659b&quot;</span><span class="p">;</span>
+
+<span class="w">  </span><span class="n">Person</span><span class="w"> </span><span class="o">*</span><span class="n">person</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Person</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">dlite_instance_load_url</span><span class="p">(</span><span class="n">url</span><span class="p">);</span>
+
+<span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;name:  %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;age:   %g</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">age</span><span class="p">);</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;skills:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">person</span><span class="o">-&gt;</span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">skills</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+
+<span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>Now run the Python file and it will create a <code class="docutils literal notranslate"><span class="pre">homes.json</span></code> file, which contains a serialized DLite entity.
+Use the UUID of the entity from the <code class="docutils literal notranslate"><span class="pre">homes.json</span></code> file and update the <code class="docutils literal notranslate"><span class="pre">url</span></code> variable in the <code class="docutils literal notranslate"><span class="pre">homes.c</span></code> file.</p>
+<p>Since we are using <code class="docutils literal notranslate"><span class="pre">dlite_instance_load_url()</span></code> to load the instance, you must link to DLite when compiling this program.
+Assuming you are using Linux and DLite is installed in <code class="docutils literal notranslate"><span class="pre">$HOME/.local</span></code>, compiling with gcc would look like:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gcc<span class="w"> </span>homes.c<span class="w"> </span>-o<span class="w"> </span>homes<span class="w"> </span>-I<span class="nv">$HOME</span>/.local/include/dlite<span class="w"> </span>-L<span class="nv">$HOME</span>/.local/lib<span class="w"> </span>-ldlite<span class="w"> </span>-ldlite-utils
+</pre></div>
+</div>
+<p>Or if you are using the development environment, you can compile using:</p>
+<div class="highlight-shell notranslate"><div class="highlight"><pre><span></span>gcc<span class="w"> </span>-I/tmp/dlite-install/include/dlite<span class="w"> </span>-L/tmp/dlite-install/lib<span class="w"> </span>-o<span class="w"> </span>homes<span class="w"> </span>homes.c<span class="w"> </span>-ldlite<span class="w"> </span>-ldlite-utils
+</pre></div>
+</div>
+<p>Finally, you can run the program with</p>
+<div class="highlight-console notranslate"><div class="highlight"><pre><span></span><span class="gp">$ </span><span class="nv">DLITE_STORAGES</span><span class="o">=</span>*.json<span class="w"> </span>./homes
+<span class="go">name:  Sherlock Holmes</span>
+<span class="go">age:   34</span>
+<span class="go">skills:</span>
+<span class="go">  - observing</span>
+<span class="go">  - chemistry</span>
+<span class="go">  - violin</span>
+<span class="go">  - boxing</span>
+</pre></div>
+</div>
+<p>Note that in this case it is necessary to define the environment variable <code class="docutils literal notranslate"><span class="pre">DLITE_STORAGES</span></code> in order to let DLite find the metadata stored in <code class="docutils literal notranslate"><span class="pre">Person.json</span></code>.
+There are ways to avoid this, e.g., by hardcoding the metadata in C using <code class="docutils literal notranslate"><span class="pre">dlite-codegen</span> <span class="pre">-f</span> <span class="pre">c-source</span></code> or in the C program explicitely load <code class="docutils literal notranslate"><span class="pre">Person.json</span></code> before <code class="docutils literal notranslate"><span class="pre">homes.json</span></code>.</p>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="tutorial.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Tutorial</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="features.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Full feature list</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

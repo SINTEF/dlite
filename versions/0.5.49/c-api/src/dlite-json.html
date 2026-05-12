@@ -1,0 +1,978 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dlite-json &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/dlite-json';</script>
+    <script src="../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dlite-macros" href="dlite-macros.html" />
+    <link rel="prev" title="dlite-getlicense" href="dlite-getlicense.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/dlite-json.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/c-api/src/dlite-json.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dlite-json</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_sprintPc6size_tPK13DLiteInstancei13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_sprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_json_asprintPPcP6size_t6size_tPK13DLiteInstancei13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_asprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_aprintPK13DLiteInstancei13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_aprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_fprintP4FILEPK13DLiteInstancei13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_fprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_json_printPK13DLiteInstance"><code class="docutils literal notranslate"><span class="pre">dlite_json_print()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_json_printfilePKcPK13DLiteInstance13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_printfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_appendPPcP6size_tPK13DLiteInstance13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_json_sscanPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_json_sscan()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_json_fscanP4FILEPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_json_fscan()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_json_scanfilePKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_json_scanfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_json_checkPKcPK9jsmntok_tPKcP13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_check()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_scheckPKc6size_tPKcP13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_scheck()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_fcheckP4FILEPKcP13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_fcheck()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_json_checkfilePKcPKcP13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_checkfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_json_iter_createPKciPKc"><code class="docutils literal notranslate"><span class="pre">dlite_json_iter_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_json_iter_freeP13DLiteJsonIter"><code class="docutils literal notranslate"><span class="pre">dlite_json_iter_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_json_nextP13DLiteJsonIterPi"><code class="docutils literal notranslate"><span class="pre">dlite_json_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_jstore_loadsP6JStorePKci"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_loads()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_jstore_loadfP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_loadf()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_jstore_addP6JStorePK13DLiteInstance13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_add()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_jstore_removeP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_jstore_getP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_jstore_iter_createP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_iter_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_jstore_iter_freeP15DLiteJStoreIter"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_iter_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_jstore_iter_nextP15DLiteJStoreIter"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag15dliteJsonSingleE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonSingle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag15dliteJsonUriKeyE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonUriKey</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag17dliteJsonWithUuidE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonWithUuid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag17dliteJsonWithMetaE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonWithMeta</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag15dliteJsonArraysE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonArrays</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag17dliteJsonNoParentE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonNoParent</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag19dliteJsonCompactRelE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonCompactRel</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415DLiteJsonFormat"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFormat</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N15DLiteJsonFormat22dliteJsonUnknownFormatE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFormat::dliteJsonUnknownFormat</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N15DLiteJsonFormat19dliteJsonDataFormatE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFormat::dliteJsonDataFormat</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N15DLiteJsonFormat19dliteJsonMetaFormatE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFormat::dliteJsonMetaFormat</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dlite-json">
+<h1>dlite-json<a class="headerlink" href="#dlite-json" title="Link to this heading">#</a></h1>
+<p>Provides built-in support for JSON in dlite. </p>
+<p>A set of utility function for serialising and deserialising dlite instances to/from JSON. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-serilisation">Serilisation</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_json_sprintPc6size_tPK13DLiteInstancei13DLiteJsonFlag">
+<span id="_CPPv317dlite_json_sprintPc6size_tPK13DLiteInstancei13DLiteJsonFlag"></span><span id="_CPPv217dlite_json_sprintPc6size_tPK13DLiteInstancei13DLiteJsonFlag"></span><span id="dlite_json_sprint__cP.s.DLiteInstanceCP.i.DLiteJsonFlag"></span><span class="target" id="dlite-json_8h_1ac8740d2dcb62d9a0fcdede51c5bd7aab"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_sprint</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inst</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indent</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_json_sprintPc6size_tPK13DLiteInstancei13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Serialise instance <code class="docutils literal notranslate"><span class="pre">inst</span></code> to <code class="docutils literal notranslate"><span class="pre">dest</span></code>, formatted as JSON.</p>
+<p>No more than <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes are written to <code class="docutils literal notranslate"><span class="pre">dest</span></code> (incl. the terminating NUL).</p>
+<p>Returns number of bytes written to <code class="docutils literal notranslate"><span class="pre">dest</span></code>. If the output is truncated because it exceeds <code class="docutils literal notranslate"><span class="pre">size</span></code>, the number of bytes that would have been written if <code class="docutils literal notranslate"><span class="pre">size</span></code> was large enough is returned. On error, a negative value is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_json_asprintPPcP6size_t6size_tPK13DLiteInstancei13DLiteJsonFlag">
+<span id="_CPPv318dlite_json_asprintPPcP6size_t6size_tPK13DLiteInstancei13DLiteJsonFlag"></span><span id="_CPPv218dlite_json_asprintPPcP6size_t6size_tPK13DLiteInstancei13DLiteJsonFlag"></span><span id="dlite_json_asprint__cPP.sP.s.DLiteInstanceCP.i.DLiteJsonFlag"></span><span class="target" id="dlite-json_8h_1a9d73b7c14cb2332f58be95ffa8729d61"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_asprint</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">size</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pos</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inst</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indent</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_json_asprintPPcP6size_t6size_tPK13DLiteInstancei13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-json_8h_1ac8740d2dcb62d9a0fcdede51c5bd7aab"><span class="std std-ref">dlite_json_sprint()</span></a>, but prints to allocated buffer.</p>
+<p>Prints to position <code class="docutils literal notranslate"><span class="pre">pos</span></code> in <code class="docutils literal notranslate"><span class="pre">*dest</span></code>, which should point to a buffer of size <code class="docutils literal notranslate"><span class="pre">*size</span></code>. Bytes at position less than <code class="docutils literal notranslate"><span class="pre">pos</span></code> are not changed.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">*dest</span></code> is NULL or <code class="docutils literal notranslate"><span class="pre">*size</span></code> is less than needed, <code class="docutils literal notranslate"><span class="pre">*dest</span></code> is reallocated and <code class="docutils literal notranslate"><span class="pre">*size</span></code> updated to the new buffer size.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">pos</span></code> is larger than <code class="docutils literal notranslate"><span class="pre">*size</span></code> the bytes at index <code class="docutils literal notranslate"><span class="pre">i</span></code> are initialized to space (’ ‘), where <code class="docutils literal notranslate"><span class="pre">*size</span> <span class="pre">&lt;=</span> <span class="pre">i</span> <span class="pre">&lt;</span> <span class="pre">pos</span></code>.</p>
+<p>Returns number or bytes written (not including terminating NUL) or a negative number on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_json_aprintPK13DLiteInstancei13DLiteJsonFlag">
+<span id="_CPPv317dlite_json_aprintPK13DLiteInstancei13DLiteJsonFlag"></span><span id="_CPPv217dlite_json_aprintPK13DLiteInstancei13DLiteJsonFlag"></span><span id="dlite_json_aprint__DLiteInstanceCP.i.DLiteJsonFlag"></span><span class="target" id="dlite-json_8h_1af9e176b3612bac5c292365c1ed8d30ec"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_aprint</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inst</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indent</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_json_aprintPK13DLiteInstancei13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like dlite_sprint(), but returns allocated buffer with serialised instance. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_json_fprintP4FILEPK13DLiteInstancei13DLiteJsonFlag">
+<span id="_CPPv317dlite_json_fprintP4FILEPK13DLiteInstancei13DLiteJsonFlag"></span><span id="_CPPv217dlite_json_fprintP4FILEPK13DLiteInstancei13DLiteJsonFlag"></span><span id="dlite_json_fprint__FILEP.DLiteInstanceCP.i.DLiteJsonFlag"></span><span class="target" id="dlite-json_8h_1a401a468d80e7e75eaeefd220fb366565"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_fprint</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FILE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fp</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inst</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">indent</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_json_fprintP4FILEPK13DLiteInstancei13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like dlite_sprint(), but prints to stream <code class="docutils literal notranslate"><span class="pre">fp</span></code>.</p>
+<p>Returns number or bytes printed or a negative number on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_json_printPK13DLiteInstance">
+<span id="_CPPv316dlite_json_printPK13DLiteInstance"></span><span id="_CPPv216dlite_json_printPK13DLiteInstance"></span><span id="dlite_json_print__DLiteInstanceCP"></span><span class="target" id="dlite-json_8h_1ad13afb5380f6cedb3cb55ea83ddec2f6"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_print</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inst</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_json_printPK13DLiteInstance" title="Link to this definition">#</a><br /></dt>
+<dd><p>Prints json representation of <code class="docutils literal notranslate"><span class="pre">inst</span></code> to standard output.</p>
+<p>Returns number or bytes printed or a negative number on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_json_printfilePKcPK13DLiteInstance13DLiteJsonFlag">
+<span id="_CPPv320dlite_json_printfilePKcPK13DLiteInstance13DLiteJsonFlag"></span><span id="_CPPv220dlite_json_printfilePKcPK13DLiteInstance13DLiteJsonFlag"></span><span id="dlite_json_printfile__cCP.DLiteInstanceCP.DLiteJsonFlag"></span><span class="target" id="dlite-json_8h_1a68e8f703af7143fb329a99bdcc882c8f"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_printfile</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inst</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_json_printfilePKcPK13DLiteInstance13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-json_8h_1ac8740d2dcb62d9a0fcdede51c5bd7aab"><span class="std std-ref">dlite_json_sprint()</span></a>, but prints the output to file <code class="docutils literal notranslate"><span class="pre">filename</span></code>.</p>
+<p>Returns number or bytes printed or a negative number on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_json_appendPPcP6size_tPK13DLiteInstance13DLiteJsonFlag">
+<span id="_CPPv317dlite_json_appendPPcP6size_tPK13DLiteInstance13DLiteJsonFlag"></span><span id="_CPPv217dlite_json_appendPPcP6size_tPK13DLiteInstance13DLiteJsonFlag"></span><span id="dlite_json_append__cPP.sP.DLiteInstanceCP.DLiteJsonFlag"></span><span class="target" id="dlite-json_8h_1aaa5453773fd7d5038cdbadff4af48e19"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_append</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inst</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_json_appendPPcP6size_tPK13DLiteInstance13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Appends json representation of <code class="docutils literal notranslate"><span class="pre">inst</span></code> to json string pointed to by <code class="docutils literal notranslate"><span class="pre">*s</span></code>.</p>
+<p>On input, <code class="docutils literal notranslate"><span class="pre">*s</span></code> should be a malloc’ed string representation of a json object. It will be reallocated as needed.</p>
+<p><code class="docutils literal notranslate"><span class="pre">*size</span></code> if the allocated size of <code class="docutils literal notranslate"><span class="pre">*s</span></code>. It will be updated when <code class="docutils literal notranslate"><span class="pre">*s</span></code> is realocated.</p>
+<p>Returns number or bytes inserted or a negative number on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-deserialisation">Deserialisation</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_json_sscanPKcPKcPKc">
+<span id="_CPPv316dlite_json_sscanPKcPKcPKc"></span><span id="_CPPv216dlite_json_sscanPKcPKcPKc"></span><span id="dlite_json_sscan__cCP.cCP.cCP"></span><span class="target" id="dlite-json_8h_1ada71082a07fd926b52d5076989ab72bd"></span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_sscan</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">metaid</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_json_sscanPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new instance scanned from <code class="docutils literal notranslate"><span class="pre">src</span></code>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">id</span></code> is the uri or uuid of the instance to load. If <code class="docutils literal notranslate"><span class="pre">src</span></code> only contain one instance (of the required metadata), <code class="docutils literal notranslate"><span class="pre">id</span></code> may be NULL.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">metaid</span></code> is not NULL, it should be the URI or UUID of the metadata of the returned instance. It is an error if no such instance exists in the source.</p>
+<p>Returns the instance or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_json_fscanP4FILEPKcPKc">
+<span id="_CPPv316dlite_json_fscanP4FILEPKcPKc"></span><span id="_CPPv216dlite_json_fscanP4FILEPKcPKc"></span><span id="dlite_json_fscan__FILEP.cCP.cCP"></span><span class="target" id="dlite-json_8h_1ac12ee903057b0b35c098b581f1742049"></span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_fscan</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FILE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fp</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">metaid</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_json_fscanP4FILEPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like dlite_sscan(), but scans instance <code class="docutils literal notranslate"><span class="pre">id</span></code> from stream <code class="docutils literal notranslate"><span class="pre">fp</span></code> instead of a string.</p>
+<p>Returns the instance or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419dlite_json_scanfilePKcPKcPKc">
+<span id="_CPPv319dlite_json_scanfilePKcPKcPKc"></span><span id="_CPPv219dlite_json_scanfilePKcPKcPKc"></span><span id="dlite_json_scanfile__cCP.cCP.cCP"></span><span class="target" id="dlite-json_8h_1a6c35ea6a964742b3e3b8ff1b5bf4e3e2"></span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_scanfile</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">metaid</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419dlite_json_scanfilePKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-json_8h_1ada71082a07fd926b52d5076989ab72bd"><span class="std std-ref">dlite_json_sscan()</span></a>, but scans instance <code class="docutils literal notranslate"><span class="pre">id</span></code> from file <code class="docutils literal notranslate"><span class="pre">filename</span></code> instead of a string.</p>
+<p>Returns the instance or NULL on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-checking">Checking</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_json_checkPKcPK9jsmntok_tPKcP13DLiteJsonFlag">
+<span id="_CPPv316dlite_json_checkPKcPK9jsmntok_tPKcP13DLiteJsonFlag"></span><span id="_CPPv216dlite_json_checkPKcPK9jsmntok_tPKcP13DLiteJsonFlag"></span><span id="dlite_json_check__cCP.jsmntok_tCP.cCP.DLiteJsonFlagP"></span><span class="target" id="dlite-json_8h_1a3746f8e32744f408bf7b0afdc7bc1251"></span><a class="reference internal" href="#_CPPv415DLiteJsonFormat" title="DLiteJsonFormat"><span class="n"><span class="pre">DLiteJsonFormat</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_check</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">jsmntok_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">tokens</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_json_checkPKcPK9jsmntok_tPKcP13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Check format of a parsed JSON string.</p>
+<p><code class="docutils literal notranslate"><span class="pre">src</span></code> is the JSON string to check.</p>
+<p><code class="docutils literal notranslate"><span class="pre">tokens</span></code> should be a parsed set of JSMN tokens corresponding to <code class="docutils literal notranslate"><span class="pre">src</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">id</span></code> is not NULL, it is used to select what instance in a multi-entity formatted JSON string that will be used to assign flags. If NULL, the first instance will be used.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">flags</span></code> is not NULL, the formatting (of the first entry in case of multi-entity format) will be investigated and <code class="docutils literal notranslate"><span class="pre">flags</span></code> set accordingly.</p>
+<p>Return the format of <code class="docutils literal notranslate"><span class="pre">src</span></code> or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_json_scheckPKc6size_tPKcP13DLiteJsonFlag">
+<span id="_CPPv317dlite_json_scheckPKc6size_tPKcP13DLiteJsonFlag"></span><span id="_CPPv217dlite_json_scheckPKc6size_tPKcP13DLiteJsonFlag"></span><span id="dlite_json_scheck__cCP.s.cCP.DLiteJsonFlagP"></span><span class="target" id="dlite-json_8h_1a5473b22b5115fbb75d106921edf3904e"></span><a class="reference internal" href="#_CPPv415DLiteJsonFormat" title="DLiteJsonFormat"><span class="n"><span class="pre">DLiteJsonFormat</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_scheck</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_json_scheckPKc6size_tPKcP13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-json_8h_1a3746f8e32744f408bf7b0afdc7bc1251"><span class="std std-ref">dlite_json_check()</span></a>, but checks string <code class="docutils literal notranslate"><span class="pre">src</span></code> with length <code class="docutils literal notranslate"><span class="pre">len</span></code>.</p>
+<p>Return the json format or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_json_fcheckP4FILEPKcP13DLiteJsonFlag">
+<span id="_CPPv317dlite_json_fcheckP4FILEPKcP13DLiteJsonFlag"></span><span id="_CPPv217dlite_json_fcheckP4FILEPKcP13DLiteJsonFlag"></span><span id="dlite_json_fcheck__FILEP.cCP.DLiteJsonFlagP"></span><span class="target" id="dlite-json_8h_1a72eec464d86987bccbbf98ca878673bc"></span><a class="reference internal" href="#_CPPv415DLiteJsonFormat" title="DLiteJsonFormat"><span class="n"><span class="pre">DLiteJsonFormat</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_fcheck</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FILE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fp</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_json_fcheckP4FILEPKcP13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-json_8h_1a5473b22b5115fbb75d106921edf3904e"><span class="std std-ref">dlite_json_scheck()</span></a>, but checks the content of stream <code class="docutils literal notranslate"><span class="pre">fp</span></code> instead.</p>
+<p>Return the json format or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_json_checkfilePKcPKcP13DLiteJsonFlag">
+<span id="_CPPv320dlite_json_checkfilePKcPKcP13DLiteJsonFlag"></span><span id="_CPPv220dlite_json_checkfilePKcPKcP13DLiteJsonFlag"></span><span id="dlite_json_checkfile__cCP.cCP.DLiteJsonFlagP"></span><span class="target" id="dlite-json_8h_1ab1315fae1196666cfd3bf6c2b3778596"></span><a class="reference internal" href="#_CPPv415DLiteJsonFormat" title="DLiteJsonFormat"><span class="n"><span class="pre">DLiteJsonFormat</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_checkfile</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_json_checkfilePKcPKcP13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-json_8h_1a5473b22b5115fbb75d106921edf3904e"><span class="std std-ref">dlite_json_scheck()</span></a>, but checks the file <code class="docutils literal notranslate"><span class="pre">filename</span></code> instead.</p>
+<p>Return the json format or -1 on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-iterator">Iterator</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422dlite_json_iter_createPKciPKc">
+<span id="_CPPv322dlite_json_iter_createPKciPKc"></span><span id="_CPPv222dlite_json_iter_createPKciPKc"></span><span id="dlite_json_iter_create__cCP.i.cCP"></span><span class="target" id="dlite-json_8h_1abae5378d7baa9f4fd5af2d38d4527f37"></span><span class="n"><span class="pre">DLiteJsonIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_iter_create</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">length</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">metaid</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422dlite_json_iter_createPKciPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Creates and returns a new iterator used by <a class="reference internal" href="#dlite-json_8h_1ae5b6e38d90eb90378606e864a4a626fa"><span class="std std-ref">dlite_json_next()</span></a>.</p>
+<p>Arguments<ul class="simple">
+<li><p>src: input JSON string to search.</p></li>
+<li><p>length: length of <code class="docutils literal notranslate"><span class="pre">src</span></code>. If zero or negative, all of <code class="docutils literal notranslate"><span class="pre">src</span></code> will be used.</p></li>
+<li><p>metaid: limit the search to instances of metadata with this id.</p></li>
+</ul>
+</p>
+<p>The source should be a JSON object with keys being instance UUIDs and values being the JSON representation of the individual instances.</p>
+<p>Returns a new iterator or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_json_iter_freeP13DLiteJsonIter">
+<span id="_CPPv320dlite_json_iter_freeP13DLiteJsonIter"></span><span id="_CPPv220dlite_json_iter_freeP13DLiteJsonIter"></span><span id="dlite_json_iter_free__DLiteJsonIterP"></span><span class="target" id="dlite-json_8h_1ab86a6d594fe86694dc29bef8cfe20ea9"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_iter_free</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">DLiteJsonIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_json_iter_freeP13DLiteJsonIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Free’s iterator created with <a class="reference internal" href="#dlite-json_8h_1abae5378d7baa9f4fd5af2d38d4527f37"><span class="std std-ref">dlite_json_iter_create()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415dlite_json_nextP13DLiteJsonIterPi">
+<span id="_CPPv315dlite_json_nextP13DLiteJsonIterPi"></span><span id="_CPPv215dlite_json_nextP13DLiteJsonIterPi"></span><span id="dlite_json_next__DLiteJsonIterP.iP"></span><span class="target" id="dlite-json_8h_1ae5b6e38d90eb90378606e864a4a626fa"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_json_next</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">DLiteJsonIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">length</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415dlite_json_nextP13DLiteJsonIterPi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Search for instances in the JSON document provided to <a class="reference internal" href="#dlite-json_8h_1abae5378d7baa9f4fd5af2d38d4527f37"><span class="std std-ref">dlite_json_iter_create()</span></a> and returns a pointer to instance UUIDs.</p>
+<p><code class="docutils literal notranslate"><span class="pre">iter</span></code> should be an iterator created with <a class="reference internal" href="#dlite-json_8h_1abae5378d7baa9f4fd5af2d38d4527f37"><span class="std std-ref">dlite_json_iter_create()</span></a>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">length</span></code> is given, it is set to the length of the returned identifier.</p>
+<p>Returns a pointer to the next matching UUID or NULL if there are no more matches left. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-json-store">JSON store</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_jstore_loadsP6JStorePKci">
+<span id="_CPPv318dlite_jstore_loadsP6JStorePKci"></span><span id="_CPPv218dlite_jstore_loadsP6JStorePKci"></span><span id="dlite_jstore_loads__JStoreP.cCP.i"></span><span class="target" id="dlite-json_8h_1a3d5fd01b1483e30a43abeac4959b6aa0"></span><a class="reference internal" href="#_CPPv415DLiteJsonFormat" title="DLiteJsonFormat"><span class="n"><span class="pre">DLiteJsonFormat</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_jstore_loads</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_jstore_loadsP6JStorePKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Load content of json string <code class="docutils literal notranslate"><span class="pre">src</span></code> to json store <code class="docutils literal notranslate"><span class="pre">js</span></code>. <code class="docutils literal notranslate"><span class="pre">len</span></code> is the length of <code class="docutils literal notranslate"><span class="pre">src</span></code>.</p>
+<p>Returns json format or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_jstore_loadfP6JStorePKc">
+<span id="_CPPv318dlite_jstore_loadfP6JStorePKc"></span><span id="_CPPv218dlite_jstore_loadfP6JStorePKc"></span><span id="dlite_jstore_loadf__JStoreP.cCP"></span><span class="target" id="dlite-json_8h_1a1db64a9792e7deb497475a427f48509c"></span><a class="reference internal" href="#_CPPv415DLiteJsonFormat" title="DLiteJsonFormat"><span class="n"><span class="pre">DLiteJsonFormat</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_jstore_loadf</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_jstore_loadfP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Read content of <code class="docutils literal notranslate"><span class="pre">filename</span></code> to json store <code class="docutils literal notranslate"><span class="pre">js</span></code>.</p>
+<p>Returns json format or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_jstore_addP6JStorePK13DLiteInstance13DLiteJsonFlag">
+<span id="_CPPv316dlite_jstore_addP6JStorePK13DLiteInstance13DLiteJsonFlag"></span><span id="_CPPv216dlite_jstore_addP6JStorePK13DLiteInstance13DLiteJsonFlag"></span><span id="dlite_jstore_add__JStoreP.DLiteInstanceCP.DLiteJsonFlag"></span><span class="target" id="dlite-json_8h_1a81f4e20616cc062589ae1f1380ccac2c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_jstore_add</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">inst</span></span>, <a class="reference internal" href="#_CPPv413DLiteJsonFlag" title="DLiteJsonFlag"><span class="n"><span class="pre">DLiteJsonFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_jstore_addP6JStorePK13DLiteInstance13DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Add json representation of <code class="docutils literal notranslate"><span class="pre">inst</span></code> to json store <code class="docutils literal notranslate"><span class="pre">js</span></code>.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419dlite_jstore_removeP6JStorePKc">
+<span id="_CPPv319dlite_jstore_removeP6JStorePKc"></span><span id="_CPPv219dlite_jstore_removeP6JStorePKc"></span><span id="dlite_jstore_remove__JStoreP.cCP"></span><span class="target" id="dlite-json_8h_1a9ee53b0a66ab1b9d414f0c03e14bf763"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_jstore_remove</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419dlite_jstore_removeP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes instance with given id from json store <code class="docutils literal notranslate"><span class="pre">js</span></code>.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_jstore_getP6JStorePKc">
+<span id="_CPPv316dlite_jstore_getP6JStorePKc"></span><span id="_CPPv216dlite_jstore_getP6JStorePKc"></span><span id="dlite_jstore_get__JStoreP.cCP"></span><span class="target" id="dlite-json_8h_1a46fcbb324d7cbba607e149fdd4f584ee"></span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_jstore_get</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_jstore_getP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns instance with given id from json store <code class="docutils literal notranslate"><span class="pre">js</span></code> or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_jstore_iter_createP6JStorePKc">
+<span id="_CPPv324dlite_jstore_iter_createP6JStorePKc"></span><span id="_CPPv224dlite_jstore_iter_createP6JStorePKc"></span><span id="dlite_jstore_iter_create__JStoreP.cCP"></span><span class="target" id="dlite-json_8h_1a97a8724391a4d11521240702a3dab2fd"></span><span class="n"><span class="pre">DLiteJStoreIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_jstore_iter_create</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">metaid</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_jstore_iter_createP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initiate iterator <code class="docutils literal notranslate"><span class="pre">init</span></code> from json store <code class="docutils literal notranslate"><span class="pre">js</span></code>. If <code class="docutils literal notranslate"><span class="pre">metaid</span></code> is provided, the iterator will only iterate over instances of this metadata.</p>
+<p>Returns a new iterator or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422dlite_jstore_iter_freeP15DLiteJStoreIter">
+<span id="_CPPv322dlite_jstore_iter_freeP15DLiteJStoreIter"></span><span id="_CPPv222dlite_jstore_iter_freeP15DLiteJStoreIter"></span><span id="dlite_jstore_iter_free__DLiteJStoreIterP"></span><span class="target" id="dlite-json_8h_1a40ee8315152fdbc17189ac4776851d67"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_jstore_iter_free</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">DLiteJStoreIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422dlite_jstore_iter_freeP15DLiteJStoreIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Deinitialises iterater.</p>
+<p>Return non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422dlite_jstore_iter_nextP15DLiteJStoreIter">
+<span id="_CPPv322dlite_jstore_iter_nextP15DLiteJStoreIter"></span><span id="_CPPv222dlite_jstore_iter_nextP15DLiteJStoreIter"></span><span id="dlite_jstore_iter_next__DLiteJStoreIterP"></span><span class="target" id="dlite-json_8h_1a089194035a2a9c69215bb43383ee7627"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_jstore_iter_next</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">DLiteJStoreIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422dlite_jstore_iter_nextP15DLiteJStoreIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return the id of the next instance in the json store or NULL if the iterator is exausted. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv413DLiteJsonFlag">
+<span id="_CPPv313DLiteJsonFlag"></span><span id="_CPPv213DLiteJsonFlag"></span><span class="target" id="dlite-json_8h_1acda502422e3e42e3a99e17eb73d6ac6c"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteJsonFlag</span></span></span><a class="headerlink" href="#_CPPv413DLiteJsonFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Flags for controlling serialisation </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteJsonFlag15dliteJsonSingleE">
+<span id="_CPPv3N13DLiteJsonFlag15dliteJsonSingleE"></span><span id="_CPPv2N13DLiteJsonFlag15dliteJsonSingleE"></span><span class="target" id="dlite-json_8h_1acda502422e3e42e3a99e17eb73d6ac6cac0257fcd32cb8ef826c25314b8e420de"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonSingle</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteJsonFlag15dliteJsonSingleE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Single-entity format </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteJsonFlag15dliteJsonUriKeyE">
+<span id="_CPPv3N13DLiteJsonFlag15dliteJsonUriKeyE"></span><span id="_CPPv2N13DLiteJsonFlag15dliteJsonUriKeyE"></span><span class="target" id="dlite-json_8h_1acda502422e3e42e3a99e17eb73d6ac6ca4c63d56971258bee167851cf205737c0"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonUriKey</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteJsonFlag15dliteJsonUriKeyE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Use uri (if it exists) as json key in multi- entity format. </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteJsonFlag17dliteJsonWithUuidE">
+<span id="_CPPv3N13DLiteJsonFlag17dliteJsonWithUuidE"></span><span id="_CPPv2N13DLiteJsonFlag17dliteJsonWithUuidE"></span><span class="target" id="dlite-json_8h_1acda502422e3e42e3a99e17eb73d6ac6cafe3b612d7f93cbd781fead649aaeba06"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonWithUuid</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteJsonFlag17dliteJsonWithUuidE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Include uuid in output </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteJsonFlag17dliteJsonWithMetaE">
+<span id="_CPPv3N13DLiteJsonFlag17dliteJsonWithMetaE"></span><span id="_CPPv2N13DLiteJsonFlag17dliteJsonWithMetaE"></span><span class="target" id="dlite-json_8h_1acda502422e3e42e3a99e17eb73d6ac6ca9c4d2f87d7b2eb15304de5c1972b371e"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonWithMeta</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteJsonFlag17dliteJsonWithMetaE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Always include “meta” (even for metadata) </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteJsonFlag15dliteJsonArraysE">
+<span id="_CPPv3N13DLiteJsonFlag15dliteJsonArraysE"></span><span id="_CPPv2N13DLiteJsonFlag15dliteJsonArraysE"></span><span class="target" id="dlite-json_8h_1acda502422e3e42e3a99e17eb73d6ac6ca4669b6780f297a2732edbf6ec9e00a68"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonArrays</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteJsonFlag15dliteJsonArraysE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Write metadata dimension and properties as json arrays (old format) </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteJsonFlag17dliteJsonNoParentE">
+<span id="_CPPv3N13DLiteJsonFlag17dliteJsonNoParentE"></span><span id="_CPPv2N13DLiteJsonFlag17dliteJsonNoParentE"></span><span class="target" id="dlite-json_8h_1acda502422e3e42e3a99e17eb73d6ac6ca1f165650a6ba4e93aa5cb74fcd2a19d8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonNoParent</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteJsonFlag17dliteJsonNoParentE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Do not write transaction parent info </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteJsonFlag19dliteJsonCompactRelE">
+<span id="_CPPv3N13DLiteJsonFlag19dliteJsonCompactRelE"></span><span id="_CPPv2N13DLiteJsonFlag19dliteJsonCompactRelE"></span><span class="target" id="dlite-json_8h_1acda502422e3e42e3a99e17eb73d6ac6ca309e641dc49955ccf4b047ffe672c101"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonCompactRel</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteJsonFlag19dliteJsonCompactRelE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Write relations with no newlines </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv415DLiteJsonFormat">
+<span id="_CPPv315DLiteJsonFormat"></span><span id="_CPPv215DLiteJsonFormat"></span><span class="target" id="dlite-json_8h_1a9a38878e2f7ae5cf9a391e30bd2f80e9"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteJsonFormat</span></span></span><a class="headerlink" href="#_CPPv415DLiteJsonFormat" title="Link to this definition">#</a><br /></dt>
+<dd><p>Enum indicating whether a JSON string is formatted as data and metadata. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N15DLiteJsonFormat22dliteJsonUnknownFormatE">
+<span id="_CPPv3N15DLiteJsonFormat22dliteJsonUnknownFormatE"></span><span id="_CPPv2N15DLiteJsonFormat22dliteJsonUnknownFormatE"></span><span class="target" id="dlite-json_8h_1a9a38878e2f7ae5cf9a391e30bd2f80e9a643df98e0ec14fb4779668f6f0d63c9e"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonUnknownFormat</span></span></span><a class="headerlink" href="#_CPPv4N15DLiteJsonFormat22dliteJsonUnknownFormatE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Unknown format </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N15DLiteJsonFormat19dliteJsonDataFormatE">
+<span id="_CPPv3N15DLiteJsonFormat19dliteJsonDataFormatE"></span><span id="_CPPv2N15DLiteJsonFormat19dliteJsonDataFormatE"></span><span class="target" id="dlite-json_8h_1a9a38878e2f7ae5cf9a391e30bd2f80e9a88e24e2028687ac446ddcf1772d43453"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonDataFormat</span></span></span><a class="headerlink" href="#_CPPv4N15DLiteJsonFormat19dliteJsonDataFormatE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Data format </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N15DLiteJsonFormat19dliteJsonMetaFormatE">
+<span id="_CPPv3N15DLiteJsonFormat19dliteJsonMetaFormatE"></span><span id="_CPPv2N15DLiteJsonFormat19dliteJsonMetaFormatE"></span><span class="target" id="dlite-json_8h_1a9a38878e2f7ae5cf9a391e30bd2f80e9a886c474c6797a4ea5e203f3cdeaa8957"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteJsonMetaFormat</span></span></span><a class="headerlink" href="#_CPPv4N15DLiteJsonFormat19dliteJsonMetaFormatE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Metadata format </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dlite-getlicense.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">dlite-getlicense</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dlite-macros.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">dlite-macros</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_sprintPc6size_tPK13DLiteInstancei13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_sprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_json_asprintPPcP6size_t6size_tPK13DLiteInstancei13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_asprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_aprintPK13DLiteInstancei13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_aprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_fprintP4FILEPK13DLiteInstancei13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_fprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_json_printPK13DLiteInstance"><code class="docutils literal notranslate"><span class="pre">dlite_json_print()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_json_printfilePKcPK13DLiteInstance13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_printfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_appendPPcP6size_tPK13DLiteInstance13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_json_sscanPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_json_sscan()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_json_fscanP4FILEPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_json_fscan()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_json_scanfilePKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_json_scanfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_json_checkPKcPK9jsmntok_tPKcP13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_check()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_scheckPKc6size_tPKcP13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_scheck()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_json_fcheckP4FILEPKcP13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_fcheck()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_json_checkfilePKcPKcP13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_json_checkfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_json_iter_createPKciPKc"><code class="docutils literal notranslate"><span class="pre">dlite_json_iter_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_json_iter_freeP13DLiteJsonIter"><code class="docutils literal notranslate"><span class="pre">dlite_json_iter_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_json_nextP13DLiteJsonIterPi"><code class="docutils literal notranslate"><span class="pre">dlite_json_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_jstore_loadsP6JStorePKci"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_loads()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_jstore_loadfP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_loadf()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_jstore_addP6JStorePK13DLiteInstance13DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_add()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_jstore_removeP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_jstore_getP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_jstore_iter_createP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_iter_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_jstore_iter_freeP15DLiteJStoreIter"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_iter_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_jstore_iter_nextP15DLiteJStoreIter"><code class="docutils literal notranslate"><span class="pre">dlite_jstore_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DLiteJsonFlag"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag15dliteJsonSingleE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonSingle</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag15dliteJsonUriKeyE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonUriKey</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag17dliteJsonWithUuidE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonWithUuid</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag17dliteJsonWithMetaE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonWithMeta</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag15dliteJsonArraysE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonArrays</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag17dliteJsonNoParentE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonNoParent</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteJsonFlag19dliteJsonCompactRelE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFlag::dliteJsonCompactRel</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415DLiteJsonFormat"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFormat</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N15DLiteJsonFormat22dliteJsonUnknownFormatE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFormat::dliteJsonUnknownFormat</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N15DLiteJsonFormat19dliteJsonDataFormatE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFormat::dliteJsonDataFormat</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N15DLiteJsonFormat19dliteJsonMetaFormatE"><code class="docutils literal notranslate"><span class="pre">DLiteJsonFormat::dliteJsonMetaFormat</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
