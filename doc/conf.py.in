@@ -87,13 +87,14 @@ def _has_python_sources(path: Path) -> bool:
         return False
     return any(path.rglob("*.py")) or any(path.rglob("*.pyi"))
 
-# Use the build tree when it actually contains Python sources; otherwise
-# fall back to source tree to avoid empty AutoAPI output in CI.
+# Prefer the source tree for deterministic docs in CI. The build tree can
+# exist but still be incomplete depending on build order/configuration.
+autoapi_dirs = []
+if _has_python_sources(autoapi_source_dir):
+    autoapi_dirs.append(str(autoapi_source_dir))
 if _has_python_sources(autoapi_build_dir):
-    autoapi_dirs = [str(autoapi_build_dir)]
-elif _has_python_sources(autoapi_source_dir):
-    autoapi_dirs = [str(autoapi_source_dir)]
-else:
+    autoapi_dirs.append(str(autoapi_build_dir))
+if not autoapi_dirs:
     autoapi_dirs = [str(autoapi_source_dir)]
 
 print(f"[conf.py] AutoAPI dirs: {autoapi_dirs}")
