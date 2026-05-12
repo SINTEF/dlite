@@ -82,15 +82,26 @@ jobs:
       - name: Verify Python AutoAPI output
         run: |
           set -euo pipefail
-          AUTOAPI_DIR=$(find build/doc -type d -path '*/html/autoapi' | head -n 1 || true)
-          if [[ -z "${AUTOAPI_DIR}" ]]; then
-            echo "ERROR: AutoAPI output directory was not found under build/doc."
+          DOCS_HTML_DIR=$(find . -type f -path '*/doc/html/index.html' -not -path './gh-pages/*' | sed 's#/index.html$##' | sort | head -n 1 || true)
+          if [[ -z "${DOCS_HTML_DIR}" ]]; then
+            echo "ERROR: Could not locate Sphinx HTML output directory (*/doc/html)."
+            echo "---- Candidate doc directories ----"
+            find . -maxdepth 4 -type d -name doc | sort || true
+            echo "---- Candidate html directories ----"
+            find . -maxdepth 6 -type d -name html | sort || true
+            exit 1
+          fi
+
+          echo "Using docs HTML directory: ${DOCS_HTML_DIR}"
+          echo "DOCS_HTML_DIR=${DOCS_HTML_DIR}" >> "$GITHUB_ENV"
+
+          AUTOAPI_DIR="${DOCS_HTML_DIR}/autoapi"
+          if [[ ! -d "${AUTOAPI_DIR}" ]]; then
+            echo "ERROR: AutoAPI output directory is missing at ${AUTOAPI_DIR}."
             echo "---- Sphinx config excerpt ----"
-            sed -n '1,260p' build/doc/_build/conf.py | grep -E 'autoapi_(dirs|ignore|file_patterns|python_use_implicit_namespaces)' || true
-            echo "---- build/doc directories ----"
-            find build/doc -maxdepth 4 -type d | sort
-            echo "---- build/doc/html listing ----"
-            ls -la build/doc/html || true
+            find . -type f -path '*/doc/_build/conf.py' -print -exec sed -n '1,260p' {} \; | grep -E 'autoapi_(dirs|ignore|file_patterns|python_use_implicit_namespaces)' || true
+            echo "---- docs HTML listing ----"
+            ls -la "${DOCS_HTML_DIR}" || true
             exit 1
           fi
 
@@ -103,10 +114,10 @@ jobs:
             exit 1
           fi
 
-          if [[ ! -f build/doc/html/api.html ]] || ! grep -q 'autoapi/dlite/index.html' build/doc/html/api.html; then
+          if [[ ! -f "${DOCS_HTML_DIR}/api.html" ]] || ! grep -q 'autoapi/dlite/index.html' "${DOCS_HTML_DIR}/api.html"; then
             echo "ERROR: API landing page does not link to Python AutoAPI pages."
             echo "---- api.html excerpt ----"
-            sed -n '460,620p' build/doc/html/api.html || true
+            sed -n '460,620p' "${DOCS_HTML_DIR}/api.html" || true
             exit 1
           fi
 
@@ -157,8 +168,13 @@ jobs:
         run: |
           set -euo pipefail
 
+          if [[ -z "${DOCS_HTML_DIR:-}" ]] || [[ ! -d "${DOCS_HTML_DIR}" ]]; then
+            echo "ERROR: DOCS_HTML_DIR is not set to an existing directory."
+            exit 1
+          fi
+
           mkdir -p "gh-pages/${DOCS_TARGET}"
-          rsync -a --delete build/doc/html/ "gh-pages/${DOCS_TARGET}/"
+          rsync -a --delete "${DOCS_HTML_DIR}/" "gh-pages/${DOCS_TARGET}/"
 
           if [[ "${COPY_TO_ROOT}" == "true" ]]; then
             rsync -a --delete \
@@ -167,7 +183,7 @@ jobs:
               --exclude 'latest/' \
               --exclude '.nojekyll' \
               --exclude 'versions.json' \
-              build/doc/html/ gh-pages/
+                "${DOCS_HTML_DIR}/" gh-pages/
           fi
 
           touch gh-pages/.nojekyll
