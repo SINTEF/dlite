@@ -1,0 +1,807 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>sha3 &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/utils/sha3';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="strtob" href="strtob.html" />
+    <link rel="prev" title="sha1" href="sha1.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha1.html">sha1</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/utils/sha3.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/c-api/src/utils/sha3.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>sha3</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413sha3_return_t"><code class="docutils literal notranslate"><span class="pre">sha3_return_t</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410SHA3_FLAGS"><code class="docutils literal notranslate"><span class="pre">SHA3_FLAGS</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10SHA3_FLAGS15SHA3_FLAGS_NONEE"><code class="docutils literal notranslate"><span class="pre">SHA3_FLAGS::SHA3_FLAGS_NONE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10SHA3_FLAGS17SHA3_FLAGS_KECCAKE"><code class="docutils literal notranslate"><span class="pre">SHA3_FLAGS::SHA3_FLAGS_KECCAK</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411SHA3_RETURN"><code class="docutils literal notranslate"><span class="pre">SHA3_RETURN</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11SHA3_RETURN14SHA3_RETURN_OKE"><code class="docutils literal notranslate"><span class="pre">SHA3_RETURN::SHA3_RETURN_OK</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11SHA3_RETURN22SHA3_RETURN_BAD_PARAMSE"><code class="docutils literal notranslate"><span class="pre">SHA3_RETURN::SHA3_RETURN_BAD_PARAMS</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49sha3_InitP12sha3_contextj"><code class="docutils literal notranslate"><span class="pre">sha3_Init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412sha3_Init256P12sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_Init256()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412sha3_Init384P12sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_Init384()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412sha3_Init512P12sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_Init512()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413sha3_SetFlagsP12sha3_context10SHA3_FLAGS"><code class="docutils literal notranslate"><span class="pre">sha3_SetFlags()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411sha3_UpdateP12sha3_contextPKv6size_t"><code class="docutils literal notranslate"><span class="pre">sha3_Update()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413sha3_FinalizeP12sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_Finalize()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415sha3_HashBufferj10SHA3_FLAGSPKvjPvj"><code class="docutils literal notranslate"><span class="pre">sha3_HashBuffer()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_context</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context5savedE"><code class="docutils literal notranslate"><span class="pre">sha3_context::saved</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context1sE"><code class="docutils literal notranslate"><span class="pre">sha3_context::s</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context2sbE"><code class="docutils literal notranslate"><span class="pre">sha3_context::sb</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context1uE"><code class="docutils literal notranslate"><span class="pre">sha3_context::u</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context9byteIndexE"><code class="docutils literal notranslate"><span class="pre">sha3_context::byteIndex</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context9wordIndexE"><code class="docutils literal notranslate"><span class="pre">sha3_context::wordIndex</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context13capacityWordsE"><code class="docutils literal notranslate"><span class="pre">sha3_context::capacityWords</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="sha3">
+<h1>sha3<a class="headerlink" href="#sha3" title="Link to this heading">#</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.SHA3_KECCAK_SPONGE_WORDS">
+<span class="target" id="sha3_8h_1a523878099e5ec16cb61e01d0365201f5"></span><span class="sig-name descname"><span class="n"><span class="pre">SHA3_KECCAK_SPONGE_WORDS</span></span></span><a class="headerlink" href="#c.SHA3_KECCAK_SPONGE_WORDS" title="Link to this definition">#</a><br /></dt>
+<dd><p>For documentation, see <a class="github reference external" href="https://github.com/brainhub/SHA3IUF">brainhub/SHA3IUF</a></p>
+<p>The hashes generated with SHA3_FLAGS_NONE corresponds to sha3_256() sha3_384() and sha3_512() in Python hashlib. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv413sha3_return_t">
+<span id="_CPPv313sha3_return_t"></span><span id="_CPPv213sha3_return_t"></span><span id="sha3_return_t"></span><span class="target" id="sha3_8h_1a9375a269cc778c2e4a430ed65d588e4f"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv411SHA3_RETURN" title="SHA3_RETURN"><span class="n"><span class="pre">SHA3_RETURN</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sha3_return_t</span></span></span><a class="headerlink" href="#_CPPv413sha3_return_t" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv410SHA3_FLAGS">
+<span id="_CPPv310SHA3_FLAGS"></span><span id="_CPPv210SHA3_FLAGS"></span><span class="target" id="sha3_8h_1aeafb3c3d4034b10ca45439626146202d"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SHA3_FLAGS</span></span></span><a class="headerlink" href="#_CPPv410SHA3_FLAGS" title="Link to this definition">#</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10SHA3_FLAGS15SHA3_FLAGS_NONEE">
+<span id="_CPPv3N10SHA3_FLAGS15SHA3_FLAGS_NONEE"></span><span id="_CPPv2N10SHA3_FLAGS15SHA3_FLAGS_NONEE"></span><span class="target" id="sha3_8h_1aeafb3c3d4034b10ca45439626146202da81425a869c4a6882def4f3e34bdeb400"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SHA3_FLAGS_NONE</span></span></span><a class="headerlink" href="#_CPPv4N10SHA3_FLAGS15SHA3_FLAGS_NONEE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N10SHA3_FLAGS17SHA3_FLAGS_KECCAKE">
+<span id="_CPPv3N10SHA3_FLAGS17SHA3_FLAGS_KECCAKE"></span><span id="_CPPv2N10SHA3_FLAGS17SHA3_FLAGS_KECCAKE"></span><span class="target" id="sha3_8h_1aeafb3c3d4034b10ca45439626146202dad66fa299ed3f91105f43263ec0545a53"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SHA3_FLAGS_KECCAK</span></span></span><a class="headerlink" href="#_CPPv4N10SHA3_FLAGS17SHA3_FLAGS_KECCAKE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv411SHA3_RETURN">
+<span id="_CPPv311SHA3_RETURN"></span><span id="_CPPv211SHA3_RETURN"></span><span class="target" id="sha3_8h_1a4c7cb4d5ae71a49c9e882b9ccd61c836"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SHA3_RETURN</span></span></span><a class="headerlink" href="#_CPPv411SHA3_RETURN" title="Link to this definition">#</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N11SHA3_RETURN14SHA3_RETURN_OKE">
+<span id="_CPPv3N11SHA3_RETURN14SHA3_RETURN_OKE"></span><span id="_CPPv2N11SHA3_RETURN14SHA3_RETURN_OKE"></span><span class="target" id="sha3_8h_1a4c7cb4d5ae71a49c9e882b9ccd61c836ac75a9bc079c1d792891fd76d74573f59"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SHA3_RETURN_OK</span></span></span><a class="headerlink" href="#_CPPv4N11SHA3_RETURN14SHA3_RETURN_OKE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N11SHA3_RETURN22SHA3_RETURN_BAD_PARAMSE">
+<span id="_CPPv3N11SHA3_RETURN22SHA3_RETURN_BAD_PARAMSE"></span><span id="_CPPv2N11SHA3_RETURN22SHA3_RETURN_BAD_PARAMSE"></span><span class="target" id="sha3_8h_1a4c7cb4d5ae71a49c9e882b9ccd61c836ae7f774084fdb544d07ccbbab20292b7a"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">SHA3_RETURN_BAD_PARAMS</span></span></span><a class="headerlink" href="#_CPPv4N11SHA3_RETURN22SHA3_RETURN_BAD_PARAMSE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49sha3_InitP12sha3_contextj">
+<span id="_CPPv39sha3_InitP12sha3_contextj"></span><span id="_CPPv29sha3_InitP12sha3_contextj"></span><span id="sha3_Init__sha3_contextP.unsigned"></span><span class="target" id="sha3_8h_1aaa635e0b749c8a98c3704ad69f1be0e9"></span><a class="reference internal" href="#_CPPv413sha3_return_t" title="sha3_return_t"><span class="n"><span class="pre">sha3_return_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sha3_Init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412sha3_context" title="sha3_context"><span class="n"><span class="pre">sha3_context</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">priv</span></span>, <span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bitSize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49sha3_InitP12sha3_contextj" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412sha3_Init256P12sha3_context">
+<span id="_CPPv312sha3_Init256P12sha3_context"></span><span id="_CPPv212sha3_Init256P12sha3_context"></span><span id="sha3_Init256__sha3_contextP"></span><span class="target" id="sha3_8h_1ae640300abcb201ebbf7e04b28aa6c362"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sha3_Init256</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412sha3_context" title="sha3_context"><span class="n"><span class="pre">sha3_context</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">priv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412sha3_Init256P12sha3_context" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412sha3_Init384P12sha3_context">
+<span id="_CPPv312sha3_Init384P12sha3_context"></span><span id="_CPPv212sha3_Init384P12sha3_context"></span><span id="sha3_Init384__sha3_contextP"></span><span class="target" id="sha3_8h_1a3f51f0b9222f14e8f3b723477dd3ca99"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sha3_Init384</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412sha3_context" title="sha3_context"><span class="n"><span class="pre">sha3_context</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">priv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412sha3_Init384P12sha3_context" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412sha3_Init512P12sha3_context">
+<span id="_CPPv312sha3_Init512P12sha3_context"></span><span id="_CPPv212sha3_Init512P12sha3_context"></span><span id="sha3_Init512__sha3_contextP"></span><span class="target" id="sha3_8h_1af7c718de4c0b18b5841628268d1713e5"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sha3_Init512</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412sha3_context" title="sha3_context"><span class="n"><span class="pre">sha3_context</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">priv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412sha3_Init512P12sha3_context" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413sha3_SetFlagsP12sha3_context10SHA3_FLAGS">
+<span id="_CPPv313sha3_SetFlagsP12sha3_context10SHA3_FLAGS"></span><span id="_CPPv213sha3_SetFlagsP12sha3_context10SHA3_FLAGS"></span><span id="sha3_SetFlags__sha3_contextP.SHA3_FLAGS"></span><span class="target" id="sha3_8h_1ab2e36aa9277cc75fee2b7e760fddf680"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410SHA3_FLAGS" title="SHA3_FLAGS"><span class="n"><span class="pre">SHA3_FLAGS</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sha3_SetFlags</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412sha3_context" title="sha3_context"><span class="n"><span class="pre">sha3_context</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">priv</span></span>, <span class="k"><span class="pre">enum</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410SHA3_FLAGS" title="SHA3_FLAGS"><span class="n"><span class="pre">SHA3_FLAGS</span></span></a><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413sha3_SetFlagsP12sha3_context10SHA3_FLAGS" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411sha3_UpdateP12sha3_contextPKv6size_t">
+<span id="_CPPv311sha3_UpdateP12sha3_contextPKv6size_t"></span><span id="_CPPv211sha3_UpdateP12sha3_contextPKv6size_t"></span><span id="sha3_Update__sha3_contextP.voidCP.s"></span><span class="target" id="sha3_8h_1a6bab04bb986652f1a302a6028a3d39e3"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sha3_Update</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412sha3_context" title="sha3_context"><span class="n"><span class="pre">sha3_context</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">priv</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">bufIn</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411sha3_UpdateP12sha3_contextPKv6size_t" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413sha3_FinalizeP12sha3_context">
+<span id="_CPPv313sha3_FinalizeP12sha3_context"></span><span id="_CPPv213sha3_FinalizeP12sha3_context"></span><span id="sha3_Finalize__sha3_contextP"></span><span class="target" id="sha3_8h_1a804cff5a4c53c5b3f120b232759f2dd6"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">sha3_Finalize</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412sha3_context" title="sha3_context"><span class="n"><span class="pre">sha3_context</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">priv</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413sha3_FinalizeP12sha3_context" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415sha3_HashBufferj10SHA3_FLAGSPKvjPvj">
+<span id="_CPPv315sha3_HashBufferj10SHA3_FLAGSPKvjPvj"></span><span id="_CPPv215sha3_HashBufferj10SHA3_FLAGSPKvjPvj"></span><span id="sha3_HashBuffer__unsigned.SHA3_FLAGS.voidCP.unsigned.voidP.unsigned"></span><span class="target" id="sha3_8h_1a5c4a3f0bf42eb447a47ab229815be83f"></span><a class="reference internal" href="#_CPPv413sha3_return_t" title="sha3_return_t"><span class="n"><span class="pre">sha3_return_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sha3_HashBuffer</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bitSize</span></span>, <span class="k"><span class="pre">enum</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410SHA3_FLAGS" title="SHA3_FLAGS"><span class="n"><span class="pre">SHA3_FLAGS</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">in</span></span>, <span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">inBytes</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">out</span></span>, <span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">outBytes</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415sha3_HashBufferj10SHA3_FLAGSPKvjPvj" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv412sha3_context">
+<span id="_CPPv312sha3_context"></span><span id="_CPPv212sha3_context"></span><span id="sha3_context"></span><span class="target" id="structsha3__context"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sha3_context</span></span></span><a class="headerlink" href="#_CPPv412sha3_context" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12sha3_context5savedE">
+<span id="_CPPv3N12sha3_context5savedE"></span><span id="_CPPv2N12sha3_context5savedE"></span><span id="sha3_context::saved__uint64_t"></span><span class="target" id="structsha3__context_1a9472dcdd825ca1faddf8177ecac3fe1b"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">saved</span></span></span><a class="headerlink" href="#_CPPv4N12sha3_context5savedE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12sha3_context1sE">
+<span id="_CPPv3N12sha3_context1sE"></span><span id="_CPPv2N12sha3_context1sE"></span><span id="sha3_context::s__uint64_tA"></span><span class="target" id="structsha3__context_1a99f1d47809275bbf4ee5721383a45c8e"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">s</span></span></span><span class="p"><span class="pre">[</span></span><span class="n"><span class="pre">SHA3_KECCAK_SPONGE_WORDS</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N12sha3_context1sE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12sha3_context2sbE">
+<span id="_CPPv3N12sha3_context2sbE"></span><span id="_CPPv2N12sha3_context2sbE"></span><span id="sha3_context::sb__uint8_tA"></span><span class="target" id="structsha3__context_1a0146636946e818eec441d64c08bce6ec"></span><span class="n"><span class="pre">uint8_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">sb</span></span></span><span class="p"><span class="pre">[</span></span><span class="n"><span class="pre">SHA3_KECCAK_SPONGE_WORDS</span></span><span class="w"> </span><span class="o"><span class="pre">*</span></span><span class="w"> </span><span class="m"><span class="pre">8</span></span><span class="p"><span class="pre">]</span></span><a class="headerlink" href="#_CPPv4N12sha3_context2sbE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12sha3_context1uE">
+<span id="_CPPv3N12sha3_context1uE"></span><span id="_CPPv2N12sha3_context1uE"></span><span id="sha3_context::u__sha3_context"></span><span class="target" id="structsha3__context_1a7c33e9834e44ea3de2a542b8d9aa984c"></span><span class="k"><span class="pre">union</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv412sha3_context" title="sha3_context"><span class="n"><span class="pre">sha3_context</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">u</span></span></span><a class="headerlink" href="#_CPPv4N12sha3_context1uE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12sha3_context9byteIndexE">
+<span id="_CPPv3N12sha3_context9byteIndexE"></span><span id="_CPPv2N12sha3_context9byteIndexE"></span><span id="sha3_context::byteIndex__unsigned"></span><span class="target" id="structsha3__context_1aca727abcceadc67be2c7487543b1d281"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">byteIndex</span></span></span><a class="headerlink" href="#_CPPv4N12sha3_context9byteIndexE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12sha3_context9wordIndexE">
+<span id="_CPPv3N12sha3_context9wordIndexE"></span><span id="_CPPv2N12sha3_context9wordIndexE"></span><span id="sha3_context::wordIndex__unsigned"></span><span class="target" id="structsha3__context_1a2357bc0a767826ff77e16fe7e29de69d"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">wordIndex</span></span></span><a class="headerlink" href="#_CPPv4N12sha3_context9wordIndexE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N12sha3_context13capacityWordsE">
+<span id="_CPPv3N12sha3_context13capacityWordsE"></span><span id="_CPPv2N12sha3_context13capacityWordsE"></span><span id="sha3_context::capacityWords__unsigned"></span><span class="target" id="structsha3__context_1a7c6bff9c35059d22963f491c0b0f27cf"></span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">capacityWords</span></span></span><a class="headerlink" href="#_CPPv4N12sha3_context13capacityWordsE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="sha1.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">sha1</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="strtob.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">strtob</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413sha3_return_t"><code class="docutils literal notranslate"><span class="pre">sha3_return_t</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410SHA3_FLAGS"><code class="docutils literal notranslate"><span class="pre">SHA3_FLAGS</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10SHA3_FLAGS15SHA3_FLAGS_NONEE"><code class="docutils literal notranslate"><span class="pre">SHA3_FLAGS::SHA3_FLAGS_NONE</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10SHA3_FLAGS17SHA3_FLAGS_KECCAKE"><code class="docutils literal notranslate"><span class="pre">SHA3_FLAGS::SHA3_FLAGS_KECCAK</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411SHA3_RETURN"><code class="docutils literal notranslate"><span class="pre">SHA3_RETURN</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11SHA3_RETURN14SHA3_RETURN_OKE"><code class="docutils literal notranslate"><span class="pre">SHA3_RETURN::SHA3_RETURN_OK</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11SHA3_RETURN22SHA3_RETURN_BAD_PARAMSE"><code class="docutils literal notranslate"><span class="pre">SHA3_RETURN::SHA3_RETURN_BAD_PARAMS</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49sha3_InitP12sha3_contextj"><code class="docutils literal notranslate"><span class="pre">sha3_Init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412sha3_Init256P12sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_Init256()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412sha3_Init384P12sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_Init384()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412sha3_Init512P12sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_Init512()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413sha3_SetFlagsP12sha3_context10SHA3_FLAGS"><code class="docutils literal notranslate"><span class="pre">sha3_SetFlags()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411sha3_UpdateP12sha3_contextPKv6size_t"><code class="docutils literal notranslate"><span class="pre">sha3_Update()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413sha3_FinalizeP12sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_Finalize()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415sha3_HashBufferj10SHA3_FLAGSPKvjPvj"><code class="docutils literal notranslate"><span class="pre">sha3_HashBuffer()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412sha3_context"><code class="docutils literal notranslate"><span class="pre">sha3_context</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context5savedE"><code class="docutils literal notranslate"><span class="pre">sha3_context::saved</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context1sE"><code class="docutils literal notranslate"><span class="pre">sha3_context::s</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context2sbE"><code class="docutils literal notranslate"><span class="pre">sha3_context::sb</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context1uE"><code class="docutils literal notranslate"><span class="pre">sha3_context::u</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context9byteIndexE"><code class="docutils literal notranslate"><span class="pre">sha3_context::byteIndex</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context9wordIndexE"><code class="docutils literal notranslate"><span class="pre">sha3_context::wordIndex</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12sha3_context13capacityWordsE"><code class="docutils literal notranslate"><span class="pre">sha3_context::capacityWords</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

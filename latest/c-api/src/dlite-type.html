@@ -1,0 +1,1113 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dlite-type &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/dlite-type';</script>
+    <script src="../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dlite" href="dlite.html" />
+    <link rel="prev" title="dlite-type-cast" href="dlite-type-cast.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/dlite-type.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/c-api/src/dlite-type.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dlite-type</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DLiteRelation"><code class="docutils literal notranslate"><span class="pre">DLiteRelation</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DLiteTypeCast"><code class="docutils literal notranslate"><span class="pre">DLiteTypeCast</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49DLiteType"><code class="docutils literal notranslate"><span class="pre">DLiteType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType9dliteBlobE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteBlob</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType9dliteBoolE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteBool</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType8dliteIntE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteInt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType9dliteUIntE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteUInt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType10dliteFloatE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteFloat</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType14dliteFixStringE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteFixString</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType14dliteStringPtrE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteStringPtr</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType8dliteRefE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteRef</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType14dliteDimensionE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteDimension</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType13dlitePropertyE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteProperty</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType13dliteRelationE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteRelation</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DLiteTypeFlag"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag16dliteFlagDefaultE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagDefault</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag12dliteFlagRawE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagRaw</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag15dliteFlagQuotedE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagQuoted</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag14dliteFlagStripE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagStrip</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag19dliteFlagCompactRelE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagCompactRel</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_type_get_dtypename9DLiteType"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_dtypename()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_type_get_enum_name9DLiteType"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_enum_name()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_type_get_dtypePKc"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_dtype()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_type_set_typename9DLiteType6size_tPc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_typename()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_type_set_ftype9DLiteType6size_tPc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_ftype()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_type_set_isoctype9DLiteType6size_tPc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_isoctype()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_type_set_cdecl9DLiteType6size_tPKc6size_tPc6size_ti"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_cdecl()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_is_typePKc"><code class="docutils literal notranslate"><span class="pre">dlite_is_type()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv429dlite_type_set_dtype_and_sizePKcP9DLiteTypeP6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_dtype_and_size()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_type_is_allocated9DLiteType"><code class="docutils literal notranslate"><span class="pre">dlite_type_is_allocated()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_type_copyPvPKv9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_copy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_type_clearPv9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_clear()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_type_printPc6size_tPKv9DLiteType6size_tii13DLiteTypeFlag"><code class="docutils literal notranslate"><span class="pre">dlite_type_print()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_type_aprintPPcP6size_t6size_tPKv9DLiteType6size_tii13DLiteTypeFlag"><code class="docutils literal notranslate"><span class="pre">dlite_type_aprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_type_scanPKciPv9DLiteType6size_t13DLiteTypeFlag"><code class="docutils literal notranslate"><span class="pre">dlite_type_scan()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_type_update_sha3P12sha3_contextPKv9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_update_sha3()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_type_get_alignment9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_alignment()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_type_padding_at9DLiteType6size_t6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_padding_at()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv428dlite_type_get_member_offset6size_t6size_t9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_member_offset()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_type_ndcastiPv9DLiteType6size_tPK6size_tPKiPKv9DLiteType6size_tPK6size_tPKi13DLiteTypeCast"><code class="docutils literal notranslate"><span class="pre">dlite_type_ndcast()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dlite-type">
+<h1>dlite-type<a class="headerlink" href="#dlite-type" title="Link to this heading">#</a></h1>
+<p>Data types for instance properties. </p>
+<p>The types of properties is in DLite described by its <code class="docutils literal notranslate"><span class="pre">dtype</span></code> (a type number from enum DLiteType) and <code class="docutils literal notranslate"><span class="pre">size</span></code> (size in bytes of a single data point).</p>
+<p>Note that the type (<code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code>) concerns a single data point. The dimensionality (<code class="docutils literal notranslate"><span class="pre">ndims</span></code> and <code class="docutils literal notranslate"><span class="pre">shape</span></code>) of a property comes in addition and is not treated by the functions in this file.</p>
+<p>The properties can have most of the basic types found in C, with some additions, as summarised in the table below:</p>
+<p><div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>type   </p></th>
+<th class="head"><p>dtype   </p></th>
+<th class="head"><p>sizes   </p></th>
+<th class="head"><p>pointer   </p></th>
+<th class="head"><p>description   </p></th>
+<th class="head"><p>examples names    </p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>blob   </p></td>
+<td><p>dliteBlob   </p></td>
+<td><p>any   </p></td>
+<td><p>uint8_t *   </p></td>
+<td><p>binary blob, sequence of bytes   </p></td>
+<td><p>blob32, blob128    </p></td>
+</tr>
+<tr class="row-odd"><td><p>bool   </p></td>
+<td><p>dliteBool   </p></td>
+<td><p>sizeof(bool)   </p></td>
+<td><p>bool *   </p></td>
+<td><p>boolean   </p></td>
+<td><p>bool    </p></td>
+</tr>
+<tr class="row-even"><td><p>int   </p></td>
+<td><p>dliteInt   </p></td>
+<td><p>1, 2, 4, {8}   </p></td>
+<td><p>int8_t *, int16_t *, …   </p></td>
+<td><p>signed integer   </p></td>
+<td><p>(int), int8, int16, int32, {int64}    </p></td>
+</tr>
+<tr class="row-odd"><td><p>uint   </p></td>
+<td><p>dliteUInt   </p></td>
+<td><p>1, 2, 4, {8}   </p></td>
+<td><p>uint8_t *, uint16_t *, …   </p></td>
+<td><p>unsigned integer   </p></td>
+<td><p>(uint), uint8, uint16, uint32, {uint64}    </p></td>
+</tr>
+<tr class="row-even"><td><p>float   </p></td>
+<td><p>dliteFloat   </p></td>
+<td><p>4, 8, {10, 16}   </p></td>
+<td><p>float32_t *, float64_t *, …   </p></td>
+<td><p>floating point   </p></td>
+<td><p>(float), (double), float32, float64, {float80, float128}    </p></td>
+</tr>
+<tr class="row-odd"><td><p>fixstring   </p></td>
+<td><p>dliteFixString   </p></td>
+<td><p>any   </p></td>
+<td><p>char *   </p></td>
+<td><p>fix-sized NUL-terminated string   </p></td>
+<td><p>string20    </p></td>
+</tr>
+<tr class="row-even"><td><p>string   </p></td>
+<td><p>dliteStringPtr   </p></td>
+<td><p>sizeof(char *)   </p></td>
+<td><p>char **   </p></td>
+<td><p>pointer to NUL-terminated string   </p></td>
+<td><p>string    </p></td>
+</tr>
+<tr class="row-odd"><td><p>ref   </p></td>
+<td><p>dliteRef   </p></td>
+<td><p>sizeof(DLiteRef)   </p></td>
+<td><p>DLiteRef *   </p></td>
+<td><p>pointer to instance pointer   </p></td>
+<td><p><a class="reference external" href="http://onto-ns.com/meta/0.1/Person">http://onto-ns.com/meta/0.1/Person</a></p></td>
+</tr>
+<tr class="row-even"><td><p>dimension   </p></td>
+<td><p>dliteDimension   </p></td>
+<td><p>sizeof(DLiteDimension)   </p></td>
+<td><p>DLiteDimension *   </p></td>
+<td><p>only intended for metadata   </p></td>
+<td><p>dimension    </p></td>
+</tr>
+<tr class="row-odd"><td><p>property   </p></td>
+<td><p>dliteProperty   </p></td>
+<td><p>sizeof(DLiteProperty)   </p></td>
+<td><p>DLiteProperty *   </p></td>
+<td><p>only intended for metadata   </p></td>
+<td><p>property    </p></td>
+</tr>
+<tr class="row-even"><td><p>relation   </p></td>
+<td><p>dliteRelation   </p></td>
+<td><p>sizeof(DLiteRelation)   </p></td>
+<td><p>DLiteRelation *   </p></td>
+<td><p>subject-predicate-object triple   </p></td>
+<td><p>relation   </p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>The column “pointer” shows the C type of the <code class="docutils literal notranslate"><span class="pre">ptr</span></code> argument for functions like dlite_instance_get_property() and dlite_instance_set_property(). Note that this pointer type is the same regardless we are referring to a scalar or an array. For arrays the pointer points to the first element.</p>
+<p>The column “examples names” shows examples of how these types whould be written when specifying the type of a property.<ul class="simple">
+<li><p>The type names in parenthesis are included for portability with SOFT5, but not encouraged because their may vary between platforms.</p></li>
+<li><p>The type names in curly brackets may not be defined on all platforms. The headers “integers.h” and “floats.h” provides macros like <code class="docutils literal notranslate"><span class="pre">HAVE_INT64_T</span></code>, <code class="docutils literal notranslate"><span class="pre">HAVE_FLOAT128_T</span></code>… that can be used to check for availability.</p></li>
+</ul>
+</p>
+<p>Some additional notes:<ul class="simple">
+<li><p><em>blob</em>: is a sequence of bytes of length <code class="docutils literal notranslate"><span class="pre">size</span></code>. When writing the type name, you should always append the size as shown in the examples in table.</p></li>
+<li><p><em>bool</em>: corresponds to the bool type as defined in &lt;stdbool.h&gt;. To support systems lacking &lt;stdbool.h&gt; you can use “boolean.h” provided by dlite.</p></li>
+<li><p><em>fixstring</em>: corresponds to <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">fixstring[size]</span></code> in C. The size includes the terminating NUL.</p></li>
+<li><p><em>string</em>: corresponds to <code class="docutils literal notranslate"><span class="pre">char</span> <span class="pre">*string</span></code> in C, pointing to memory allocated with malloc(). If you free a string, you should always set the pointer to NULL, since functions like dlite_entity_free() otherwise will try to free it again, causing memory corruption.</p></li>
+<li><p><em>relation</em>: a subject-predicate-object triple defined in <code class="docutils literal notranslate"><span class="pre">triplestore.h</span></code>. In addition have all triples an id, allowing a relation to refer to another relation.</p></li>
+<li><p><em>dimension</em>: Name and description of a dimension. Only intended for metadata.</p></li>
+<li><p><em>property</em>: Name and full description of a property. Only intended for metadata. </p></li>
+</ul>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.alignof">
+<span class="target" id="dlite-type_8h_1aca526298ed34ef6fe2b1b11a8280fdd6"></span><span class="sig-name descname"><span class="n"><span class="pre">alignof</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.alignof" title="Link to this definition">#</a><br /></dt>
+<dd><p>Expands to the struct alignment of type </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.padding_at">
+<span class="target" id="dlite-type_8h_1a78435326b9b6e3569ffcefe6bc6f9c60"></span><span class="sig-name descname"><span class="n"><span class="pre">padding_at</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">type</span></span>, <span class="n"><span class="pre">offset</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.padding_at" title="Link to this definition">#</a><br /></dt>
+<dd><p>Expands to the amount of padding that should be added before <code class="docutils literal notranslate"><span class="pre">type</span></code> if <code class="docutils literal notranslate"><span class="pre">type</span></code> is to be added to a struct at offset <code class="docutils literal notranslate"><span class="pre">offset</span></code>. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv413DLiteRelation">
+<span id="_CPPv313DLiteRelation"></span><span id="_CPPv213DLiteRelation"></span><span id="DLiteRelation"></span><span class="target" id="dlite-type_8h_1a4d1825d57cd55c5c273b4a46cf6fda2e"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">_Triple</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteRelation</span></span></span><a class="headerlink" href="#_CPPv413DLiteRelation" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv413DLiteTypeCast">
+<span id="_CPPv313DLiteTypeCast"></span><span id="_CPPv213DLiteTypeCast"></span><span id="DLiteTypeCast"></span><span class="target" id="dlite-type_8h_1a09ec7018499a96d0e4c832c62457dc31"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">DLiteTypeCast</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">dest</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n"><span class="pre">dest_type</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">dest_size</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">src</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n"><span class="pre">src_type</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">src_size</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv413DLiteTypeCast" title="Link to this definition">#</a><br /></dt>
+<dd><p>Function prototype that copies value from <code class="docutils literal notranslate"><span class="pre">src</span></code> to <code class="docutils literal notranslate"><span class="pre">dest</span></code>. If <code class="docutils literal notranslate"><span class="pre">dest_type</span></code> and <code class="docutils literal notranslate"><span class="pre">dest_size</span></code> differs from <code class="docutils literal notranslate"><span class="pre">src_type</span></code> and <code class="docutils literal notranslate"><span class="pre">src_size</span></code> the value will be casted, if possible.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">dest_type</span></code> contains allocated data, new memory should be allocated for <code class="docutils literal notranslate"><span class="pre">dest</span></code>. Information may get lost in this case.</p>
+<p>Returns non-zero on error or if the cast is not supported. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv49DLiteType">
+<span id="_CPPv39DLiteType"></span><span id="_CPPv29DLiteType"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteType</span></span></span><a class="headerlink" href="#_CPPv49DLiteType" title="Link to this definition">#</a><br /></dt>
+<dd><p>Basic data types </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType9dliteBlobE">
+<span id="_CPPv3N9DLiteType9dliteBlobE"></span><span id="_CPPv2N9DLiteType9dliteBlobE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7a97e4477c52821d0791fabdab74a0e7f4"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteBlob</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType9dliteBlobE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Binary blob, sequence of bytes </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType9dliteBoolE">
+<span id="_CPPv3N9DLiteType9dliteBoolE"></span><span id="_CPPv2N9DLiteType9dliteBoolE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7a00a640370ebeca63f672ef3745a1bc8f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteBool</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType9dliteBoolE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Boolean </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType8dliteIntE">
+<span id="_CPPv3N9DLiteType8dliteIntE"></span><span id="_CPPv2N9DLiteType8dliteIntE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7a30bd6feb450f0ebee0cb70c10dfe7c17"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteInt</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType8dliteIntE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Signed integer </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType9dliteUIntE">
+<span id="_CPPv3N9DLiteType9dliteUIntE"></span><span id="_CPPv2N9DLiteType9dliteUIntE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7a096fc5b7c3a889b8cf115743df492213"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteUInt</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType9dliteUIntE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Unigned integer </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType10dliteFloatE">
+<span id="_CPPv3N9DLiteType10dliteFloatE"></span><span id="_CPPv2N9DLiteType10dliteFloatE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7a91e1d45734dc55bc72e07f0881a9c93d"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteFloat</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType10dliteFloatE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Floating point </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType14dliteFixStringE">
+<span id="_CPPv3N9DLiteType14dliteFixStringE"></span><span id="_CPPv2N9DLiteType14dliteFixStringE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7af8edee8189b0b4d0c75c495d20d98f86"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteFixString</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType14dliteFixStringE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Fix-sized NUL-terminated string </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType14dliteStringPtrE">
+<span id="_CPPv3N9DLiteType14dliteStringPtrE"></span><span id="_CPPv2N9DLiteType14dliteStringPtrE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7ade13ea7085ece04286374bfae737bb8f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteStringPtr</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType14dliteStringPtrE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Pointer to NUL-terminated string </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType8dliteRefE">
+<span id="_CPPv3N9DLiteType8dliteRefE"></span><span id="_CPPv2N9DLiteType8dliteRefE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7a37259afd5302038594c156b29cc597c1"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteRef</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType8dliteRefE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reference to instance </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType14dliteDimensionE">
+<span id="_CPPv3N9DLiteType14dliteDimensionE"></span><span id="_CPPv2N9DLiteType14dliteDimensionE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7aba2f6d339bece42c323aca80f55bf50c"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteDimension</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType14dliteDimensionE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Dimension, for entities </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType13dlitePropertyE">
+<span id="_CPPv3N9DLiteType13dlitePropertyE"></span><span id="_CPPv2N9DLiteType13dlitePropertyE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7a0eba9b3aa0ac31a24d0a1db849588a61"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteProperty</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType13dlitePropertyE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Property, for entities </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9DLiteType13dliteRelationE">
+<span id="_CPPv3N9DLiteType13dliteRelationE"></span><span id="_CPPv2N9DLiteType13dliteRelationE"></span><span class="target" id="dlite-type_8h_1a991c402354406a6476f78c095f0fc2c7a8cd85519abc377f4f861c64d6d5ef12f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteRelation</span></span></span><a class="headerlink" href="#_CPPv4N9DLiteType13dliteRelationE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Subject-predicate-object relation </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv413DLiteTypeFlag">
+<span id="_CPPv313DLiteTypeFlag"></span><span id="_CPPv213DLiteTypeFlag"></span><span class="target" id="dlite-type_8h_1a8256ef8db47c6f55c291b807309aa89b"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteTypeFlag</span></span></span><a class="headerlink" href="#_CPPv413DLiteTypeFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Some flags for printing or scanning dlite types </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteTypeFlag16dliteFlagDefaultE">
+<span id="_CPPv3N13DLiteTypeFlag16dliteFlagDefaultE"></span><span id="_CPPv2N13DLiteTypeFlag16dliteFlagDefaultE"></span><span class="target" id="dlite-type_8h_1a8256ef8db47c6f55c291b807309aa89baa68f06261a6800bf43447a423d0a91bb"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteFlagDefault</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteTypeFlag16dliteFlagDefaultE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Default (json) </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteTypeFlag12dliteFlagRawE">
+<span id="_CPPv3N13DLiteTypeFlag12dliteFlagRawE"></span><span id="_CPPv2N13DLiteTypeFlag12dliteFlagRawE"></span><span class="target" id="dlite-type_8h_1a8256ef8db47c6f55c291b807309aa89babfe73de52c867dbeb46ddaba737fbb98"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteFlagRaw</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteTypeFlag12dliteFlagRawE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Raw unquoted input/output </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteTypeFlag15dliteFlagQuotedE">
+<span id="_CPPv3N13DLiteTypeFlag15dliteFlagQuotedE"></span><span id="_CPPv2N13DLiteTypeFlag15dliteFlagQuotedE"></span><span class="target" id="dlite-type_8h_1a8256ef8db47c6f55c291b807309aa89bacf8d1302e43c98bf3ddd1348e9324dc6"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteFlagQuoted</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteTypeFlag15dliteFlagQuotedE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Quoted input/output </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteTypeFlag14dliteFlagStripE">
+<span id="_CPPv3N13DLiteTypeFlag14dliteFlagStripE"></span><span id="_CPPv2N13DLiteTypeFlag14dliteFlagStripE"></span><span class="target" id="dlite-type_8h_1a8256ef8db47c6f55c291b807309aa89ba8d66b6e362ea4e4957b6fc170a1fcde8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteFlagStrip</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteTypeFlag14dliteFlagStripE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Strip initial and final spaces </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N13DLiteTypeFlag19dliteFlagCompactRelE">
+<span id="_CPPv3N13DLiteTypeFlag19dliteFlagCompactRelE"></span><span id="_CPPv2N13DLiteTypeFlag19dliteFlagCompactRelE"></span><span class="target" id="dlite-type_8h_1a8256ef8db47c6f55c291b807309aa89baff6fb62d7772022086eafe1d85d42d71"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteFlagCompactRel</span></span></span><a class="headerlink" href="#_CPPv4N13DLiteTypeFlag19dliteFlagCompactRelE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Write relations with no newlines </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_type_get_dtypename9DLiteType">
+<span id="_CPPv324dlite_type_get_dtypename9DLiteType"></span><span id="_CPPv224dlite_type_get_dtypename9DLiteType"></span><span id="dlite_type_get_dtypename__DLiteType"></span><span class="target" id="dlite-type_8h_1a1b7b2e76065877ba8193225f620f4cb8"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_get_dtypename</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_type_get_dtypename9DLiteType" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns descriptive name for <code class="docutils literal notranslate"><span class="pre">dtype</span></code> or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_type_get_enum_name9DLiteType">
+<span id="_CPPv324dlite_type_get_enum_name9DLiteType"></span><span id="_CPPv224dlite_type_get_enum_name9DLiteType"></span><span id="dlite_type_get_enum_name__DLiteType"></span><span class="target" id="dlite-type_8h_1aa043b12b6c02a1297fd64ea26fd98542"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_get_enum_name</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_type_get_enum_name9DLiteType" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns enum name for <code class="docutils literal notranslate"><span class="pre">dtype</span></code> or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_type_get_dtypePKc">
+<span id="_CPPv320dlite_type_get_dtypePKc"></span><span id="_CPPv220dlite_type_get_dtypePKc"></span><span id="dlite_type_get_dtype__cCP"></span><span class="target" id="dlite-type_8h_1aa57488c9629eeaf7fc5e8632ca6a5057"></span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_get_dtype</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dtypename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_type_get_dtypePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the dtype corresponding to <code class="docutils literal notranslate"><span class="pre">dtypename</span></code> or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_type_set_typename9DLiteType6size_tPc6size_t">
+<span id="_CPPv323dlite_type_set_typename9DLiteType6size_tPc6size_t"></span><span id="_CPPv223dlite_type_set_typename9DLiteType6size_tPc6size_t"></span><span id="dlite_type_set_typename__DLiteType.s.cP.s"></span><span class="target" id="dlite-type_8h_1a6ca1a4798f33e141dc957731eb8b3e16"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_set_typename</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">typename</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_type_set_typename9DLiteType6size_tPc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Writes the type name corresponding to <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code> to <code class="docutils literal notranslate"><span class="pre">typename</span></code>, which must be of size <code class="docutils literal notranslate"><span class="pre">n</span></code>. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_type_set_ftype9DLiteType6size_tPc6size_t">
+<span id="_CPPv320dlite_type_set_ftype9DLiteType6size_tPc6size_t"></span><span id="_CPPv220dlite_type_set_ftype9DLiteType6size_tPc6size_t"></span><span id="dlite_type_set_ftype__DLiteType.s.cP.s"></span><span class="target" id="dlite-type_8h_1ae4e0c70ea6ed1f3bfd37485c77c25456"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_set_ftype</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ftype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_type_set_ftype9DLiteType6size_tPc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Writes the fortran type name corresponding to <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code> to <code class="docutils literal notranslate"><span class="pre">typename</span></code>, which must be of size <code class="docutils literal notranslate"><span class="pre">n</span></code>. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_type_set_isoctype9DLiteType6size_tPc6size_t">
+<span id="_CPPv323dlite_type_set_isoctype9DLiteType6size_tPc6size_t"></span><span id="_CPPv223dlite_type_set_isoctype9DLiteType6size_tPc6size_t"></span><span id="dlite_type_set_isoctype__DLiteType.s.cP.s"></span><span class="target" id="dlite-type_8h_1af0a2fdb5a847881e32caba7c6ea7eb35"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_set_isoctype</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">isoctype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_type_set_isoctype9DLiteType6size_tPc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Writes the Fortran ISO_C_BINDING type name corresponding to <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code> to <code class="docutils literal notranslate"><span class="pre">isoctype</span></code>, which must be of size <code class="docutils literal notranslate"><span class="pre">n</span></code>. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_type_set_cdecl9DLiteType6size_tPKc6size_tPc6size_ti">
+<span id="_CPPv320dlite_type_set_cdecl9DLiteType6size_tPKc6size_tPc6size_ti"></span><span id="_CPPv220dlite_type_set_cdecl9DLiteType6size_tPKc6size_tPc6size_ti"></span><span id="dlite_type_set_cdecl__DLiteType.s.cCP.s.cP.s.i"></span><span class="target" id="dlite-type_8h_1a963257a36b0e29449a15fb24470a21b4"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_set_cdecl</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">nref</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pcdecl</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">native</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_type_set_cdecl9DLiteType6size_tPKc6size_tPc6size_ti" title="Link to this definition">#</a><br /></dt>
+<dd><p>Writes C declaration to <code class="docutils literal notranslate"><span class="pre">cdecl</span></code> of a C variable with given <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code>. The size of the memory pointed to by <code class="docutils literal notranslate"><span class="pre">cdecl</span></code> must be at least <code class="docutils literal notranslate"><span class="pre">n</span></code> bytes.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">native</span></code> is non-zero, the native typename will be written to <code class="docutils literal notranslate"><span class="pre">pcdecl</span></code> (e.g. “double”) instead of the portable typename (e.g. “float64_t”).</p>
+<p><code class="docutils literal notranslate"><span class="pre">name</span></code> is the name of the C variable.</p>
+<p><code class="docutils literal notranslate"><span class="pre">nref</span></code> is the number of extra * to add in front of <code class="docutils literal notranslate"><span class="pre">name</span></code>.</p>
+<p>Returns the number of bytes written or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413dlite_is_typePKc">
+<span id="_CPPv313dlite_is_typePKc"></span><span id="_CPPv213dlite_is_typePKc"></span><span id="dlite_is_type__cCP"></span><span class="target" id="dlite-type_8h_1a3394a5f1d9bdf9dad8da4d272ad8549d"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_is_type</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413dlite_is_typePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns true if name is a DLiteType, otherwise false. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv429dlite_type_set_dtype_and_sizePKcP9DLiteTypeP6size_t">
+<span id="_CPPv329dlite_type_set_dtype_and_sizePKcP9DLiteTypeP6size_t"></span><span id="_CPPv229dlite_type_set_dtype_and_sizePKcP9DLiteTypeP6size_t"></span><span id="dlite_type_set_dtype_and_size__cCP.DLiteTypeP.sP"></span><span class="target" id="dlite-type_8h_1a0b5998a6faef5b55b38e98db6145910d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_set_dtype_and_size</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">typename</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv429dlite_type_set_dtype_and_sizePKcP9DLiteTypeP6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Assigns <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code> from <code class="docutils literal notranslate"><span class="pre">typename</span></code>.</p>
+<p>Characters other than alphanumerics or underscore may follow the type name.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_type_is_allocated9DLiteType">
+<span id="_CPPv323dlite_type_is_allocated9DLiteType"></span><span id="_CPPv223dlite_type_is_allocated9DLiteType"></span><span id="dlite_type_is_allocated__DLiteType"></span><span class="target" id="dlite-type_8h_1a53e9efcfe8dbd2946865d15009799c51"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_is_allocated</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_type_is_allocated9DLiteType" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if <code class="docutils literal notranslate"><span class="pre">dtype</span></code> contains allocated data, like dliteStringPtr. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415dlite_type_copyPvPKv9DLiteType6size_t">
+<span id="_CPPv315dlite_type_copyPvPKv9DLiteType6size_t"></span><span id="_CPPv215dlite_type_copyPvPKv9DLiteType6size_t"></span><span id="dlite_type_copy__voidP.voidCP.DLiteType.s"></span><span class="target" id="dlite-type_8h_1aebd4f51aa241338bc27706f80490df40"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_copy</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415dlite_type_copyPvPKv9DLiteType6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Copies value of given dtype from <code class="docutils literal notranslate"><span class="pre">src</span></code> to <code class="docutils literal notranslate"><span class="pre">dest</span></code>. If the dtype contains allocated data, new memory will be allocated for <code class="docutils literal notranslate"><span class="pre">dest</span></code>.</p>
+<p>Returns a pointer to the memory area <code class="docutils literal notranslate"><span class="pre">dest</span></code> or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_type_clearPv9DLiteType6size_t">
+<span id="_CPPv316dlite_type_clearPv9DLiteType6size_t"></span><span id="_CPPv216dlite_type_clearPv9DLiteType6size_t"></span><span id="dlite_type_clear__voidP.DLiteType.s"></span><span class="target" id="dlite-type_8h_1a6e6b71f47c455b7d84bd15d47486651e"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_clear</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_type_clearPv9DLiteType6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Clears the memory pointed to by <code class="docutils literal notranslate"><span class="pre">p</span></code>. Its type is gived by <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p>
+<p>Returns a pointer to the memory area <code class="docutils literal notranslate"><span class="pre">p</span></code> or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_type_printPc6size_tPKv9DLiteType6size_tii13DLiteTypeFlag">
+<span id="_CPPv316dlite_type_printPc6size_tPKv9DLiteType6size_tii13DLiteTypeFlag"></span><span id="_CPPv216dlite_type_printPc6size_tPKv9DLiteType6size_tii13DLiteTypeFlag"></span><span id="dlite_type_print__cP.s.voidCP.DLiteType.s.i.i.DLiteTypeFlag"></span><span class="target" id="dlite-type_8h_1ac017701cd8956cce2a0149bc30700f98"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_print</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">width</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">prec</span></span>, <a class="reference internal" href="#_CPPv413DLiteTypeFlag" title="DLiteTypeFlag"><span class="n"><span class="pre">DLiteTypeFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_type_printPc6size_tPKv9DLiteType6size_tii13DLiteTypeFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Serialises data of type <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and size <code class="docutils literal notranslate"><span class="pre">size</span></code> pointed to by <code class="docutils literal notranslate"><span class="pre">p</span></code>. The string representation is written to <code class="docutils literal notranslate"><span class="pre">dest</span></code>. No more than <code class="docutils literal notranslate"><span class="pre">n</span></code> bytes are written (incl. the terminating NUL).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">prec</span></code> arguments corresponds to the printf() minimum field width and precision/length modifier. If you set them to -1, a suitable value will selected according to <code class="docutils literal notranslate"><span class="pre">type</span></code>. To ignore their effect, set <code class="docutils literal notranslate"><span class="pre">width</span></code> to zero or <code class="docutils literal notranslate"><span class="pre">prec</span></code> to -2.</p>
+<p>Returns number of bytes written to <code class="docutils literal notranslate"><span class="pre">dest</span></code>. If the output is truncated because it exceeds <code class="docutils literal notranslate"><span class="pre">n</span></code>, the number of bytes that would have been written if <code class="docutils literal notranslate"><span class="pre">n</span></code> was large enough is returned. On error, a negative value is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_type_aprintPPcP6size_t6size_tPKv9DLiteType6size_tii13DLiteTypeFlag">
+<span id="_CPPv317dlite_type_aprintPPcP6size_t6size_tPKv9DLiteType6size_tii13DLiteTypeFlag"></span><span id="_CPPv217dlite_type_aprintPPcP6size_t6size_tPKv9DLiteType6size_tii13DLiteTypeFlag"></span><span id="dlite_type_aprint__cPP.sP.s.voidCP.DLiteType.s.i.i.DLiteTypeFlag"></span><span class="target" id="dlite-type_8h_1a3005b50a4977bd5b75d806f6f1095dbf"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_aprint</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">n</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">pos</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">width</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">prec</span></span>, <a class="reference internal" href="#_CPPv413DLiteTypeFlag" title="DLiteTypeFlag"><span class="n"><span class="pre">DLiteTypeFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_type_aprintPPcP6size_t6size_tPKv9DLiteType6size_tii13DLiteTypeFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-type_8h_1ac017701cd8956cce2a0149bc30700f98"><span class="std std-ref">dlite_type_print()</span></a>, but prints to allocated buffer.</p>
+<p>Prints to position <code class="docutils literal notranslate"><span class="pre">pos</span></code> in <code class="docutils literal notranslate"><span class="pre">*dest</span></code>, which should point to a buffer of size <code class="docutils literal notranslate"><span class="pre">*n</span></code>. <code class="docutils literal notranslate"><span class="pre">*dest</span></code> is reallocated if needed.</p>
+<p>Returns number or bytes written or a negative number on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415dlite_type_scanPKciPv9DLiteType6size_t13DLiteTypeFlag">
+<span id="_CPPv315dlite_type_scanPKciPv9DLiteType6size_t13DLiteTypeFlag"></span><span id="_CPPv215dlite_type_scanPKciPv9DLiteType6size_t13DLiteTypeFlag"></span><span id="dlite_type_scan__cCP.i.voidP.DLiteType.s.DLiteTypeFlag"></span><span class="target" id="dlite-type_8h_1afa14bce5489bf0a8ed68128dec0e0f13"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_scan</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <a class="reference internal" href="#_CPPv413DLiteTypeFlag" title="DLiteTypeFlag"><span class="n"><span class="pre">DLiteTypeFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415dlite_type_scanPKciPv9DLiteType6size_t13DLiteTypeFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Scans a value from <code class="docutils literal notranslate"><span class="pre">src</span></code> and write it to memory pointed to by <code class="docutils literal notranslate"><span class="pre">p</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">len</span></code> is non-negative, at most <code class="docutils literal notranslate"><span class="pre">len</span></code> bytes are read from <code class="docutils literal notranslate"><span class="pre">src</span></code>.</p>
+<p>The type and size of the scanned data is described by <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code>, respectively.</p>
+<p>For allocated types, the memory pointed to by <code class="docutils literal notranslate"><span class="pre">p</span></code> should either be initialized to zero or contain valid data.</p>
+<p>Returns number of characters consumed or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422dlite_type_update_sha3P12sha3_contextPKv9DLiteType6size_t">
+<span id="_CPPv322dlite_type_update_sha3P12sha3_contextPKv9DLiteType6size_t"></span><span id="_CPPv222dlite_type_update_sha3P12sha3_contextPKv9DLiteType6size_t"></span><span id="dlite_type_update_sha3__sha3_contextP.voidCP.DLiteType.s"></span><span class="target" id="dlite-type_8h_1a20c5898996d0e9b6f5481d6ac84f6d8a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_update_sha3</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="utils/sha3.html#_CPPv412sha3_context" title="sha3_context"><span class="n"><span class="pre">sha3_context</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">c</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ptr</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422dlite_type_update_sha3P12sha3_contextPKv9DLiteType6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Update sha3 hash context <code class="docutils literal notranslate"><span class="pre">c</span></code> from data pointed to by <code class="docutils literal notranslate"><span class="pre">ptr</span></code>. The data is described by <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_type_get_alignment9DLiteType6size_t">
+<span id="_CPPv324dlite_type_get_alignment9DLiteType6size_t"></span><span id="_CPPv224dlite_type_get_alignment9DLiteType6size_t"></span><span id="dlite_type_get_alignment__DLiteType.s"></span><span class="target" id="dlite-type_8h_1a282b51d32cf791f6b7341eaf098de307"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_get_alignment</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_type_get_alignment9DLiteType6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the struct alignment of the given type or 0 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421dlite_type_padding_at9DLiteType6size_t6size_t">
+<span id="_CPPv321dlite_type_padding_at9DLiteType6size_t6size_t"></span><span id="_CPPv221dlite_type_padding_at9DLiteType6size_t6size_t"></span><span id="dlite_type_padding_at__DLiteType.s.s"></span><span class="target" id="dlite-type_8h_1aab4732f636dfa3cc9cbb267a2645ff8b"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_padding_at</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">offset</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421dlite_type_padding_at9DLiteType6size_t6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the amount of padding that should be added before <code class="docutils literal notranslate"><span class="pre">type</span></code>, if <code class="docutils literal notranslate"><span class="pre">type</span></code> (of size <code class="docutils literal notranslate"><span class="pre">size</span></code>) is to be added to a struct at offset <code class="docutils literal notranslate"><span class="pre">offset</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv428dlite_type_get_member_offset6size_t6size_t9DLiteType6size_t">
+<span id="_CPPv328dlite_type_get_member_offset6size_t6size_t9DLiteType6size_t"></span><span id="_CPPv228dlite_type_get_member_offset6size_t6size_t9DLiteType6size_t"></span><span id="dlite_type_get_member_offset__s.s.DLiteType.s"></span><span class="target" id="dlite-type_8h_1ae923b2f7382ca6bd16c61b8ef944e730"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_get_member_offset</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">prev_offset</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">prev_size</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dtype</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv428dlite_type_get_member_offset6size_t6size_t9DLiteType6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the offset the current struct member with dtype <code class="docutils literal notranslate"><span class="pre">dtype</span></code> and size <code class="docutils literal notranslate"><span class="pre">size</span></code>. The offset of the previous struct member is <code class="docutils literal notranslate"><span class="pre">prev_offset</span></code> and its size is <code class="docutils literal notranslate"><span class="pre">prev_size</span></code>.</p>
+<p>Returns -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_type_ndcastiPv9DLiteType6size_tPK6size_tPKiPKv9DLiteType6size_tPK6size_tPKi13DLiteTypeCast">
+<span id="_CPPv317dlite_type_ndcastiPv9DLiteType6size_tPK6size_tPKiPKv9DLiteType6size_tPK6size_tPKi13DLiteTypeCast"></span><span id="_CPPv217dlite_type_ndcastiPv9DLiteType6size_tPK6size_tPKiPKv9DLiteType6size_tPK6size_tPKi13DLiteTypeCast"></span><span id="dlite_type_ndcast__i.voidP.DLiteType.s.sCP.iCP.voidCP.DLiteType.s.sCP.iCP.DLiteTypeCast"></span><span class="target" id="dlite-type_8h_1aee929f64a8562d399cf77523d6e9fa96"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_type_ndcast</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ndims</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">dest_type</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">dest_size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest_dims</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest_strides</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <a class="reference internal" href="#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">src_type</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">src_size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src_dims</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src_strides</span></span>, <a class="reference internal" href="#_CPPv413DLiteTypeCast" title="DLiteTypeCast"><span class="n"><span class="pre">DLiteTypeCast</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">castfun</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_type_ndcastiPv9DLiteType6size_tPK6size_tPKiPKv9DLiteType6size_tPK6size_tPKi13DLiteTypeCast" title="Link to this definition">#</a><br /></dt>
+<dd><p>Copies n-dimensional array <code class="docutils literal notranslate"><span class="pre">src</span></code> to <code class="docutils literal notranslate"><span class="pre">dest</span></code> by calling <code class="docutils literal notranslate"><span class="pre">castfun</span></code> on each element. <code class="docutils literal notranslate"><span class="pre">dest</span></code> must have sufficient size to hold the result.</p>
+<p>If either <code class="docutils literal notranslate"><span class="pre">dest_strides</span></code> or <code class="docutils literal notranslate"><span class="pre">src_strides</span></code> are NULL, the memory is assumed to be C-contiguous.</p>
+<p>This function is rather general function that allows <code class="docutils literal notranslate"><span class="pre">src</span></code> and <code class="docutils literal notranslate"><span class="pre">dest</span></code> to have different type and memory layout. By e.g. inverting the order of <code class="docutils literal notranslate"><span class="pre">dest_dims</span></code> and <code class="docutils literal notranslate"><span class="pre">dest_strides</span></code> you can copy an n-dimensional array from C to Fortran order.</p>
+<p>Arguments:<ul class="simple">
+<li><p>ndims: Number of dimensions for both source and destination. Zero means scalar.</p></li>
+<li><p>dest: Pointer to destination memory. It must be large enough.</p></li>
+<li><p>dest_type: Destination data type</p></li>
+<li><p>dest_size: Size of each element in destination</p></li>
+<li><p>dest_dims: Destination dimensions. Length: <code class="docutils literal notranslate"><span class="pre">ndims</span></code>, required if ndims &gt; 0</p></li>
+<li><p>dest_strides: Destination strides. Length: <code class="docutils literal notranslate"><span class="pre">ndims</span></code>, optional</p></li>
+<li><p>src: Pointer to source memory.</p></li>
+<li><p>src_type: Source data type.</p></li>
+<li><p>src_size: Size of each element in source.</p></li>
+<li><p>src_dims: Source dimensions. Length: <code class="docutils literal notranslate"><span class="pre">ndims</span></code>, required if ndims &gt; 0</p></li>
+<li><p>src_strides: Source strides. Length: <code class="docutils literal notranslate"><span class="pre">ndims</span></code>, optional</p></li>
+<li><p>castfun: Function that is doing the actually casting. Called on each element.</p></li>
+</ul>
+</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dlite-type-cast.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">dlite-type-cast</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dlite.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">dlite</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DLiteRelation"><code class="docutils literal notranslate"><span class="pre">DLiteRelation</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DLiteTypeCast"><code class="docutils literal notranslate"><span class="pre">DLiteTypeCast</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49DLiteType"><code class="docutils literal notranslate"><span class="pre">DLiteType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType9dliteBlobE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteBlob</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType9dliteBoolE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteBool</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType8dliteIntE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteInt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType9dliteUIntE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteUInt</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType10dliteFloatE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteFloat</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType14dliteFixStringE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteFixString</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType14dliteStringPtrE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteStringPtr</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType8dliteRefE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteRef</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType14dliteDimensionE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteDimension</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType13dlitePropertyE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteProperty</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9DLiteType13dliteRelationE"><code class="docutils literal notranslate"><span class="pre">DLiteType::dliteRelation</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DLiteTypeFlag"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag16dliteFlagDefaultE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagDefault</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag12dliteFlagRawE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagRaw</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag15dliteFlagQuotedE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagQuoted</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag14dliteFlagStripE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagStrip</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13DLiteTypeFlag19dliteFlagCompactRelE"><code class="docutils literal notranslate"><span class="pre">DLiteTypeFlag::dliteFlagCompactRel</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_type_get_dtypename9DLiteType"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_dtypename()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_type_get_enum_name9DLiteType"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_enum_name()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_type_get_dtypePKc"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_dtype()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_type_set_typename9DLiteType6size_tPc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_typename()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_type_set_ftype9DLiteType6size_tPc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_ftype()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_type_set_isoctype9DLiteType6size_tPc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_isoctype()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_type_set_cdecl9DLiteType6size_tPKc6size_tPc6size_ti"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_cdecl()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_is_typePKc"><code class="docutils literal notranslate"><span class="pre">dlite_is_type()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv429dlite_type_set_dtype_and_sizePKcP9DLiteTypeP6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_set_dtype_and_size()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_type_is_allocated9DLiteType"><code class="docutils literal notranslate"><span class="pre">dlite_type_is_allocated()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_type_copyPvPKv9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_copy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_type_clearPv9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_clear()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_type_printPc6size_tPKv9DLiteType6size_tii13DLiteTypeFlag"><code class="docutils literal notranslate"><span class="pre">dlite_type_print()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_type_aprintPPcP6size_t6size_tPKv9DLiteType6size_tii13DLiteTypeFlag"><code class="docutils literal notranslate"><span class="pre">dlite_type_aprint()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_type_scanPKciPv9DLiteType6size_t13DLiteTypeFlag"><code class="docutils literal notranslate"><span class="pre">dlite_type_scan()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_type_update_sha3P12sha3_contextPKv9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_update_sha3()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_type_get_alignment9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_alignment()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_type_padding_at9DLiteType6size_t6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_padding_at()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv428dlite_type_get_member_offset6size_t6size_t9DLiteType6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_type_get_member_offset()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_type_ndcastiPv9DLiteType6size_tPK6size_tPKiPKv9DLiteType6size_tPK6size_tPKi13DLiteTypeCast"><code class="docutils literal notranslate"><span class="pre">dlite_type_ndcast()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

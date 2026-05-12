@@ -1,0 +1,741 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Collections &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=5029451f"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/collections';</script>
+    <script src="../_static/version-switcher.js"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Storage plugins / Drivers" href="storage_plugins.html" />
+    <link rel="prev" title="Errors and exceptions" href="exceptions.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">User Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../c-api/src/utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fuser_guide/collections.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/user_guide/collections.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Collections</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#semantics-of-a-collection">Semantics of a collection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="collections">
+<h1>Collections<a class="headerlink" href="#collections" title="Link to this heading">#</a></h1>
+<p>A collection is a data instance containing a set of (references to) instances and relationships between them and can contain (references to) other collections as well.
+It allows providing context to the instances and represent the knowledge of a domain and may e.g. describe where data can be found.</p>
+<p>DLite collections are implemented as a list of RDF relations using the vocabulary defined in the <a class="reference external" href="https://github.com/emmo-repo/datamodel/">datamodel ontology</a>, which can be seen from the YAML representation of the collection entity:</p>
+<div class="highlight-yaml notranslate"><div class="highlight"><pre><span></span><span class="w">    </span><span class="nt">uri</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">http://onto-ns.com/meta/0.1/Collection</span>
+<span class="w">    </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Metadata description a collection.</span>
+<span class="w">    </span><span class="nt">dimensions</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">nrelations</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Number of relations.</span>
+<span class="w">    </span><span class="nt">properties</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">relations</span><span class="p">:</span>
+<span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">relation</span>
+<span class="w">        </span><span class="nt">shape</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="nv">nrelations</span><span class="p p-Indicator">]</span>
+<span class="w">        </span><span class="nt">description</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Array of relations (s-p-o triples).</span>
+</pre></div>
+</div>
+<p>When instances are added to a collection, they are give a label local
+to the collection.</p>
+<section id="semantics-of-a-collection">
+<h2>Semantics of a collection<a class="headerlink" href="#semantics-of-a-collection" title="Link to this heading">#</a></h2>
+<p>TODO: add text when issue https://github.com/SINTEF/dlite/issues/174 is concluded…</p>
+</section>
+<section id="example">
+<h2>Example<a class="headerlink" href="#example" title="Link to this heading">#</a></h2>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
+
+    <span class="c1"># Create some instances</span>
+    <span class="c1"># Since the content of the instances are unimportant, we simply create a</span>
+    <span class="c1"># Blob metadata (comes with DLite) and create some instances of it.</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">Blob</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">get_instance</span><span class="p">(</span><span class="s1">&#39;http://onto-ns.com/meta/0.1/Blob&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">blob1</span> <span class="o">=</span> <span class="n">Blob</span><span class="p">(</span><span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ex:blob1&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">blob2</span> <span class="o">=</span> <span class="n">Blob</span><span class="p">(</span><span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ex:blob2&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">blob3</span> <span class="o">=</span> <span class="n">Blob</span><span class="p">(</span><span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ex:blob3&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Create a collection</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">coll</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Collection</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ex:coll&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add instances to the collection giving them a local label.</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">coll</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;blob1&quot;</span><span class="p">,</span> <span class="n">inst</span><span class="o">=</span><span class="n">blob1</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">coll</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;blob2&quot;</span><span class="p">,</span> <span class="n">inst</span><span class="o">=</span><span class="n">blob2</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">coll</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">label</span><span class="o">=</span><span class="s2">&quot;blob3&quot;</span><span class="p">,</span> <span class="n">inst</span><span class="o">=</span><span class="n">blob3</span><span class="p">)</span>
+
+    <span class="c1"># Add relations between the instances</span>
+    <span class="c1"># Here we express that `blob2` and `blob3` are parts of `blob1` as well</span>
+    <span class="c1"># as that `blob3` is a proper part of `blob2` (note that collections does</span>
+    <span class="c1"># no perform any reasoning, so it not able to infer that `blob3` must</span>
+    <span class="c1"># also be a proper part of `blob1`).</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">coll</span><span class="o">.</span><span class="n">add_relation</span><span class="p">(</span><span class="s2">&quot;blob1&quot;</span><span class="p">,</span> <span class="s2">&quot;emmo:hasPart&quot;</span><span class="p">,</span> <span class="s2">&quot;blob2&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">coll</span><span class="o">.</span><span class="n">add_relation</span><span class="p">(</span><span class="s2">&quot;blob1&quot;</span><span class="p">,</span> <span class="s2">&quot;emmo:hasPart&quot;</span><span class="p">,</span> <span class="s2">&quot;blob3&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">coll</span><span class="o">.</span><span class="n">add_relation</span><span class="p">(</span><span class="s2">&quot;blob2&quot;</span><span class="p">,</span> <span class="s2">&quot;emmo:hasProperPart&quot;</span><span class="p">,</span> <span class="s2">&quot;blob3&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Print the content of the collection</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="nb">print</span><span class="p">(</span><span class="n">coll</span><span class="p">)</span>
+    <span class="p">{</span>
+      <span class="s2">&quot;uuid&quot;</span><span class="p">:</span> <span class="s2">&quot;622d1aa3-4233-56bf-bab9-9b9d8c2aeab0&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="s2">&quot;ex:coll&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;meta&quot;</span><span class="p">:</span> <span class="s2">&quot;http://onto-ns.com/meta/0.1/Collection&quot;</span><span class="p">,</span>
+      <span class="s2">&quot;dimensions&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;nrelations&quot;</span><span class="p">:</span> <span class="mi">12</span>
+      <span class="p">},</span>
+      <span class="s2">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">&quot;relations&quot;</span><span class="p">:</span> <span class="p">[</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_is-a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Instance&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_has-uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;a8645591-cc43-563f-8005-8ec63852ab6f&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_has-meta&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;http://onto-ns.com/meta/0.1/Blob&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_is-a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Instance&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_has-uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;3fa5a23e-e744-5dd6-94b5-28de06017bef&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_has-meta&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;http://onto-ns.com/meta/0.1/Blob&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_is-a&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;Instance&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_has-uuid&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;f6cc739b-db7a-5fa1-808e-a6788033077d&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob3&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;_has-meta&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;http://onto-ns.com/meta/0.1/Blob&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;emmo:hasPart&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;blob2&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob1&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;emmo:hasPart&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;blob3&quot;</span>
+          <span class="p">],</span>
+          <span class="p">[</span>
+            <span class="s2">&quot;blob2&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;emmo:hasProperPart&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;blob3&quot;</span>
+          <span class="p">]</span>
+        <span class="p">]</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+
+</pre></div>
+</div>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="exceptions.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Errors and exceptions</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="storage_plugins.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Storage plugins / Drivers</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#semantics-of-a-collection">Semantics of a collection</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#example">Example</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

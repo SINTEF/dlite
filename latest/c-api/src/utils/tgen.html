@@ -1,0 +1,1318 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>tgen &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/utils/tgen';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="tmpfileplus" href="tmpfileplus.html" />
+    <link rel="prev" title="strutils" href="strutils.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strutils.html">strutils</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/utils/tgen.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/c-api/src/utils/tgen.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>tgen</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417tgen_escaped_copyPcPKci"><code class="docutils literal notranslate"><span class="pre">tgen_escaped_copy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412tgen_setcasePcii"><code class="docutils literal notranslate"><span class="pre">tgen_setcase()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417tgen_convert_casePKcii"><code class="docutils literal notranslate"><span class="pre">tgen_convert_case()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413tgen_buf_initP7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415tgen_buf_deinitP7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_buf_stealP7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_steal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415tgen_buf_lengthPK7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_length()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412tgen_buf_getPK7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415tgen_buf_appendP7TGenBufPKci"><code class="docutils literal notranslate"><span class="pre">tgen_buf_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419tgen_buf_append_fmtP7TGenBufPKcz"><code class="docutils literal notranslate"><span class="pre">tgen_buf_append_fmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420tgen_buf_append_vfmtP7TGenBufPKc7va_list"><code class="docutils literal notranslate"><span class="pre">tgen_buf_append_vfmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420tgen_buf_append_caseP7TGenBufPKcii"><code class="docutils literal notranslate"><span class="pre">tgen_buf_append_case()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417tgen_buf_unappendP7TGenBuf6size_t"><code class="docutils literal notranslate"><span class="pre">tgen_buf_unappend()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415tgen_buf_calignP7TGenBufii"><code class="docutils literal notranslate"><span class="pre">tgen_buf_calign()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_buf_alignP7TGenBufi"><code class="docutils literal notranslate"><span class="pre">tgen_buf_align()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411tgen_linenoPKcPKc"><code class="docutils literal notranslate"><span class="pre">tgen_lineno()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413tgen_readfilePKc"><code class="docutils literal notranslate"><span class="pre">tgen_readfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_subs_initP8TGenSubs"><code class="docutils literal notranslate"><span class="pre">tgen_subs_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416tgen_subs_deinitP8TGenSubs"><code class="docutils literal notranslate"><span class="pre">tgen_subs_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413tgen_subs_getPK8TGenSubsPKc"><code class="docutils literal notranslate"><span class="pre">tgen_subs_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_subs_getnPK8TGenSubsPKci"><code class="docutils literal notranslate"><span class="pre">tgen_subs_getn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413tgen_subs_setP8TGenSubsPKcPKc7TGenFun"><code class="docutils literal notranslate"><span class="pre">tgen_subs_set()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_subs_setnP8TGenSubsPKciPKc7TGenFun"><code class="docutils literal notranslate"><span class="pre">tgen_subs_setn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417tgen_subs_set_fmtP8TGenSubsPKc7TGenFunPKcz"><code class="docutils literal notranslate"><span class="pre">tgen_subs_set_fmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418tgen_subs_setn_fmtP8TGenSubsPKci7TGenFunPKcz"><code class="docutils literal notranslate"><span class="pre">tgen_subs_setn_fmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419tgen_subs_setn_vfmtP8TGenSubsPKci7TGenFunPKc7va_list"><code class="docutils literal notranslate"><span class="pre">tgen_subs_setn_vfmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_subs_copyP8TGenSubsPK8TGenSubs"><code class="docutils literal notranslate"><span class="pre">tgen_subs_copy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv44tgenPKcP8TGenSubsPv"><code class="docutils literal notranslate"><span class="pre">tgen()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411tgen_appendP7TGenBufPKciP8TGenSubsPv"><code class="docutils literal notranslate"><span class="pre">tgen_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47TGenFun"><code class="docutils literal notranslate"><span class="pre">TGenFun</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412TGenErrCodes"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes6TGenOkE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenOk</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes19TGenAllocationErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenAllocationError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes15TGenSyntaxErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenSyntaxError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes11TGenIOErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenIOError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes17TGenVariableErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenVariableError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes20TGenSubtemplateErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenSubtemplateError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes12TGenMapErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenMapError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes15TGenFormatErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenFormatError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes13TGenUserErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenUserError</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv429tgen_convert_escape_sequences"><code class="docutils literal notranslate"><span class="pre">tgen_convert_escape_sequences</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47TGenBuf"><code class="docutils literal notranslate"><span class="pre">TGenBuf</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenBuf3bufE"><code class="docutils literal notranslate"><span class="pre">TGenBuf::buf</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenBuf4sizeE"><code class="docutils literal notranslate"><span class="pre">TGenBuf::size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenBuf3posE"><code class="docutils literal notranslate"><span class="pre">TGenBuf::pos</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48TGenSubs"><code class="docutils literal notranslate"><span class="pre">TGenSubs</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs4subsE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::subs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs4sizeE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs5nsubsE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::nsubs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs3mapE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::map</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs6parentE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::parent</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47TGenSub"><code class="docutils literal notranslate"><span class="pre">TGenSub</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenSub3varE"><code class="docutils literal notranslate"><span class="pre">TGenSub::var</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenSub4replE"><code class="docutils literal notranslate"><span class="pre">TGenSub::repl</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenSub4funcE"><code class="docutils literal notranslate"><span class="pre">TGenSub::func</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="tgen">
+<h1>tgen<a class="headerlink" href="#tgen" title="Link to this heading">#</a></h1>
+<p>Simple templated text generator. </p>
+<p><em>Introduction</em></p>
+<p>The main function in this library is <a class="reference internal" href="#tgen_8h_1a357eb144fe740ede07c7cf004a5eb782"><span class="std std-ref">tgen()</span></a>. It takes a template and a list of substitutions and produces a new document.</p>
+<p>An example template may look like: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Group</span><span class="p">:</span> <span class="p">{</span><span class="n">group_name</span><span class="p">}</span>
+<span class="n">Location</span><span class="p">:</span> <span class="p">{</span><span class="n">group_location</span><span class="p">}</span>
+<span class="n">Members</span><span class="p">:</span>
+<span class="p">{</span><span class="n">list_members</span><span class="p">:</span>  <span class="o">-</span> <span class="p">{</span><span class="n">first_name</span><span class="p">}</span> <span class="p">{</span><span class="n">last_name</span><span class="p">}</span> <span class="n">lives</span> <span class="ow">in</span> <span class="p">{</span><span class="n">country</span><span class="p">}</span>\<span class="n">n</span><span class="p">}</span>
+</pre></div>
+</div>
+ The example program tgen_example.c will produce the following output from this template: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Group</span><span class="p">:</span> <span class="n">skiers</span>
+<span class="n">Location</span><span class="p">:</span> <span class="n">mountains</span>
+<span class="n">Members</span><span class="p">:</span>
+  <span class="o">-</span> <span class="n">Adam</span> <span class="n">Smidth</span> <span class="n">lives</span> <span class="ow">in</span> <span class="n">Germany</span>
+  <span class="o">-</span> <span class="n">Jack</span> <span class="n">Daniel</span> <span class="n">lives</span> <span class="ow">in</span> <span class="n">USA</span>
+  <span class="o">-</span> <span class="n">Fritjof</span> <span class="n">Nansen</span> <span class="n">lives</span> <span class="ow">in</span> <span class="n">Norway</span>
+</pre></div>
+</div>
+</p>
+<p><em>Variable tags</em></p>
+<p>A pair of braces, “{” and “}”, that encloses a string is a <em>tag</em>. When the template is processed, the tags are replaced with new content according to the substitutions. The general form for a variable tag is: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">VAR</span><span class="o">%</span><span class="n">FMT</span><span class="p">:</span><span class="n">TEMPL</span><span class="p">}</span>
+</pre></div>
+</div>
+ where the parts “%FMT” and “:TEMPL” are optional:<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">VAR</span></code> identifies the tag in the substitutions.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">FMT</span></code> is an optional format specifier of the form: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">[</span><span class="n">ALIGN</span><span class="p">][</span><span class="n">WIDTH</span><span class="p">][</span><span class="o">.</span><span class="n">PREC</span><span class="p">][</span><span class="n">CASE</span><span class="p">]</span>
+</pre></div>
+</div>
+ where the brackets stands for optional fields. The meaning of the fields are:<ul>
+<li><p>ALIGN is either “-” for left-aligned or empty for right-aligned.</p></li>
+<li><p>WIDTH is a positive integer denoting the width, possible padded with spaces.</p></li>
+<li><p>PREC is a positive integer denoting the maximum number of characters to write (not including padding).</p></li>
+<li><p>CASE is a single character, with the following meaning:<ul>
+<li><p>’s’: no change in case</p></li>
+<li><p>’c’: convert to lower case</p></li>
+<li><p>’C’: convert to upper case</p></li>
+<li><p>’u’: convert to underscore-separated lower case</p></li>
+<li><p>’U’: convert to underscore-separated upper case</p></li>
+<li><p>’m’: convert to lower mixedCase (aka camelCase)</p></li>
+<li><p>’M’: convert to upper MixedCase (aka CamelCase)</p></li>
+<li><p>’i’: convert to a valid C identifier (permissive)</p></li>
+<li><p>’I’: convert to a valid C identifier (strict)</p></li>
+<li><p>’T’: convert to title case (convert first character to upper case and the rest to lower case)</p></li>
+</ul>
+</p></li>
+</ul>
+</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TEMPL</span></code> is an optional template that may be used in nested calls. It may contain embedded tags, as long as the opening and closing braces exactly match.</p></li>
+</ul>
+</p>
+<p>There are two types of substitutions, variable substitutions and function substitutions:</p>
+<p><ul class="simple">
+<li><p>A <strong>variable substitution</strong> relates <code class="docutils literal notranslate"><span class="pre">VAR</span></code> to a string replacing the tag. If the tag contains a <code class="docutils literal notranslate"><span class="pre">TEMPL</span></code>-part, it will be ignored.</p></li>
+<li><p>A <strong>function substitution</strong> relates <code class="docutils literal notranslate"><span class="pre">VAR</span></code> to a function. When the template is processed, the function is called replacing the tag with its output. The function uses <code class="docutils literal notranslate"><span class="pre">TEMPL</span></code> as a (sub)template.</p></li>
+</ul>
+</p>
+<p>An alternative syntax is <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>{VAR?}
+</pre></div>
+</div>
+ which will be replaced with “1” if VAR is defined and “0” if var is empty. It is mainly intended to be used in conditionals.</p>
+<p><em>Assignment tags</em></p>
+<p>Assignment tags has the form <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="n">VAR</span><span class="o">=</span><span class="n">VALUE</span><span class="p">}</span>
+</pre></div>
+</div>
+ and will assign variable VAR to VALUE overriding a possible previous value. It is replaced with the empty string.</p>
+<p><em>Conditional tags</em></p>
+<p>Conditionals are a special form of tags with the following syntax: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="p">{</span><span class="nd">@if</span><span class="p">:</span><span class="n">COND</span><span class="p">}</span>
+  <span class="o">&lt;</span><span class="n">code</span><span class="o">...&gt;</span>
+<span class="p">{</span><span class="nd">@elif</span><span class="p">:</span><span class="n">COND</span><span class="p">}</span>
+  <span class="o">&lt;</span><span class="n">code</span><span class="o">...&gt;</span>
+<span class="p">{</span><span class="nd">@else</span><span class="p">}</span>
+  <span class="o">&lt;</span><span class="n">code</span><span class="o">...&gt;</span>
+<span class="p">{</span><span class="nd">@endif</span><span class="p">}</span>
+</pre></div>
+</div>
+ The <code class="docutils literal notranslate"><span class="pre">elif</span></code> and <code class="docutils literal notranslate"><span class="pre">else</span></code> tags are optional and there may be multiple <code class="docutils literal notranslate"><span class="pre">elif</span></code> tags.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">COND</span></code><p>takes one of the forms ‘string’ true if non-empty, false otherwise ‘string1’ = ‘string2’ true if the strings are equal ‘string1’ ! ‘string2’ true if the strings are not equal it is evaluated as a string expressions, where the strings must be quoted with either single (’) or double (”) quotes (quotes within</p>
+<p>the strings may be escaped with backslash).</p>
+<p>Otherwise &lt;tt&gt;COND&lt;/tt&gt; is evaluated using infixcalc(), which supports</p>
+<p>integer arithmetic and the following binary operators:</p>
+<p>|  logical or</p>
+<p>&amp;  logical and</p>
+<p>=  logical equal</p>
+<p>!  logical not equal</p>
+<p>&gt;  logical greather than</p>
+<p>&lt;  logical smaller than</p>
+<p>+  plus</p>
+<p>-  minus</p>
+<p>times</p>
+<p>/  division</p>
+<p>%  modulus</p>
+<p>^  power</p>
+<p>in addition to parenthesis.</p>
+<p>Note that unary minus and plus are not supported.  Hence,</p>
+<p>an expression like “-3” is invalid (if needed, it can be rewritten</p>
+<p>as “0-3”).</p>
+<p>Variable expansion is performed before &lt;tt&gt;COND&lt;/tt&gt; is evaluated.</p>
+<p>&lt;h3&gt;Expression tags&lt;/h3&gt;</p>
+<p>Expression tags has the form</p>
+<p>&#64;code</p>
+<p>{&#64;eval:EXPR}</p>
+<p>&#64;endcode</p>
+<p>and will replace &lt;tt&gt;EXPR&lt;/tt&gt; with its evaluated value using integer</p>
+<p>arithmetics with infixcalc().  See the &#64;ref “conditional-tags” “Conditional tags”</p>
+<p>for limitations.</p>
+<p>&lt;h3&gt;Alignment tags&lt;/h3&gt;</p>
+<p>Alignment are tags of the form</p>
+<p>&#64;code</p>
+<p>{&#64;N}</p>
+<p>&#64;endcode</p>
+<p>where &lt;tt&gt;N&lt;/tt&gt; may be any positive integer.  It will be replaced with</p>
+<p>spaces such that the text following it will start on column &lt;tt&gt;N&lt;/tt&gt;</p>
+<p>(that is &lt;tt&gt;N&lt;/tt&gt; characters after the last newline).  If the alignment</p>
+<p>tag it placed after column &lt;tt&gt;N&lt;/tt&gt;, no output will be produced.</p>
+<p>&lt;h3&gt;Error tags&lt;/h3&gt;</p>
+<p>A template can signal errors like invalid variables or wrong use with</p>
+<p>the construct</p>
+<p>&#64;code</p>
+<p>{&#64;error:message}</p>
+<p>&#64;endcode</p>
+<p>This will make tgen fail with a TgenUserError with the provided message.</p>
+<p>&lt;h3&gt;Comment tags&lt;/h3&gt;</p>
+<p>Comments that will not be visible in the output can be added by starting</p>
+<p>a tag with “: “, like</p>
+<p>&#64;code</p>
+<p>{: My comment… }</p>
+<p>&#64;endcode</p>
+<p>&lt;h3&gt;Literal braces and escapes&lt;/h3&gt;</p>
+<p>Literal braces may be included in the template and the &lt;tt&gt;TEMPL&lt;/tt&gt;</p>
+<p>section, if they are escaped according the following table:</p>
+<p>&lt;table class=”markdownTable”&gt;</p>
+<p>&lt;tr class=”markdownTableHead”&gt;    &lt;th class=”markdownTableHeadNone”&gt; escape sequence</p>
+</p>
+<p>result   </p>
+<p>comment    </p>
+<p><code class="docutils literal notranslate"><span class="pre">{{</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">{</span></code></p>
+<p>literal start brace    </p>
+<p><code class="docutils literal notranslate"><span class="pre">}}</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">}</span></code></p>
+<p>literal end brace    </p>
+<p><code class="docutils literal notranslate"><span class="pre">{}</span></code></p>
+<p><code class="docutils literal notranslate"><span class="pre">}</span></code></p>
+<p>only use this if <code class="docutils literal notranslate"><span class="pre">TEMPL</span></code> ends with a <code class="docutils literal notranslate"><span class="pre">}</span></code></p>
+<p>.</p>
+<p>`<code class="docutils literal notranslate"><span class="pre">\ilinebr</span> <span class="pre">&lt;/td&gt;</span> <span class="pre">&lt;td</span> <span class="pre">class=&quot;markdownTableBodyNone&quot;&gt;</span> <span class="pre">noop</span> <span class="pre">escape,</span> <span class="pre">may</span> <span class="pre">be</span> <span class="pre">used</span> <span class="pre">instead</span> <span class="pre">of</span></code>{}`   </p>
+<p>Furthermore are normal C escape sequences (<code class="docutils literal notranslate"><span class="pre">\a</span></code>, <code class="docutils literal notranslate"><span class="pre">\b</span></code>, <code class="docutils literal notranslate"><span class="pre">\f</span></code>, <code class="docutils literal notranslate"><span class="pre">\n</span></code>, <code class="docutils literal notranslate"><span class="pre">\r</span></code>, <code class="docutils literal notranslate"><span class="pre">\t</span></code>, <code class="docutils literal notranslate"><span class="pre">\v</span></code> and <code class="docutils literal notranslate"><span class="pre">\\</span></code>) supported as well as line-continuation by ending a line with a backslash. In addition includes tgen the special noop escape sequence <code class="docutils literal notranslate"><span class="pre">\.</span></code> that expands to the empty string. It may be used as an alternative to <code class="docutils literal notranslate"><span class="pre">{}</span></code> for separating end braces following each other, such that they are not interpreated as a literal end brace. These escapes can be turned off by setting the global variable <code class="docutils literal notranslate"><span class="pre">tgen_convert_escape_sequences</span></code> to zero.</p>
+<p>The strength of templating is that you can produce the same information in a completely different format just by changing the template, without changing the logics. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-utility-functions">Utility functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417tgen_escaped_copyPcPKci">
+<span id="_CPPv317tgen_escaped_copyPcPKci"></span><span id="_CPPv217tgen_escaped_copyPcPKci"></span><span id="tgen_escaped_copy__cP.cCP.i"></span><span class="target" id="tgen_8h_1adf64138e2cfdb7d2baf0c7852b84c8d7"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_escaped_copy</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417tgen_escaped_copyPcPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Copies at most <code class="docutils literal notranslate"><span class="pre">n</span></code> bytes from <code class="docutils literal notranslate"><span class="pre">src</span></code> and writing them to <code class="docutils literal notranslate"><span class="pre">dest</span></code>. If <code class="docutils literal notranslate"><span class="pre">n</span></code> is negative, all of <code class="docutils literal notranslate"><span class="pre">src</span></code> is copied.</p>
+<p>The following standard escape sequences are converted: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>\<span class="n">a</span><span class="p">,</span> \<span class="n">b</span><span class="p">,</span> \<span class="n">f</span><span class="p">,</span> \<span class="n">n</span><span class="p">,</span> \<span class="n">r</span><span class="p">,</span> \<span class="n">t</span><span class="p">,</span> \<span class="n">v</span> \\
+</pre></div>
+</div>
+ in addition to escaped newlines.</p>
+<p>Returns the number of characters written to <code class="docutils literal notranslate"><span class="pre">dest</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412tgen_setcasePcii">
+<span id="_CPPv312tgen_setcasePcii"></span><span id="_CPPv212tgen_setcasePcii"></span><span id="tgen_setcase__cP.i.i"></span><span class="target" id="tgen_8h_1aac33ae15259dc51aa155603c6905077e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_setcase</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">casemode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412tgen_setcasePcii" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets the case of the (sub)string <code class="docutils literal notranslate"><span class="pre">s</span></code> according to <code class="docutils literal notranslate"><span class="pre">casemode</span></code>. <code class="docutils literal notranslate"><span class="pre">len</span></code> is the of length of the substring. If <code class="docutils literal notranslate"><span class="pre">len</span></code> is negative, the case is applied to the whole string.</p>
+<p>Valid values for <code class="docutils literal notranslate"><span class="pre">casemode</span></code> are:<ul class="simple">
+<li><p>”s”: no change in case</p></li>
+<li><p>”l”: convert to lower case</p></li>
+<li><p>”U”: convert to upper case</p></li>
+<li><p>”T”: convert to title case (convert first character to upper case and the rest to lower case)</p></li>
+</ul>
+</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417tgen_convert_casePKcii">
+<span id="_CPPv317tgen_convert_casePKcii"></span><span id="_CPPv217tgen_convert_casePKcii"></span><span id="tgen_convert_case__cCP.i.i"></span><span class="target" id="tgen_8h_1a51698695ed94fd7206e96b5b54001bf7"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tgen_convert_case</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">casemode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417tgen_convert_casePKcii" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new malloc’ed copy of the <code class="docutils literal notranslate"><span class="pre">len</span></code> first bytes of <code class="docutils literal notranslate"><span class="pre">s</span></code> with the case converted according to <code class="docutils literal notranslate"><span class="pre">casemod</span></code>. If <code class="docutils literal notranslate"><span class="pre">len</span></code> is negative, all of <code class="docutils literal notranslate"><span class="pre">s</span></code> is copied.</p>
+<p>Valid values for <code class="docutils literal notranslate"><span class="pre">casemode</span></code> are:<ul class="simple">
+<li><p>’s’: no change in case</p></li>
+<li><p>’c’: convert to lower case</p></li>
+<li><p>’C’: convert to upper case</p></li>
+<li><p>’u’: convert to underscore-separated lower case</p></li>
+<li><p>’U’: convert to underscore-separated upper case</p></li>
+<li><p>’m’: convert to lower mixedCase (aka camelCase)</p></li>
+<li><p>’M’: convert to upper MixedCase (aka CamelCase)</p></li>
+<li><p>’i’: convert to a valid C identifier (permissive)</p></li>
+<li><p>’I’: convert to a valid C identifier (strict)</p></li>
+<li><p>’T’: convert to title case (convert first character to upper case and the rest to lower case)</p></li>
+</ul>
+</p>
+<p>Returns NULL on error.</p>
+<p>Examples: s: “AVery mixed_Sentense” -&gt; “AVery mixed_Sentense” c: “AVery mixed_Sentense” -&gt; “avery mixed_sentense” C: “AVery mixed_Sentense” -&gt; “AVERY MIXED_SENTENCE” u: “AVery mixed_Sentense” -&gt; “a_very_mixed_sentense” U: “AVery mixed_Sentense” -&gt; “A_VERY_MIXED_SENTENCE” m: “AVery mixed_Sentense” -&gt; “aVeryMixedSentense” M: “AVery mixed_Sentense” -&gt; “AVeryMixedSentense” T: “AVery mixed_Sentense” -&gt; “Avery mixed_sentense” i: “  n-Atoms  “ -&gt; “n_Atoms” i: “  n+Atoms  “ -&gt; “n_Atoms” I: “  n-Atoms  “ -&gt; “n_Atoms” I: “  n+Atoms  “ -&gt; NULL </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413tgen_buf_initP7TGenBuf">
+<span id="_CPPv313tgen_buf_initP7TGenBuf"></span><span id="_CPPv213tgen_buf_initP7TGenBuf"></span><span id="tgen_buf_init__TGenBufP"></span><span class="target" id="tgen_8h_1a0bf81774bbc7329c060eef089e3fd874"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413tgen_buf_initP7TGenBuf" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initiates output buffer. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415tgen_buf_deinitP7TGenBuf">
+<span id="_CPPv315tgen_buf_deinitP7TGenBuf"></span><span id="_CPPv215tgen_buf_deinitP7TGenBuf"></span><span id="tgen_buf_deinit__TGenBufP"></span><span class="target" id="tgen_8h_1aa7c2bd365c8601d0d36e8570c6a8bf9a"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_deinit</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415tgen_buf_deinitP7TGenBuf" title="Link to this definition">#</a><br /></dt>
+<dd><p>Clears output buffer and free’s up all memory. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414tgen_buf_stealP7TGenBuf">
+<span id="_CPPv314tgen_buf_stealP7TGenBuf"></span><span id="_CPPv214tgen_buf_stealP7TGenBuf"></span><span id="tgen_buf_steal__TGenBufP"></span><span class="target" id="tgen_8h_1acb535432a2cd1288271f1e77c34574b1"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_steal</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414tgen_buf_stealP7TGenBuf" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1aa7c2bd365c8601d0d36e8570c6a8bf9a"><span class="std std-ref">tgen_buf_deinit()</span></a>, but instead of free up the internal buffer, it is returned. The returned string is owned by the caller and should be free’ed with free(). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415tgen_buf_lengthPK7TGenBuf">
+<span id="_CPPv315tgen_buf_lengthPK7TGenBuf"></span><span id="_CPPv215tgen_buf_lengthPK7TGenBuf"></span><span id="tgen_buf_length__TGenBufCP"></span><span class="target" id="tgen_8h_1adb735ef55127ebbfd8261bf8cf972058"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_length</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415tgen_buf_lengthPK7TGenBuf" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the length of buffer <code class="docutils literal notranslate"><span class="pre">s</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412tgen_buf_getPK7TGenBuf">
+<span id="_CPPv312tgen_buf_getPK7TGenBuf"></span><span id="_CPPv212tgen_buf_getPK7TGenBuf"></span><span id="tgen_buf_get__TGenBufCP"></span><span class="target" id="tgen_8h_1a40bfd3e69bd4dab6daa4c4121b69168c"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_get</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412tgen_buf_getPK7TGenBuf" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to the content of the output buffer. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415tgen_buf_appendP7TGenBufPKci">
+<span id="_CPPv315tgen_buf_appendP7TGenBufPKci"></span><span id="_CPPv215tgen_buf_appendP7TGenBufPKci"></span><span id="tgen_buf_append__TGenBufP.cCP.i"></span><span class="target" id="tgen_8h_1a97698050c6c7ff58959535b2dd563066"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_append</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415tgen_buf_appendP7TGenBufPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Appends <code class="docutils literal notranslate"><span class="pre">n</span></code> bytes from string <code class="docutils literal notranslate"><span class="pre">src</span></code> to end of output buffer <code class="docutils literal notranslate"><span class="pre">s</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is negative, all of <code class="docutils literal notranslate"><span class="pre">str</span></code> (which must be NUL-terminated) is appended.</p>
+<p>Returns number of characters appended or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419tgen_buf_append_fmtP7TGenBufPKcz">
+<span id="_CPPv319tgen_buf_append_fmtP7TGenBufPKcz"></span><span id="_CPPv219tgen_buf_append_fmtP7TGenBufPKcz"></span><span id="tgen_buf_append_fmt__TGenBufP.cCP.z"></span><span class="target" id="tgen_8h_1a618266d69b19a52ab441cff552269f68"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_append_fmt</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fmt</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419tgen_buf_append_fmtP7TGenBufPKcz" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1a97698050c6c7ff58959535b2dd563066"><span class="std std-ref">tgen_buf_append()</span></a> but allows printf() formatting of the input. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420tgen_buf_append_vfmtP7TGenBufPKc7va_list">
+<span id="_CPPv320tgen_buf_append_vfmtP7TGenBufPKc7va_list"></span><span id="_CPPv220tgen_buf_append_vfmtP7TGenBufPKc7va_list"></span><span id="tgen_buf_append_vfmt__TGenBufP.cCP.va_list"></span><span class="target" id="tgen_8h_1a35c4413c6c1633ebbbc7d1eaa12e004e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_append_vfmt</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fmt</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420tgen_buf_append_vfmtP7TGenBufPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1a618266d69b19a52ab441cff552269f68"><span class="std std-ref">tgen_buf_append_fmt()</span></a>, but takes a <code class="docutils literal notranslate"><span class="pre">va_list</span></code> instead of a variable number of arguments. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420tgen_buf_append_caseP7TGenBufPKcii">
+<span id="_CPPv320tgen_buf_append_caseP7TGenBufPKcii"></span><span id="_CPPv220tgen_buf_append_caseP7TGenBufPKcii"></span><span id="tgen_buf_append_case__TGenBufP.cCP.i.i"></span><span class="target" id="tgen_8h_1a7369f1d02420618c7586b77835297c39"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_append_case</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">casemode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420tgen_buf_append_caseP7TGenBufPKcii" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1a97698050c6c7ff58959535b2dd563066"><span class="std std-ref">tgen_buf_append()</span></a>, but converts the first <code class="docutils literal notranslate"><span class="pre">n</span></code> bytes of <code class="docutils literal notranslate"><span class="pre">src</span></code> according to <code class="docutils literal notranslate"><span class="pre">casemode</span></code> before appending them to <code class="docutils literal notranslate"><span class="pre">s</span></code>.</p>
+<p>Valid values for <code class="docutils literal notranslate"><span class="pre">casemode</span></code> are:<ul class="simple">
+<li><p>’s’: no change in case</p></li>
+<li><p>’c’: convert to lower case</p></li>
+<li><p>’C’: convert to upper case</p></li>
+<li><p>’u’: convert to underscore-separated lower case</p></li>
+<li><p>’U’: convert to underscore-separated upper case</p></li>
+<li><p>’m’: convert to lower mixedCase (aka camelCase)</p></li>
+<li><p>’M’: convert to upper MixedCase (aka CamelCase)</p></li>
+<li><p>’i’: convert to a valid C identifier (permissive)</p></li>
+<li><p>’I’: convert to a valid C identifier (strict)</p></li>
+<li><p>’T’: convert to title case (convert first character to upper case and the rest to lower case) </p></li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417tgen_buf_unappendP7TGenBuf6size_t">
+<span id="_CPPv317tgen_buf_unappendP7TGenBuf6size_t"></span><span id="_CPPv217tgen_buf_unappendP7TGenBuf6size_t"></span><span id="tgen_buf_unappend__TGenBufP.s"></span><span class="target" id="tgen_8h_1abbe05335e81cfb84431d220455b542ae"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_unappend</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417tgen_buf_unappendP7TGenBuf6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes the last <code class="docutils literal notranslate"><span class="pre">n</span></code> characters appended to buffer <code class="docutils literal notranslate"><span class="pre">s</span></code>. If <code class="docutils literal notranslate"><span class="pre">n</span></code> is larger than the buffer length, it is truncated.</p>
+<p>Returns the number of characters removed. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415tgen_buf_calignP7TGenBufii">
+<span id="_CPPv315tgen_buf_calignP7TGenBufii"></span><span id="_CPPv215tgen_buf_calignP7TGenBufii"></span><span id="tgen_buf_calign__TGenBufP.i.i"></span><span class="target" id="tgen_8h_1a722c97a87643f9cde0c12ca76cbcebd3"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_calign</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">c</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415tgen_buf_calignP7TGenBufii" title="Link to this definition">#</a><br /></dt>
+<dd><p>Pad buffer with character <code class="docutils literal notranslate"><span class="pre">c</span></code> until <code class="docutils literal notranslate"><span class="pre">n</span></code> characters has been written since the last newline. If more than <code class="docutils literal notranslate"><span class="pre">n</span></code> characters has already been written since the last newline, nothing is added.</p>
+<p>Returns number of padding added or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414tgen_buf_alignP7TGenBufi">
+<span id="_CPPv314tgen_buf_alignP7TGenBufi"></span><span id="_CPPv214tgen_buf_alignP7TGenBufi"></span><span id="tgen_buf_align__TGenBufP.i"></span><span class="target" id="tgen_8h_1ac767997db7de7d5d246e249a9bb94ef4"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_buf_align</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414tgen_buf_alignP7TGenBufi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1a722c97a87643f9cde0c12ca76cbcebd3"><span class="std std-ref">tgen_buf_calign()</span></a> but pads with space. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411tgen_linenoPKcPKc">
+<span id="_CPPv311tgen_linenoPKcPKc"></span><span id="_CPPv211tgen_linenoPKcPKc"></span><span id="tgen_lineno__cCP.cCP"></span><span class="target" id="tgen_8h_1a142fe865686b4a6bccccfd84773ff9ed"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_lineno</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">template</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">t</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411tgen_linenoPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the line number of position <code class="docutils literal notranslate"><span class="pre">t</span></code> in <code class="docutils literal notranslate"><span class="pre">template</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413tgen_readfilePKc">
+<span id="_CPPv313tgen_readfilePKc"></span><span id="_CPPv213tgen_readfilePKc"></span><span id="tgen_readfile__cCP"></span><span class="target" id="tgen_8h_1ab75def83c9acfdbdf4fc0f5eb799aa7f"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tgen_readfile</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413tgen_readfilePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reads a file and returns a newly allocated buffer with its content or NULL on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions-for-managing-substitutions">Functions for managing substitutions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414tgen_subs_initP8TGenSubs">
+<span id="_CPPv314tgen_subs_initP8TGenSubs"></span><span id="_CPPv214tgen_subs_initP8TGenSubs"></span><span id="tgen_subs_init__TGenSubsP"></span><span class="target" id="tgen_8h_1ac1cc04d3140cc600ae902aa210651d8c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414tgen_subs_initP8TGenSubs" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initiates memory used by <code class="docutils literal notranslate"><span class="pre">subs</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416tgen_subs_deinitP8TGenSubs">
+<span id="_CPPv316tgen_subs_deinitP8TGenSubs"></span><span id="_CPPv216tgen_subs_deinitP8TGenSubs"></span><span id="tgen_subs_deinit__TGenSubsP"></span><span class="target" id="tgen_8h_1a4cc07483936cf323a8457e2a51493f06"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_deinit</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416tgen_subs_deinitP8TGenSubs" title="Link to this definition">#</a><br /></dt>
+<dd><p>Deinitiates memory used by <code class="docutils literal notranslate"><span class="pre">subs</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413tgen_subs_getPK8TGenSubsPKc">
+<span id="_CPPv313tgen_subs_getPK8TGenSubsPKc"></span><span id="_CPPv213tgen_subs_getPK8TGenSubsPKc"></span><span id="tgen_subs_get__TGenSubsCP.cCP"></span><span class="target" id="tgen_8h_1a25d6578a8ef1cbee774e8374637d99f0"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv47TGenSub" title="TGenSub"><span class="n"><span class="pre">TGenSub</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_get</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">var</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413tgen_subs_getPK8TGenSubsPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns substitution corresponding to <code class="docutils literal notranslate"><span class="pre">var</span></code> or NULL if there are no matching substitution. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414tgen_subs_getnPK8TGenSubsPKci">
+<span id="_CPPv314tgen_subs_getnPK8TGenSubsPKci"></span><span id="_CPPv214tgen_subs_getnPK8TGenSubsPKci"></span><span id="tgen_subs_getn__TGenSubsCP.cCP.i"></span><span class="target" id="tgen_8h_1a4a598b42e1ae5a11bb48d437671b7f7c"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv47TGenSub" title="TGenSub"><span class="n"><span class="pre">TGenSub</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_getn</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">var</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414tgen_subs_getnPK8TGenSubsPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1a25d6578a8ef1cbee774e8374637d99f0"><span class="std std-ref">tgen_subs_get()</span></a>, but allows <code class="docutils literal notranslate"><span class="pre">var</span></code> to not be NUL-terminated by specifying its length with <code class="docutils literal notranslate"><span class="pre">len</span></code>. If <code class="docutils literal notranslate"><span class="pre">len</span></code> is negative, this is equivalent to calling <a class="reference internal" href="#tgen_8h_1a25d6578a8ef1cbee774e8374637d99f0"><span class="std std-ref">tgen_subs_get()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413tgen_subs_setP8TGenSubsPKcPKc7TGenFun">
+<span id="_CPPv313tgen_subs_setP8TGenSubsPKcPKc7TGenFun"></span><span id="_CPPv213tgen_subs_setP8TGenSubsPKcPKc7TGenFun"></span><span id="tgen_subs_set__TGenSubsP.cCP.cCP.TGenFun"></span><span class="target" id="tgen_8h_1a4bc0e7d2c5993b730f8f9a1b920e691b"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_set</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">var</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">repl</span></span>, <a class="reference internal" href="#_CPPv47TGenFun" title="TGenFun"><span class="n"><span class="pre">TGenFun</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">func</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413tgen_subs_setP8TGenSubsPKcPKc7TGenFun" title="Link to this definition">#</a><br /></dt>
+<dd><p>Adds variable <code class="docutils literal notranslate"><span class="pre">var</span></code> to list of substitutions <code class="docutils literal notranslate"><span class="pre">subs</span></code>. <code class="docutils literal notranslate"><span class="pre">repl</span></code> and <code class="docutils literal notranslate"><span class="pre">func</span></code> are the corresponding replacement string and generator function, respectively.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414tgen_subs_setnP8TGenSubsPKciPKc7TGenFun">
+<span id="_CPPv314tgen_subs_setnP8TGenSubsPKciPKc7TGenFun"></span><span id="_CPPv214tgen_subs_setnP8TGenSubsPKciPKc7TGenFun"></span><span id="tgen_subs_setn__TGenSubsP.cCP.i.cCP.TGenFun"></span><span class="target" id="tgen_8h_1a6c4600cd1b058c40c8a24d75d4e1b91a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_setn</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">var</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">repl</span></span>, <a class="reference internal" href="#_CPPv47TGenFun" title="TGenFun"><span class="n"><span class="pre">TGenFun</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">func</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414tgen_subs_setnP8TGenSubsPKciPKc7TGenFun" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like tgen_subs_add(), but allows <code class="docutils literal notranslate"><span class="pre">var</span></code> to not be NUL-terminated by specifying its length with <code class="docutils literal notranslate"><span class="pre">len</span></code>. If <code class="docutils literal notranslate"><span class="pre">len</span></code> is negative, this is equivalent to calling <a class="reference internal" href="#tgen_8h_1a25d6578a8ef1cbee774e8374637d99f0"><span class="std std-ref">tgen_subs_get()</span></a>.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417tgen_subs_set_fmtP8TGenSubsPKc7TGenFunPKcz">
+<span id="_CPPv317tgen_subs_set_fmtP8TGenSubsPKc7TGenFunPKcz"></span><span id="_CPPv217tgen_subs_set_fmtP8TGenSubsPKc7TGenFunPKcz"></span><span id="tgen_subs_set_fmt__TGenSubsP.cCP.TGenFun.cCP.z"></span><span class="target" id="tgen_8h_1a6d288780ffe07adcc8b98fb3463cfb21"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_set_fmt</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">var</span></span>, <a class="reference internal" href="#_CPPv47TGenFun" title="TGenFun"><span class="n"><span class="pre">TGenFun</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">func</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">repl_fmt</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417tgen_subs_set_fmtP8TGenSubsPKc7TGenFunPKcz" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1a4bc0e7d2c5993b730f8f9a1b920e691b"><span class="std std-ref">tgen_subs_set()</span></a>, but allows printf() formatting of the replacement string.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418tgen_subs_setn_fmtP8TGenSubsPKci7TGenFunPKcz">
+<span id="_CPPv318tgen_subs_setn_fmtP8TGenSubsPKci7TGenFunPKcz"></span><span id="_CPPv218tgen_subs_setn_fmtP8TGenSubsPKci7TGenFunPKcz"></span><span id="tgen_subs_setn_fmt__TGenSubsP.cCP.i.TGenFun.cCP.z"></span><span class="target" id="tgen_8h_1a9db0b0b0c36d9a0c85adf659a00a5d8d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_setn_fmt</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">var</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <a class="reference internal" href="#_CPPv47TGenFun" title="TGenFun"><span class="n"><span class="pre">TGenFun</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">func</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">repl_fmt</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418tgen_subs_setn_fmtP8TGenSubsPKci7TGenFunPKcz" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1a6c4600cd1b058c40c8a24d75d4e1b91a"><span class="std std-ref">tgen_subs_setn()</span></a>, but allows printf() formatting of the replacement string.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419tgen_subs_setn_vfmtP8TGenSubsPKci7TGenFunPKc7va_list">
+<span id="_CPPv319tgen_subs_setn_vfmtP8TGenSubsPKci7TGenFunPKc7va_list"></span><span id="_CPPv219tgen_subs_setn_vfmtP8TGenSubsPKci7TGenFunPKc7va_list"></span><span id="tgen_subs_setn_vfmt__TGenSubsP.cCP.i.TGenFun.cCP.va_list"></span><span class="target" id="tgen_8h_1a2471420c24b736eec795630db2fdc3a7"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_setn_vfmt</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">var</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <a class="reference internal" href="#_CPPv47TGenFun" title="TGenFun"><span class="n"><span class="pre">TGenFun</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">func</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">repl_fmt</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419tgen_subs_setn_vfmtP8TGenSubsPKci7TGenFunPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1a6c4600cd1b058c40c8a24d75d4e1b91a"><span class="std std-ref">tgen_subs_setn()</span></a>, but allows printf() formatting of the replacement string.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414tgen_subs_copyP8TGenSubsPK8TGenSubs">
+<span id="_CPPv314tgen_subs_copyP8TGenSubsPK8TGenSubs"></span><span id="_CPPv214tgen_subs_copyP8TGenSubsPK8TGenSubs"></span><span id="tgen_subs_copy__TGenSubsP.TGenSubsCP"></span><span class="target" id="tgen_8h_1ad54fc4f05f1f89331863dba4d49f1f64"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_subs_copy</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">dest</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414tgen_subs_copyP8TGenSubsPK8TGenSubs" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initiates <code class="docutils literal notranslate"><span class="pre">dest</span></code> and copies substitutions from <code class="docutils literal notranslate"><span class="pre">src</span></code> to it. <code class="docutils literal notranslate"><span class="pre">dest</span></code> should not be initiated in beforehand.</p>
+<p>Returns non-zero on error. In this case, <code class="docutils literal notranslate"><span class="pre">dest</span></code> will be left in a non-initialised state. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions-for-text-generations">Functions for text generations</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv44tgenPKcP8TGenSubsPv">
+<span id="_CPPv34tgenPKcP8TGenSubsPv"></span><span id="_CPPv24tgenPKcP8TGenSubsPv"></span><span id="tgen__cCP.TGenSubsP.voidP"></span><span class="target" id="tgen_8h_1a357eb144fe740ede07c7cf004a5eb782"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tgen</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">template</span></span>, <a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">context</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv44tgenPKcP8TGenSubsPv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a newly malloc’ed string based on <code class="docutils literal notranslate"><span class="pre">template</span></code>, where all occurences of <code class="docutils literal notranslate"><span class="pre">{VAR}</span></code> are replaced according to substitution <code class="docutils literal notranslate"><span class="pre">VAR</span></code> in the array <code class="docutils literal notranslate"><span class="pre">substitutions</span></code>, which has length <code class="docutils literal notranslate"><span class="pre">n</span></code>.</p>
+<p>The template may also refer to a substitution as <code class="docutils literal notranslate"><span class="pre">{VAR:TEMPL}</span></code>. If the substitution corresponding to <code class="docutils literal notranslate"><span class="pre">VAR</span></code> provide a substitution function (via its <code class="docutils literal notranslate"><span class="pre">subs</span></code> member), <code class="docutils literal notranslate"><span class="pre">TEMPL</span></code> will be passed as subtemplate to the substitution function. If <code class="docutils literal notranslate"><span class="pre">TEMPL</span></code> is not given, then the subtemplate will be taken from the <code class="docutils literal notranslate"><span class="pre">repl</span></code> member of the corresponding substitution.</p>
+<p><code class="docutils literal notranslate"><span class="pre">context</span></code> is a pointer to user data passed on to the substitution function.</p>
+<p>Returns NULL, on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411tgen_appendP7TGenBufPKciP8TGenSubsPv">
+<span id="_CPPv311tgen_appendP7TGenBufPKciP8TGenSubsPv"></span><span id="_CPPv211tgen_appendP7TGenBufPKciP8TGenSubsPv"></span><span id="tgen_append__TGenBufP.cCP.i.TGenSubsP.voidP"></span><span class="target" id="tgen_8h_1a9482d2df76fb0664531c0992b16c0c8d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_append</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">template</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subs</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">context</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411tgen_appendP7TGenBufPKciP8TGenSubsPv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#tgen_8h_1a357eb144fe740ede07c7cf004a5eb782"><span class="std std-ref">tgen()</span></a>, but appends to <code class="docutils literal notranslate"><span class="pre">s</span></code> instead of returning the substituted template. <code class="docutils literal notranslate"><span class="pre">len</span></code> is the length of <code class="docutils literal notranslate"><span class="pre">template</span></code>.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv47TGenFun">
+<span id="_CPPv37TGenFun"></span><span id="_CPPv27TGenFun"></span><span id="TGenFun"></span><span class="target" id="tgen_8h_1a569f76420dcd8472f7699bf8e4dd5ff7"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">TGenFun</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><a class="reference internal" href="#_CPPv47TGenBuf" title="TGenBuf"><span class="n"><span class="pre">TGenBuf</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">template</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">len</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv48TGenSubs" title="TGenSubs"><span class="n"><span class="pre">TGenSubs</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">subs</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv47TGenFun" title="Link to this definition">#</a><br /></dt>
+<dd><p>Prototype for generator function that appends to the output buffer.</p>
+<p><ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">s</span></code>: output buffer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">template</span></code>: input template</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">len</span></code>: length of <code class="docutils literal notranslate"><span class="pre">template</span></code>. A negative number indicates that the template is NUL-terminated.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">subs</span></code>: substitutions</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">context</span></code>: pointer to user-defined context passed on to generator functions</p></li>
+</ul>
+</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv412TGenErrCodes">
+<span id="_CPPv312TGenErrCodes"></span><span id="_CPPv212TGenErrCodes"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenErrCodes</span></span></span><a class="headerlink" href="#_CPPv412TGenErrCodes" title="Link to this definition">#</a><br /></dt>
+<dd><p>Error codes used by this library </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12TGenErrCodes6TGenOkE">
+<span id="_CPPv3N12TGenErrCodes6TGenOkE"></span><span id="_CPPv2N12TGenErrCodes6TGenOkE"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1a6b3bbdddcd38b36808d898600d78db85"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenOk</span></span></span><a class="headerlink" href="#_CPPv4N12TGenErrCodes6TGenOkE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12TGenErrCodes19TGenAllocationErrorE">
+<span id="_CPPv3N12TGenErrCodes19TGenAllocationErrorE"></span><span id="_CPPv2N12TGenErrCodes19TGenAllocationErrorE"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1a5201ef99bda1a739342fa29de54ca37f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenAllocationError</span></span></span><a class="headerlink" href="#_CPPv4N12TGenErrCodes19TGenAllocationErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Allocation error </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12TGenErrCodes15TGenSyntaxErrorE">
+<span id="_CPPv3N12TGenErrCodes15TGenSyntaxErrorE"></span><span id="_CPPv2N12TGenErrCodes15TGenSyntaxErrorE"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1a282fae3667eea167b080a93c298d8bed"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenSyntaxError</span></span></span><a class="headerlink" href="#_CPPv4N12TGenErrCodes15TGenSyntaxErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Syntax error </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12TGenErrCodes11TGenIOErrorE">
+<span id="_CPPv3N12TGenErrCodes11TGenIOErrorE"></span><span id="_CPPv2N12TGenErrCodes11TGenIOErrorE"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1a5865761fd059c43caf6a771a1f7bc583"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenIOError</span></span></span><a class="headerlink" href="#_CPPv4N12TGenErrCodes11TGenIOErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Input/output error </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12TGenErrCodes17TGenVariableErrorE">
+<span id="_CPPv3N12TGenErrCodes17TGenVariableErrorE"></span><span id="_CPPv2N12TGenErrCodes17TGenVariableErrorE"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1ace438f4fba0eeafdf753fac6575da714"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenVariableError</span></span></span><a class="headerlink" href="#_CPPv4N12TGenErrCodes17TGenVariableErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Invalid variable name </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12TGenErrCodes20TGenSubtemplateErrorE">
+<span id="_CPPv3N12TGenErrCodes20TGenSubtemplateErrorE"></span><span id="_CPPv2N12TGenErrCodes20TGenSubtemplateErrorE"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1a0ebacab073c375860f66fff30dffef27"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenSubtemplateError</span></span></span><a class="headerlink" href="#_CPPv4N12TGenErrCodes20TGenSubtemplateErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Missing subtemplate </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12TGenErrCodes12TGenMapErrorE">
+<span id="_CPPv3N12TGenErrCodes12TGenMapErrorE"></span><span id="_CPPv2N12TGenErrCodes12TGenMapErrorE"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1a9454aba83e263cbe9c5dfebcae39c3b4"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenMapError</span></span></span><a class="headerlink" href="#_CPPv4N12TGenErrCodes12TGenMapErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Error from the map library </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12TGenErrCodes15TGenFormatErrorE">
+<span id="_CPPv3N12TGenErrCodes15TGenFormatErrorE"></span><span id="_CPPv2N12TGenErrCodes15TGenFormatErrorE"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1a67b1e75d6c62058af1c343aeb4626a8e"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenFormatError</span></span></span><a class="headerlink" href="#_CPPv4N12TGenErrCodes15TGenFormatErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Invalid format specifier </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12TGenErrCodes13TGenUserErrorE">
+<span id="_CPPv3N12TGenErrCodes13TGenUserErrorE"></span><span id="_CPPv2N12TGenErrCodes13TGenUserErrorE"></span><span class="target" id="tgen_8h_1a4164ff0cb4cfd5c41e4e3fbf53631bc1a2769d8d173c085eee0f0965ff732b5ed"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenUserError</span></span></span><a class="headerlink" href="#_CPPv4N12TGenErrCodes13TGenUserErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Triggered by the {&#64;error:…} construct </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-variables">Variables</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv429tgen_convert_escape_sequences">
+<span id="_CPPv329tgen_convert_escape_sequences"></span><span id="_CPPv229tgen_convert_escape_sequences"></span><span id="tgen_convert_escape_sequences__i"></span><span class="target" id="tgen_8h_1ab291641de0e2f76c3f536934c0cfb2f2"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">tgen_convert_escape_sequences</span></span></span><a class="headerlink" href="#_CPPv429tgen_convert_escape_sequences" title="Link to this definition">#</a><br /></dt>
+<dd><p>Whether to convert standard escape sequences. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv47TGenBuf">
+<span id="_CPPv37TGenBuf"></span><span id="_CPPv27TGenBuf"></span><span id="TGenBuf"></span><span class="target" id="structTGenBuf"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenBuf</span></span></span><a class="headerlink" href="#_CPPv47TGenBuf" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;tgen.h&gt;</em></div>
+<p>Buffer for generated output. Example use that prints “Hello world!” to stdout: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">TGenBuf</span> <span class="n">s</span><span class="p">;</span>
+<span class="n">tgen_buf_init</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s</span><span class="p">);</span>
+<span class="n">tgen_buf_append</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s</span><span class="p">,</span> <span class="s2">&quot;Hello&quot;</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+<span class="n">tgen_buf_append_fmt</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s</span><span class="p">,</span> <span class="s2">&quot; </span><span class="si">%s</span><span class="s2">!&quot;</span><span class="p">,</span> <span class="s2">&quot;world&quot;</span><span class="p">);</span>
+<span class="n">printf</span><span class="p">(</span><span class="s2">&quot;</span><span class="si">%s</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">tgen_buf_get</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s</span><span class="p">));</span>
+<span class="n">tgen_buf_deinit</span><span class="p">(</span><span class="o">&amp;</span><span class="n">s</span><span class="p">);</span>
+</pre></div>
+</div>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7TGenBuf3bufE">
+<span id="_CPPv3N7TGenBuf3bufE"></span><span id="_CPPv2N7TGenBuf3bufE"></span><span id="TGenBuf::buf__cP"></span><span class="target" id="structTGenBuf_1a1fa5425f9d031ef95775f4ba9956843c"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">buf</span></span></span><a class="headerlink" href="#_CPPv4N7TGenBuf3bufE" title="Link to this definition">#</a><br /></dt>
+<dd><p>buffer </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7TGenBuf4sizeE">
+<span id="_CPPv3N7TGenBuf4sizeE"></span><span id="_CPPv2N7TGenBuf4sizeE"></span><span id="TGenBuf::size__s"></span><span class="target" id="structTGenBuf_1afff6172e8a8c506f106eca96fddc990b"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><a class="headerlink" href="#_CPPv4N7TGenBuf4sizeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>allocated size of buffer </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7TGenBuf3posE">
+<span id="_CPPv3N7TGenBuf3posE"></span><span id="_CPPv2N7TGenBuf3posE"></span><span id="TGenBuf::pos__s"></span><span class="target" id="structTGenBuf_1a9c41e3d015b3c97933553009c9644b15"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pos</span></span></span><a class="headerlink" href="#_CPPv4N7TGenBuf3posE" title="Link to this definition">#</a><br /></dt>
+<dd><p>current position </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv48TGenSubs">
+<span id="_CPPv38TGenSubs"></span><span id="_CPPv28TGenSubs"></span><span id="TGenSubs"></span><span class="target" id="structTGenSubs"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenSubs</span></span></span><a class="headerlink" href="#_CPPv48TGenSubs" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;tgen.h&gt;</em></div>
+<p>A structure managing a list of substitutions </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8TGenSubs4subsE">
+<span id="_CPPv3N8TGenSubs4subsE"></span><span id="_CPPv2N8TGenSubs4subsE"></span><span id="TGenSubs::subs___TGenSubP"></span><span class="target" id="structTGenSubs_1a8241d3a9b8a8744e0423bd2c989db4e3"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">_TGenSub</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">subs</span></span></span><a class="headerlink" href="#_CPPv4N8TGenSubs4subsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>list of substitutions </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8TGenSubs4sizeE">
+<span id="_CPPv3N8TGenSubs4sizeE"></span><span id="_CPPv2N8TGenSubs4sizeE"></span><span id="TGenSubs::size__i"></span><span class="target" id="structTGenSubs_1a6af40e7232f41a139dd0002a79cfbc52"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><a class="headerlink" href="#_CPPv4N8TGenSubs4sizeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>allocated size of subs </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8TGenSubs5nsubsE">
+<span id="_CPPv3N8TGenSubs5nsubsE"></span><span id="_CPPv2N8TGenSubs5nsubsE"></span><span id="TGenSubs::nsubs__i"></span><span class="target" id="structTGenSubs_1a45c9ae771a7dfd726b48b92656af200c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">nsubs</span></span></span><a class="headerlink" href="#_CPPv4N8TGenSubs5nsubsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>length of subs </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8TGenSubs3mapE">
+<span id="_CPPv3N8TGenSubs3mapE"></span><span id="_CPPv2N8TGenSubs3mapE"></span><span id="TGenSubs::map__map_int_t"></span><span class="target" id="structTGenSubs_1a638e18140f292efa2f9b483d5caaf8a5"></span><span class="n"><span class="pre">map_int_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">map</span></span></span><a class="headerlink" href="#_CPPv4N8TGenSubs3mapE" title="Link to this definition">#</a><br /></dt>
+<dd><p>maps variable name to index in subs </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8TGenSubs6parentE">
+<span id="_CPPv3N8TGenSubs6parentE"></span><span id="_CPPv2N8TGenSubs6parentE"></span><span id="TGenSubs::parent___TGenSubsP"></span><span class="target" id="structTGenSubs_1afea9ee8072de52792d5d23a7020f2ee9"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="n"><span class="pre">_TGenSubs</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">parent</span></span></span><a class="headerlink" href="#_CPPv4N8TGenSubs6parentE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Pointer to parent substitutions. Used by substitution functions that create their own scope. Otherwise it is NULL. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv47TGenSub">
+<span id="_CPPv37TGenSub"></span><span id="_CPPv27TGenSub"></span><span id="TGenSub"></span><span class="target" id="structTGenSub"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TGenSub</span></span></span><a class="headerlink" href="#_CPPv47TGenSub" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;tgen.h&gt;</em></div>
+<p>Struct defining a substitution. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7TGenSub3varE">
+<span id="_CPPv3N7TGenSub3varE"></span><span id="_CPPv2N7TGenSub3varE"></span><span id="TGenSub::var__cP"></span><span class="target" id="structTGenSub_1ae77323b46df36e3c051ac691a1eabf5f"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">var</span></span></span><a class="headerlink" href="#_CPPv4N7TGenSub3varE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Variable that should be substituted </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7TGenSub4replE">
+<span id="_CPPv3N7TGenSub4replE"></span><span id="_CPPv2N7TGenSub4replE"></span><span id="TGenSub::repl__cP"></span><span class="target" id="structTGenSub_1afcdd895307d5e55d1ba3b126c1c11cdb"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">repl</span></span></span><a class="headerlink" href="#_CPPv4N7TGenSub4replE" title="Link to this definition">#</a><br /></dt>
+<dd><p>String that the variable should be replaced with. May also be used as subtemplate if <code class="docutils literal notranslate"><span class="pre">sub</span></code> is given and the main template does not provide a subtemplate for this substitution. </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N7TGenSub4funcE">
+<span id="_CPPv3N7TGenSub4funcE"></span><span id="_CPPv2N7TGenSub4funcE"></span><span id="TGenSub::func__TGenFun"></span><span class="target" id="structTGenSub_1a80f192eed3834e7b21171f8900fec2c9"></span><a class="reference internal" href="#_CPPv47TGenFun" title="TGenFun"><span class="n"><span class="pre">TGenFun</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">func</span></span></span><a class="headerlink" href="#_CPPv4N7TGenSub4funcE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Generator function, may be NULL </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="strutils.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">strutils</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="tmpfileplus.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">tmpfileplus</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417tgen_escaped_copyPcPKci"><code class="docutils literal notranslate"><span class="pre">tgen_escaped_copy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412tgen_setcasePcii"><code class="docutils literal notranslate"><span class="pre">tgen_setcase()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417tgen_convert_casePKcii"><code class="docutils literal notranslate"><span class="pre">tgen_convert_case()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413tgen_buf_initP7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415tgen_buf_deinitP7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_buf_stealP7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_steal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415tgen_buf_lengthPK7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_length()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412tgen_buf_getPK7TGenBuf"><code class="docutils literal notranslate"><span class="pre">tgen_buf_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415tgen_buf_appendP7TGenBufPKci"><code class="docutils literal notranslate"><span class="pre">tgen_buf_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419tgen_buf_append_fmtP7TGenBufPKcz"><code class="docutils literal notranslate"><span class="pre">tgen_buf_append_fmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420tgen_buf_append_vfmtP7TGenBufPKc7va_list"><code class="docutils literal notranslate"><span class="pre">tgen_buf_append_vfmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420tgen_buf_append_caseP7TGenBufPKcii"><code class="docutils literal notranslate"><span class="pre">tgen_buf_append_case()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417tgen_buf_unappendP7TGenBuf6size_t"><code class="docutils literal notranslate"><span class="pre">tgen_buf_unappend()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415tgen_buf_calignP7TGenBufii"><code class="docutils literal notranslate"><span class="pre">tgen_buf_calign()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_buf_alignP7TGenBufi"><code class="docutils literal notranslate"><span class="pre">tgen_buf_align()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411tgen_linenoPKcPKc"><code class="docutils literal notranslate"><span class="pre">tgen_lineno()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413tgen_readfilePKc"><code class="docutils literal notranslate"><span class="pre">tgen_readfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_subs_initP8TGenSubs"><code class="docutils literal notranslate"><span class="pre">tgen_subs_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416tgen_subs_deinitP8TGenSubs"><code class="docutils literal notranslate"><span class="pre">tgen_subs_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413tgen_subs_getPK8TGenSubsPKc"><code class="docutils literal notranslate"><span class="pre">tgen_subs_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_subs_getnPK8TGenSubsPKci"><code class="docutils literal notranslate"><span class="pre">tgen_subs_getn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413tgen_subs_setP8TGenSubsPKcPKc7TGenFun"><code class="docutils literal notranslate"><span class="pre">tgen_subs_set()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_subs_setnP8TGenSubsPKciPKc7TGenFun"><code class="docutils literal notranslate"><span class="pre">tgen_subs_setn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417tgen_subs_set_fmtP8TGenSubsPKc7TGenFunPKcz"><code class="docutils literal notranslate"><span class="pre">tgen_subs_set_fmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418tgen_subs_setn_fmtP8TGenSubsPKci7TGenFunPKcz"><code class="docutils literal notranslate"><span class="pre">tgen_subs_setn_fmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419tgen_subs_setn_vfmtP8TGenSubsPKci7TGenFunPKc7va_list"><code class="docutils literal notranslate"><span class="pre">tgen_subs_setn_vfmt()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414tgen_subs_copyP8TGenSubsPK8TGenSubs"><code class="docutils literal notranslate"><span class="pre">tgen_subs_copy()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv44tgenPKcP8TGenSubsPv"><code class="docutils literal notranslate"><span class="pre">tgen()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411tgen_appendP7TGenBufPKciP8TGenSubsPv"><code class="docutils literal notranslate"><span class="pre">tgen_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47TGenFun"><code class="docutils literal notranslate"><span class="pre">TGenFun</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412TGenErrCodes"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes6TGenOkE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenOk</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes19TGenAllocationErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenAllocationError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes15TGenSyntaxErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenSyntaxError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes11TGenIOErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenIOError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes17TGenVariableErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenVariableError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes20TGenSubtemplateErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenSubtemplateError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes12TGenMapErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenMapError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes15TGenFormatErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenFormatError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12TGenErrCodes13TGenUserErrorE"><code class="docutils literal notranslate"><span class="pre">TGenErrCodes::TGenUserError</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv429tgen_convert_escape_sequences"><code class="docutils literal notranslate"><span class="pre">tgen_convert_escape_sequences</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47TGenBuf"><code class="docutils literal notranslate"><span class="pre">TGenBuf</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenBuf3bufE"><code class="docutils literal notranslate"><span class="pre">TGenBuf::buf</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenBuf4sizeE"><code class="docutils literal notranslate"><span class="pre">TGenBuf::size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenBuf3posE"><code class="docutils literal notranslate"><span class="pre">TGenBuf::pos</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48TGenSubs"><code class="docutils literal notranslate"><span class="pre">TGenSubs</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs4subsE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::subs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs4sizeE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs5nsubsE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::nsubs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs3mapE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::map</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8TGenSubs6parentE"><code class="docutils literal notranslate"><span class="pre">TGenSubs::parent</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47TGenSub"><code class="docutils literal notranslate"><span class="pre">TGenSub</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenSub3varE"><code class="docutils literal notranslate"><span class="pre">TGenSub::var</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenSub4replE"><code class="docutils literal notranslate"><span class="pre">TGenSub::repl</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N7TGenSub4funcE"><code class="docutils literal notranslate"><span class="pre">TGenSub::func</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

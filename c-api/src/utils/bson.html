@@ -1,0 +1,981 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>bson &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/utils/bson';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="clp2" href="clp2.html" />
+    <link rel="prev" title="utils" href="../utils.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/utils/bson.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/c-api/src/utils/bson.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>bson</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413bson_typename8BsonType"><code class="docutils literal notranslate"><span class="pre">bson_typename()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412bson_docsizePKh"><code class="docutils literal notranslate"><span class="pre">bson_docsize()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414bson_nelementsPKh"><code class="docutils literal notranslate"><span class="pre">bson_nelements()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418bson_init_documentPhi"><code class="docutils literal notranslate"><span class="pre">bson_init_document()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411bson_appendPhi8BsonTypePKciPKv"><code class="docutils literal notranslate"><span class="pre">bson_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417bson_begin_subdocPhiPKcPPh"><code class="docutils literal notranslate"><span class="pre">bson_begin_subdoc()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415bson_end_subdocPhi8BsonType"><code class="docutils literal notranslate"><span class="pre">bson_end_subdoc()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417bson_begin_binaryPhiPKcPPh"><code class="docutils literal notranslate"><span class="pre">bson_begin_binary()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418bson_append_binaryPhiiPv"><code class="docutils literal notranslate"><span class="pre">bson_append_binary()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415bson_end_binaryPhi"><code class="docutils literal notranslate"><span class="pre">bson_end_binary()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410bson_parsePKhPPcPPvPiPPh"><code class="docutils literal notranslate"><span class="pre">bson_parse()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49bson_scanPKhPKcPPvPi"><code class="docutils literal notranslate"><span class="pre">bson_scan()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410bson_scannPKhPKc6size_tPPvPi"><code class="docutils literal notranslate"><span class="pre">bson_scann()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415bson_scan_int32PKhPKcP9BsonError"><code class="docutils literal notranslate"><span class="pre">bson_scan_int32()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416bson_scan_doublePKhPKcP9BsonError"><code class="docutils literal notranslate"><span class="pre">bson_scan_double()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416bson_scan_stringPKhPKcP9BsonError"><code class="docutils literal notranslate"><span class="pre">bson_scan_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414bson_scan_boolPKhPKcP9BsonError"><code class="docutils literal notranslate"><span class="pre">bson_scan_bool()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48BsonType"><code class="docutils literal notranslate"><span class="pre">BsonType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType10bsonDoubleE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonDouble</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType10bsonStringE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonString</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType12bsonDocumentE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonDocument</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType9bsonArrayE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonArray</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType10bsonBinaryE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonBinary</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType8bsonBoolE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonBool</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType8bsonNullE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonNull</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType9bsonInt32E"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonInt32</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49BsonError"><code class="docutils literal notranslate"><span class="pre">BsonError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError13bsonTypeErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonTypeError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError14bsonValueErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonValueError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError12bsonKeyErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonKeyError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError14bsonParseErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonParseError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError25bsonInconsistentDataErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonInconsistentDataError</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="bson">
+<h1>bson<a class="headerlink" href="#bson" title="Link to this heading">#</a></h1>
+<p>Functions for creating and parsing BSON documents. </p>
+<p>Currently, this only implements a subset of BSON. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-utility-functions">Utility functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413bson_typename8BsonType">
+<span id="_CPPv313bson_typename8BsonType"></span><span id="_CPPv213bson_typename8BsonType"></span><span id="bson_typename__BsonType"></span><span class="target" id="bson_8h_1accdacc3d52d3f23e9446590db3f5dae1"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">bson_typename</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48BsonType" title="BsonType"><span class="n"><span class="pre">BsonType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413bson_typename8BsonType" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return name of given BSON type or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412bson_docsizePKh">
+<span id="_CPPv312bson_docsizePKh"></span><span id="_CPPv212bson_docsizePKh"></span><span id="bson_docsize__unsigned-cCP"></span><span class="target" id="bson_8h_1a574a5afc7aed6f037c1d718722f3e422"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_docsize</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412bson_docsizePKh" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return size of BSON document. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414bson_nelementsPKh">
+<span id="_CPPv314bson_nelementsPKh"></span><span id="_CPPv214bson_nelementsPKh"></span><span id="bson_nelements__unsigned-cCP"></span><span class="target" id="bson_8h_1ab4648cb50ad64ba4d47c451c7cb6e4fd"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_nelements</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414bson_nelementsPKh" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return the number of (non-nested) elements in BSON document. A negative error code is returned on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-basic-functions-for-creating-a-bson-document">Basic functions for creating a BSON document</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418bson_init_documentPhi">
+<span id="_CPPv318bson_init_documentPhi"></span><span id="_CPPv218bson_init_documentPhi"></span><span id="bson_init_document__unsigned-cP.i"></span><span class="target" id="bson_8h_1a0df426f10015b4f6e8be20b0de5b5d32"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_init_document</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bufsize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418bson_init_documentPhi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initialize buffer <code class="docutils literal notranslate"><span class="pre">buf</span></code> (of size <code class="docutils literal notranslate"><span class="pre">bufsize</span></code>) to a BSON document.</p>
+<p>Returns number of bytes consumed or a negative error code on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411bson_appendPhi8BsonTypePKciPKv">
+<span id="_CPPv311bson_appendPhi8BsonTypePKciPKv"></span><span id="_CPPv211bson_appendPhi8BsonTypePKciPKv"></span><span id="bson_append__unsigned-cP.i.BsonType.cCP.i.voidCP"></span><span class="target" id="bson_8h_1a554a2a11c958a15e8bde82fa83085170"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_append</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bufsize</span></span>, <a class="reference internal" href="#_CPPv48BsonType" title="BsonType"><span class="n"><span class="pre">BsonType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411bson_appendPhi8BsonTypePKciPKv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Appends an element to a BSON document.</p>
+<p>Arguments:<ul class="simple">
+<li><p>doc: Pointer to a BSON document to append data to. The memory pointed to must have been initialised with <a class="reference internal" href="#bson_8h_1a0df426f10015b4f6e8be20b0de5b5d32"><span class="std std-ref">bson_init_document()</span></a>.</p></li>
+<li><p>bufsize: Remaining size of buffer to write to. No more than <code class="docutils literal notranslate"><span class="pre">bufsize</span></code> bytes will be written.</p></li>
+<li><p>ename: Element name (NUL-terminated string). Name of data to append.</p></li>
+<li><p>size: Size of data to append (in bytes).</p></li>
+<li><p>data: Pointer to data to append. If this is a BSON document, then the no more data must be appended to it.</p></li>
+</ul>
+</p>
+<p>Returns: The number of bytes written (or would have been written) to <code class="docutils literal notranslate"><span class="pre">doc</span></code>. On error, a negative error code is returned. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-alternative-functions-for-partially-appending-a-sub-document-or-array.">Alternative functions for partially appending a sub-document or array.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417bson_begin_subdocPhiPKcPPh">
+<span id="_CPPv317bson_begin_subdocPhiPKcPPh"></span><span id="_CPPv217bson_begin_subdocPhiPKcPPh"></span><span id="bson_begin_subdoc__unsigned-cP.i.cCP.unsigned-cPP"></span><span class="target" id="bson_8h_1a8082948401d3932746046a70a049e0e6"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_begin_subdoc</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bufsize</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subdoc</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417bson_begin_subdocPhiPKcPPh" title="Link to this definition">#</a><br /></dt>
+<dd><p>Begin appending a sub-document or array to BSON document.</p>
+<p>This is an alternative to <code class="docutils literal notranslate"><a class="reference internal" href="#bson_8h_1a554a2a11c958a15e8bde82fa83085170"><span class="std std-ref"><span class="pre">bson_append()</span></span></a></code> for appending sub-documents that does not require that you create the sub-document before appending it.</p>
+<p>A call to <code class="docutils literal notranslate"><a class="reference internal" href="#bson_8h_1a8082948401d3932746046a70a049e0e6"><span class="std std-ref"><span class="pre">bson_begin_subdoc()</span></span></a></code> must be followed by a matching call to <code class="docutils literal notranslate"><a class="reference internal" href="#bson_8h_1a00f252aab84d44f2b264a514580e53cc"><span class="std std-ref"><span class="pre">bson_end_subdoc()</span></span></a></code>. The parent document is not changed before <code class="docutils literal notranslate"><a class="reference internal" href="#bson_8h_1a00f252aab84d44f2b264a514580e53cc"><span class="std std-ref"><span class="pre">bson_end_subdoc()</span></span></a></code> is called.</p>
+<p>Arguments:<ul class="simple">
+<li><p>doc: Pointer to a BSON document to append data to. The memory pointed to must have been initialised with <a class="reference internal" href="#bson_8h_1a0df426f10015b4f6e8be20b0de5b5d32"><span class="std std-ref">bson_init_document()</span></a>.</p></li>
+<li><p>bufsize: Remaining size of buffer to write to. No more than <code class="docutils literal notranslate"><span class="pre">bufsize</span></code> bytes will be written.</p></li>
+<li><p>ename: Element name (NUL-terminated string). Name of data to append.</p></li>
+<li><p>subdoc: If not NULL, the memory pointed to will be set to the start of the sub-document, such that it can be used by subsequent calls to <a class="reference internal" href="#bson_8h_1a554a2a11c958a15e8bde82fa83085170"><span class="std std-ref">bson_append()</span></a>.</p></li>
+</ul>
+</p>
+<p>Returns:<ul class="simple">
+<li><p>Number of bytes appended (or would have been appended) to <code class="docutils literal notranslate"><span class="pre">doc</span></code>. A negative error code is returned on error.</p></li>
+</ul>
+</p>
+<p>Example:</p>
+<p>unsigned char doc[1024], *subdoc; int bufsize=sizeof(doc), n;</p>
+<p>n = bson_init_document(doc, bufsize); n += bson_begin_subdoc(doc, bufsize-n, “subdoc”, &amp;subdoc); n += bson_append(subdoc, bufsize-n, bsonString, “hello”, -1, “world”); … n += bson_end_subdoc(doc, bufsize-n, bsonDocument); </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415bson_end_subdocPhi8BsonType">
+<span id="_CPPv315bson_end_subdocPhi8BsonType"></span><span id="_CPPv215bson_end_subdocPhi8BsonType"></span><span id="bson_end_subdoc__unsigned-cP.i.BsonType"></span><span class="target" id="bson_8h_1a00f252aab84d44f2b264a514580e53cc"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_end_subdoc</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bufsize</span></span>, <a class="reference internal" href="#_CPPv48BsonType" title="BsonType"><span class="n"><span class="pre">BsonType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415bson_end_subdocPhi8BsonType" title="Link to this definition">#</a><br /></dt>
+<dd><p>End sub-document started with <code class="docutils literal notranslate"><a class="reference internal" href="#bson_8h_1a8082948401d3932746046a70a049e0e6"><span class="std std-ref"><span class="pre">bson_begin_subdoc()</span></span></a></code>.</p>
+<p>Arguments:<ul class="simple">
+<li><p>doc: Pointer to a BSON document to append data to. The memory pointed to must have been initialised with <a class="reference internal" href="#bson_8h_1a0df426f10015b4f6e8be20b0de5b5d32"><span class="std std-ref">bson_init_document()</span></a>.</p></li>
+<li><p>bufsize: Remaining size of buffer to write to. No more than <code class="docutils literal notranslate"><span class="pre">bufsize</span></code> bytes will be written.</p></li>
+<li><p>type: BSON type of sub-document; <code class="docutils literal notranslate"><span class="pre">bsonDocument</span></code> or <code class="docutils literal notranslate"><span class="pre">bsonArray</span></code>.</p></li>
+</ul>
+</p>
+<p>Returns:<ul class="simple">
+<li><p>Number of bytes appended (or would have been appended) to <code class="docutils literal notranslate"><span class="pre">doc</span></code>. A negative error code is returned on error. </p></li>
+</ul>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-alternative-functions-for-partially-appending-a-binary-element.">Alternative functions for partially appending a binary element.</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417bson_begin_binaryPhiPKcPPh">
+<span id="_CPPv317bson_begin_binaryPhiPKcPPh"></span><span id="_CPPv217bson_begin_binaryPhiPKcPPh"></span><span id="bson_begin_binary__unsigned-cP.i.cCP.unsigned-cPP"></span><span class="target" id="bson_8h_1a7dd36cdc62cb4666c9e8a8111bef2d97"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_begin_binary</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bufsize</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subdoc</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417bson_begin_binaryPhiPKcPPh" title="Link to this definition">#</a><br /></dt>
+<dd><p>Start partially built binary element.</p>
+<p>Arguments:<ul class="simple">
+<li><p>doc: Pointer to a BSON document to append data to. The memory pointed to must have been initialised with <a class="reference internal" href="#bson_8h_1a0df426f10015b4f6e8be20b0de5b5d32"><span class="std std-ref">bson_init_document()</span></a>.</p></li>
+<li><p>bufsize: Remaining size of buffer to write to. No more than <code class="docutils literal notranslate"><span class="pre">bufsize</span></code> bytes will be written.</p></li>
+<li><p>ename: Element name (NUL-terminated string). Name of data to append.</p></li>
+<li><p>subdoc: If not NULL, the memory pointed to will be set to the start of the sub-document, such that it can be used by subsequent calls to <a class="reference internal" href="#bson_8h_1a554a2a11c958a15e8bde82fa83085170"><span class="std std-ref">bson_append()</span></a>.</p></li>
+<li><p>size: Size of data to append (in bytes).</p></li>
+<li><p>data: Pointer to data to append. If this is a BSON document, then the no more data should be appended to it.</p></li>
+</ul>
+</p>
+<p>Returns:<ul class="simple">
+<li><p>Number of bytes appended (or would have been appended) to <code class="docutils literal notranslate"><span class="pre">doc</span></code>. A negative error code is returned on error. </p></li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418bson_append_binaryPhiiPv">
+<span id="_CPPv318bson_append_binaryPhiiPv"></span><span id="_CPPv218bson_append_binaryPhiiPv"></span><span id="bson_append_binary__unsigned-cP.i.i.voidP"></span><span class="target" id="bson_8h_1a32f9a6cea0ee305a9dfe80b8fc0a351e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_append_binary</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">subdoc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bufsize</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418bson_append_binaryPhiiPv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Append data to partially built binary element.</p>
+<p>Arguments:<ul class="simple">
+<li><p>subdoc: Pointer to a BSON document to append data to. The memory pointed to should have been initialised with bson_start_binary().</p></li>
+<li><p>bufsize: Remaining size of buffer to write to. No more than <code class="docutils literal notranslate"><span class="pre">bufsize</span></code> bytes will be written.</p></li>
+<li><p>size: Size of data to append (in bytes).</p></li>
+<li><p>data: Pointer to data to append. If this is a BSON document, then the no more data should be appended to it.</p></li>
+</ul>
+</p>
+<p>Returns:<ul class="simple">
+<li><p>Number of bytes appended (or would have been appended) to <code class="docutils literal notranslate"><span class="pre">doc</span></code>. A negative error code is returned on error. </p></li>
+</ul>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415bson_end_binaryPhi">
+<span id="_CPPv315bson_end_binaryPhi"></span><span id="_CPPv215bson_end_binaryPhi"></span><span id="bson_end_binary__unsigned-cP.i"></span><span class="target" id="bson_8h_1a5298203c9508e2dae696cf565d46e63d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_end_binary</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">bufsize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415bson_end_binaryPhi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Finalise partially built binary element.</p>
+<p>Arguments:<ul class="simple">
+<li><p>doc: Pointer to a BSON document to append data to. The memory pointed to must have been initialised with <a class="reference internal" href="#bson_8h_1a0df426f10015b4f6e8be20b0de5b5d32"><span class="std std-ref">bson_init_document()</span></a>.</p></li>
+<li><p>bufsize: Remaining size of buffer to write to. No more than <code class="docutils literal notranslate"><span class="pre">bufsize</span></code> bytes will be written.</p></li>
+</ul>
+</p>
+<p>Returns:<ul class="simple">
+<li><p>Number of bytes appended (or would have been appended) to <code class="docutils literal notranslate"><span class="pre">doc</span></code>. A negative error code is returned on error. </p></li>
+</ul>
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-basic-parsing-a-bson-document">Basic parsing a BSON document</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410bson_parsePKhPPcPPvPiPPh">
+<span id="_CPPv310bson_parsePKhPPcPPvPiPPh"></span><span id="_CPPv210bson_parsePKhPPcPPvPiPPh"></span><span id="bson_parse__unsigned-cCP.cPP.voidPP.iP.unsigned-cPP"></span><span class="target" id="bson_8h_1a4c5223021168260cdfd03e8d89192fe4"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_parse</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">datasize</span></span>, <span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">endptr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410bson_parsePKhPPcPPvPiPPh" title="Link to this definition">#</a><br /></dt>
+<dd><p>Parses next element in a BSON document.</p>
+<p>Arguments:<ul class="simple">
+<li><p>doc: BSON document to parse.</p></li>
+<li><p>ename: The memory pointed to will be will be assigned to the name of the element that is parsed.</p></li>
+<li><p>data: The memory pointed to will be will be assigned to point to the data of the element that is parsed.</p></li>
+<li><p>datasize: The memory pointed to will be will be assigned to the size of the data that is parsed.</p></li>
+<li><p>endptr: The pointer pointed to by <code class="docutils literal notranslate"><span class="pre">endptr</span></code> will be updated to point to the next element. At the initial call, the value pointed to should be initialised to NULL.</p></li>
+</ul>
+</p>
+<p>Returns: The BSON type of the parsed element. If there are no more elements left in the document, zero is returned. On error is a negative error code returned. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-convenient-functions-for-scanning-a-bson-document">Convenient functions for scanning a BSON document</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49bson_scanPKhPKcPPvPi">
+<span id="_CPPv39bson_scanPKhPKcPPvPi"></span><span id="_CPPv29bson_scanPKhPKcPPvPi"></span><span id="bson_scan__unsigned-cCP.cCP.voidPP.iP"></span><span class="target" id="bson_8h_1a92c69b6b709572db6eb3d9b3903bbc64"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_scan</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">datasize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49bson_scanPKhPKcPPvPi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Scan a BSON document for an element of the given type and/or element name.</p>
+<p>Arguments:<ul class="simple">
+<li><p>doc: BSON document to parse.</p></li>
+<li><p>ename: Element name to scan for.</p></li>
+<li><p>data: The memory pointed to will be will be assigned to point to the data of the element that scanned for.</p></li>
+<li><p>datasize: The memory pointed to will be will be assigned to the size of the data that is scanned for.</p></li>
+</ul>
+</p>
+<p>Returns: The BSON type of the element scanned for. If there are no more elements left in the document, zero is returned. On error is a negative error code returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410bson_scannPKhPKc6size_tPPvPi">
+<span id="_CPPv310bson_scannPKhPKc6size_tPPvPi"></span><span id="_CPPv210bson_scannPKhPKc6size_tPPvPi"></span><span id="bson_scann__unsigned-cCP.cCP.s.voidPP.iP"></span><span class="target" id="bson_8h_1a7317e796e511cd2ae40d010a69f70415"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_scann</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">datasize</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410bson_scannPKhPKc6size_tPPvPi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <code class="docutils literal notranslate"><a class="reference internal" href="#bson_8h_1a92c69b6b709572db6eb3d9b3903bbc64"><span class="std std-ref"><span class="pre">bson_scan()</span></span></a></code> but takes the length of <code class="docutils literal notranslate"><span class="pre">ename</span></code> as an additional argument. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415bson_scan_int32PKhPKcP9BsonError">
+<span id="_CPPv315bson_scan_int32PKhPKcP9BsonError"></span><span id="_CPPv215bson_scan_int32PKhPKcP9BsonError"></span><span id="bson_scan_int32__unsigned-cCP.cCP.BsonErrorP"></span><span class="target" id="bson_8h_1a8edc490ca864a5c2602dfcb178764229"></span><span class="n"><span class="pre">int32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_scan_int32</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <a class="reference internal" href="#_CPPv49BsonError" title="BsonError"><span class="n"><span class="pre">BsonError</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">errcode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415bson_scan_int32PKhPKcP9BsonError" title="Link to this definition">#</a><br /></dt>
+<dd><p>Family of convenient functions that scans a BSON document for a numerical value and return it (in host byte order).</p>
+<p>Arguments:<ul class="simple">
+<li><p>doc: BSON document to parse.</p></li>
+<li><p>ename: Element name to scan for.</p></li>
+<li><p>errcode: If not NULL, it will be set to zero on sucess or a negative error code on failure. If <code class="docutils literal notranslate"><span class="pre">errcode</span></code> is non-zero on input, errx() is called with bsonKeyError if <code class="docutils literal notranslate"><span class="pre">ename</span></code> cannot be found.</p></li>
+</ul>
+</p>
+<p>Returns: The value scanned for or zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416bson_scan_doublePKhPKcP9BsonError">
+<span id="_CPPv316bson_scan_doublePKhPKcP9BsonError"></span><span id="_CPPv216bson_scan_doublePKhPKcP9BsonError"></span><span id="bson_scan_double__unsigned-cCP.cCP.BsonErrorP"></span><span class="target" id="bson_8h_1a0c8d8d829b5876ec6e7f1961e46e2479"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_scan_double</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <a class="reference internal" href="#_CPPv49BsonError" title="BsonError"><span class="n"><span class="pre">BsonError</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">errcode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416bson_scan_doublePKhPKcP9BsonError" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416bson_scan_stringPKhPKcP9BsonError">
+<span id="_CPPv316bson_scan_stringPKhPKcP9BsonError"></span><span id="_CPPv216bson_scan_stringPKhPKcP9BsonError"></span><span id="bson_scan_string__unsigned-cCP.cCP.BsonErrorP"></span><span class="target" id="bson_8h_1aa6136f7c00b2c5ee549aa6efd920791c"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">bson_scan_string</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <a class="reference internal" href="#_CPPv49BsonError" title="BsonError"><span class="n"><span class="pre">BsonError</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">errcode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416bson_scan_stringPKhPKcP9BsonError" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414bson_scan_boolPKhPKcP9BsonError">
+<span id="_CPPv314bson_scan_boolPKhPKcP9BsonError"></span><span id="_CPPv214bson_scan_boolPKhPKcP9BsonError"></span><span id="bson_scan_bool__unsigned-cCP.cCP.BsonErrorP"></span><span class="target" id="bson_8h_1abdfc963a46f3d4fef3dffd6c33259f1c"></span><span class="kt"><span class="pre">bool</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bson_scan_bool</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">doc</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ename</span></span>, <a class="reference internal" href="#_CPPv49BsonError" title="BsonError"><span class="n"><span class="pre">BsonError</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">errcode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414bson_scan_boolPKhPKcP9BsonError" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv48BsonType">
+<span id="_CPPv38BsonType"></span><span id="_CPPv28BsonType"></span><span class="target" id="bson_8h_1a49d8e4ac0537ba384e3f0b5ac4c4b6cb"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BsonType</span></span></span><a class="headerlink" href="#_CPPv48BsonType" title="Link to this definition">#</a><br /></dt>
+<dd><p>Supported BSON data types </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8BsonType10bsonDoubleE">
+<span id="_CPPv3N8BsonType10bsonDoubleE"></span><span id="_CPPv2N8BsonType10bsonDoubleE"></span><span class="target" id="bson_8h_1a49d8e4ac0537ba384e3f0b5ac4c4b6cba602b9d1367f7f8681c88c4067843717d"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonDouble</span></span></span><a class="headerlink" href="#_CPPv4N8BsonType10bsonDoubleE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8BsonType10bsonStringE">
+<span id="_CPPv3N8BsonType10bsonStringE"></span><span id="_CPPv2N8BsonType10bsonStringE"></span><span class="target" id="bson_8h_1a49d8e4ac0537ba384e3f0b5ac4c4b6cba268c91bdaf000375c04a31ca9736baa2"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonString</span></span></span><a class="headerlink" href="#_CPPv4N8BsonType10bsonStringE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8BsonType12bsonDocumentE">
+<span id="_CPPv3N8BsonType12bsonDocumentE"></span><span id="_CPPv2N8BsonType12bsonDocumentE"></span><span class="target" id="bson_8h_1a49d8e4ac0537ba384e3f0b5ac4c4b6cba23e715431ca9624aa59d40f8c2884b7f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonDocument</span></span></span><a class="headerlink" href="#_CPPv4N8BsonType12bsonDocumentE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8BsonType9bsonArrayE">
+<span id="_CPPv3N8BsonType9bsonArrayE"></span><span id="_CPPv2N8BsonType9bsonArrayE"></span><span class="target" id="bson_8h_1a49d8e4ac0537ba384e3f0b5ac4c4b6cbadf90b5ae22e22740ecc94edc74bc8d8d"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonArray</span></span></span><a class="headerlink" href="#_CPPv4N8BsonType9bsonArrayE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8BsonType10bsonBinaryE">
+<span id="_CPPv3N8BsonType10bsonBinaryE"></span><span id="_CPPv2N8BsonType10bsonBinaryE"></span><span class="target" id="bson_8h_1a49d8e4ac0537ba384e3f0b5ac4c4b6cba72185652303bf37f91fc0a5723972a46"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonBinary</span></span></span><a class="headerlink" href="#_CPPv4N8BsonType10bsonBinaryE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8BsonType8bsonBoolE">
+<span id="_CPPv3N8BsonType8bsonBoolE"></span><span id="_CPPv2N8BsonType8bsonBoolE"></span><span class="target" id="bson_8h_1a49d8e4ac0537ba384e3f0b5ac4c4b6cbad561eb2daaa9ad4ed745140233c6339f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonBool</span></span></span><a class="headerlink" href="#_CPPv4N8BsonType8bsonBoolE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8BsonType8bsonNullE">
+<span id="_CPPv3N8BsonType8bsonNullE"></span><span id="_CPPv2N8BsonType8bsonNullE"></span><span class="target" id="bson_8h_1a49d8e4ac0537ba384e3f0b5ac4c4b6cba010d373b6eba9af76fec5a4ab8e2197d"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonNull</span></span></span><a class="headerlink" href="#_CPPv4N8BsonType8bsonNullE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N8BsonType9bsonInt32E">
+<span id="_CPPv3N8BsonType9bsonInt32E"></span><span id="_CPPv2N8BsonType9bsonInt32E"></span><span class="target" id="bson_8h_1a49d8e4ac0537ba384e3f0b5ac4c4b6cba837b30042682f8fdf02e708bf3d4db8f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonInt32</span></span></span><a class="headerlink" href="#_CPPv4N8BsonType9bsonInt32E" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv49BsonError">
+<span id="_CPPv39BsonError"></span><span id="_CPPv29BsonError"></span><span class="target" id="bson_8h_1a75f5470077d005edb489691199dd5931"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">BsonError</span></span></span><a class="headerlink" href="#_CPPv49BsonError" title="Link to this definition">#</a><br /></dt>
+<dd><p>Error codes (matching dlite) </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9BsonError13bsonTypeErrorE">
+<span id="_CPPv3N9BsonError13bsonTypeErrorE"></span><span id="_CPPv2N9BsonError13bsonTypeErrorE"></span><span class="target" id="bson_8h_1a75f5470077d005edb489691199dd5931aec90add77637b9c9e255d293c15f844f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonTypeError</span></span></span><a class="headerlink" href="#_CPPv4N9BsonError13bsonTypeErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inappropriate argument or function type </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9BsonError14bsonValueErrorE">
+<span id="_CPPv3N9BsonError14bsonValueErrorE"></span><span id="_CPPv2N9BsonError14bsonValueErrorE"></span><span class="target" id="bson_8h_1a75f5470077d005edb489691199dd5931a2b1de7a188f3562a0285b596dd80be46"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonValueError</span></span></span><a class="headerlink" href="#_CPPv4N9BsonError14bsonValueErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inappropriate argument value </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9BsonError12bsonKeyErrorE">
+<span id="_CPPv3N9BsonError12bsonKeyErrorE"></span><span id="_CPPv2N9BsonError12bsonKeyErrorE"></span><span class="target" id="bson_8h_1a75f5470077d005edb489691199dd5931a4a2c34f921a5cdeea2272249a4723a4b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonKeyError</span></span></span><a class="headerlink" href="#_CPPv4N9BsonError12bsonKeyErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>BSON key (ename) not found </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9BsonError14bsonParseErrorE">
+<span id="_CPPv3N9BsonError14bsonParseErrorE"></span><span id="_CPPv2N9BsonError14bsonParseErrorE"></span><span class="target" id="bson_8h_1a75f5470077d005edb489691199dd5931a6fdff75ded5b3f2a2d288a176cd70f50"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonParseError</span></span></span><a class="headerlink" href="#_CPPv4N9BsonError14bsonParseErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Cannot parse input </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N9BsonError25bsonInconsistentDataErrorE">
+<span id="_CPPv3N9BsonError25bsonInconsistentDataErrorE"></span><span id="_CPPv2N9BsonError25bsonInconsistentDataErrorE"></span><span class="target" id="bson_8h_1a75f5470077d005edb489691199dd5931afbc5b9ce36f8b0e45e4bd633b540180a"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">bsonInconsistentDataError</span></span></span><a class="headerlink" href="#_CPPv4N9BsonError25bsonInconsistentDataErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inconsistent data </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../utils.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">utils</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="clp2.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">clp2</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413bson_typename8BsonType"><code class="docutils literal notranslate"><span class="pre">bson_typename()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412bson_docsizePKh"><code class="docutils literal notranslate"><span class="pre">bson_docsize()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414bson_nelementsPKh"><code class="docutils literal notranslate"><span class="pre">bson_nelements()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418bson_init_documentPhi"><code class="docutils literal notranslate"><span class="pre">bson_init_document()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411bson_appendPhi8BsonTypePKciPKv"><code class="docutils literal notranslate"><span class="pre">bson_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417bson_begin_subdocPhiPKcPPh"><code class="docutils literal notranslate"><span class="pre">bson_begin_subdoc()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415bson_end_subdocPhi8BsonType"><code class="docutils literal notranslate"><span class="pre">bson_end_subdoc()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417bson_begin_binaryPhiPKcPPh"><code class="docutils literal notranslate"><span class="pre">bson_begin_binary()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418bson_append_binaryPhiiPv"><code class="docutils literal notranslate"><span class="pre">bson_append_binary()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415bson_end_binaryPhi"><code class="docutils literal notranslate"><span class="pre">bson_end_binary()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410bson_parsePKhPPcPPvPiPPh"><code class="docutils literal notranslate"><span class="pre">bson_parse()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49bson_scanPKhPKcPPvPi"><code class="docutils literal notranslate"><span class="pre">bson_scan()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410bson_scannPKhPKc6size_tPPvPi"><code class="docutils literal notranslate"><span class="pre">bson_scann()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415bson_scan_int32PKhPKcP9BsonError"><code class="docutils literal notranslate"><span class="pre">bson_scan_int32()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416bson_scan_doublePKhPKcP9BsonError"><code class="docutils literal notranslate"><span class="pre">bson_scan_double()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416bson_scan_stringPKhPKcP9BsonError"><code class="docutils literal notranslate"><span class="pre">bson_scan_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414bson_scan_boolPKhPKcP9BsonError"><code class="docutils literal notranslate"><span class="pre">bson_scan_bool()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48BsonType"><code class="docutils literal notranslate"><span class="pre">BsonType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType10bsonDoubleE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonDouble</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType10bsonStringE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonString</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType12bsonDocumentE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonDocument</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType9bsonArrayE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonArray</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType10bsonBinaryE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonBinary</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType8bsonBoolE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonBool</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType8bsonNullE"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonNull</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8BsonType9bsonInt32E"><code class="docutils literal notranslate"><span class="pre">BsonType::bsonInt32</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49BsonError"><code class="docutils literal notranslate"><span class="pre">BsonError</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError13bsonTypeErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonTypeError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError14bsonValueErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonValueError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError12bsonKeyErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonKeyError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError14bsonParseErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonParseError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9BsonError25bsonInconsistentDataErrorE"><code class="docutils literal notranslate"><span class="pre">BsonError::bsonInconsistentDataError</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

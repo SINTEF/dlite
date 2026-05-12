@@ -1,0 +1,1428 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dlite-misc &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/dlite-misc';</script>
+    <script src="../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dlite-schemas" href="dlite-schemas.html" />
+    <link rel="prev" title="dlite-mapping" href="dlite-mapping.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/dlite-misc.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/c-api/src/dlite-misc.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dlite-misc</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412DLiteErrMask"><code class="docutils literal notranslate"><span class="pre">DLiteErrMask</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419_dlite_err_mask_getv"><code class="docutils literal notranslate"><span class="pre">_dlite_err_mask_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419_dlite_err_mask_set12DLiteErrMask"><code class="docutils literal notranslate"><span class="pre">_dlite_err_mask_set()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_err_ignored_set12DLiteErrCodei"><code class="docutils literal notranslate"><span class="pre">dlite_err_ignored_set()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_err_ignored_get12DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">dlite_err_ignored_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_errmsgv"><code class="docutils literal notranslate"><span class="pre">dlite_errmsg()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_fataliPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_fatal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_fatalxiPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_fatalx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49dlite_erriPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_err()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_errxiPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_errx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_warnPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_warn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_warnxPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_warnx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_infoPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_info()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_debugPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_debug()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_vfataliPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vfatal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_vfatalxiPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vfatalx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_verriPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_verr()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_verrxiPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_verrx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_vwarnPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vwarn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_vwarnxPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vwarnx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_vinfoPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vinfo()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_vdebugPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vdebug()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_errvalv"><code class="docutils literal notranslate"><span class="pre">dlite_errval()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_errclrv"><code class="docutils literal notranslate"><span class="pre">dlite_errclr()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_err_get_streamv"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_stream()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_err_set_streamP4FILE"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_stream()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_err_set_filePKc"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_err_set_leveli"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_level()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_err_get_levelv"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_level()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_err_set_levelnamePKc"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_levelname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_err_get_levelnamev"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_levelname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_err_set_warn_modei"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_warn_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_err_get_warn_modev"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_warn_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_err_set_debug_modei"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_debug_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_err_get_debug_modev"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_debug_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_err_set_override_modei"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_override_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_err_get_override_modev"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_override_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426_dlite_deprecation_warningPKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">_dlite_deprecation_warning()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411DLiteIdType"><code class="docutils literal notranslate"><span class="pre">DLiteIdType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11DLiteIdType13dliteIdRandomE"><code class="docutils literal notranslate"><span class="pre">DLiteIdType::dliteIdRandom</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11DLiteIdType11dliteIdHashE"><code class="docutils literal notranslate"><span class="pre">DLiteIdType::dliteIdHash</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11DLiteIdType11dliteIdCopyE"><code class="docutils literal notranslate"><span class="pre">DLiteIdType::dliteIdCopy</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_get_versionv"><code class="docutils literal notranslate"><span class="pre">dlite_get_version()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_get_platformv"><code class="docutils literal notranslate"><span class="pre">dlite_get_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_isuuidPKc"><code class="docutils literal notranslate"><span class="pre">dlite_isuuid()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_idtypePKc"><code class="docutils literal notranslate"><span class="pre">dlite_idtype()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_idtypenPKci"><code class="docutils literal notranslate"><span class="pre">dlite_idtypen()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_normalise_idPc6size_tPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_normalise_id()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_normalise_idnPc6size_tPKc6size_tPKc"><code class="docutils literal notranslate"><span class="pre">dlite_normalise_idn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_get_uuidPcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_get_uuid()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_get_uuidnPcPKc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_get_uuidn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416_dlite_get_uuidnPcPKc6size_ti"><code class="docutils literal notranslate"><span class="pre">_dlite_get_uuidn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_join_meta_uriPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_join_meta_uri()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_split_meta_uriPKcPPcPPcPPc"><code class="docutils literal notranslate"><span class="pre">dlite_split_meta_uri()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412DLiteOptFlag"><code class="docutils literal notranslate"><span class="pre">DLiteOptFlag</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteOptFlag15dliteOptDefaultE"><code class="docutils literal notranslate"><span class="pre">DLiteOptFlag::dliteOptDefault</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteOptFlag14dliteOptStrictE"><code class="docutils literal notranslate"><span class="pre">DLiteOptFlag::dliteOptStrict</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_option_parsePcP8DLiteOpt12DLiteOptFlag"><code class="docutils literal notranslate"><span class="pre">dlite_option_parse()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_join_urlPKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_join_url()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_split_urlPcPPcPPcPPcPPc"><code class="docutils literal notranslate"><span class="pre">dlite_split_url()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_split_url_winpathPcPPcPPcPPcPPci"><code class="docutils literal notranslate"><span class="pre">dlite_split_url_winpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_use_build_rootv"><code class="docutils literal notranslate"><span class="pre">dlite_use_build_root()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_set_use_build_rooti"><code class="docutils literal notranslate"><span class="pre">dlite_set_use_build_root()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_root_getv"><code class="docutils literal notranslate"><span class="pre">dlite_root_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_pkg_root_getv"><code class="docutils literal notranslate"><span class="pre">dlite_pkg_root_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_add_dll_pathv"><code class="docutils literal notranslate"><span class="pre">dlite_add_dll_path()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_initv"><code class="docutils literal notranslate"><span class="pre">dlite_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_finalizev"><code class="docutils literal notranslate"><span class="pre">dlite_finalize()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_globals_getv"><code class="docutils literal notranslate"><span class="pre">dlite_globals_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_globals_setP12DLiteGlobals"><code class="docutils literal notranslate"><span class="pre">dlite_globals_set()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_globals_add_statePKcPvPFvPvE"><code class="docutils literal notranslate"><span class="pre">dlite_globals_add_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_globals_remove_statePKc"><code class="docutils literal notranslate"><span class="pre">dlite_globals_remove_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_globals_get_statePKc"><code class="docutils literal notranslate"><span class="pre">dlite_globals_get_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_globals_in_atexitv"><code class="docutils literal notranslate"><span class="pre">dlite_globals_in_atexit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_globals_set_atexitv"><code class="docutils literal notranslate"><span class="pre">dlite_globals_set_atexit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_get_warnings_hidePPKc"><code class="docutils literal notranslate"><span class="pre">dlite_get_warnings_hide()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_set_warnings_hideiPc"><code class="docutils literal notranslate"><span class="pre">dlite_set_warnings_hide()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48DLiteOpt"><code class="docutils literal notranslate"><span class="pre">DLiteOpt</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8DLiteOpt1cE"><code class="docutils literal notranslate"><span class="pre">DLiteOpt::c</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8DLiteOpt3keyE"><code class="docutils literal notranslate"><span class="pre">DLiteOpt::key</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8DLiteOpt5valueE"><code class="docutils literal notranslate"><span class="pre">DLiteOpt::value</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8DLiteOpt5descrE"><code class="docutils literal notranslate"><span class="pre">DLiteOpt::descr</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dlite-misc">
+<h1>dlite-misc<a class="headerlink" href="#dlite-misc" title="Link to this heading">#</a></h1>
+<p>Main header file for dlite. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-wrappers-around-error-functions">Wrappers around error functions</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">DLITE_NOERR()</span></code> and <code class="docutils literal notranslate"><span class="pre">DLITE_NOERR_END</span></code> macros are intended to mark a code block in which the specified errors will not be printed. Use them as follows:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="n">DLITE_NOERR</span><span class="p">(</span><span class="n">DLITE_ERRBIT</span><span class="p">(</span><span class="n">DLiteIOError</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">DLITE_ERRBIT</span><span class="p">(</span><span class="n">DLiteRuntimeError</span><span class="p">));</span>
+<span class="w">  </span><span class="c1">// code block where IO and runtime errors are ignored</span>
+<span class="w">  </span><span class="p">...</span>
+<span class="n">DLITE_NOERR_END</span><span class="p">;</span>
+</pre></div>
+</div>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DLITE_ERRBIT">
+<span class="target" id="dlite-misc_8h_1a71baf6610eafe43c2116682f117a8eb9"></span><span class="sig-name descname"><span class="n"><span class="pre">DLITE_ERRBIT</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">code</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.DLITE_ERRBIT" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DLITE_NOERR">
+<span class="target" id="dlite-misc_8h_1ab44bfaced44c411e3c7faaa245d0f717"></span><span class="sig-name descname"><span class="n"><span class="pre">DLITE_NOERR</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">mask</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.DLITE_NOERR" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DLITE_NOERR_END">
+<span class="target" id="dlite-misc_8h_1a953d7a2d652869220f56c9e77398acc7"></span><span class="sig-name descname"><span class="n"><span class="pre">DLITE_NOERR_END</span></span></span><a class="headerlink" href="#c.DLITE_NOERR_END" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.dlite_deprecation_warning">
+<span class="target" id="dlite-misc_8h_1af2ed33238697621a3b0e3a2a6a0540a8"></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_deprecation_warning</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">version_removed</span></span>, <span class="n"><span class="pre">descr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.dlite_deprecation_warning" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv412DLiteErrMask">
+<span id="_CPPv312DLiteErrMask"></span><span id="_CPPv212DLiteErrMask"></span><span id="DLiteErrMask"></span><span class="target" id="dlite-misc_8h_1ae0a86a2f57fd747b5c20259ada6e1c7f"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="n"><span class="pre">int64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteErrMask</span></span></span><a class="headerlink" href="#_CPPv412DLiteErrMask" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419_dlite_err_mask_getv">
+<span id="_CPPv319_dlite_err_mask_getv"></span><span id="_CPPv219_dlite_err_mask_getv"></span><span id="_dlite_err_mask_get__void"></span><span class="target" id="dlite-misc_8h_1a47c7cc51c819d7292ede4d5cf8d2e7aa"></span><a class="reference internal" href="#_CPPv412DLiteErrMask" title="DLiteErrMask"><span class="n"><span class="pre">DLiteErrMask</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">_dlite_err_mask_get</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419_dlite_err_mask_getv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419_dlite_err_mask_set12DLiteErrMask">
+<span id="_CPPv319_dlite_err_mask_set12DLiteErrMask"></span><span id="_CPPv219_dlite_err_mask_set12DLiteErrMask"></span><span id="_dlite_err_mask_set__DLiteErrMask"></span><span class="target" id="dlite-misc_8h_1a50fb259671082a0d97ffb730a8b394c6"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_dlite_err_mask_set</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412DLiteErrMask" title="DLiteErrMask"><span class="n"><span class="pre">DLiteErrMask</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">mask</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419_dlite_err_mask_set12DLiteErrMask" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421dlite_err_ignored_set12DLiteErrCodei">
+<span id="_CPPv321dlite_err_ignored_set12DLiteErrCodei"></span><span id="_CPPv221dlite_err_ignored_set12DLiteErrCodei"></span><span id="dlite_err_ignored_set__DLiteErrCode.i"></span><span class="target" id="dlite-misc_8h_1ae4603dbfa5ba236be8ce0b59cb068b2d"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_ignored_set</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="dlite-errors.html#_CPPv412DLiteErrCode" title="DLiteErrCode"><span class="n"><span class="pre">DLiteErrCode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">code</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421dlite_err_ignored_set12DLiteErrCodei" title="Link to this definition">#</a><br /></dt>
+<dd><p>Set whether to ignore printing given error code. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421dlite_err_ignored_get12DLiteErrCode">
+<span id="_CPPv321dlite_err_ignored_get12DLiteErrCode"></span><span id="_CPPv221dlite_err_ignored_get12DLiteErrCode"></span><span id="dlite_err_ignored_get__DLiteErrCode"></span><span class="target" id="dlite-misc_8h_1a2458cfb55d820912bcbaa283b38fb8ab"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_ignored_get</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="dlite-errors.html#_CPPv412DLiteErrCode" title="DLiteErrCode"><span class="n"><span class="pre">DLiteErrCode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">code</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421dlite_err_ignored_get12DLiteErrCode" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return whether printing is ignored for given error code. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dlite_errmsgv">
+<span id="_CPPv312dlite_errmsgv"></span><span id="_CPPv212dlite_errmsgv"></span><span id="dlite_errmsg__void"></span><span class="target" id="dlite-misc_8h_1a6b87848cf8585af10f6674ddcb8a023a"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_errmsg</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dlite_errmsgv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return current error message. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411dlite_fataliPKcz">
+<span id="_CPPv311dlite_fataliPKcz"></span><span id="_CPPv211dlite_fataliPKcz"></span><span id="dlite_fatal__i.cCP.z"></span><span class="target" id="dlite-misc_8h_1a96ae95bc6e4ab38f763ebacbccabfef5"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_fatal</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411dlite_fataliPKcz" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dlite_fatalxiPKcz">
+<span id="_CPPv312dlite_fatalxiPKcz"></span><span id="_CPPv212dlite_fatalxiPKcz"></span><span id="dlite_fatalx__i.cCP.z"></span><span class="target" id="dlite-misc_8h_1a04020ffa783dd46e3081239f0714046c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_fatalx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dlite_fatalxiPKcz" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49dlite_erriPKcz">
+<span id="_CPPv39dlite_erriPKcz"></span><span id="_CPPv29dlite_erriPKcz"></span><span id="dlite_err__i.cCP.z"></span><span class="target" id="dlite-misc_8h_1a3f89aab2d5404061c3b5ac06864ece01"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49dlite_erriPKcz" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410dlite_errxiPKcz">
+<span id="_CPPv310dlite_errxiPKcz"></span><span id="_CPPv210dlite_errxiPKcz"></span><span id="dlite_errx__i.cCP.z"></span><span class="target" id="dlite-misc_8h_1a28db1c5bb69a7e438bbd317ca7be1d11"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_errx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410dlite_errxiPKcz" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410dlite_warnPKcz">
+<span id="_CPPv310dlite_warnPKcz"></span><span id="_CPPv210dlite_warnPKcz"></span><span id="dlite_warn__cCP.z"></span><span class="target" id="dlite-misc_8h_1a893ecdec324c8d4f038b3c4b11257f35"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_warn</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410dlite_warnPKcz" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411dlite_warnxPKcz">
+<span id="_CPPv311dlite_warnxPKcz"></span><span id="_CPPv211dlite_warnxPKcz"></span><span id="dlite_warnx__cCP.z"></span><span class="target" id="dlite-misc_8h_1a5522a3655df776b75c3c7868313ec058"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_warnx</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411dlite_warnxPKcz" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410dlite_infoPKcz">
+<span id="_CPPv310dlite_infoPKcz"></span><span id="_CPPv210dlite_infoPKcz"></span><span id="dlite_info__cCP.z"></span><span class="target" id="dlite-misc_8h_1acf699a456a0f1f4b282da1e4a4010806"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_info</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410dlite_infoPKcz" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411dlite_debugPKcz">
+<span id="_CPPv311dlite_debugPKcz"></span><span id="_CPPv211dlite_debugPKcz"></span><span id="dlite_debug__cCP.z"></span><span class="target" id="dlite-misc_8h_1a026917d8b7087bf9af145c730a9ca79c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_debug</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411dlite_debugPKcz" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dlite_vfataliPKc7va_list">
+<span id="_CPPv312dlite_vfataliPKc7va_list"></span><span id="_CPPv212dlite_vfataliPKc7va_list"></span><span id="dlite_vfatal__i.cCP.va_list"></span><span class="target" id="dlite-misc_8h_1a2582df14ed5d5979c2e7412de1501b92"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_vfatal</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dlite_vfataliPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413dlite_vfatalxiPKc7va_list">
+<span id="_CPPv313dlite_vfatalxiPKc7va_list"></span><span id="_CPPv213dlite_vfatalxiPKc7va_list"></span><span id="dlite_vfatalx__i.cCP.va_list"></span><span class="target" id="dlite-misc_8h_1abca58599a6dfe1dc9316eaaf875cf2d3"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_vfatalx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413dlite_vfatalxiPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410dlite_verriPKc7va_list">
+<span id="_CPPv310dlite_verriPKc7va_list"></span><span id="_CPPv210dlite_verriPKc7va_list"></span><span id="dlite_verr__i.cCP.va_list"></span><span class="target" id="dlite-misc_8h_1ad9fa23ef160e544146ff8a9701c5a45c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_verr</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410dlite_verriPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411dlite_verrxiPKc7va_list">
+<span id="_CPPv311dlite_verrxiPKc7va_list"></span><span id="_CPPv211dlite_verrxiPKc7va_list"></span><span id="dlite_verrx__i.cCP.va_list"></span><span class="target" id="dlite-misc_8h_1a5f5f6eb44936fbdf73d5a43beb36b5db"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_verrx</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411dlite_verrxiPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411dlite_vwarnPKc7va_list">
+<span id="_CPPv311dlite_vwarnPKc7va_list"></span><span id="_CPPv211dlite_vwarnPKc7va_list"></span><span id="dlite_vwarn__cCP.va_list"></span><span class="target" id="dlite-misc_8h_1a68b4f04353f785e22afbfb28c6feb319"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_vwarn</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411dlite_vwarnPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dlite_vwarnxPKc7va_list">
+<span id="_CPPv312dlite_vwarnxPKc7va_list"></span><span id="_CPPv212dlite_vwarnxPKc7va_list"></span><span id="dlite_vwarnx__cCP.va_list"></span><span class="target" id="dlite-misc_8h_1aa7b340399572f751db2e83f1cc293944"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_vwarnx</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dlite_vwarnxPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411dlite_vinfoPKc7va_list">
+<span id="_CPPv311dlite_vinfoPKc7va_list"></span><span id="_CPPv211dlite_vinfoPKc7va_list"></span><span id="dlite_vinfo__cCP.va_list"></span><span class="target" id="dlite-misc_8h_1a32467beb892b2ffdc70cb11e5730bb9f"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_vinfo</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411dlite_vinfoPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dlite_vdebugPKc7va_list">
+<span id="_CPPv312dlite_vdebugPKc7va_list"></span><span id="_CPPv212dlite_vdebugPKc7va_list"></span><span id="dlite_vdebug__cCP.va_list"></span><span class="target" id="dlite-misc_8h_1a034aab705a66f2ae7d1b2d8c57aaa2b3"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_vdebug</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dlite_vdebugPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dlite_errvalv">
+<span id="_CPPv312dlite_errvalv"></span><span id="_CPPv212dlite_errvalv"></span><span id="dlite_errval__void"></span><span class="target" id="dlite-misc_8h_1a81953cb6dab700805123029045822b5a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_errval</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dlite_errvalv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dlite_errclrv">
+<span id="_CPPv312dlite_errclrv"></span><span id="_CPPv212dlite_errclrv"></span><span id="dlite_errclr__void"></span><span class="target" id="dlite-misc_8h_1aac387baa25ff5db0a5f072e3ce7c9856"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_errclr</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dlite_errclrv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_err_get_streamv">
+<span id="_CPPv320dlite_err_get_streamv"></span><span id="_CPPv220dlite_err_get_streamv"></span><span id="dlite_err_get_stream__void"></span><span class="target" id="dlite-misc_8h_1a1ed379c7cc2f742c43c9f6e8f18681ec"></span><span class="n"><span class="pre">FILE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_get_stream</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_err_get_streamv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_err_set_streamP4FILE">
+<span id="_CPPv320dlite_err_set_streamP4FILE"></span><span id="_CPPv220dlite_err_set_streamP4FILE"></span><span id="dlite_err_set_stream__FILEP"></span><span class="target" id="dlite-misc_8h_1a69b7df9a71d284ee396285874a2e3850"></span><span class="n"><span class="pre">FILE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_set_stream</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FILE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">stream</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_err_set_streamP4FILE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_err_set_filePKc">
+<span id="_CPPv318dlite_err_set_filePKc"></span><span id="_CPPv218dlite_err_set_filePKc"></span><span id="dlite_err_set_file__cCP"></span><span class="target" id="dlite-misc_8h_1a9a2aa16cd67d9248d1c58dea9123deb0"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_set_file</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_err_set_filePKc" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419dlite_err_set_leveli">
+<span id="_CPPv319dlite_err_set_leveli"></span><span id="_CPPv219dlite_err_set_leveli"></span><span id="dlite_err_set_level__i"></span><span class="target" id="dlite-misc_8h_1a1ea660f0410f63d2b7257e7d4c2dc57d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_set_level</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">level</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419dlite_err_set_leveli" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419dlite_err_get_levelv">
+<span id="_CPPv319dlite_err_get_levelv"></span><span id="_CPPv219dlite_err_get_levelv"></span><span id="dlite_err_get_level__void"></span><span class="target" id="dlite-misc_8h_1a8d992d0ce924a6676bbba1f52f9e5771"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_get_level</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419dlite_err_get_levelv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_err_set_levelnamePKc">
+<span id="_CPPv323dlite_err_set_levelnamePKc"></span><span id="_CPPv223dlite_err_set_levelnamePKc"></span><span id="dlite_err_set_levelname__cCP"></span><span class="target" id="dlite-misc_8h_1ae15e918bb23403ac3a4c283112417727"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_set_levelname</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_err_set_levelnamePKc" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_err_get_levelnamev">
+<span id="_CPPv323dlite_err_get_levelnamev"></span><span id="_CPPv223dlite_err_get_levelnamev"></span><span id="dlite_err_get_levelname__void"></span><span class="target" id="dlite-misc_8h_1a934dfa013f858f898b2e3b1f0dba54ed"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_get_levelname</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_err_get_levelnamev" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_err_set_warn_modei">
+<span id="_CPPv323dlite_err_set_warn_modei"></span><span id="_CPPv223dlite_err_set_warn_modei"></span><span id="dlite_err_set_warn_mode__i"></span><span class="target" id="dlite-misc_8h_1a26544fa8600286814a50ee243967fcfe"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_set_warn_mode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_err_set_warn_modei" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_err_get_warn_modev">
+<span id="_CPPv323dlite_err_get_warn_modev"></span><span id="_CPPv223dlite_err_get_warn_modev"></span><span id="dlite_err_get_warn_mode__void"></span><span class="target" id="dlite-misc_8h_1ac884be7a54acaa153806007a0c737a7c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_get_warn_mode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_err_get_warn_modev" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_err_set_debug_modei">
+<span id="_CPPv324dlite_err_set_debug_modei"></span><span id="_CPPv224dlite_err_set_debug_modei"></span><span id="dlite_err_set_debug_mode__i"></span><span class="target" id="dlite-misc_8h_1a02f5a59e46daf12fe9c5827d0f9e01ee"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_set_debug_mode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_err_set_debug_modei" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_err_get_debug_modev">
+<span id="_CPPv324dlite_err_get_debug_modev"></span><span id="_CPPv224dlite_err_get_debug_modev"></span><span id="dlite_err_get_debug_mode__void"></span><span class="target" id="dlite-misc_8h_1a7c7c7d98981b0a42cb593aadde19641f"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_get_debug_mode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_err_get_debug_modev" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427dlite_err_set_override_modei">
+<span id="_CPPv327dlite_err_set_override_modei"></span><span id="_CPPv227dlite_err_set_override_modei"></span><span id="dlite_err_set_override_mode__i"></span><span class="target" id="dlite-misc_8h_1a7ef12ca1e25d6af44afd25db0f129c02"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_set_override_mode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">mode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427dlite_err_set_override_modei" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427dlite_err_get_override_modev">
+<span id="_CPPv327dlite_err_get_override_modev"></span><span id="_CPPv227dlite_err_get_override_modev"></span><span id="dlite_err_get_override_mode__void"></span><span class="target" id="dlite-misc_8h_1a1031d460ba1c0cd7962bd0f8595f541f"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_err_get_override_mode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427dlite_err_get_override_modev" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426_dlite_deprecation_warningPKcPKcPKcPKc">
+<span id="_CPPv326_dlite_deprecation_warningPKcPKcPKcPKc"></span><span id="_CPPv226_dlite_deprecation_warningPKcPKcPKcPKc"></span><span id="_dlite_deprecation_warning__cCP.cCP.cCP.cCP"></span><span class="target" id="dlite-misc_8h_1ab75757211a0f33a4f81a9edce7dadbfc"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_dlite_deprecation_warning</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">version_removed</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filepos</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">func</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">descr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426_dlite_deprecation_warningPKcPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-general-dlite-utility-functions">General dlite utility functions</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv411DLiteIdType">
+<span id="_CPPv311DLiteIdType"></span><span id="_CPPv211DLiteIdType"></span><span class="target" id="dlite-misc_8h_1a8b80a548a54523698793d99a20f26e41"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteIdType</span></span></span><a class="headerlink" href="#_CPPv411DLiteIdType" title="Link to this definition">#</a><br /></dt>
+<dd><p>Ways to express an instance ID. </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N11DLiteIdType13dliteIdRandomE">
+<span id="_CPPv3N11DLiteIdType13dliteIdRandomE"></span><span id="_CPPv2N11DLiteIdType13dliteIdRandomE"></span><span class="target" id="dlite-misc_8h_1a8b80a548a54523698793d99a20f26e41a81cdc07ff18e61e8dc0a5a9d392a67ff"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteIdRandom</span></span></span><a class="headerlink" href="#_CPPv4N11DLiteIdType13dliteIdRandomE" title="Link to this definition">#</a><br /></dt>
+<dd><p>new random version 4 UUID </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N11DLiteIdType11dliteIdHashE">
+<span id="_CPPv3N11DLiteIdType11dliteIdHashE"></span><span id="_CPPv2N11DLiteIdType11dliteIdHashE"></span><span class="target" id="dlite-misc_8h_1a8b80a548a54523698793d99a20f26e41af0e047b22c82a9b1ddc95252c1ec64fc"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteIdHash</span></span></span><a class="headerlink" href="#_CPPv4N11DLiteIdType11dliteIdHashE" title="Link to this definition">#</a><br /></dt>
+<dd><p>new version 5 UUID with DNS namespace </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N11DLiteIdType11dliteIdCopyE">
+<span id="_CPPv3N11DLiteIdType11dliteIdCopyE"></span><span id="_CPPv2N11DLiteIdType11dliteIdCopyE"></span><span class="target" id="dlite-misc_8h_1a8b80a548a54523698793d99a20f26e41adfe3bd4f108e7523286e9c7b54b925c2"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteIdCopy</span></span></span><a class="headerlink" href="#_CPPv4N11DLiteIdType11dliteIdCopyE" title="Link to this definition">#</a><br /></dt>
+<dd><p>copy UUID </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_get_versionv">
+<span id="_CPPv317dlite_get_versionv"></span><span id="_CPPv217dlite_get_versionv"></span><span id="dlite_get_version__void"></span><span class="target" id="dlite-misc_8h_1a01b593faab2f9843a036dca55c0d13b0"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_get_version</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_get_versionv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns static pointer to a string with the current version of DLite. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_get_platformv">
+<span id="_CPPv318dlite_get_platformv"></span><span id="_CPPv218dlite_get_platformv"></span><span id="dlite_get_platform__void"></span><span class="target" id="dlite-misc_8h_1aaeee71a0534f784e49af02e694fcd1da"></span><a class="reference internal" href="utils/fileutils.html#_CPPv410FUPlatform" title="FUPlatform"><span class="n"><span class="pre">FUPlatform</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_get_platform</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_get_platformv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns current platform based on the DLITE_PLATFORM environment variable. Used when initiating paths. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dlite_isuuidPKc">
+<span id="_CPPv312dlite_isuuidPKc"></span><span id="_CPPv212dlite_isuuidPKc"></span><span id="dlite_isuuid__cCP"></span><span class="target" id="dlite-misc_8h_1ac400eed5c28589e5769eadad4854a42e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_isuuid</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dlite_isuuidPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if <code class="docutils literal notranslate"><span class="pre">id</span></code> is a valid UUID. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412dlite_idtypePKc">
+<span id="_CPPv312dlite_idtypePKc"></span><span id="_CPPv212dlite_idtypePKc"></span><span id="dlite_idtype__cCP"></span><span class="target" id="dlite-misc_8h_1a25b3f49f28c9aefdeeee210324158dec"></span><a class="reference internal" href="#_CPPv411DLiteIdType" title="DLiteIdType"><span class="n"><span class="pre">DLiteIdType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_idtype</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412dlite_idtypePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the ID type of <code class="docutils literal notranslate"><span class="pre">id</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413dlite_idtypenPKci">
+<span id="_CPPv313dlite_idtypenPKci"></span><span id="_CPPv213dlite_idtypenPKci"></span><span id="dlite_idtypen__cCP.i"></span><span class="target" id="dlite-misc_8h_1a976a253d29d50d71126e327e1c4e9230"></span><a class="reference internal" href="#_CPPv411DLiteIdType" title="DLiteIdType"><span class="n"><span class="pre">DLiteIdType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_idtypen</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413dlite_idtypenPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-misc_8h_1a25b3f49f28c9aefdeeee210324158dec"><span class="std std-ref">dlite_idtype()</span></a>, but takes the the length of <code class="docutils literal notranslate"><span class="pre">id</span></code> as an additional argument. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_normalise_idPc6size_tPKcPKc">
+<span id="_CPPv318dlite_normalise_idPc6size_tPKcPKc"></span><span id="_CPPv218dlite_normalise_idPc6size_tPKcPKc"></span><span id="dlite_normalise_id__cP.s.cCP.cCP"></span><span class="target" id="dlite-misc_8h_1ab1792d48f44db93b0c20baf962eb02c2"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_normalise_id</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buff</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">uri</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_normalise_idPc6size_tPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Write normalised <code class="docutils literal notranslate"><span class="pre">id</span></code> to <code class="docutils literal notranslate"><span class="pre">buff</span></code>, which is a buffer of size <code class="docutils literal notranslate"><span class="pre">n</span></code>.</p>
+<p>The normalisation is done according to the following table:</p>
+<p><div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>ID   </p></th>
+<th class="head"><p>Normalised ID    </p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>NULL   </p></td>
+<td><p>NULL    </p></td>
+</tr>
+<tr class="row-odd"><td><p><em>uuid</em></p></td>
+<td><p><em>ns</em> / <em>uuid</em></p></td>
+</tr>
+<tr class="row-even"><td><p><em>uri</em> / <em>uuid</em></p></td>
+<td><p><em>uri</em> / <em>uuid</em></p></td>
+</tr>
+<tr class="row-odd"><td><p><em>uri</em></p></td>
+<td><p><em>uri</em></p></td>
+</tr>
+<tr class="row-even"><td><p><em>name</em></p></td>
+<td><p><em>ns</em> / <em>name</em></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</p>
+<p>where;</p>
+<p><ul class="simple">
+<li><p><em>uuid</em> is a valid UUID. Ex: “0a46cacf-ce65-5b5b-a7d7-ad32deaed748”</p></li>
+<li><p><em>ns</em> is the predefined namespace string “http://onto-ns.com/data”</p></li>
+<li><p><em>uri</em> is a valid URI with no query or fragment parts. Ex: “http://onto-ns.com/meta/0.1/MyDatamodel”</p></li>
+<li><p><em>name</em> is a string that is neither a UUID or a URL. Ex: “aa6060”</p></li>
+</ul>
+</p>
+<p>A final hash or slash in <code class="docutils literal notranslate"><span class="pre">id</span></code> is stripped off.</p>
+<p>Return the number of bytes written <code class="docutils literal notranslate"><span class="pre">buff</span></code> (excluding the terminating NUL) or would have been written to <code class="docutils literal notranslate"><span class="pre">buff</span></code> if it is not large enough. A negative number is returned on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419dlite_normalise_idnPc6size_tPKc6size_tPKc">
+<span id="_CPPv319dlite_normalise_idnPc6size_tPKc6size_tPKc"></span><span id="_CPPv219dlite_normalise_idnPc6size_tPKc6size_tPKc"></span><span id="dlite_normalise_idn__cP.s.cCP.s.cCP"></span><span class="target" id="dlite-misc_8h_1ab509f16cd863a2e293114c698ba41f01"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_normalise_idn</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buff</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">uri</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419dlite_normalise_idnPc6size_tPKc6size_tPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-misc_8h_1ab1792d48f44db93b0c20baf962eb02c2"><span class="std std-ref">dlite_normalise_id()</span></a>, but takes <code class="docutils literal notranslate"><span class="pre">len</span></code>, the the length of <code class="docutils literal notranslate"><span class="pre">id</span></code> as an additional argument. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414dlite_get_uuidPcPKc">
+<span id="_CPPv314dlite_get_uuidPcPKc"></span><span id="_CPPv214dlite_get_uuidPcPKc"></span><span id="dlite_get_uuid__cP.cCP"></span><span class="target" id="dlite-misc_8h_1ab9732bc2b88ba48fe994bbfc9514f788"></span><a class="reference internal" href="#_CPPv411DLiteIdType" title="DLiteIdType"><span class="n"><span class="pre">DLiteIdType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_get_uuid</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buff</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414dlite_get_uuidPcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Writes instance UUID to <code class="docutils literal notranslate"><span class="pre">buff</span></code> based on <code class="docutils literal notranslate"><span class="pre">id</span></code>.</p>
+<p>Length of <code class="docutils literal notranslate"><span class="pre">buff</span></code> must at least (DLITE_UUID_LENGTH + 1) bytes (36 bytes for UUID + NUL termination).</p>
+<p>The UUID is calculated according to this table.</p>
+<p>| ID | Corresponding UUID | ID type | Note | |————-&amp;#8212;|——————–&amp;#8212;|—&amp;#8212;…..-&amp;#8212;|——–&amp;#8212;| | NULL | random UUID | dliteIdRandom | | | <em>uuid</em> | <em>uuid</em> | dliteIdCopy | | | <em>uri</em> / <em>uuid</em> | <em>uuid</em> | dliteIdCopy | | | <em>uri</em> | hash of <em>uri</em> | dliteIdHash | | | <em>name</em> | hash of <em>name</em> | dliteIdHash | &lt; v0.6.0 | | <em>name</em> | hash of <em>ns</em> / <em>name</em> | dliteIdHash | &gt;= v0.6.0 |</p>
+<p>where:</p>
+<p><ul class="simple">
+<li><p><em>uuid</em> is a valid UUID. Ex: “0a46cacf-ce65-5b5b-a7d7-ad32deaed748”</p></li>
+<li><p><em>ns</em> is the predefined namespace string “http://onto-ns.com/data”</p></li>
+<li><p><em>uri</em> is a valid URI with no query or fragment parts. Ex: “http://onto-ns.com/meta/0.1/MyDatamodel”</p></li>
+<li><p><em>name</em> is a string that is neither a UUID or a URL. Ex: “aa6060”</p></li>
+</ul>
+</p>
+<p>A version 4 UUID is used for the random UUID and a version 5 UUID (with the DNS namespace) is used fhr the hash.</p>
+<p>Returns the DLite ID type or a negative error code on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415dlite_get_uuidnPcPKc6size_t">
+<span id="_CPPv315dlite_get_uuidnPcPKc6size_t"></span><span id="_CPPv215dlite_get_uuidnPcPKc6size_t"></span><span id="dlite_get_uuidn__cP.cCP.s"></span><span class="target" id="dlite-misc_8h_1add6633372c42e20e783d360710461eac"></span><a class="reference internal" href="#_CPPv411DLiteIdType" title="DLiteIdType"><span class="n"><span class="pre">DLiteIdType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_get_uuidn</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buff</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415dlite_get_uuidnPcPKc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-misc_8h_1ab9732bc2b88ba48fe994bbfc9514f788"><span class="std std-ref">dlite_get_uuid()</span></a>, but takes the the length of <code class="docutils literal notranslate"><span class="pre">id</span></code> as an additional parameter. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416_dlite_get_uuidnPcPKc6size_ti">
+<span id="_CPPv316_dlite_get_uuidnPcPKc6size_ti"></span><span id="_CPPv216_dlite_get_uuidnPcPKc6size_ti"></span><span id="_dlite_get_uuidn__cP.cCP.s.i"></span><span class="target" id="dlite-misc_8h_1af72c346aac291e1edbe150f93bfc02f7"></span><a class="reference internal" href="#_CPPv411DLiteIdType" title="DLiteIdType"><span class="n"><span class="pre">DLiteIdType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_dlite_get_uuidn</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buff</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">namespacedID</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416_dlite_get_uuidnPcPKc6size_ti" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419dlite_join_meta_uriPKcPKcPKc">
+<span id="_CPPv319dlite_join_meta_uriPKcPKcPKc"></span><span id="_CPPv219dlite_join_meta_uriPKcPKcPKc"></span><span id="dlite_join_meta_uri__cCP.cCP.cCP"></span><span class="target" id="dlite-misc_8h_1a2a56dc002b39c1f8cef2194a37ba7be8"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_join_meta_uri</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">version</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">namespace</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419dlite_join_meta_uriPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns an unique uri for metadata defined by <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">version</span></code> and <code class="docutils literal notranslate"><span class="pre">namespace</span></code> as a newly malloc()’ed string or NULL on error.</p>
+<p>The returned uri is constructed as follows: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">namespace</span><span class="o">/</span><span class="n">version</span><span class="o">/</span><span class="n">name</span>
+</pre></div>
+</div>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_split_meta_uriPKcPPcPPcPPc">
+<span id="_CPPv320dlite_split_meta_uriPKcPPcPPcPPc"></span><span id="_CPPv220dlite_split_meta_uriPKcPPcPPcPPc"></span><span id="dlite_split_meta_uri__cCP.cPP.cPP.cPP"></span><span class="target" id="dlite-misc_8h_1a2ad71ee5ceac460f7fffd3005aaa1cfe"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_split_meta_uri</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">uri</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">version</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">namespace</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_split_meta_uriPKcPPcPPcPPc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Splits metadata <code class="docutils literal notranslate"><span class="pre">uri</span></code> into its components. If <code class="docutils literal notranslate"><span class="pre">name</span></code>, <code class="docutils literal notranslate"><span class="pre">version</span></code> and/or <code class="docutils literal notranslate"><span class="pre">namespace</span></code> are not NULL, the memory they points to will be set to a pointer to a newly malloc()’ed string with the corresponding value.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-parsing-options">Parsing options</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv412DLiteOptFlag">
+<span id="_CPPv312DLiteOptFlag"></span><span id="_CPPv212DLiteOptFlag"></span><span class="target" id="dlite-misc_8h_1a08b76684af92b3e72420e66e5d073323"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteOptFlag</span></span></span><a class="headerlink" href="#_CPPv412DLiteOptFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteOptFlag15dliteOptDefaultE">
+<span id="_CPPv3N12DLiteOptFlag15dliteOptDefaultE"></span><span id="_CPPv2N12DLiteOptFlag15dliteOptDefaultE"></span><span class="target" id="dlite-misc_8h_1a08b76684af92b3e72420e66e5d073323abd084b667c2d799574537592a871e1e8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteOptDefault</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteOptFlag15dliteOptDefaultE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Default option flags </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteOptFlag14dliteOptStrictE">
+<span id="_CPPv3N12DLiteOptFlag14dliteOptStrictE"></span><span id="_CPPv2N12DLiteOptFlag14dliteOptStrictE"></span><span class="target" id="dlite-misc_8h_1a08b76684af92b3e72420e66e5d073323a59135e946dd47d41e6b26d3e1c9be80e"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteOptStrict</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteOptFlag14dliteOptStrictE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Stict mode. Its an error if option is unknown </p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_option_parsePcP8DLiteOpt12DLiteOptFlag">
+<span id="_CPPv318dlite_option_parsePcP8DLiteOpt12DLiteOptFlag"></span><span id="_CPPv218dlite_option_parsePcP8DLiteOpt12DLiteOptFlag"></span><span id="dlite_option_parse__cP.DLiteOptP.DLiteOptFlag"></span><span class="target" id="dlite-misc_8h_1ac650aecefdc4eedacc1cf5933b6704a5"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_option_parse</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">options</span></span>, <a class="reference internal" href="#_CPPv48DLiteOpt" title="DLiteOpt"><span class="n"><span class="pre">DLiteOpt</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">opts</span></span>, <a class="reference internal" href="#_CPPv412DLiteOptFlag" title="DLiteOptFlag"><span class="n"><span class="pre">DLiteOptFlag</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">flags</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_option_parsePcP8DLiteOpt12DLiteOptFlag" title="Link to this definition">#</a><br /></dt>
+<dd><p>Parses the options string <code class="docutils literal notranslate"><span class="pre">options</span></code> and assign corresponding values of the array <code class="docutils literal notranslate"><span class="pre">opts</span></code>. The options string should be a valid url query string of the form: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">key1</span><span class="o">=</span><span class="n">value1</span><span class="p">;</span><span class="n">key2</span><span class="o">=</span><span class="n">value2</span><span class="o">...</span>
+</pre></div>
+</div>
+ where the values should be encoded with <code class="docutils literal notranslate"><span class="pre">uri_encode()</span></code> and terminated by NUL or any of the characters in “;&amp;#”. A hash (#) terminates the options.</p>
+<p>At return, <code class="docutils literal notranslate"><span class="pre">options</span></code> is modified. All values in the <code class="docutils literal notranslate"><span class="pre">options</span></code> string will be URI decoded and NUL-terminated.</p>
+<p><code class="docutils literal notranslate"><span class="pre">opts</span></code> should be a NULL-terminated <a class="reference internal" href="#structDLiteOpt"><span class="std std-ref">DLiteOpt</span></a> array initialised with default values. At return, the values of the provided options are updated.</p>
+<p><code class="docutils literal notranslate"><span class="pre">flags</span></code> should be zero or <code class="docutils literal notranslate"><span class="pre">dliteOptStrict</span></code>.</p>
+<p>Returns non-zero on error.</p>
+<p><em>Example </em></p>
+<p>If the <code class="docutils literal notranslate"><span class="pre">opts</span></code> array only contains a few elements, accessing it by index is probably the most convinient. However, if it contains many elements, switch might be a better option using the following pattern:</p>
+<div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+<span class="n">DLiteOpt</span><span class="w"> </span><span class="n">opts</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="p">{</span><span class="sc">&#39;1&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;key1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;default1&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;description of key1...&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="sc">&#39;b&#39;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;key2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;default2&quot;</span><span class="p">,</span><span class="w"> </span><span class="s">&quot;description of key2...&quot;</span><span class="p">},</span>
+<span class="w">  </span><span class="p">{</span><span class="nb">NULL</span><span class="p">,</span><span class="w"> </span><span class="nb">NULL</span><span class="p">}</span>
+<span class="p">};</span>
+<span class="n">dlite_getopt</span><span class="p">(</span><span class="n">options</span><span class="p">,</span><span class="w"> </span><span class="n">opts</span><span class="p">);</span>
+<span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">opts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">key</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">switch</span><span class="w"> </span><span class="p">(</span><span class="n">opts</span><span class="p">[</span><span class="n">i</span><span class="p">].</span><span class="n">c</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;1&#39;</span><span class="p">:</span>
+<span class="w">    </span><span class="c1">// process option key1</span>
+<span class="w">    </span><span class="k">break</span><span class="p">;</span>
+<span class="w">  </span><span class="k">case</span><span class="w"> </span><span class="sc">&#39;b&#39;</span><span class="p">:</span>
+<span class="w">    </span><span class="c1">// process option key2</span>
+<span class="w">    </span><span class="k">break</span><span class="p">;</span>
+<span class="w">  </span><span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-path-handling">Path handling</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414dlite_join_urlPKcPKcPKcPKc">
+<span id="_CPPv314dlite_join_urlPKcPKcPKcPKc"></span><span id="_CPPv214dlite_join_urlPKcPKcPKcPKc"></span><span id="dlite_join_url__cCP.cCP.cCP.cCP"></span><span class="target" id="dlite-misc_8h_1a0c71e24623cb45e841159676d91d307c"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_join_url</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">driver</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">location</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">options</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fragment</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414dlite_join_urlPKcPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a newly allocated url constructed from the arguments of the form <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>driver://location?options#fragment
+</pre></div>
+</div>
+ The <code class="docutils literal notranslate"><span class="pre">driver</span></code>, <code class="docutils literal notranslate"><span class="pre">options</span></code> and <code class="docutils literal notranslate"><span class="pre">fragment</span></code> arguments may be NULL. Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415dlite_split_urlPcPPcPPcPPcPPc">
+<span id="_CPPv315dlite_split_urlPcPPcPPcPPcPPc"></span><span id="_CPPv215dlite_split_urlPcPPcPPcPPcPPc"></span><span id="dlite_split_url__cP.cPP.cPP.cPP.cPP"></span><span class="target" id="dlite-misc_8h_1a5a7f9fc49ead48ab5e5a395af63a69e4"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_split_url</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">url</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">driver</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">location</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">options</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fragment</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415dlite_split_urlPcPPcPPcPPcPPc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Splits an <code class="docutils literal notranslate"><span class="pre">url</span></code> of the form <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>driver://location?options#fragment
+</pre></div>
+</div>
+ into four parts: <code class="docutils literal notranslate"><span class="pre">driver</span></code>, <code class="docutils literal notranslate"><span class="pre">location</span></code>, <code class="docutils literal notranslate"><span class="pre">options</span></code> and <code class="docutils literal notranslate"><span class="pre">fragment</span></code>. For the arguments that are not NULL, the pointers they points to will be assigned to point to the corresponding section within <code class="docutils literal notranslate"><span class="pre">url</span></code>.</p>
+<p>This function modifies <code class="docutils literal notranslate"><span class="pre">url</span></code>. Make a copy if you don’t want that.</p>
+<p>Returns non-zero on error.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>: URLs are assumed to have the following syntax (ref. <a class="reference external" href="https://en.wikipedia.org/wiki/URL">wikipedia</a>): <div class="highlight-default notranslate"><div class="highlight"><pre><span></span>URL = scheme:[//authority]path[?query][#fragment]
+</pre></div>
+</div>
+ where the authority component divides into three subcomponents: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">authority</span> <span class="o">=</span> <span class="p">[</span><span class="n">userinfo</span><span class="o">@</span><span class="p">]</span><span class="n">host</span><span class="p">[:</span><span class="n">port</span><span class="p">]</span>
+</pre></div>
+</div>
+ This function maps <code class="docutils literal notranslate"><span class="pre">scheme</span></code> to <code class="docutils literal notranslate"><span class="pre">driver</span></code>, <code class="docutils literal notranslate"><span class="pre">[authority]path</span></code> to <code class="docutils literal notranslate"><span class="pre">location</span></code> <code class="docutils literal notranslate"><span class="pre">query</span></code> to <code class="docutils literal notranslate"><span class="pre">options</span></code> and <code class="docutils literal notranslate"><span class="pre">fragment</span></code> to <code class="docutils literal notranslate"><span class="pre">fragment</span></code>. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_split_url_winpathPcPPcPPcPPcPPci">
+<span id="_CPPv323dlite_split_url_winpathPcPPcPPcPPcPPci"></span><span id="_CPPv223dlite_split_url_winpathPcPPcPPcPPcPPci"></span><span id="dlite_split_url_winpath__cP.cPP.cPP.cPP.cPP.i"></span><span class="target" id="dlite-misc_8h_1a15f022ed3ac00410a1193fc95b711b8b"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_split_url_winpath</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">url</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">driver</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">location</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">options</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fragment</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">winpath</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_split_url_winpathPcPPcPPcPPcPPci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-misc_8h_1a5a7f9fc49ead48ab5e5a395af63a69e4"><span class="std std-ref">dlite_split_url()</span></a>, but with one additional argument.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">winpath</span></code> is non-zero and <code class="docutils literal notranslate"><span class="pre">url</span></code><p>starts with “C:&quot; or “C:/”, then</p>
+<p>the initial “C” is not treated as a driver, but rather as a part of the location.</p>
+</p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_use_build_rootv">
+<span id="_CPPv320dlite_use_build_rootv"></span><span id="_CPPv220dlite_use_build_rootv"></span><span id="dlite_use_build_root__void"></span><span class="target" id="dlite-misc_8h_1a6b8beb43876d845daf3c541600f1c7ce"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_use_build_root</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_use_build_rootv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if paths should refer to build root instead of installation root. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_set_use_build_rooti">
+<span id="_CPPv324dlite_set_use_build_rooti"></span><span id="_CPPv224dlite_set_use_build_rooti"></span><span id="dlite_set_use_build_root__i"></span><span class="target" id="dlite-misc_8h_1a72d6460bfa575a43930993efb44efcf1"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_set_use_build_root</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">v</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_set_use_build_rooti" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets whether paths should refer to build root. Default is the installation root, unless the environment variable DLITE_USE_BUILD_ROOT is set and is not false. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414dlite_root_getv">
+<span id="_CPPv314dlite_root_getv"></span><span id="_CPPv214dlite_root_getv"></span><span id="dlite_root_get__void"></span><span class="target" id="dlite-misc_8h_1ac4ab7aeff722d87425a10496c3c87d23"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_root_get</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414dlite_root_getv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns pointer to installation root. It may be altered with environment variable DLITE_ROOT. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_pkg_root_getv">
+<span id="_CPPv318dlite_pkg_root_getv"></span><span id="_CPPv218dlite_pkg_root_getv"></span><span id="dlite_pkg_root_get__void"></span><span class="target" id="dlite-misc_8h_1a4c3788607c53a395613e9c420249b784"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pkg_root_get</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_pkg_root_getv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns pointer to the DLite package installation root.</p>
+<p>It may be altered with environment variable DLITE_PKG_ROOT. With Python, it defaults to the DLite Python root directory, otherwise it defaults to DLITE_ROOT. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_add_dll_pathv">
+<span id="_CPPv318dlite_add_dll_pathv"></span><span id="_CPPv218dlite_add_dll_pathv"></span><span id="dlite_add_dll_path__void"></span><span class="target" id="dlite-misc_8h_1aba18a4da7436a315637009e706f92341"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_add_dll_path</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_add_dll_pathv" title="Link to this definition">#</a><br /></dt>
+<dd><p>On Windows, this function adds default directories to the DLL search path. Based on whether the <code class="docutils literal notranslate"><span class="pre">DLITE_USE_BUILDROOT</span></code> environment variable is defined, the library directories under either the build directory or the installation root (environment variable DLITE_ROOT) are added to the DLL search path using AddDllDirectory().</p>
+<p>On Linux this function does nothing.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-managing-global-state">Managing global state</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410dlite_initv">
+<span id="_CPPv310dlite_initv"></span><span id="_CPPv210dlite_initv"></span><span id="dlite_init__void"></span><span class="target" id="dlite-misc_8h_1a0310d7c99e9d4ee72e23c30c7b33cb1f"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_init</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410dlite_initv" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414dlite_finalizev">
+<span id="_CPPv314dlite_finalizev"></span><span id="_CPPv214dlite_finalizev"></span><span id="dlite_finalize__void"></span><span class="target" id="dlite-misc_8h_1a6f308a582bb6d5a096e430c6f64c7119"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_finalize</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414dlite_finalizev" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_globals_getv">
+<span id="_CPPv317dlite_globals_getv"></span><span id="_CPPv217dlite_globals_getv"></span><span id="dlite_globals_get__void"></span><span class="target" id="dlite-misc_8h_1a81a0387896cde8a9207848171dabae0a"></span><span class="n"><span class="pre">DLiteGlobals</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_globals_get</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_globals_getv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns reference to globals handle. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_globals_setP12DLiteGlobals">
+<span id="_CPPv317dlite_globals_setP12DLiteGlobals"></span><span id="_CPPv217dlite_globals_setP12DLiteGlobals"></span><span id="dlite_globals_set__DLiteGlobalsP"></span><span class="target" id="dlite-misc_8h_1a7053b08602c63cd60390e5d853217f8f"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_globals_set</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">DLiteGlobals</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">globals_handler</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_globals_setP12DLiteGlobals" title="Link to this definition">#</a><br /></dt>
+<dd><p>Set globals handle. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_globals_add_statePKcPvPFvPvE">
+<span id="_CPPv323dlite_globals_add_statePKcPvPFvPvE"></span><span id="_CPPv223dlite_globals_add_statePKcPvPFvPvE"></span><span class="target" id="dlite-misc_8h_1a142a5e1707abf320107c9a79b43be76d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_globals_add_state</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ptr</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">free_fun</span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">)</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_globals_add_statePKcPvPFvPvE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Add global state with given name.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ptr</span></code> is a pointer to the state and <code class="docutils literal notranslate"><span class="pre">free_fun</span></code> is a function that frees it. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426dlite_globals_remove_statePKc">
+<span id="_CPPv326dlite_globals_remove_statePKc"></span><span id="_CPPv226dlite_globals_remove_statePKc"></span><span id="dlite_globals_remove_state__cCP"></span><span class="target" id="dlite-misc_8h_1a473708448a05004963a352de94fda1c8"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_globals_remove_state</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426dlite_globals_remove_statePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Remove global state with the given name. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_globals_get_statePKc">
+<span id="_CPPv323dlite_globals_get_statePKc"></span><span id="_CPPv223dlite_globals_get_statePKc"></span><span id="dlite_globals_get_state__cCP"></span><span class="target" id="dlite-misc_8h_1a6f4880d57428f66725ea67f5239ba6af"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_globals_get_state</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_globals_get_statePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns global state with given name or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_globals_in_atexitv">
+<span id="_CPPv323dlite_globals_in_atexitv"></span><span id="_CPPv223dlite_globals_in_atexitv"></span><span id="dlite_globals_in_atexit__void"></span><span class="target" id="dlite-misc_8h_1abc46198a4d86f475bf557713e9ce738c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_globals_in_atexit</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_globals_in_atexitv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if we are in an atexit handler. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_globals_set_atexitv">
+<span id="_CPPv324dlite_globals_set_atexitv"></span><span id="_CPPv224dlite_globals_set_atexitv"></span><span id="dlite_globals_set_atexit__void"></span><span class="target" id="dlite-misc_8h_1a43e8c4fab7bd3a64e21f855c4c45e3ab"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_globals_set_atexit</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_globals_set_atexitv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Mark that we are in an atexit handler. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions-controlling-whether-to-hide-warnings">Functions controlling whether to hide warnings</p>
+<p>Warning parameters:<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">warnings_hide</span></code>: whether to hide warnings (see below).</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">warnings_pattern</span></code>: glob pattern matching the warning message.</p></li>
+</ul>
+</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">warnings_pattern</span></code> is NULL, warnings are hidden if <code class="docutils literal notranslate"><span class="pre">warnings_hide</span></code> is non-zero.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">warnings_pattern</span></code> is not NULL, then warnings are hidden if:<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">warnings_pattern</span></code> match the warning message and <code class="docutils literal notranslate"><span class="pre">warnings_hide</span></code> is non-zero.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">warnings_pattern</span></code> don’t match the warning message and <code class="docutils literal notranslate"><span class="pre">warnings_hide</span></code> is zero. </p></li>
+</ul>
+</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_get_warnings_hidePPKc">
+<span id="_CPPv323dlite_get_warnings_hidePPKc"></span><span id="_CPPv223dlite_get_warnings_hidePPKc"></span><span id="dlite_get_warnings_hide__cCPP"></span><span class="target" id="dlite-misc_8h_1ad04c1d292743de84ad171eff2c7c1c05"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_get_warnings_hide</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pattern</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_get_warnings_hidePPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return parameters controlling whether warnings should be hidden.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">*pattern</span></code> is not NULL, it is assigned to a static pointer to <code class="docutils literal notranslate"><span class="pre">warnings_pattern</span></code> (owned by DLite).</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">warnings_hide</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_set_warnings_hideiPc">
+<span id="_CPPv323dlite_set_warnings_hideiPc"></span><span id="_CPPv223dlite_set_warnings_hideiPc"></span><span id="dlite_set_warnings_hide__i.cP"></span><span class="target" id="dlite-misc_8h_1a1a46d0f47fe0ce607a732b4c52201ce1"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_set_warnings_hide</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">hide</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pattern</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_set_warnings_hideiPc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Set parameters controlling whether warnings should be hidden. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DLITE_UUID_LENGTH">
+<span class="target" id="dlite-misc_8h_1ad9ad8674f748ec1caa8ffd53384d5ffd"></span><span class="sig-name descname"><span class="n"><span class="pre">DLITE_UUID_LENGTH</span></span></span><a class="headerlink" href="#c.DLITE_UUID_LENGTH" title="Link to this definition">#</a><br /></dt>
+<dd><p>length of an uuid (excl. NUL-termination) </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DLITE_DATA_NS">
+<span class="target" id="dlite-misc_8h_1aa00686017fb35ff1dfd99b2bfa2f153c"></span><span class="sig-name descname"><span class="n"><span class="pre">DLITE_DATA_NS</span></span></span><a class="headerlink" href="#c.DLITE_DATA_NS" title="Link to this definition">#</a><br /></dt>
+<dd><p>Fallback namespace for data instances </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv48DLiteOpt">
+<span id="_CPPv38DLiteOpt"></span><span id="_CPPv28DLiteOpt"></span><span id="DLiteOpt"></span><span class="target" id="structDLiteOpt"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteOpt</span></span></span><a class="headerlink" href="#_CPPv48DLiteOpt" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dlite-misc.h&gt;</em></div>
+<p>Struct used by dlite_getopt() </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8DLiteOpt1cE">
+<span id="_CPPv3N8DLiteOpt1cE"></span><span id="_CPPv2N8DLiteOpt1cE"></span><span id="DLiteOpt::c__i"></span><span class="target" id="structDLiteOpt_1af53df87d9755ed3d829ff01cb24e26db"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">c</span></span></span><a class="headerlink" href="#_CPPv4N8DLiteOpt1cE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Integer identifier for this option </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8DLiteOpt3keyE">
+<span id="_CPPv3N8DLiteOpt3keyE"></span><span id="_CPPv2N8DLiteOpt3keyE"></span><span id="DLiteOpt::key__cCP"></span><span class="target" id="structDLiteOpt_1aa7dd6d3bc5506f2adc0cf83134b7d9d2"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">key</span></span></span><a class="headerlink" href="#_CPPv4N8DLiteOpt3keyE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Option key </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8DLiteOpt5valueE">
+<span id="_CPPv3N8DLiteOpt5valueE"></span><span id="_CPPv2N8DLiteOpt5valueE"></span><span id="DLiteOpt::value__cCP"></span><span class="target" id="structDLiteOpt_1a4632fa2313457d14f9921172b24e7246"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">value</span></span></span><a class="headerlink" href="#_CPPv4N8DLiteOpt5valueE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Option value, initialised with default value </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8DLiteOpt5descrE">
+<span id="_CPPv3N8DLiteOpt5descrE"></span><span id="_CPPv2N8DLiteOpt5descrE"></span><span id="DLiteOpt::descr__cCP"></span><span class="target" id="structDLiteOpt_1a7632ecec343340a0fd60dad3cd36dcff"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">descr</span></span></span><a class="headerlink" href="#_CPPv4N8DLiteOpt5descrE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Description of this option </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dlite-mapping.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">dlite-mapping</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dlite-schemas.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">dlite-schemas</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412DLiteErrMask"><code class="docutils literal notranslate"><span class="pre">DLiteErrMask</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419_dlite_err_mask_getv"><code class="docutils literal notranslate"><span class="pre">_dlite_err_mask_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419_dlite_err_mask_set12DLiteErrMask"><code class="docutils literal notranslate"><span class="pre">_dlite_err_mask_set()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_err_ignored_set12DLiteErrCodei"><code class="docutils literal notranslate"><span class="pre">dlite_err_ignored_set()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_err_ignored_get12DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">dlite_err_ignored_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_errmsgv"><code class="docutils literal notranslate"><span class="pre">dlite_errmsg()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_fataliPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_fatal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_fatalxiPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_fatalx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49dlite_erriPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_err()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_errxiPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_errx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_warnPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_warn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_warnxPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_warnx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_infoPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_info()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_debugPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_debug()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_vfataliPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vfatal()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_vfatalxiPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vfatalx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_verriPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_verr()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_verrxiPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_verrx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_vwarnPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vwarn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_vwarnxPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vwarnx()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411dlite_vinfoPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vinfo()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_vdebugPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_vdebug()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_errvalv"><code class="docutils literal notranslate"><span class="pre">dlite_errval()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_errclrv"><code class="docutils literal notranslate"><span class="pre">dlite_errclr()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_err_get_streamv"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_stream()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_err_set_streamP4FILE"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_stream()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_err_set_filePKc"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_err_set_leveli"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_level()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_err_get_levelv"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_level()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_err_set_levelnamePKc"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_levelname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_err_get_levelnamev"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_levelname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_err_set_warn_modei"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_warn_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_err_get_warn_modev"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_warn_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_err_set_debug_modei"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_debug_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_err_get_debug_modev"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_debug_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_err_set_override_modei"><code class="docutils literal notranslate"><span class="pre">dlite_err_set_override_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_err_get_override_modev"><code class="docutils literal notranslate"><span class="pre">dlite_err_get_override_mode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426_dlite_deprecation_warningPKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">_dlite_deprecation_warning()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411DLiteIdType"><code class="docutils literal notranslate"><span class="pre">DLiteIdType</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11DLiteIdType13dliteIdRandomE"><code class="docutils literal notranslate"><span class="pre">DLiteIdType::dliteIdRandom</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11DLiteIdType11dliteIdHashE"><code class="docutils literal notranslate"><span class="pre">DLiteIdType::dliteIdHash</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11DLiteIdType11dliteIdCopyE"><code class="docutils literal notranslate"><span class="pre">DLiteIdType::dliteIdCopy</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_get_versionv"><code class="docutils literal notranslate"><span class="pre">dlite_get_version()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_get_platformv"><code class="docutils literal notranslate"><span class="pre">dlite_get_platform()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_isuuidPKc"><code class="docutils literal notranslate"><span class="pre">dlite_isuuid()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412dlite_idtypePKc"><code class="docutils literal notranslate"><span class="pre">dlite_idtype()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_idtypenPKci"><code class="docutils literal notranslate"><span class="pre">dlite_idtypen()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_normalise_idPc6size_tPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_normalise_id()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_normalise_idnPc6size_tPKc6size_tPKc"><code class="docutils literal notranslate"><span class="pre">dlite_normalise_idn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_get_uuidPcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_get_uuid()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_get_uuidnPcPKc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_get_uuidn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416_dlite_get_uuidnPcPKc6size_ti"><code class="docutils literal notranslate"><span class="pre">_dlite_get_uuidn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_join_meta_uriPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_join_meta_uri()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_split_meta_uriPKcPPcPPcPPc"><code class="docutils literal notranslate"><span class="pre">dlite_split_meta_uri()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412DLiteOptFlag"><code class="docutils literal notranslate"><span class="pre">DLiteOptFlag</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteOptFlag15dliteOptDefaultE"><code class="docutils literal notranslate"><span class="pre">DLiteOptFlag::dliteOptDefault</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteOptFlag14dliteOptStrictE"><code class="docutils literal notranslate"><span class="pre">DLiteOptFlag::dliteOptStrict</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_option_parsePcP8DLiteOpt12DLiteOptFlag"><code class="docutils literal notranslate"><span class="pre">dlite_option_parse()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_join_urlPKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">dlite_join_url()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415dlite_split_urlPcPPcPPcPPcPPc"><code class="docutils literal notranslate"><span class="pre">dlite_split_url()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_split_url_winpathPcPPcPPcPPcPPci"><code class="docutils literal notranslate"><span class="pre">dlite_split_url_winpath()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_use_build_rootv"><code class="docutils literal notranslate"><span class="pre">dlite_use_build_root()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_set_use_build_rooti"><code class="docutils literal notranslate"><span class="pre">dlite_set_use_build_root()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_root_getv"><code class="docutils literal notranslate"><span class="pre">dlite_root_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_pkg_root_getv"><code class="docutils literal notranslate"><span class="pre">dlite_pkg_root_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_add_dll_pathv"><code class="docutils literal notranslate"><span class="pre">dlite_add_dll_path()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410dlite_initv"><code class="docutils literal notranslate"><span class="pre">dlite_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_finalizev"><code class="docutils literal notranslate"><span class="pre">dlite_finalize()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_globals_getv"><code class="docutils literal notranslate"><span class="pre">dlite_globals_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_globals_setP12DLiteGlobals"><code class="docutils literal notranslate"><span class="pre">dlite_globals_set()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_globals_add_statePKcPvPFvPvE"><code class="docutils literal notranslate"><span class="pre">dlite_globals_add_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_globals_remove_statePKc"><code class="docutils literal notranslate"><span class="pre">dlite_globals_remove_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_globals_get_statePKc"><code class="docutils literal notranslate"><span class="pre">dlite_globals_get_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_globals_in_atexitv"><code class="docutils literal notranslate"><span class="pre">dlite_globals_in_atexit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_globals_set_atexitv"><code class="docutils literal notranslate"><span class="pre">dlite_globals_set_atexit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_get_warnings_hidePPKc"><code class="docutils literal notranslate"><span class="pre">dlite_get_warnings_hide()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_set_warnings_hideiPc"><code class="docutils literal notranslate"><span class="pre">dlite_set_warnings_hide()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48DLiteOpt"><code class="docutils literal notranslate"><span class="pre">DLiteOpt</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8DLiteOpt1cE"><code class="docutils literal notranslate"><span class="pre">DLiteOpt::c</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8DLiteOpt3keyE"><code class="docutils literal notranslate"><span class="pre">DLiteOpt::key</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8DLiteOpt5valueE"><code class="docutils literal notranslate"><span class="pre">DLiteOpt::value</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8DLiteOpt5descrE"><code class="docutils literal notranslate"><span class="pre">DLiteOpt::descr</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

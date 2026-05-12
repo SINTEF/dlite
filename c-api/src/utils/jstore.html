@@ -1,0 +1,852 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>jstore &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/utils/jstore';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="map" href="map.html" />
+    <link rel="prev" title="jsmnx" href="jsmnx.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/utils/jstore.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/c-api/src/utils/jstore.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>jstore</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413jstore_readfpP4FILE"><code class="docutils literal notranslate"><span class="pre">jstore_readfp()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415jstore_readfilePKc"><code class="docutils literal notranslate"><span class="pre">jstore_readfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423jstore_readfile_to_jsmnPKcPP9jsmntok_tPj"><code class="docutils literal notranslate"><span class="pre">jstore_readfile_to_jsmn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411jstore_openv"><code class="docutils literal notranslate"><span class="pre">jstore_open()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412jstore_closeP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_close()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410jstore_addP6JStorePKcPKc"><code class="docutils literal notranslate"><span class="pre">jstore_add()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411jstore_addnP6JStorePKc6size_tPKc6size_t"><code class="docutils literal notranslate"><span class="pre">jstore_addn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_addstolenP6JStorePKcPKc"><code class="docutils literal notranslate"><span class="pre">jstore_addstolen()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410jstore_getP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413jstore_removeP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413jstore_updateP6JStoreP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_update()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423jstore_update_from_jsmnP6JStorePKcP9jsmntok_t"><code class="docutils literal notranslate"><span class="pre">jstore_update_from_jsmn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425jstore_update_from_stringP6JStorePKci"><code class="docutils literal notranslate"><span class="pre">jstore_update_from_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423jstore_update_from_fileP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_update_from_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418jstore_update_fileP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_update_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_to_stringP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_to_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414jstore_to_fileP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_to_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412jstore_countP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_count()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421jstore_get_single_keyP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_get_single_key()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_iter_initP6JStoreP10JStoreIter"><code class="docutils literal notranslate"><span class="pre">jstore_iter_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_iter_nextP10JStoreIter"><code class="docutils literal notranslate"><span class="pre">jstore_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418jstore_iter_deinitP10JStoreIter"><code class="docutils literal notranslate"><span class="pre">jstore_iter_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417jstore_set_labelnP6JStorePKcPKci"><code class="docutils literal notranslate"><span class="pre">jstore_set_labeln()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_set_labelP6JStorePKcPKc"><code class="docutils literal notranslate"><span class="pre">jstore_set_label()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_get_labelP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_get_label()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410JStoreIter"><code class="docutils literal notranslate"><span class="pre">JStoreIter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10JStoreIter2jsE"><code class="docutils literal notranslate"><span class="pre">JStoreIter::js</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10JStoreIter5miterE"><code class="docutils literal notranslate"><span class="pre">JStoreIter::miter</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="jstore">
+<h1>jstore<a class="headerlink" href="#jstore" title="Link to this heading">#</a></h1>
+<p>Simple JSON storage. </p>
+<p>This library maintains a simple JSON storage, whos root is a JSON object. The keys identify storage items and the values are valid JSON string representing the item values.</p>
+<p>Items can be added, updated and removed from the storage. Iteration over all items in the storage is also supported. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-utility-functions">Utility functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413jstore_readfpP4FILE">
+<span id="_CPPv313jstore_readfpP4FILE"></span><span id="_CPPv213jstore_readfpP4FILE"></span><span id="jstore_readfp__FILEP"></span><span class="target" id="jstore_8h_1a76e745802a349d749319605754143e26"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">jstore_readfp</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FILE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fp</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413jstore_readfpP4FILE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Read stream into an allocated buffer. Returns a pointer to the buffer or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415jstore_readfilePKc">
+<span id="_CPPv315jstore_readfilePKc"></span><span id="_CPPv215jstore_readfilePKc"></span><span id="jstore_readfile__cCP"></span><span class="target" id="jstore_8h_1a22252709340895f8e583e74904a0255a"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">jstore_readfile</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415jstore_readfilePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Read file into an allocated buffer. Returns a pointer to the buffer or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423jstore_readfile_to_jsmnPKcPP9jsmntok_tPj">
+<span id="_CPPv323jstore_readfile_to_jsmnPKcPP9jsmntok_tPj"></span><span id="_CPPv223jstore_readfile_to_jsmnPKcPP9jsmntok_tPj"></span><span id="jstore_readfile_to_jsmn__cCP.jsmntok_tPP.unsigned-iP"></span><span class="target" id="jstore_8h_1acba3d07adf0bc1ad04e69937e6ae839a"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">jstore_readfile_to_jsmn</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span>, <span class="n"><span class="pre">jsmntok_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">tokens_ptr</span></span>, <span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">num_tokens_ptr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423jstore_readfile_to_jsmnPKcPP9jsmntok_tPj" title="Link to this definition">#</a><br /></dt>
+<dd><p>Read file into an allocated buffer and parse it with JSMN.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">tokens_ptr</span></code> and <code class="docutils literal notranslate"><span class="pre">num_tokens_ptr</span></code> arguments are passed on to jsmn_parse_alloc().</p>
+<p>Returns a pointer to the buffer or NULL on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-jstore-api">JStore API</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411jstore_openv">
+<span id="_CPPv311jstore_openv"></span><span id="_CPPv211jstore_openv"></span><span id="jstore_open__void"></span><span class="target" id="jstore_8h_1a588e1c4ba1a83fbda46a9ca3e618c87d"></span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">jstore_open</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411jstore_openv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Create a new JSON store and return it. Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412jstore_closeP6JStore">
+<span id="_CPPv312jstore_closeP6JStore"></span><span id="_CPPv212jstore_closeP6JStore"></span><span id="jstore_close__JStoreP"></span><span class="target" id="jstore_8h_1a67dcd10743d59bd60fa96149532f3e8e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_close</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412jstore_closeP6JStore" title="Link to this definition">#</a><br /></dt>
+<dd><p>Close JSON store. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410jstore_addP6JStorePKcPKc">
+<span id="_CPPv310jstore_addP6JStorePKcPKc"></span><span id="_CPPv210jstore_addP6JStorePKcPKc"></span><span id="jstore_add__JStoreP.cCP.cCP"></span><span class="target" id="jstore_8h_1a386108a609198c4944f6e74fe5fab264"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_add</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410jstore_addP6JStorePKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Add JSON value to store with given key. If key already exists, it is replaced. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411jstore_addnP6JStorePKc6size_tPKc6size_t">
+<span id="_CPPv311jstore_addnP6JStorePKc6size_tPKc6size_t"></span><span id="_CPPv211jstore_addnP6JStorePKc6size_tPKc6size_t"></span><span id="jstore_addn__JStoreP.cCP.s.cCP.s"></span><span class="target" id="jstore_8h_1ac0bd82284cb914551e670f465297e894"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_addn</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">klen</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">value</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">vlen</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411jstore_addnP6JStorePKc6size_tPKc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Add JSON value to store with given key. The lengths of the key and value are provided by <code class="docutils literal notranslate"><span class="pre">klen</span></code> and <code class="docutils literal notranslate"><span class="pre">vlen</span></code>, respectively. If the strings are NUL-terminated, the corresponding length may be set to zero. If key already exists, it is replaced. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416jstore_addstolenP6JStorePKcPKc">
+<span id="_CPPv316jstore_addstolenP6JStorePKcPKc"></span><span id="_CPPv216jstore_addstolenP6JStorePKcPKc"></span><span id="jstore_addstolen__JStoreP.cCP.cCP"></span><span class="target" id="jstore_8h_1aeb273ce3c4b5e3fd5dd85a853c102581"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_addstolen</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">value</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416jstore_addstolenP6JStorePKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Add JSON value to store with given key. The store “steels” the ownership of the memory pointed to by <code class="docutils literal notranslate"><span class="pre">value</span></code>. If key already exists, it is replaced. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410jstore_getP6JStorePKc">
+<span id="_CPPv310jstore_getP6JStorePKc"></span><span id="_CPPv210jstore_getP6JStorePKc"></span><span id="jstore_get__JStoreP.cCP"></span><span class="target" id="jstore_8h_1ac8ce1dfcb173333b499c2a431105f6f9"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">jstore_get</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410jstore_getP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns JSON value for given key or NULL if the key isn’t in the store. This function can also be used to check if a key exists in the store. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413jstore_removeP6JStorePKc">
+<span id="_CPPv313jstore_removeP6JStorePKc"></span><span id="_CPPv213jstore_removeP6JStorePKc"></span><span id="jstore_remove__JStoreP.cCP"></span><span class="target" id="jstore_8h_1afa635a8944d8b23e7f0d90cb7113cdfe"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_remove</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413jstore_removeP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes item corresponding to given key from JSON store. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413jstore_updateP6JStoreP6JStore">
+<span id="_CPPv313jstore_updateP6JStoreP6JStore"></span><span id="_CPPv213jstore_updateP6JStoreP6JStore"></span><span id="jstore_update__JStoreP.JStoreP"></span><span class="target" id="jstore_8h_1a812b9bc3d821806407e7cb31b2c0c868"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_update</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">other</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413jstore_updateP6JStoreP6JStore" title="Link to this definition">#</a><br /></dt>
+<dd><p>Update JSON store with values from <code class="docutils literal notranslate"><span class="pre">other</span></code>. Return non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423jstore_update_from_jsmnP6JStorePKcP9jsmntok_t">
+<span id="_CPPv323jstore_update_from_jsmnP6JStorePKcP9jsmntok_t"></span><span id="_CPPv223jstore_update_from_jsmnP6JStorePKcP9jsmntok_t"></span><span id="jstore_update_from_jsmn__JStoreP.cCP.jsmntok_tP"></span><span class="target" id="jstore_8h_1a6a9ba4fb16956513ec0c34ac9bcee265"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_update_from_jsmn</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="n"><span class="pre">jsmntok_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">tok</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423jstore_update_from_jsmnP6JStorePKcP9jsmntok_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Update JSON store with values from JSMN token <code class="docutils literal notranslate"><span class="pre">tok</span></code>. The JSMN token must be an object. Return non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425jstore_update_from_stringP6JStorePKci">
+<span id="_CPPv325jstore_update_from_stringP6JStorePKci"></span><span id="_CPPv225jstore_update_from_stringP6JStorePKci"></span><span id="jstore_update_from_string__JStoreP.cCP.i"></span><span class="target" id="jstore_8h_1ae52d52a1edbd8884b968c9fdfbdabe43"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_update_from_string</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425jstore_update_from_stringP6JStorePKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Update JSON store with values from string <code class="docutils literal notranslate"><span class="pre">buf</span></code>. Return non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423jstore_update_from_fileP6JStorePKc">
+<span id="_CPPv323jstore_update_from_fileP6JStorePKc"></span><span id="_CPPv223jstore_update_from_fileP6JStorePKc"></span><span id="jstore_update_from_file__JStoreP.cCP"></span><span class="target" id="jstore_8h_1a0cc80854df74a539c2d25da140ba4c6f"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_update_from_file</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423jstore_update_from_fileP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Update JSON store with values from file <code class="docutils literal notranslate"><span class="pre">filename</span></code>. Return non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418jstore_update_fileP6JStorePKc">
+<span id="_CPPv318jstore_update_fileP6JStorePKc"></span><span id="_CPPv218jstore_update_fileP6JStorePKc"></span><span id="jstore_update_file__JStoreP.cCP"></span><span class="target" id="jstore_8h_1a051e3ae5f20a3bcdd3314417404b37ff"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_update_file</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418jstore_update_fileP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Update <code class="docutils literal notranslate"><span class="pre">filename</span></code> from JSON store. The file is first read and then rewritten while the store is unchanged. Return non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416jstore_to_stringP6JStore">
+<span id="_CPPv316jstore_to_stringP6JStore"></span><span id="_CPPv216jstore_to_stringP6JStore"></span><span id="jstore_to_string__JStoreP"></span><span class="target" id="jstore_8h_1a3b72aab0272733b1752619de77430d68"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">jstore_to_string</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416jstore_to_stringP6JStore" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a malloc()’ed JSON string with the content of the store or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414jstore_to_fileP6JStorePKc">
+<span id="_CPPv314jstore_to_fileP6JStorePKc"></span><span id="_CPPv214jstore_to_fileP6JStorePKc"></span><span id="jstore_to_file__JStoreP.cCP"></span><span class="target" id="jstore_8h_1a5f486d9d62c310cf65e1dc6e86854cb0"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_to_file</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">filename</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414jstore_to_fileP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Writes JSON store to file. If <code class="docutils literal notranslate"><span class="pre">filename</span></code> exists, it is overwritten. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412jstore_countP6JStore">
+<span id="_CPPv312jstore_countP6JStore"></span><span id="_CPPv212jstore_countP6JStore"></span><span id="jstore_count__JStoreP"></span><span class="target" id="jstore_8h_1a6d620d0ec9520ad119bf798299aa13af"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_count</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412jstore_countP6JStore" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return number of elements in the store. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421jstore_get_single_keyP6JStore">
+<span id="_CPPv321jstore_get_single_keyP6JStore"></span><span id="_CPPv221jstore_get_single_keyP6JStore"></span><span id="jstore_get_single_key__JStoreP"></span><span class="target" id="jstore_8h_1af501116fe2702ce41e790c1174eaaad9"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">jstore_get_single_key</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421jstore_get_single_keyP6JStore" title="Link to this definition">#</a><br /></dt>
+<dd><p>If there is one item in the store, return a borrowed pointer to its key. Otherwise return NULL. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416jstore_iter_initP6JStoreP10JStoreIter">
+<span id="_CPPv316jstore_iter_initP6JStoreP10JStoreIter"></span><span id="_CPPv216jstore_iter_initP6JStoreP10JStoreIter"></span><span id="jstore_iter_init__JStoreP.JStoreIterP"></span><span class="target" id="jstore_8h_1a6179570165c482484f145a324ec3953b"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_iter_init</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <a class="reference internal" href="#_CPPv410JStoreIter" title="JStoreIter"><span class="n"><span class="pre">JStoreIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416jstore_iter_initP6JStoreP10JStoreIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initialise iterator. Return non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416jstore_iter_nextP10JStoreIter">
+<span id="_CPPv316jstore_iter_nextP10JStoreIter"></span><span id="_CPPv216jstore_iter_nextP10JStoreIter"></span><span id="jstore_iter_next__JStoreIterP"></span><span class="target" id="jstore_8h_1a644715241a64e4063ab7a1c59b6d7033"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">jstore_iter_next</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410JStoreIter" title="JStoreIter"><span class="n"><span class="pre">JStoreIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416jstore_iter_nextP10JStoreIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the key to the next item in or NULL if there are no more items in the store. Use <a class="reference internal" href="#jstore_8h_1ac8ce1dfcb173333b499c2a431105f6f9"><span class="std std-ref">jstore_get()</span></a> to get the corresponding value. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418jstore_iter_deinitP10JStoreIter">
+<span id="_CPPv318jstore_iter_deinitP10JStoreIter"></span><span id="_CPPv218jstore_iter_deinitP10JStoreIter"></span><span id="jstore_iter_deinit__JStoreIterP"></span><span class="target" id="jstore_8h_1a75e6c9950c153598aac1784c9a6af7f4"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_iter_deinit</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410JStoreIter" title="JStoreIter"><span class="n"><span class="pre">JStoreIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418jstore_iter_deinitP10JStoreIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Deinitialise the iterator. Returns non-zero on error. In the current implementation, this function does nothing. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417jstore_set_labelnP6JStorePKcPKci">
+<span id="_CPPv317jstore_set_labelnP6JStorePKcPKci"></span><span id="_CPPv217jstore_set_labelnP6JStorePKcPKci"></span><span id="jstore_set_labeln__JStoreP.cCP.cCP.i"></span><span class="target" id="jstore_8h_1ae48b51c42a1b44365acfb25f19ab3db7"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_set_labeln</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">label</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417jstore_set_labelnP6JStorePKcPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Associate <code class="docutils literal notranslate"><span class="pre">label</span></code> with <code class="docutils literal notranslate"><span class="pre">key</span></code>. If <code class="docutils literal notranslate"><span class="pre">len</span></code> is non-negative, it is the length of <code class="docutils literal notranslate"><span class="pre">label</span></code>; otherwise <code class="docutils literal notranslate"><span class="pre">label</span></code> is assumed to be NUL-terminated. If <code class="docutils literal notranslate"><span class="pre">key</span></code> already has a label, the old label is replaced. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416jstore_set_labelP6JStorePKcPKc">
+<span id="_CPPv316jstore_set_labelP6JStorePKcPKc"></span><span id="_CPPv216jstore_set_labelP6JStorePKcPKc"></span><span id="jstore_set_label__JStoreP.cCP.cCP"></span><span class="target" id="jstore_8h_1aad0cc217c311f997fc43b01f6ca8359d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">jstore_set_label</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">label</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416jstore_set_labelP6JStorePKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Associate <code class="docutils literal notranslate"><span class="pre">label</span></code> with <code class="docutils literal notranslate"><span class="pre">key</span></code>. If <code class="docutils literal notranslate"><span class="pre">key</span></code> already has a label, the old label is replaced. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416jstore_get_labelP6JStorePKc">
+<span id="_CPPv316jstore_get_labelP6JStorePKc"></span><span id="_CPPv216jstore_get_labelP6JStorePKc"></span><span id="jstore_get_label__JStoreP.cCP"></span><span class="target" id="jstore_8h_1a082c6812b5a6dab2694d5ee5b22c8c84"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">jstore_get_label</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">js</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">key</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416jstore_get_labelP6JStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to label associated with <code class="docutils literal notranslate"><span class="pre">key</span></code> or NULL if <code class="docutils literal notranslate"><span class="pre">key</span></code> has no associated label. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv410JStoreIter">
+<span id="_CPPv310JStoreIter"></span><span id="_CPPv210JStoreIter"></span><span id="JStoreIter"></span><span class="target" id="structJStoreIter"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">JStoreIter</span></span></span><a class="headerlink" href="#_CPPv410JStoreIter" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;jstore.h&gt;</em></div>
+<p>JStore iterator object </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10JStoreIter2jsE">
+<span id="_CPPv3N10JStoreIter2jsE"></span><span id="_CPPv2N10JStoreIter2jsE"></span><span id="JStoreIter::js__JStoreP"></span><span class="target" id="structJStoreIter_1a0c10d2859debc31292ce8dbdef803393"></span><span class="n"><span class="pre">JStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">js</span></span></span><a class="headerlink" href="#_CPPv4N10JStoreIter2jsE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10JStoreIter5miterE">
+<span id="_CPPv3N10JStoreIter5miterE"></span><span id="_CPPv2N10JStoreIter5miterE"></span><span id="JStoreIter::miter__map_iter_t"></span><span class="target" id="structJStoreIter_1a72e401967b6916649c0c58bedde17823"></span><a class="reference internal" href="map.html#_CPPv410map_iter_t" title="map_iter_t"><span class="n"><span class="pre">map_iter_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">miter</span></span></span><a class="headerlink" href="#_CPPv4N10JStoreIter5miterE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="jsmnx.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">jsmnx</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="map.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">map</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413jstore_readfpP4FILE"><code class="docutils literal notranslate"><span class="pre">jstore_readfp()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415jstore_readfilePKc"><code class="docutils literal notranslate"><span class="pre">jstore_readfile()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423jstore_readfile_to_jsmnPKcPP9jsmntok_tPj"><code class="docutils literal notranslate"><span class="pre">jstore_readfile_to_jsmn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411jstore_openv"><code class="docutils literal notranslate"><span class="pre">jstore_open()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412jstore_closeP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_close()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410jstore_addP6JStorePKcPKc"><code class="docutils literal notranslate"><span class="pre">jstore_add()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411jstore_addnP6JStorePKc6size_tPKc6size_t"><code class="docutils literal notranslate"><span class="pre">jstore_addn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_addstolenP6JStorePKcPKc"><code class="docutils literal notranslate"><span class="pre">jstore_addstolen()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410jstore_getP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413jstore_removeP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413jstore_updateP6JStoreP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_update()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423jstore_update_from_jsmnP6JStorePKcP9jsmntok_t"><code class="docutils literal notranslate"><span class="pre">jstore_update_from_jsmn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425jstore_update_from_stringP6JStorePKci"><code class="docutils literal notranslate"><span class="pre">jstore_update_from_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423jstore_update_from_fileP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_update_from_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418jstore_update_fileP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_update_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_to_stringP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_to_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414jstore_to_fileP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_to_file()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412jstore_countP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_count()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421jstore_get_single_keyP6JStore"><code class="docutils literal notranslate"><span class="pre">jstore_get_single_key()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_iter_initP6JStoreP10JStoreIter"><code class="docutils literal notranslate"><span class="pre">jstore_iter_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_iter_nextP10JStoreIter"><code class="docutils literal notranslate"><span class="pre">jstore_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418jstore_iter_deinitP10JStoreIter"><code class="docutils literal notranslate"><span class="pre">jstore_iter_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417jstore_set_labelnP6JStorePKcPKci"><code class="docutils literal notranslate"><span class="pre">jstore_set_labeln()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_set_labelP6JStorePKcPKc"><code class="docutils literal notranslate"><span class="pre">jstore_set_label()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416jstore_get_labelP6JStorePKc"><code class="docutils literal notranslate"><span class="pre">jstore_get_label()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410JStoreIter"><code class="docutils literal notranslate"><span class="pre">JStoreIter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10JStoreIter2jsE"><code class="docutils literal notranslate"><span class="pre">JStoreIter::js</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10JStoreIter5miterE"><code class="docutils literal notranslate"><span class="pre">JStoreIter::miter</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

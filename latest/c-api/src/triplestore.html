@@ -1,0 +1,895 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>triplestore &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/triplestore';</script>
+    <script src="../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="pyembed" href="pyembed.html" />
+    <link rel="prev" title="triple" href="triple.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triple.html">triple</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/triplestore.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/c-api/src/triplestore.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>triplestore</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424triplestore_remove_by_idP11TripleStorePKc"><code class="docutils literal notranslate"><span class="pre">triplestore_remove_by_id()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418triplestore_createv"><code class="docutils literal notranslate"><span class="pre">triplestore_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv431triplestore_create_with_storagePKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_create_with_storage()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416triplestore_freeP11TripleStore"><code class="docutils literal notranslate"><span class="pre">triplestore_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425triplestore_set_namespaceP11TripleStorePKc"><code class="docutils literal notranslate"><span class="pre">triplestore_set_namespace()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425triplestore_get_namespaceP11TripleStore"><code class="docutils literal notranslate"><span class="pre">triplestore_get_namespace()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418triplestore_lengthP11TripleStore"><code class="docutils literal notranslate"><span class="pre">triplestore_length()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415triplestore_addP11TripleStorePKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_add()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418triplestore_add_enP11TripleStorePKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_add_en()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419triplestore_add_uriP11TripleStorePKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_add_uri()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423triplestore_add_triplesP11TripleStorePK6Triple6size_t"><code class="docutils literal notranslate"><span class="pre">triplestore_add_triples()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418triplestore_removeP11TripleStorePKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417triplestore_clearP11TripleStore"><code class="docutils literal notranslate"><span class="pre">triplestore_clear()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415triplestore_getPK11TripleStorePKc"><code class="docutils literal notranslate"><span class="pre">triplestore_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422triplestore_find_firstPK11TripleStorePKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_find_first()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422triplestore_init_stateP11TripleStoreP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_init_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424triplestore_deinit_stateP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_deinit_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423triplestore_reset_stateP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_reset_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416triplestore_nextP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416triplestore_pollP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_poll()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416triplestore_findP11TripleStatePKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_find()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417triplestore_valueP11TripleStorePKcPKcPKcPKcPKci"><code class="docutils literal notranslate"><span class="pre">triplestore_value()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411TripleState"><code class="docutils literal notranslate"><span class="pre">TripleState</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11TripleState2tsE"><code class="docutils literal notranslate"><span class="pre">TripleState::ts</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11TripleState3posE"><code class="docutils literal notranslate"><span class="pre">TripleState::pos</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11TripleState4dataE"><code class="docutils literal notranslate"><span class="pre">TripleState::data</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="triplestore">
+<h1>triplestore<a class="headerlink" href="#triplestore" title="Link to this heading">#</a></h1>
+<p>A simple triplestore for strings. </p>
+<p>This library defines triplets as subject-predicate-object tuplets with an id. This allow a allows the subject or object to refer to another triplet via its id, as one would expect for RDF triplets (see <a class="reference external" href="https://en.wikipedia.org/wiki/Semantic_triple">https://en.wikipedia.org/wiki/Semantic_triple</a>). </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.XML">
+<span class="target" id="triplestore_8h_1abe1454aa88ed04398388ff9d4148c490"></span><span class="sig-name descname"><span class="n"><span class="pre">XML</span></span></span><a class="headerlink" href="#c.XML" title="Link to this definition">#</a><br /></dt>
+<dd><p>Namespaces </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.XSD">
+<span class="target" id="triplestore_8h_1a2cce44a11d13039af4bc546f5e49e6af"></span><span class="sig-name descname"><span class="n"><span class="pre">XSD</span></span></span><a class="headerlink" href="#c.XSD" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.RDF">
+<span class="target" id="triplestore_8h_1aec22a549abd0ee984725f2ed0eb5da95"></span><span class="sig-name descname"><span class="n"><span class="pre">RDF</span></span></span><a class="headerlink" href="#c.RDF" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.RDFS">
+<span class="target" id="triplestore_8h_1a20f92da8e2e87767f5a33d1e0d4617fc"></span><span class="sig-name descname"><span class="n"><span class="pre">RDFS</span></span></span><a class="headerlink" href="#c.RDFS" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.OWL">
+<span class="target" id="triplestore_8h_1abe8b68c3664e4287919b480ddfa3ee99"></span><span class="sig-name descname"><span class="n"><span class="pre">OWL</span></span></span><a class="headerlink" href="#c.OWL" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.SKOS">
+<span class="target" id="triplestore_8h_1a5f1669e67bbd6328a9b360356831df2d"></span><span class="sig-name descname"><span class="n"><span class="pre">SKOS</span></span></span><a class="headerlink" href="#c.SKOS" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DCTERMS">
+<span class="target" id="triplestore_8h_1aa2c2913b56dc8af06cc78253781053a1"></span><span class="sig-name descname"><span class="n"><span class="pre">DCTERMS</span></span></span><a class="headerlink" href="#c.DCTERMS" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.EMMO">
+<span class="target" id="triplestore_8h_1abe6fa10204fa8778635ebad4bf655ff3"></span><span class="sig-name descname"><span class="n"><span class="pre">EMMO</span></span></span><a class="headerlink" href="#c.EMMO" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.SOFT">
+<span class="target" id="triplestore_8h_1a1b44ecf82561bec987fa3c07632335a4"></span><span class="sig-name descname"><span class="n"><span class="pre">SOFT</span></span></span><a class="headerlink" href="#c.SOFT" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424triplestore_remove_by_idP11TripleStorePKc">
+<span id="_CPPv324triplestore_remove_by_idP11TripleStorePKc"></span><span id="_CPPv224triplestore_remove_by_idP11TripleStorePKc"></span><span id="triplestore_remove_by_id__TripleStoreP.cCP"></span><span class="target" id="triplestore_8h_1a66b128e97a89f13724f2bff729eb3702"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_remove_by_id</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424triplestore_remove_by_idP11TripleStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes a triple identified by it’s <code class="docutils literal notranslate"><span class="pre">id</span></code>. Returns non-zero if no such triple can be found. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418triplestore_createv">
+<span id="_CPPv318triplestore_createv"></span><span id="_CPPv218triplestore_createv"></span><span id="triplestore_create"></span><span class="target" id="triplestore_8h_1a1fc4e4233175a13acfe337b88b1335ef"></span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_create</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418triplestore_createv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new empty triplestore or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv431triplestore_create_with_storagePKcPKcPKc">
+<span id="_CPPv331triplestore_create_with_storagePKcPKcPKc"></span><span id="_CPPv231triplestore_create_with_storagePKcPKcPKc"></span><span id="triplestore_create_with_storage__cCP.cCP.cCP"></span><span class="target" id="triplestore_8h_1a102845a02649403dbdf6ae44b3bc9990"></span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_create_with_storage</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">storage_name</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">options</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431triplestore_create_with_storagePKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new empty triplestore.</p>
+<p>Without librdf, this behaves like <a class="reference internal" href="#triplestore_8h_1a1fc4e4233175a13acfe337b88b1335ef"><span class="std std-ref">triplestore_create()</span></a>.</p>
+<p>Arguments: storage_name: Name of storage module. If NULL, the default storage will be used. name: An identifier for the storage. options: Options for <code class="docutils literal notranslate"><span class="pre">storage_name</span></code>. May be NULL if the storage allows it. See <a class="reference external" href="http://librdf.org/docs/api/redland-storage-modules.html">http://librdf.org/docs/api/redland-storage-modules.html</a> for more info.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416triplestore_freeP11TripleStore">
+<span id="_CPPv316triplestore_freeP11TripleStore"></span><span id="_CPPv216triplestore_freeP11TripleStore"></span><span id="triplestore_free__TripleStoreP"></span><span class="target" id="triplestore_8h_1a93f44e0aacb99350a64239031f44b046"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_free</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416triplestore_freeP11TripleStore" title="Link to this definition">#</a><br /></dt>
+<dd><p>Frees triplestore. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425triplestore_set_namespaceP11TripleStorePKc">
+<span id="_CPPv325triplestore_set_namespaceP11TripleStorePKc"></span><span id="_CPPv225triplestore_set_namespaceP11TripleStorePKc"></span><span id="triplestore_set_namespace__TripleStoreP.cCP"></span><span class="target" id="triplestore_8h_1a791f34f1b6bb0eca1bca2ab1fd7c22fd"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_set_namespace</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ns</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425triplestore_set_namespaceP11TripleStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Set default namespace. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425triplestore_get_namespaceP11TripleStore">
+<span id="_CPPv325triplestore_get_namespaceP11TripleStore"></span><span id="_CPPv225triplestore_get_namespaceP11TripleStore"></span><span id="triplestore_get_namespace__TripleStoreP"></span><span class="target" id="triplestore_8h_1ada88956d957789e0337efb24d09762ae"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_get_namespace</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425triplestore_get_namespaceP11TripleStore" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to default namespace. It may be NULL if it hasn’t been set. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418triplestore_lengthP11TripleStore">
+<span id="_CPPv318triplestore_lengthP11TripleStore"></span><span id="_CPPv218triplestore_lengthP11TripleStore"></span><span id="triplestore_length__TripleStoreP"></span><span class="target" id="triplestore_8h_1a7209a9967192f90b779e063c4bcd3334"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_length</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418triplestore_lengthP11TripleStore" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the number of triples in the store. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415triplestore_addP11TripleStorePKcPKcPKcPKc">
+<span id="_CPPv315triplestore_addP11TripleStorePKcPKcPKcPKc"></span><span id="_CPPv215triplestore_addP11TripleStorePKcPKcPKcPKc"></span><span id="triplestore_add__TripleStoreP.cCP.cCP.cCP.cCP"></span><span class="target" id="triplestore_8h_1af58de15e3c6ff9d030c61539d128f1ae"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_add</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">o</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415triplestore_addP11TripleStorePKcPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Adds triple to store.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">d</span></code> is NULL, the object is considered to be an IRI.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">d</span></code> starts with ‘&#64;’, the object is considered to be a language-tagged plain text literal. The language code should follow directly after the ‘&#64;’ sign. Ex: “&#64;en”.</p>
+<p>Otherwise, the object is considered to be a literal with datatype specified by <code class="docutils literal notranslate"><span class="pre">d</span></code>. Ex: “xsd:integer”. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418triplestore_add_enP11TripleStorePKcPKcPKc">
+<span id="_CPPv318triplestore_add_enP11TripleStorePKcPKcPKc"></span><span id="_CPPv218triplestore_add_enP11TripleStorePKcPKcPKc"></span><span id="triplestore_add_en__TripleStoreP.cCP.cCP.cCP"></span><span class="target" id="triplestore_8h_1aaf570e8e1f75cd0a425415d426f28728"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_add_en</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">o</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418triplestore_add_enP11TripleStorePKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Adds a single triple to store. The object is considered to be an english literal. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419triplestore_add_uriP11TripleStorePKcPKcPKc">
+<span id="_CPPv319triplestore_add_uriP11TripleStorePKcPKcPKc"></span><span id="_CPPv219triplestore_add_uriP11TripleStorePKcPKcPKc"></span><span id="triplestore_add_uri__TripleStoreP.cCP.cCP.cCP"></span><span class="target" id="triplestore_8h_1a51d08b0f5567bf26b7cf5f220b9bfe2b"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_add_uri</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">o</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419triplestore_add_uriP11TripleStorePKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Adds a single triple to store. The object is considered to be an URI. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423triplestore_add_triplesP11TripleStorePK6Triple6size_t">
+<span id="_CPPv323triplestore_add_triplesP11TripleStorePK6Triple6size_t"></span><span id="_CPPv223triplestore_add_triplesP11TripleStorePK6Triple6size_t"></span><span id="triplestore_add_triples__TripleStoreP.TripleCP.s"></span><span class="target" id="triplestore_8h_1a4f6721f2f67a298c00232028e1c1e9f0"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_add_triples</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="triple.html#_CPPv46Triple" title="Triple"><span class="n"><span class="pre">Triple</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">triples</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423triplestore_add_triplesP11TripleStorePK6Triple6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Adds <code class="docutils literal notranslate"><span class="pre">n</span></code> triples to store. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418triplestore_removeP11TripleStorePKcPKcPKcPKc">
+<span id="_CPPv318triplestore_removeP11TripleStorePKcPKcPKcPKc"></span><span id="_CPPv218triplestore_removeP11TripleStorePKcPKcPKcPKc"></span><span id="triplestore_remove__TripleStoreP.cCP.cCP.cCP.cCP"></span><span class="target" id="triplestore_8h_1ad3416df1255c62e640b0d72ee0184d8f"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_remove</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">o</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418triplestore_removeP11TripleStorePKcPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes a triple identified by <code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code> and <code class="docutils literal notranslate"><span class="pre">o</span></code>. Any of these may be NULL, allowing for multiple matches. Returns the number of triples removed. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417triplestore_clearP11TripleStore">
+<span id="_CPPv317triplestore_clearP11TripleStore"></span><span id="_CPPv217triplestore_clearP11TripleStore"></span><span id="triplestore_clear__TripleStoreP"></span><span class="target" id="triplestore_8h_1ae26bcd4f4a2e0ee6ba072648fa0b3aa4"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_clear</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417triplestore_clearP11TripleStore" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes all relations in triplestore and releases all references to external memory. Only references to running iterators is kept. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415triplestore_getPK11TripleStorePKc">
+<span id="_CPPv315triplestore_getPK11TripleStorePKc"></span><span id="_CPPv215triplestore_getPK11TripleStorePKc"></span><span id="triplestore_get__TripleStoreCP.cCP"></span><span class="target" id="triplestore_8h_1adf6865d629150bfc5a4dd582427c3747"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="triple.html#_CPPv46Triple" title="Triple"><span class="n"><span class="pre">Triple</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_get</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415triplestore_getPK11TripleStorePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to triple with given id or NULL if no match can be found. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422triplestore_find_firstPK11TripleStorePKcPKcPKcPKc">
+<span id="_CPPv322triplestore_find_firstPK11TripleStorePKcPKcPKcPKc"></span><span id="_CPPv222triplestore_find_firstPK11TripleStorePKcPKcPKcPKc"></span><span id="triplestore_find_first__TripleStoreCP.cCP.cCP.cCP.cCP"></span><span class="target" id="triplestore_8h_1a802b45c33fe1d9164bf53615627351ce"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="triple.html#_CPPv46Triple" title="Triple"><span class="n"><span class="pre">Triple</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_find_first</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">o</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422triplestore_find_firstPK11TripleStorePKcPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to first triple matching <code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code> and <code class="docutils literal notranslate"><span class="pre">o</span></code> or NULL if no match can be found. Any of <code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code> or <code class="docutils literal notranslate"><span class="pre">o</span></code> may be NULL. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422triplestore_init_stateP11TripleStoreP11TripleState">
+<span id="_CPPv322triplestore_init_stateP11TripleStoreP11TripleState"></span><span id="_CPPv222triplestore_init_stateP11TripleStoreP11TripleState"></span><span id="triplestore_init_state__TripleStoreP.TripleStateP"></span><span class="target" id="triplestore_8h_1ae9232517101058eb61abadd21a73d1b0"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_init_state</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <a class="reference internal" href="#_CPPv411TripleState" title="TripleState"><span class="n"><span class="pre">TripleState</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422triplestore_init_stateP11TripleStoreP11TripleState" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initiates a <a class="reference internal" href="#structTripleState"><span class="std std-ref">TripleState</span></a> for <a class="reference internal" href="#triplestore_8h_1a966deece3de76ca907570b0b0fe21905"><span class="std std-ref">triplestore_find()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424triplestore_deinit_stateP11TripleState">
+<span id="_CPPv324triplestore_deinit_stateP11TripleState"></span><span id="_CPPv224triplestore_deinit_stateP11TripleState"></span><span id="triplestore_deinit_state__TripleStateP"></span><span class="target" id="triplestore_8h_1a133739498c81add966bc91a1330f501a"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_deinit_state</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411TripleState" title="TripleState"><span class="n"><span class="pre">TripleState</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424triplestore_deinit_stateP11TripleState" title="Link to this definition">#</a><br /></dt>
+<dd><p>Deinitiates a <a class="reference internal" href="#structTripleState"><span class="std std-ref">TripleState</span></a> initialised with <a class="reference internal" href="#triplestore_8h_1ae9232517101058eb61abadd21a73d1b0"><span class="std std-ref">triplestore_init_state()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423triplestore_reset_stateP11TripleState">
+<span id="_CPPv323triplestore_reset_stateP11TripleState"></span><span id="_CPPv223triplestore_reset_stateP11TripleState"></span><span id="triplestore_reset_state__TripleStateP"></span><span class="target" id="triplestore_8h_1a168c3773b4d5995cd33ab4ba11ee888c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_reset_state</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411TripleState" title="TripleState"><span class="n"><span class="pre">TripleState</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423triplestore_reset_stateP11TripleState" title="Link to this definition">#</a><br /></dt>
+<dd><p>Resets iterator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416triplestore_nextP11TripleState">
+<span id="_CPPv316triplestore_nextP11TripleState"></span><span id="_CPPv216triplestore_nextP11TripleState"></span><span id="triplestore_next__TripleStateP"></span><span class="target" id="triplestore_8h_1a90c50bee25488966d8938284cc487f97"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="triple.html#_CPPv46Triple" title="Triple"><span class="n"><span class="pre">Triple</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_next</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411TripleState" title="TripleState"><span class="n"><span class="pre">TripleState</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416triplestore_nextP11TripleState" title="Link to this definition">#</a><br /></dt>
+<dd><p>Increments state and returns a pointer to the current triple in the store or NULL if all triples have been visited. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416triplestore_pollP11TripleState">
+<span id="_CPPv316triplestore_pollP11TripleState"></span><span id="_CPPv216triplestore_pollP11TripleState"></span><span id="triplestore_poll__TripleStateP"></span><span class="target" id="triplestore_8h_1a01d351382d749f23f73ac5f20f4f9135"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="triple.html#_CPPv46Triple" title="Triple"><span class="n"><span class="pre">Triple</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_poll</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411TripleState" title="TripleState"><span class="n"><span class="pre">TripleState</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416triplestore_pollP11TripleState" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to the current triple in the store or NULL if all triples have been visited. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416triplestore_findP11TripleStatePKcPKcPKcPKc">
+<span id="_CPPv316triplestore_findP11TripleStatePKcPKcPKcPKc"></span><span id="_CPPv216triplestore_findP11TripleStatePKcPKcPKcPKc"></span><span id="triplestore_find__TripleStateP.cCP.cCP.cCP.cCP"></span><span class="target" id="triplestore_8h_1a966deece3de76ca907570b0b0fe21905"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="triple.html#_CPPv46Triple" title="Triple"><span class="n"><span class="pre">Triple</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_find</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411TripleState" title="TripleState"><span class="n"><span class="pre">TripleState</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">state</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">o</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">d</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416triplestore_findP11TripleStatePKcPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return next triple matching s-p-o triple, where <code class="docutils literal notranslate"><span class="pre">d</span></code> is the datatype of the object. Any of <code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code>, <code class="docutils literal notranslate"><span class="pre">o</span></code> or <code class="docutils literal notranslate"><span class="pre">d</span></code> may be NULL, in which case they will match anything.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">d</span></code> starts with ‘&#64;’, it will match language-tagged plain text literal objects whos XML language abbreviation matches the string following the ‘&#64;’-sign.</p>
+<p>if <code class="docutils literal notranslate"><span class="pre">d</span></code> is NUL (empty string), it will match non-literal objects.</p>
+<p>Any other non-NULL <code class="docutils literal notranslate"><span class="pre">d</span></code> will match literal objects whos datatype are <code class="docutils literal notranslate"><span class="pre">d</span></code>.</p>
+<p>When no more matches can be found, NULL is returned. NULL is also returned on error.</p>
+<p>This function should be called iteratively. Before the first call it should be provided a <code class="docutils literal notranslate"><span class="pre">state</span></code> initialised with <a class="reference internal" href="#triplestore_8h_1ae9232517101058eb61abadd21a73d1b0"><span class="std std-ref">triplestore_init_state()</span></a> and deinitialised with <a class="reference internal" href="#triplestore_8h_1a133739498c81add966bc91a1330f501a"><span class="std std-ref">triplestore_deinit_state()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417triplestore_valueP11TripleStorePKcPKcPKcPKcPKci">
+<span id="_CPPv317triplestore_valueP11TripleStorePKcPKcPKcPKcPKci"></span><span id="_CPPv217triplestore_valueP11TripleStorePKcPKcPKcPKcPKci"></span><span id="triplestore_value__TripleStoreP.cCP.cCP.cCP.cCP.cCP.i"></span><span class="target" id="triplestore_8h_1a38f076f439a87598230c75fdbd920830"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">triplestore_value</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ts</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">p</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">o</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">d</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fallback</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">any</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417triplestore_valueP11TripleStorePKcPKcPKcPKcPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return pointer to the value for a pair of two criteria.</p>
+<p>Useful if one knows that there may only be one value. The returned value is held by the triplestore and should be copied by the user since it may be overwritten by later calls to the triplestore.</p>
+<p>Parameters: s, p, o: Criteria to match. Two of these must be non-NULL. d: If not NULL, the required datatype of literal objects. fallback: Value to return if no matches are found. any: If non-zero, return first matching value.</p>
+<p>Returns a pointer to the value of the <code class="docutils literal notranslate"><span class="pre">s</span></code>, <code class="docutils literal notranslate"><span class="pre">p</span></code> or <code class="docutils literal notranslate"><span class="pre">o</span></code> that is NULL. On error NULL is returned. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv411TripleState">
+<span id="_CPPv311TripleState"></span><span id="_CPPv211TripleState"></span><span id="TripleState"></span><span class="target" id="structTripleState"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">TripleState</span></span></span><a class="headerlink" href="#_CPPv411TripleState" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;triplestore.h&gt;</em></div>
+<p>State used by triplestore_find. Don’t rely on current definition, it may be optimised later. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11TripleState2tsE">
+<span id="_CPPv3N11TripleState2tsE"></span><span id="_CPPv2N11TripleState2tsE"></span><span id="TripleState::ts__TripleStoreP"></span><span class="target" id="structTripleState_1a84653cbfda6d37bbe48b5cfc79c1a3b2"></span><span class="n"><span class="pre">TripleStore</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ts</span></span></span><a class="headerlink" href="#_CPPv4N11TripleState2tsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>reference to corresponding TripleStore </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11TripleState3posE">
+<span id="_CPPv3N11TripleState3posE"></span><span id="_CPPv2N11TripleState3posE"></span><span id="TripleState::pos__s"></span><span class="target" id="structTripleState_1a80a12246b4e4870d01d02a2fe3d8b4a2"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pos</span></span></span><a class="headerlink" href="#_CPPv4N11TripleState3posE" title="Link to this definition">#</a><br /></dt>
+<dd><p>current position </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11TripleState4dataE">
+<span id="_CPPv3N11TripleState4dataE"></span><span id="_CPPv2N11TripleState4dataE"></span><span id="TripleState::data__voidP"></span><span class="target" id="structTripleState_1a85306636a9d20eaeae6abbfce07d6830"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N11TripleState4dataE" title="Link to this definition">#</a><br /></dt>
+<dd><p>internal data depending on the implementation </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="triple.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">triple</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="pyembed.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">pyembed</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424triplestore_remove_by_idP11TripleStorePKc"><code class="docutils literal notranslate"><span class="pre">triplestore_remove_by_id()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418triplestore_createv"><code class="docutils literal notranslate"><span class="pre">triplestore_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv431triplestore_create_with_storagePKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_create_with_storage()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416triplestore_freeP11TripleStore"><code class="docutils literal notranslate"><span class="pre">triplestore_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425triplestore_set_namespaceP11TripleStorePKc"><code class="docutils literal notranslate"><span class="pre">triplestore_set_namespace()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425triplestore_get_namespaceP11TripleStore"><code class="docutils literal notranslate"><span class="pre">triplestore_get_namespace()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418triplestore_lengthP11TripleStore"><code class="docutils literal notranslate"><span class="pre">triplestore_length()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415triplestore_addP11TripleStorePKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_add()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418triplestore_add_enP11TripleStorePKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_add_en()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419triplestore_add_uriP11TripleStorePKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_add_uri()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423triplestore_add_triplesP11TripleStorePK6Triple6size_t"><code class="docutils literal notranslate"><span class="pre">triplestore_add_triples()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418triplestore_removeP11TripleStorePKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417triplestore_clearP11TripleStore"><code class="docutils literal notranslate"><span class="pre">triplestore_clear()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415triplestore_getPK11TripleStorePKc"><code class="docutils literal notranslate"><span class="pre">triplestore_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422triplestore_find_firstPK11TripleStorePKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_find_first()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422triplestore_init_stateP11TripleStoreP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_init_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424triplestore_deinit_stateP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_deinit_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423triplestore_reset_stateP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_reset_state()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416triplestore_nextP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416triplestore_pollP11TripleState"><code class="docutils literal notranslate"><span class="pre">triplestore_poll()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416triplestore_findP11TripleStatePKcPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">triplestore_find()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417triplestore_valueP11TripleStorePKcPKcPKcPKcPKci"><code class="docutils literal notranslate"><span class="pre">triplestore_value()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411TripleState"><code class="docutils literal notranslate"><span class="pre">TripleState</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11TripleState2tsE"><code class="docutils literal notranslate"><span class="pre">TripleState::ts</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11TripleState3posE"><code class="docutils literal notranslate"><span class="pre">TripleState::pos</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11TripleState4dataE"><code class="docutils literal notranslate"><span class="pre">TripleState::data</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

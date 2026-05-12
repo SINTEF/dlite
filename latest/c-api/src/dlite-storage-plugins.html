@@ -1,0 +1,1395 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dlite-storage-plugins &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/dlite-storage-plugins';</script>
+    <script src="../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dlite-storage" href="dlite-storage.html" />
+    <link rel="prev" title="dlite-schemas" href="dlite-schemas.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/dlite-storage-plugins.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/c-api/src/dlite-storage-plugins.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dlite-storage-plugins</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418GetDLiteStorageAPI"><code class="docutils literal notranslate"><span class="pre">GetDLiteStorageAPI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_storage_plugin_getPKc"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv429dlite_storage_plugin_load_allv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_load_all()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_iter_createv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_iter_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_storage_plugin_iter_nextP22DLiteStoragePluginIter"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_storage_plugin_iter_freeP22DLiteStoragePluginIter"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_iter_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_storage_plugin_paths_getv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_paths_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_storage_plugin_pathsv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_paths()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_path_stringv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_path_insertiPKc"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_insert()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_path_appendPKc"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv433dlite_storage_plugin_path_appendnPKc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_appendn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv438dlite_storage_plugin_path_remove_indexi"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_remove_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_path_removePKc"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv44Open"><code class="docutils literal notranslate"><span class="pre">Open</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45Close"><code class="docutils literal notranslate"><span class="pre">Close</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45Flush"><code class="docutils literal notranslate"><span class="pre">Flush</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv44Help"><code class="docutils literal notranslate"><span class="pre">Help</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410IterCreate"><code class="docutils literal notranslate"><span class="pre">IterCreate</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48IterNext"><code class="docutils literal notranslate"><span class="pre">IterNext</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48IterFree"><code class="docutils literal notranslate"><span class="pre">IterFree</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48GetUUIDs"><code class="docutils literal notranslate"><span class="pre">GetUUIDs</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412LoadInstance"><code class="docutils literal notranslate"><span class="pre">LoadInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412SaveInstance"><code class="docutils literal notranslate"><span class="pre">SaveInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414DeleteInstance"><code class="docutils literal notranslate"><span class="pre">DeleteInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415MemLoadInstance"><code class="docutils literal notranslate"><span class="pre">MemLoadInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415MemSaveInstance"><code class="docutils literal notranslate"><span class="pre">MemSaveInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49DataModel"><code class="docutils literal notranslate"><span class="pre">DataModel</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DataModelFree"><code class="docutils literal notranslate"><span class="pre">DataModelFree</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410GetMetaURI"><code class="docutils literal notranslate"><span class="pre">GetMetaURI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417ResolveDimensions"><code class="docutils literal notranslate"><span class="pre">ResolveDimensions</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416GetDimensionSize"><code class="docutils literal notranslate"><span class="pre">GetDimensionSize</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411GetProperty"><code class="docutils literal notranslate"><span class="pre">GetProperty</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410SetMetaURI"><code class="docutils literal notranslate"><span class="pre">SetMetaURI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416SetDimensionSize"><code class="docutils literal notranslate"><span class="pre">SetDimensionSize</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411SetProperty"><code class="docutils literal notranslate"><span class="pre">SetProperty</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412HasDimension"><code class="docutils literal notranslate"><span class="pre">HasDimension</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411HasProperty"><code class="docutils literal notranslate"><span class="pre">HasProperty</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411GetDataName"><code class="docutils literal notranslate"><span class="pre">GetDataName</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411SetDataName"><code class="docutils literal notranslate"><span class="pre">SetDataName</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411DriverFreer"><code class="docutils literal notranslate"><span class="pre">DriverFreer</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417DLiteStorageFlags"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N17DLiteStorageFlags13dliteReadableE"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags::dliteReadable</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N17DLiteStorageFlags13dliteWritableE"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags::dliteWritable</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N17DLiteStorageFlags12dliteGenericE"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags::dliteGeneric</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N17DLiteStorageFlags16dliteTransactionE"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags::dliteTransaction</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416DLiteMapInstance"><code class="docutils literal notranslate"><span class="pre">DLiteMapInstance</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N16DLiteMapInstance4baseE"><code class="docutils literal notranslate"><span class="pre">DLiteMapInstance::base</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N16DLiteMapInstance3refE"><code class="docutils literal notranslate"><span class="pre">DLiteMapInstance::ref</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N16DLiteMapInstance3tmpE"><code class="docutils literal notranslate"><span class="pre">DLiteMapInstance::tmp</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413_DLiteStorage"><code class="docutils literal notranslate"><span class="pre">_DLiteStorage</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415_DLiteDataModel"><code class="docutils literal notranslate"><span class="pre">_DLiteDataModel</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419_DLiteStoragePlugin"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin4openE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::open</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin5closeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::close</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin5flushE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::flush</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin4helpE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::help</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin10iterCreateE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::iterCreate</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin8iterNextE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::iterNext</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin8iterFreeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::iterFree</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin12loadInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::loadInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin12saveInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::saveInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin14deleteInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::deleteInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin15memLoadInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::memLoadInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin15memSaveInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::memSaveInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin8getUUIDsE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getUUIDs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin9dataModelE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::dataModel</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin13dataModelFreeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::dataModelFree</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin10getMetaURIE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getMetaURI</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin17resolveDimensionsE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::resolveDimensions</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin16getDimensionSizeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getDimensionSize</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11getPropertyE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getProperty</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin10setMetaURIE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::setMetaURI</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin16setDimensionSizeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::setDimensionSize</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11setPropertyE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::setProperty</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin12hasDimensionE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::hasDimension</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11hasPropertyE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::hasProperty</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11getDataNameE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getDataName</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11setDataNameE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::setDataName</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin4dataE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::data</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dlite-storage-plugins">
+<h1>dlite-storage-plugins<a class="headerlink" href="#dlite-storage-plugins" title="Link to this heading">#</a></h1>
+<p>Common API for all storage plugins (internal). </p>
+<p>A DLite storage plugin should be a shared library that defines the function <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">DLiteStoragePlugin</span> <span class="o">*</span><span class="n">get_dlite_storage_api</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">name</span><span class="p">);</span>
+</pre></div>
+</div>
+ that returns a pointer to a struct with pointers to all functions provided by the plugin. The <code class="docutils literal notranslate"><span class="pre">name</span></code> is just a hint that plugins are free to ignore. It is used by storage plugins that supports several different drivers, to select which api that should be returned.</p>
+<p>The storage plugin search path is initialised from the environment variable <code class="docutils literal notranslate"><span class="pre">DLITE_STORAGE_PLUGIN_DIRS</span></code>.</p>
+<p><em>Two APIs </em></p>
+<p>Storage plugins may choose to implement either the datamodel API or the instance API.</p>
+<p>The datamodel API is the original API resembling SOFT5. It provides a generic abstract layer between the data representation in the storage and the DLite instances.</p>
+<p>Since DLite now offers an abstract datamodel-like API for all instances, the need for the datamodel layer seems to be gone. DLite therefore offers an alternative and simpler API for storage plugins that works directly on DLite instances and only contains two functions; <a class="reference internal" href="#dlite-storage-plugins_8h_1a83f2b663e57f31e15722fef3020f66e8"><span class="std std-ref">LoadInstance()</span></a> and <a class="reference internal" href="#dlite-storage-plugins_8h_1a7b3f36c6d3633fc6396bae218c067c70"><span class="std std-ref">SaveInstance()</span></a>. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-plugin-frontend">Plugin frontend</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv418GetDLiteStorageAPI">
+<span id="_CPPv318GetDLiteStorageAPI"></span><span id="_CPPv218GetDLiteStorageAPI"></span><span id="GetDLiteStorageAPI"></span><span class="target" id="dlite-storage-plugins_8h_1a548119e23ffb00940f9d42328f3ed86c"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStoragePlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetDLiteStorageAPI</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteGlobals</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv418GetDLiteStorageAPI" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to a DLiteStoragePlugin or NULL on error.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">iter</span></code> argument is normally ignored. It is provided to support plugins exposing several APIs. If the plugin has more APIs to expose, it should increase the integer pointed to by <code class="docutils literal notranslate"><span class="pre">iter</span></code> by one. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_storage_plugin_getPKc">
+<span id="_CPPv324dlite_storage_plugin_getPKc"></span><span id="_CPPv224dlite_storage_plugin_getPKc"></span><span id="dlite_storage_plugin_get__cCP"></span><span class="target" id="dlite-storage-plugins_8h_1a32f3d017a0451ffa567ee6ca8cdec928"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStoragePlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_get</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_storage_plugin_getPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a storage plugin with the given name, or NULL if it cannot be found.</p>
+<p>If a plugin with the given name is registered, it is returned.</p>
+<p>Otherwise the plugin search path is checked for shared libraries matching <code class="docutils literal notranslate"><span class="pre">name.EXT</span></code> where <code class="docutils literal notranslate"><span class="pre">EXT</span></code> is the extension for shared library on the current platform (“dll” on Windows and “so” on Unix/Linux). If a plugin with the provided name is found, it is loaded, registered and returned.</p>
+<p>Otherwise the plugin search path is checked again, but this time for any shared library. If a plugin with the provided name is found, it is loaded, registered and returned.</p>
+<p>Otherwise NULL is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv429dlite_storage_plugin_load_allv">
+<span id="_CPPv329dlite_storage_plugin_load_allv"></span><span id="_CPPv229dlite_storage_plugin_load_allv"></span><span id="dlite_storage_plugin_load_all"></span><span class="target" id="dlite-storage-plugins_8h_1a50fde0710e015a4fbdea23d45affb983"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_load_all</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv429dlite_storage_plugin_load_allv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Load all plugins that can be found in the plugin search path. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv432dlite_storage_plugin_iter_createv">
+<span id="_CPPv332dlite_storage_plugin_iter_createv"></span><span id="_CPPv232dlite_storage_plugin_iter_createv"></span><span id="dlite_storage_plugin_iter_create"></span><span class="target" id="dlite-storage-plugins_8h_1ac8fd81b2bf24dc83389c065736ebea0d"></span><span class="n"><span class="pre">DLiteStoragePluginIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_iter_create</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432dlite_storage_plugin_iter_createv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to a new plugin iterator or NULL on error. It should be free’ed with <a class="reference internal" href="#dlite-storage-plugins_8h_1a05661930d528a2b126beec57f5e14665"><span class="std std-ref">dlite_storage_plugin_iter_free()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv430dlite_storage_plugin_iter_nextP22DLiteStoragePluginIter">
+<span id="_CPPv330dlite_storage_plugin_iter_nextP22DLiteStoragePluginIter"></span><span id="_CPPv230dlite_storage_plugin_iter_nextP22DLiteStoragePluginIter"></span><span id="dlite_storage_plugin_iter_next__DLiteStoragePluginIterP"></span><span class="target" id="dlite-storage-plugins_8h_1a18fc015e613ca6e9e6978ac1b99c476e"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStoragePlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_iter_next</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">DLiteStoragePluginIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430dlite_storage_plugin_iter_nextP22DLiteStoragePluginIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns pointer the next plugin or NULL if there a re no more plugins. <code class="docutils literal notranslate"><span class="pre">iter</span></code> is the iterator returned by <a class="reference internal" href="#dlite-storage-plugins_8h_1ac8fd81b2bf24dc83389c065736ebea0d"><span class="std std-ref">dlite_storage_plugin_iter_create()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv430dlite_storage_plugin_iter_freeP22DLiteStoragePluginIter">
+<span id="_CPPv330dlite_storage_plugin_iter_freeP22DLiteStoragePluginIter"></span><span id="_CPPv230dlite_storage_plugin_iter_freeP22DLiteStoragePluginIter"></span><span id="dlite_storage_plugin_iter_free__DLiteStoragePluginIterP"></span><span class="target" id="dlite-storage-plugins_8h_1a05661930d528a2b126beec57f5e14665"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_iter_free</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">DLiteStoragePluginIter</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430dlite_storage_plugin_iter_freeP22DLiteStoragePluginIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Frees plugin iterator <code class="docutils literal notranslate"><span class="pre">iter</span></code> created with <a class="reference internal" href="#dlite-storage-plugins_8h_1ac8fd81b2bf24dc83389c065736ebea0d"><span class="std std-ref">dlite_storage_plugin_iter_create()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv430dlite_storage_plugin_paths_getv">
+<span id="_CPPv330dlite_storage_plugin_paths_getv"></span><span id="_CPPv230dlite_storage_plugin_paths_getv"></span><span id="dlite_storage_plugin_paths_get__void"></span><span class="target" id="dlite-storage-plugins_8h_1a0952c23242a0877e450823c66338dc08"></span><a class="reference internal" href="utils/fileutils.html#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_paths_get</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430dlite_storage_plugin_paths_getv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to the underlying <a class="reference internal" href="utils/fileutils.html#structFUPaths"><span class="std std-ref">FUPaths</span></a> object for storage plugins or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426dlite_storage_plugin_pathsv">
+<span id="_CPPv326dlite_storage_plugin_pathsv"></span><span id="_CPPv226dlite_storage_plugin_pathsv"></span><span id="dlite_storage_plugin_paths__void"></span><span class="target" id="dlite-storage-plugins_8h_1a50d560d2a2ef638fb694f5526d1c8aee"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_paths</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426dlite_storage_plugin_pathsv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to the current storage plugin search path. It is initialised from the environment variable <code class="docutils literal notranslate"><span class="pre">DLITE_STORAGE_PLUGIN_DIRS</span></code>.</p>
+<p>Use <a class="reference internal" href="#dlite-storage-plugins_8h_1a36ee0033f841f2bcfe28c17d638f9838"><span class="std std-ref">dlite_storage_plugin_path_insert()</span></a>, <a class="reference internal" href="#dlite-storage-plugins_8h_1a300c3fd76182605f2ab9bf63d5e9da53"><span class="std std-ref">dlite_storage_plugin_path_append()</span></a> and <a class="reference internal" href="#dlite-storage-plugins_8h_1adea4fc768196150aefecaac59530ca57"><span class="std std-ref">dlite_storage_plugin_path_remove()</span></a> to modify it. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv432dlite_storage_plugin_path_stringv">
+<span id="_CPPv332dlite_storage_plugin_path_stringv"></span><span id="_CPPv232dlite_storage_plugin_path_stringv"></span><span id="dlite_storage_plugin_path_string__void"></span><span class="target" id="dlite-storage-plugins_8h_1a97959c4a16ee1dfba29bea312a517c3b"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_path_string</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432dlite_storage_plugin_path_stringv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns an allocated string with the content of <code class="docutils literal notranslate"><span class="pre">paths</span></code> formatted according to the current platform. See dlite_set_platform().</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv432dlite_storage_plugin_path_insertiPKc">
+<span id="_CPPv332dlite_storage_plugin_path_insertiPKc"></span><span id="_CPPv232dlite_storage_plugin_path_insertiPKc"></span><span id="dlite_storage_plugin_path_insert__i.cCP"></span><span class="target" id="dlite-storage-plugins_8h_1a36ee0033f841f2bcfe28c17d638f9838"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_path_insert</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432dlite_storage_plugin_path_insertiPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inserts <code class="docutils literal notranslate"><span class="pre">path</span></code> into the current search path at index <code class="docutils literal notranslate"><span class="pre">n</span></code>. If <code class="docutils literal notranslate"><span class="pre">n</span></code> is negative, it counts from the end of the search path (like Python).</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is out of range, it is clipped.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv432dlite_storage_plugin_path_appendPKc">
+<span id="_CPPv332dlite_storage_plugin_path_appendPKc"></span><span id="_CPPv232dlite_storage_plugin_path_appendPKc"></span><span id="dlite_storage_plugin_path_append__cCP"></span><span class="target" id="dlite-storage-plugins_8h_1a300c3fd76182605f2ab9bf63d5e9da53"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_path_append</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432dlite_storage_plugin_path_appendPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Appends <code class="docutils literal notranslate"><span class="pre">path</span></code> into the current search path.</p>
+<p>Returns the index of the newly appended element or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv433dlite_storage_plugin_path_appendnPKc6size_t">
+<span id="_CPPv333dlite_storage_plugin_path_appendnPKc6size_t"></span><span id="_CPPv233dlite_storage_plugin_path_appendnPKc6size_t"></span><span id="dlite_storage_plugin_path_appendn__cCP.s"></span><span class="target" id="dlite-storage-plugins_8h_1a1286d3e5265e45cdb8e7a00f8dc9617a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_path_appendn</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv433dlite_storage_plugin_path_appendnPKc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-storage-plugins_8h_1a300c3fd76182605f2ab9bf63d5e9da53"><span class="std std-ref">dlite_storage_plugin_path_append()</span></a>, but appends at most the first <code class="docutils literal notranslate"><span class="pre">n</span></code> bytes of <code class="docutils literal notranslate"><span class="pre">path</span></code> to the current search path.</p>
+<p>Returns the index of the newly appended element or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv438dlite_storage_plugin_path_remove_indexi">
+<span id="_CPPv338dlite_storage_plugin_path_remove_indexi"></span><span id="_CPPv238dlite_storage_plugin_path_remove_indexi"></span><span id="dlite_storage_plugin_path_remove_index__i"></span><span class="target" id="dlite-storage-plugins_8h_1a9fa570b50e466fbb8712864b67812e97"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_path_remove_index</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv438dlite_storage_plugin_path_remove_indexi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes path number <code class="docutils literal notranslate"><span class="pre">n</span></code> from current search path.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv432dlite_storage_plugin_path_removePKc">
+<span id="_CPPv332dlite_storage_plugin_path_removePKc"></span><span id="_CPPv232dlite_storage_plugin_path_removePKc"></span><span id="dlite_storage_plugin_path_remove__cCP"></span><span class="target" id="dlite-storage-plugins_8h_1adea4fc768196150aefecaac59530ca57"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_storage_plugin_path_remove</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432dlite_storage_plugin_path_removePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes path <code class="docutils literal notranslate"><span class="pre">path</span></code> from current search path.</p>
+<p>Returns non-zero if there is no such path. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-basic-api">Basic API</p>
+<p>Signatures of basic functions. <a class="reference internal" href="#dlite-storage-plugins_8h_1a515cc57f20fded49e087df853e241dd8"><span class="std std-ref">Open()</span></a> and <a class="reference internal" href="#dlite-storage-plugins_8h_1a36fd64ad78aaaa9258dd31520c3ffeee"><span class="std std-ref">Close()</span></a> must always be defined. <a class="reference internal" href="#dlite-storage-plugins_8h_1a8037dcafb9942c2fbb2bfe832a3078fd"><span class="std std-ref">Flush()</span></a> is optional. </p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv44Open">
+<span id="_CPPv34Open"></span><span id="_CPPv24Open"></span><span id="Open"></span><span class="target" id="dlite-storage-plugins_8h_1a515cc57f20fded49e087df853e241dd8"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStorage</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Open</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStoragePlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">api</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">uri</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv44Open" title="Link to this definition">#</a><br /></dt>
+<dd><p>Opens <code class="docutils literal notranslate"><span class="pre">uri</span></code> and returns a newly created storage for it.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">api</span></code> argument can normally be ignored (it is needed for the Python storage backend).</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">options</span></code> argument provies additional input to the driver. Which options that are supported varies between the plugins. It should be a valid URL query string of the form: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">key1</span><span class="o">=</span><span class="n">value1</span><span class="p">;</span><span class="n">key2</span><span class="o">=</span><span class="n">value2</span><span class="o">...</span>
+</pre></div>
+</div>
+ An ampersand (&amp;) may be used instead of the semicolon (;).</p>
+<p>Typical options supported by most drivers include:<ul class="simple">
+<li><p>mode : append | r | w Valid values are:<ul>
+<li><p>append Append to existing file or create new file (default)</p></li>
+<li><p>r Open existing file for read-only</p></li>
+<li><p>w Truncate existing file or create new file</p></li>
+</ul>
+</p></li>
+</ul>
+</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv45Close">
+<span id="_CPPv35Close"></span><span id="_CPPv25Close"></span><span id="Close"></span><span class="target" id="dlite-storage-plugins_8h_1a36fd64ad78aaaa9258dd31520c3ffeee"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Close</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteStorage</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv45Close" title="Link to this definition">#</a><br /></dt>
+<dd><p>Closes storage <code class="docutils literal notranslate"><span class="pre">s</span></code>. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv45Flush">
+<span id="_CPPv35Flush"></span><span id="_CPPv25Flush"></span><span id="Flush"></span><span class="target" id="dlite-storage-plugins_8h_1a8037dcafb9942c2fbb2bfe832a3078fd"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Flush</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteStorage</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv45Flush" title="Link to this definition">#</a><br /></dt>
+<dd><p>Flush storage <code class="docutils literal notranslate"><span class="pre">s</span></code>. Optional. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv44Help">
+<span id="_CPPv34Help"></span><span id="_CPPv24Help"></span><span id="Help"></span><span class="target" id="dlite-storage-plugins_8h_1a873bfc1ecd81bc0c79a19dd2ede1380d"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Help</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStoragePlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">api</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv44Help" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a malloc’ed string with plugin documentation or NULL on error. Optional. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-query-api">Query API</p>
+<p>Function for querying the content of a plugin. The new <a class="reference internal" href="#dlite-storage-plugins_8h_1a7cdfc5c93752254d1959a8b7e5ac3da2"><span class="std std-ref">IterCreate()</span></a>, <a class="reference internal" href="#dlite-storage-plugins_8h_1a97317808d16118975790eb86758f1244"><span class="std std-ref">IterNext()</span></a> and <a class="reference internal" href="#dlite-storage-plugins_8h_1a6c9dd4786814846f4d156b3dea548dfc"><span class="std std-ref">IterFree()</span></a> are preferred in front of the old <a class="reference internal" href="#dlite-storage-plugins_8h_1a59bc5ae9338b58b5697351117871ed3f"><span class="std std-ref">GetUUIDs()</span></a> function.</p>
+<p>Any of these functions are fully optional for the storage plugin to implement. </p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv410IterCreate">
+<span id="_CPPv310IterCreate"></span><span id="_CPPv210IterCreate"></span><span id="IterCreate"></span><span class="target" id="dlite-storage-plugins_8h_1a7cdfc5c93752254d1959a8b7e5ac3da2"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">IterCreate</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStorage</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">pattern</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv410IterCreate" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new iterator over all instances in storage <code class="docutils literal notranslate"><span class="pre">s</span></code> who’s metadata URI matches <code class="docutils literal notranslate"><span class="pre">pattern</span></code>.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv48IterNext">
+<span id="_CPPv38IterNext"></span><span id="_CPPv28IterNext"></span><span id="IterNext"></span><span class="target" id="dlite-storage-plugins_8h_1a97317808d16118975790eb86758f1244"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">IterNext</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">buf</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv48IterNext" title="Link to this definition">#</a><br /></dt>
+<dd><p>Writes the uuid of the next instance to <code class="docutils literal notranslate"><span class="pre">buf</span></code>, where <code class="docutils literal notranslate"><span class="pre">iter</span></code> is an iterator returned by <a class="reference internal" href="#dlite-storage-plugins_8h_1a7cdfc5c93752254d1959a8b7e5ac3da2"><span class="std std-ref">IterCreate()</span></a>.</p>
+<p>Returns zero on success, 1 if there are no more UUIDs to iterate over and a negative number on other errors. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv48IterFree">
+<span id="_CPPv38IterFree"></span><span id="_CPPv28IterFree"></span><span id="IterFree"></span><span class="target" id="dlite-storage-plugins_8h_1a6c9dd4786814846f4d156b3dea548dfc"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">IterFree</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv48IterFree" title="Link to this definition">#</a><br /></dt>
+<dd><p>Free’s iterator created with <a class="reference internal" href="#dlite-storage-plugins_8h_1a7cdfc5c93752254d1959a8b7e5ac3da2"><span class="std std-ref">IterCreate()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv48GetUUIDs">
+<span id="_CPPv38GetUUIDs"></span><span id="_CPPv28GetUUIDs"></span><span id="GetUUIDs"></span><span class="target" id="dlite-storage-plugins_8h_1a59bc5ae9338b58b5697351117871ed3f"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetUUIDs</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStorage</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv48GetUUIDs" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a newly malloc’ed NULL-terminated array of (malloc’ed) string pointers to the UUID’s of all instances in storage <code class="docutils literal notranslate"><span class="pre">s</span></code>.</p>
+<p>The caller is responsible to free the returned array.</p>
+<p>Returns NULL on error.</p>
+<p><dl>
+<dt class="sig sig-object cpp">
+<em><span class="pre">Deprecated:</span></em></dt>
+<dd><p>Will most likely be deprecated in favour for <a class="reference internal" href="#dlite-storage-plugins_8h_1a7cdfc5c93752254d1959a8b7e5ac3da2"><span class="std std-ref">IterCreate()</span></a>, <a class="reference internal" href="#dlite-storage-plugins_8h_1a97317808d16118975790eb86758f1244"><span class="std std-ref">IterNext()</span></a> and <a class="reference internal" href="#dlite-storage-plugins_8h_1a6c9dd4786814846f4d156b3dea548dfc"><span class="std std-ref">IterFree()</span></a>. </p>
+</dd></dl>
+
+</p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-instance-api">Instance API</p>
+<p>New API for loading, saving and deleting instances that works direct on instances themselves.</p>
+<p>These are all optional for the plugin to implement. If <a class="reference internal" href="#dlite-storage-plugins_8h_1a83f2b663e57f31e15722fef3020f66e8"><span class="std std-ref">LoadInstance()</span></a> or <a class="reference internal" href="#dlite-storage-plugins_8h_1a7b3f36c6d3633fc6396bae218c067c70"><span class="std std-ref">SaveInstance()</span></a> are not implemented, the old datamodel API will be attempted. </p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv412LoadInstance">
+<span id="_CPPv312LoadInstance"></span><span id="_CPPv212LoadInstance"></span><span id="LoadInstance"></span><span class="target" id="dlite-storage-plugins_8h_1a83f2b663e57f31e15722fef3020f66e8"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">LoadInstance</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStorage</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv412LoadInstance" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new instance from <code class="docutils literal notranslate"><span class="pre">id</span></code> in storage <code class="docutils literal notranslate"><span class="pre">s</span></code>. NULL is returned on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv412SaveInstance">
+<span id="_CPPv312SaveInstance"></span><span id="_CPPv212SaveInstance"></span><span id="SaveInstance"></span><span class="target" id="dlite-storage-plugins_8h_1a7b3f36c6d3633fc6396bae218c067c70"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">SaveInstance</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteStorage</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">inst</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv412SaveInstance" title="Link to this definition">#</a><br /></dt>
+<dd><p>Stores instance <code class="docutils literal notranslate"><span class="pre">inst</span></code> to storage <code class="docutils literal notranslate"><span class="pre">s</span></code>. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv414DeleteInstance">
+<span id="_CPPv314DeleteInstance"></span><span id="_CPPv214DeleteInstance"></span><span id="DeleteInstance"></span><span class="target" id="dlite-storage-plugins_8h_1a403f4c573342b92ca3aa606d7bb1dcb5"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">DeleteInstance</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteStorage</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv414DeleteInstance" title="Link to this definition">#</a><br /></dt>
+<dd><p>Delete instance <code class="docutils literal notranslate"><span class="pre">uuid</span></code> from storage <code class="docutils literal notranslate"><span class="pre">s</span></code>. Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-in-memory-api">In-memory API</p>
+<p>These optional functions does not operate on the storage, but rather on a pointer to a memory buffer. </p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv415MemLoadInstance">
+<span id="_CPPv315MemLoadInstance"></span><span id="_CPPv215MemLoadInstance"></span><span id="MemLoadInstance"></span><span class="target" id="dlite-storage-plugins_8h_1af19dd07acdc047cdf66d684a5adaf097"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">MemLoadInstance</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStoragePlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">api</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">buf</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">id</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv415MemLoadInstance" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new instance from memory buffer <code class="docutils literal notranslate"><span class="pre">buf</span></code> of size <code class="docutils literal notranslate"><span class="pre">size</span></code>. NULL is returned on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv415MemSaveInstance">
+<span id="_CPPv315MemSaveInstance"></span><span id="_CPPv215MemSaveInstance"></span><span id="MemSaveInstance"></span><span class="target" id="dlite-storage-plugins_8h_1aeea228b7ddcd96c9a20cfc7c342e68c3"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">MemSaveInstance</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStoragePlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">api</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">unsigned</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">buf</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">inst</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">options</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv415MemSaveInstance" title="Link to this definition">#</a><br /></dt>
+<dd><p>Stores instance <code class="docutils literal notranslate"><span class="pre">inst</span></code> to memory buffer <code class="docutils literal notranslate"><span class="pre">buf</span></code> of size <code class="docutils literal notranslate"><span class="pre">size</span></code>.</p>
+<p>Returns number of bytes written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> (or would have been written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> if <code class="docutils literal notranslate"><span class="pre">buf</span></code> is not large enough). Returns a negative error code on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-datamodel-api">Datamodel API</p>
+<p>Old datamodel-based API for loading instances from and saving them to a storage.</p>
+<p>The functions in the datamodel API may be omitted if the corresponding functions in the instance API are implemented.</p>
+<p><dl>
+<dt class="sig sig-object cpp">
+<em><span class="pre">Deprecated:</span></em></dt>
+<dd><p>Will most likely be deprecated in favour for the new and simpler Instance API.</p>
+</dd></dl>
+
+</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv49DataModel">
+<span id="_CPPv39DataModel"></span><span id="_CPPv29DataModel"></span><span id="DataModel"></span><span class="target" id="dlite-storage-plugins_8h_1ae548e92329ba09ccb11c4cd20d722ab5"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">DataModel</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteStorage</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">s</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">uuid</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv49DataModel" title="Link to this definition">#</a><br /></dt>
+<dd><p>Creates a new datamodel for storage <code class="docutils literal notranslate"><span class="pre">s</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">uuid</span></code> exists in the root of <code class="docutils literal notranslate"><span class="pre">s</span></code>, the datamodel should describe the corresponding instance.</p>
+<p>Otherwise (if <code class="docutils literal notranslate"><span class="pre">s</span></code> is writable), a new instance described by the datamodel should be created in <code class="docutils literal notranslate"><span class="pre">s</span></code>.</p>
+<p>Returns the new datamodel or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv413DataModelFree">
+<span id="_CPPv313DataModelFree"></span><span id="_CPPv213DataModelFree"></span><span id="DataModelFree"></span><span class="target" id="dlite-storage-plugins_8h_1a8637056ed42c6c51f14daaba2a48bcf7"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">DataModelFree</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv413DataModelFree" title="Link to this definition">#</a><br /></dt>
+<dd><p>Frees all memory associated with datamodel <code class="docutils literal notranslate"><span class="pre">d</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv410GetMetaURI">
+<span id="_CPPv310GetMetaURI"></span><span id="_CPPv210GetMetaURI"></span><span id="GetMetaURI"></span><span class="target" id="dlite-storage-plugins_8h_1a3b0f88185cc067fb9ba5aa103975158c"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetMetaURI</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv410GetMetaURI" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to newly malloc’ed metadata uri for datamodel <code class="docutils literal notranslate"><span class="pre">d</span></code> or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv417ResolveDimensions">
+<span id="_CPPv317ResolveDimensions"></span><span id="_CPPv217ResolveDimensions"></span><span id="ResolveDimensions"></span><span class="target" id="dlite-storage-plugins_8h_1a51adf8d76555acc880c0acbc81a1cd6a"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ResolveDimensions</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="dlite-entity.html#_CPPv49DLiteMeta" title="DLiteMeta"><span class="n"><span class="pre">DLiteMeta</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">meta</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv417ResolveDimensions" title="Link to this definition">#</a><br /></dt>
+<dd><p>Resolve the dimensions from the properties (JSON or YAML storage) </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv416GetDimensionSize">
+<span id="_CPPv316GetDimensionSize"></span><span id="_CPPv216GetDimensionSize"></span><span id="GetDimensionSize"></span><span class="target" id="dlite-storage-plugins_8h_1ad912b1d98cbad5c1e796fe91c8bc6203"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetDimensionSize</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv416GetDimensionSize" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the size of dimension <code class="docutils literal notranslate"><span class="pre">name</span></code> or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv411GetProperty">
+<span id="_CPPv311GetProperty"></span><span id="_CPPv211GetProperty"></span><span id="GetProperty"></span><span class="target" id="dlite-storage-plugins_8h_1a7ef55e0137cdddc464a45e3c8b1cfb73"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetProperty</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="dlite-type.html#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">ndims</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv411GetProperty" title="Link to this definition">#</a><br /></dt>
+<dd><p>Copies property <code class="docutils literal notranslate"><span class="pre">name</span></code> to memory pointed to by <code class="docutils literal notranslate"><span class="pre">ptr</span></code>.</p>
+<p>The expected type, size, number of dimensions and size of each dimension of the memory is described by <code class="docutils literal notranslate"><span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">size</span></code>, <code class="docutils literal notranslate"><span class="pre">ndims</span></code> and <code class="docutils literal notranslate"><span class="pre">shape</span></code>, respectively.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-optional-part-of-the-datamodel-api">Optional part of the DataModel API</p>
+<p>Signatures of function that are optional for the plugins to define. </p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv410SetMetaURI">
+<span id="_CPPv310SetMetaURI"></span><span id="_CPPv210SetMetaURI"></span><span id="SetMetaURI"></span><span class="target" id="dlite-storage-plugins_8h_1a61dc2089334e1ac997b3859a7fbf28af"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">SetMetaURI</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">uri</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv410SetMetaURI" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets the metadata uri in datamodel <code class="docutils literal notranslate"><span class="pre">d</span></code> to <code class="docutils literal notranslate"><span class="pre">uri</span></code>. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv416SetDimensionSize">
+<span id="_CPPv316SetDimensionSize"></span><span id="_CPPv216SetDimensionSize"></span><span id="SetDimensionSize"></span><span class="target" id="dlite-storage-plugins_8h_1a2e4b160c372df6b0c4e22cf376ff765d"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">SetDimensionSize</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv416SetDimensionSize" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets the size of dimension <code class="docutils literal notranslate"><span class="pre">name</span></code>. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv411SetProperty">
+<span id="_CPPv311SetProperty"></span><span id="_CPPv211SetProperty"></span><span id="SetProperty"></span><span class="target" id="dlite-storage-plugins_8h_1a5372d32d5b7695a4582489c47a8373b4"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">SetProperty</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">ptr</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><a class="reference internal" href="dlite-type.html#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n"><span class="pre">type</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">size</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n"><span class="pre">ndims</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">shape</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv411SetProperty" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets property <code class="docutils literal notranslate"><span class="pre">name</span></code> to the memory pointed to by <code class="docutils literal notranslate"><span class="pre">ptr</span></code>.</p>
+<p>The expected type, size, number of dimensions and size of each dimension of the memory is described by <code class="docutils literal notranslate"><span class="pre">type</span></code>, <code class="docutils literal notranslate"><span class="pre">size</span></code>, <code class="docutils literal notranslate"><span class="pre">ndims</span></code> and <code class="docutils literal notranslate"><span class="pre">shape</span></code>, respectively.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv412HasDimension">
+<span id="_CPPv312HasDimension"></span><span id="_CPPv212HasDimension"></span><span id="HasDimension"></span><span class="target" id="dlite-storage-plugins_8h_1adfe1c26f01326b7754f8e97f59ac27fb"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">HasDimension</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv412HasDimension" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a positive value if dimension <code class="docutils literal notranslate"><span class="pre">name</span></code> is defined, zero if it isn’t and a negative value on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv411HasProperty">
+<span id="_CPPv311HasProperty"></span><span id="_CPPv211HasProperty"></span><span id="HasProperty"></span><span class="target" id="dlite-storage-plugins_8h_1a2beaf4f14cdc8c21df4276d59b2578dc"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">HasProperty</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv411HasProperty" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a positive value if property <code class="docutils literal notranslate"><span class="pre">name</span></code> is defined, zero if it isn’t and a negative value on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv411GetDataName">
+<span id="_CPPv311GetDataName"></span><span id="_CPPv211GetDataName"></span><span id="GetDataName"></span><span class="target" id="dlite-storage-plugins_8h_1aabbb301e1071da7b58a5e5c340ab0da9"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetDataName</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv411GetDataName" title="Link to this definition">#</a><br /></dt>
+<dd><p>If the uuid was generated from a unique name, return a pointer to a newly malloc’ed string with this name. Otherwise NULL is returned. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv411SetDataName">
+<span id="_CPPv311SetDataName"></span><span id="_CPPv211SetDataName"></span><span id="SetDataName"></span><span class="target" id="dlite-storage-plugins_8h_1a4a5d33a9fa39d5a6c885d94d6c4673a4"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">SetDataName</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteDataModel</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">d</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv411SetDataName" title="Link to this definition">#</a><br /></dt>
+<dd><p>Gives the instance a name. This function should only be called if the uuid was generated from <code class="docutils literal notranslate"><span class="pre">name</span></code>. Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-internal-data">Internal data</p>
+<p>Internal data used by the driver. Optional. </p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv411DriverFreer">
+<span id="_CPPv311DriverFreer"></span><span id="_CPPv211DriverFreer"></span><span id="DriverFreer"></span><span class="target" id="dlite-storage-plugins_8h_1afa1a265553f05f1fee6ca6600c03d734"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">DriverFreer</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteStoragePlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">api</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv411DriverFreer" title="Link to this definition">#</a><br /></dt>
+<dd><p>Releases internal resources associated with <code class="docutils literal notranslate"><span class="pre">api</span></code>. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DLiteStorage_HEAD">
+<span class="target" id="dlite-storage-plugins_8h_1a14b0e1c41340f85fc46c94c9d0bbf3fa"></span><span class="sig-name descname"><span class="n"><span class="pre">DLiteStorage_HEAD</span></span></span><a class="headerlink" href="#c.DLiteStorage_HEAD" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initial segment of all DLiteStorage plugin data structures. Number of references to this storage </p>
+</dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.DLiteDataModel_HEAD">
+<span class="target" id="dlite-storage-plugins_8h_1a09d7f3a2071c47137454f6a23e58e773"></span><span class="sig-name descname"><span class="n"><span class="pre">DLiteDataModel_HEAD</span></span></span><a class="headerlink" href="#c.DLiteDataModel_HEAD" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initial segment of all DLiteDataModel plugin data structures. UUID for the stored data </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv417DLiteStorageFlags">
+<span id="_CPPv317DLiteStorageFlags"></span><span id="_CPPv217DLiteStorageFlags"></span><span class="target" id="dlite-storage-plugins_8h_1a6f0a55680fd1f8f441ee4c3479c530fe"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteStorageFlags</span></span></span><a class="headerlink" href="#_CPPv417DLiteStorageFlags" title="Link to this definition">#</a><br /></dt>
+<dd><p>Storage flags </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N17DLiteStorageFlags13dliteReadableE">
+<span id="_CPPv3N17DLiteStorageFlags13dliteReadableE"></span><span id="_CPPv2N17DLiteStorageFlags13dliteReadableE"></span><span class="target" id="dlite-storage-plugins_8h_1a6f0a55680fd1f8f441ee4c3479c530feaff104dd3c6e4d40c7fcff9be8de556f3"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteReadable</span></span></span><a class="headerlink" href="#_CPPv4N17DLiteStorageFlags13dliteReadableE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Whether storage is readable </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N17DLiteStorageFlags13dliteWritableE">
+<span id="_CPPv3N17DLiteStorageFlags13dliteWritableE"></span><span id="_CPPv2N17DLiteStorageFlags13dliteWritableE"></span><span class="target" id="dlite-storage-plugins_8h_1a6f0a55680fd1f8f441ee4c3479c530fea691c1e546878f6767f185d1ac1716011"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteWritable</span></span></span><a class="headerlink" href="#_CPPv4N17DLiteStorageFlags13dliteWritableE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Whether storage is writable </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N17DLiteStorageFlags12dliteGenericE">
+<span id="_CPPv3N17DLiteStorageFlags12dliteGenericE"></span><span id="_CPPv2N17DLiteStorageFlags12dliteGenericE"></span><span class="target" id="dlite-storage-plugins_8h_1a6f0a55680fd1f8f441ee4c3479c530fea9a7a019f3052f09cf777d6f371b59e12"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteGeneric</span></span></span><a class="headerlink" href="#_CPPv4N17DLiteStorageFlags12dliteGenericE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Whether storage may hold both data and metadata </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N17DLiteStorageFlags16dliteTransactionE">
+<span id="_CPPv3N17DLiteStorageFlags16dliteTransactionE"></span><span id="_CPPv2N17DLiteStorageFlags16dliteTransactionE"></span><span class="target" id="dlite-storage-plugins_8h_1a6f0a55680fd1f8f441ee4c3479c530fea4796b00f596d41421e880dcbe76949d5"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteTransaction</span></span></span><a class="headerlink" href="#_CPPv4N17DLiteStorageFlags16dliteTransactionE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Whether storage supports transactions </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv416DLiteMapInstance">
+<span id="_CPPv316DLiteMapInstance"></span><span id="_CPPv216DLiteMapInstance"></span><span id="DLiteMapInstance"></span><span class="target" id="structDLiteMapInstance"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteMapInstance</span></span></span><a class="headerlink" href="#_CPPv416DLiteMapInstance" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dlite-storage-plugins.h&gt;</em></div>
+<p>Map to instance pointer </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16DLiteMapInstance4baseE">
+<span id="_CPPv3N16DLiteMapInstance4baseE"></span><span id="_CPPv2N16DLiteMapInstance4baseE"></span><span id="DLiteMapInstance::base__map_base_t"></span><span class="target" id="structDLiteMapInstance_1ac6dd20783d19408dee2ef792bf8c6c18"></span><a class="reference internal" href="utils/map.html#_CPPv410map_base_t" title="map_base_t"><span class="n"><span class="pre">map_base_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">base</span></span></span><a class="headerlink" href="#_CPPv4N16DLiteMapInstance4baseE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16DLiteMapInstance3refE">
+<span id="_CPPv3N16DLiteMapInstance3refE"></span><span id="_CPPv2N16DLiteMapInstance3refE"></span><span id="DLiteMapInstance::ref__DLiteInstancePP"></span><span class="target" id="structDLiteMapInstance_1a01b2916905ee81106f12a727d7b8a1cc"></span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ref</span></span></span><a class="headerlink" href="#_CPPv4N16DLiteMapInstance3refE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N16DLiteMapInstance3tmpE">
+<span id="_CPPv3N16DLiteMapInstance3tmpE"></span><span id="_CPPv2N16DLiteMapInstance3tmpE"></span><span id="DLiteMapInstance::tmp__DLiteInstanceP"></span><span class="target" id="structDLiteMapInstance_1ac5600d1888063f1adc311bcdb12676c9"></span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tmp</span></span></span><a class="headerlink" href="#_CPPv4N16DLiteMapInstance3tmpE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv413_DLiteStorage">
+<span id="_CPPv313_DLiteStorage"></span><span id="_CPPv213_DLiteStorage"></span><span id="_DLiteStorage"></span><span class="target" id="struct__DLiteStorage"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_DLiteStorage</span></span></span><a class="headerlink" href="#_CPPv413_DLiteStorage" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dlite-storage-plugins.h&gt;</em></div>
+<p>Base definition of a DLite storage, that all plugin storage objects can be cast to. Is never actually instansiated.</p>
+<p>Opaque type for a DLiteStorage.</p>
+<p>Nothing is actually declared to be a DLiteStorage, but all plugin data structures can be cast to DLiteStorage. </p>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv415_DLiteDataModel">
+<span id="_CPPv315_DLiteDataModel"></span><span id="_CPPv215_DLiteDataModel"></span><span id="_DLiteDataModel"></span><span class="target" id="struct__DLiteDataModel"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_DLiteDataModel</span></span></span><a class="headerlink" href="#_CPPv415_DLiteDataModel" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dlite-storage-plugins.h&gt;</em></div>
+<p>Base definition of a DLite data model, that all plugin data model objects can be cast to. Is never actually instansiated.</p>
+<p>Opaque type for a DLiteDataModel.</p>
+<p>A data model refers to a specific instance of an entity in a storage. </p>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv419_DLiteStoragePlugin">
+<span id="_CPPv319_DLiteStoragePlugin"></span><span id="_CPPv219_DLiteStoragePlugin"></span><span id="_DLiteStoragePlugin"></span><span class="target" id="struct__DLiteStoragePlugin"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_DLiteStoragePlugin</span></span></span><a class="headerlink" href="#_CPPv419_DLiteStoragePlugin" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dlite-storage-plugins.h&gt;</em></div>
+<p>Struct with the name and pointers to function for a plugin. All plugins should define themselves by defining an intance of DLiteStoragePlugin.</p>
+<p>A struct with function pointers to all functions provided by a plugin. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin4openE">
+<span id="_CPPv3N19_DLiteStoragePlugin4openE"></span><span id="_CPPv2N19_DLiteStoragePlugin4openE"></span><span id="_DLiteStoragePlugin::open__Open"></span><span class="target" id="struct__DLiteStoragePlugin_1a237aecdd7655e06a65d6f7486085b448"></span><a class="reference internal" href="#_CPPv44Open" title="Open"><span class="n"><span class="pre">Open</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">open</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin4openE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Open storage </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin5closeE">
+<span id="_CPPv3N19_DLiteStoragePlugin5closeE"></span><span id="_CPPv2N19_DLiteStoragePlugin5closeE"></span><span id="_DLiteStoragePlugin::close__Close"></span><span class="target" id="struct__DLiteStoragePlugin_1a9bacd7a98f640901e2e524bbe17a9877"></span><a class="reference internal" href="#_CPPv45Close" title="Close"><span class="n"><span class="pre">Close</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">close</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin5closeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Close storage </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin5flushE">
+<span id="_CPPv3N19_DLiteStoragePlugin5flushE"></span><span id="_CPPv2N19_DLiteStoragePlugin5flushE"></span><span id="_DLiteStoragePlugin::flush__Flush"></span><span class="target" id="struct__DLiteStoragePlugin_1a693c892d7360f69919bbcbe25c6e945b"></span><a class="reference internal" href="#_CPPv45Flush" title="Flush"><span class="n"><span class="pre">Flush</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">flush</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin5flushE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Flush storage </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin4helpE">
+<span id="_CPPv3N19_DLiteStoragePlugin4helpE"></span><span id="_CPPv2N19_DLiteStoragePlugin4helpE"></span><span id="_DLiteStoragePlugin::help__Help"></span><span class="target" id="struct__DLiteStoragePlugin_1a4fa03c00a6dbbad55295871a10edf70f"></span><a class="reference internal" href="#_CPPv44Help" title="Help"><span class="n"><span class="pre">Help</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">help</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin4helpE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns plugin documentation </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin10iterCreateE">
+<span id="_CPPv3N19_DLiteStoragePlugin10iterCreateE"></span><span id="_CPPv2N19_DLiteStoragePlugin10iterCreateE"></span><span id="_DLiteStoragePlugin::iterCreate__IterCreate"></span><span class="target" id="struct__DLiteStoragePlugin_1a42ee40db99750496bedc612b56f2041f"></span><a class="reference internal" href="#_CPPv410IterCreate" title="IterCreate"><span class="n"><span class="pre">IterCreate</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iterCreate</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin10iterCreateE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Creates iterator over storage </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin8iterNextE">
+<span id="_CPPv3N19_DLiteStoragePlugin8iterNextE"></span><span id="_CPPv2N19_DLiteStoragePlugin8iterNextE"></span><span id="_DLiteStoragePlugin::iterNext__IterNext"></span><span class="target" id="struct__DLiteStoragePlugin_1a2460e78edf488c954403c399136e194f"></span><a class="reference internal" href="#_CPPv48IterNext" title="IterNext"><span class="n"><span class="pre">IterNext</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iterNext</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin8iterNextE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns next UUID </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin8iterFreeE">
+<span id="_CPPv3N19_DLiteStoragePlugin8iterFreeE"></span><span id="_CPPv2N19_DLiteStoragePlugin8iterFreeE"></span><span id="_DLiteStoragePlugin::iterFree__IterFree"></span><span class="target" id="struct__DLiteStoragePlugin_1a523e16feba858f21b65123a6f0fd4284"></span><a class="reference internal" href="#_CPPv48IterFree" title="IterFree"><span class="n"><span class="pre">IterFree</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iterFree</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin8iterFreeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Free’s iterator </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin12loadInstanceE">
+<span id="_CPPv3N19_DLiteStoragePlugin12loadInstanceE"></span><span id="_CPPv2N19_DLiteStoragePlugin12loadInstanceE"></span><span id="_DLiteStoragePlugin::loadInstance__LoadInstance"></span><span class="target" id="struct__DLiteStoragePlugin_1aebb847c08e798eed29c03bbb378c80b7"></span><a class="reference internal" href="#_CPPv412LoadInstance" title="LoadInstance"><span class="n"><span class="pre">LoadInstance</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">loadInstance</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin12loadInstanceE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns new instance from storage </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin12saveInstanceE">
+<span id="_CPPv3N19_DLiteStoragePlugin12saveInstanceE"></span><span id="_CPPv2N19_DLiteStoragePlugin12saveInstanceE"></span><span id="_DLiteStoragePlugin::saveInstance__SaveInstance"></span><span class="target" id="struct__DLiteStoragePlugin_1a7331e60cd49972f20867ef523eb66c35"></span><a class="reference internal" href="#_CPPv412SaveInstance" title="SaveInstance"><span class="n"><span class="pre">SaveInstance</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">saveInstance</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin12saveInstanceE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Stores an instance </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin14deleteInstanceE">
+<span id="_CPPv3N19_DLiteStoragePlugin14deleteInstanceE"></span><span id="_CPPv2N19_DLiteStoragePlugin14deleteInstanceE"></span><span id="_DLiteStoragePlugin::deleteInstance__DeleteInstance"></span><span class="target" id="struct__DLiteStoragePlugin_1a7be3963023d5674b9b7224123aeb7f54"></span><a class="reference internal" href="#_CPPv414DeleteInstance" title="DeleteInstance"><span class="n"><span class="pre">DeleteInstance</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">deleteInstance</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin14deleteInstanceE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Delete an instance </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin15memLoadInstanceE">
+<span id="_CPPv3N19_DLiteStoragePlugin15memLoadInstanceE"></span><span id="_CPPv2N19_DLiteStoragePlugin15memLoadInstanceE"></span><span id="_DLiteStoragePlugin::memLoadInstance__MemLoadInstance"></span><span class="target" id="struct__DLiteStoragePlugin_1a56d5d59f3db5f14bb5a46e6566197e11"></span><a class="reference internal" href="#_CPPv415MemLoadInstance" title="MemLoadInstance"><span class="n"><span class="pre">MemLoadInstance</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">memLoadInstance</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin15memLoadInstanceE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Load instance from memory </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin15memSaveInstanceE">
+<span id="_CPPv3N19_DLiteStoragePlugin15memSaveInstanceE"></span><span id="_CPPv2N19_DLiteStoragePlugin15memSaveInstanceE"></span><span id="_DLiteStoragePlugin::memSaveInstance__MemSaveInstance"></span><span class="target" id="struct__DLiteStoragePlugin_1aea8e778265d72f78561ffd270a666e10"></span><a class="reference internal" href="#_CPPv415MemSaveInstance" title="MemSaveInstance"><span class="n"><span class="pre">MemSaveInstance</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">memSaveInstance</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin15memSaveInstanceE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Save instance to memory </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin8getUUIDsE">
+<span id="_CPPv3N19_DLiteStoragePlugin8getUUIDsE"></span><span id="_CPPv2N19_DLiteStoragePlugin8getUUIDsE"></span><span id="_DLiteStoragePlugin::getUUIDs__GetUUIDs"></span><span class="target" id="struct__DLiteStoragePlugin_1a0e9f84c117825b45693683a78f801b15"></span><a class="reference internal" href="#_CPPv48GetUUIDs" title="GetUUIDs"><span class="n"><span class="pre">GetUUIDs</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getUUIDs</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin8getUUIDsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns all UUIDs in storage </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin9dataModelE">
+<span id="_CPPv3N19_DLiteStoragePlugin9dataModelE"></span><span id="_CPPv2N19_DLiteStoragePlugin9dataModelE"></span><span id="_DLiteStoragePlugin::dataModel__DataModel"></span><span class="target" id="struct__DLiteStoragePlugin_1a79bd37ebdd6014ee6356878e4a8355cb"></span><a class="reference internal" href="#_CPPv49DataModel" title="DataModel"><span class="n"><span class="pre">DataModel</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dataModel</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin9dataModelE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Creates new data model </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin13dataModelFreeE">
+<span id="_CPPv3N19_DLiteStoragePlugin13dataModelFreeE"></span><span id="_CPPv2N19_DLiteStoragePlugin13dataModelFreeE"></span><span id="_DLiteStoragePlugin::dataModelFree__DataModelFree"></span><span class="target" id="struct__DLiteStoragePlugin_1afbcec8dd5b6fbc01362876086e1aa3f8"></span><a class="reference internal" href="#_CPPv413DataModelFree" title="DataModelFree"><span class="n"><span class="pre">DataModelFree</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dataModelFree</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin13dataModelFreeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Frees a data model </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin10getMetaURIE">
+<span id="_CPPv3N19_DLiteStoragePlugin10getMetaURIE"></span><span id="_CPPv2N19_DLiteStoragePlugin10getMetaURIE"></span><span id="_DLiteStoragePlugin::getMetaURI__GetMetaURI"></span><span class="target" id="struct__DLiteStoragePlugin_1a72b95eea6b6528079ed75c36d8741cdf"></span><a class="reference internal" href="#_CPPv410GetMetaURI" title="GetMetaURI"><span class="n"><span class="pre">GetMetaURI</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getMetaURI</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin10getMetaURIE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns uri to metadata </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin17resolveDimensionsE">
+<span id="_CPPv3N19_DLiteStoragePlugin17resolveDimensionsE"></span><span id="_CPPv2N19_DLiteStoragePlugin17resolveDimensionsE"></span><span id="_DLiteStoragePlugin::resolveDimensions__ResolveDimensions"></span><span class="target" id="struct__DLiteStoragePlugin_1a548d740c900e1100d2d6a12a9923efba"></span><a class="reference internal" href="#_CPPv417ResolveDimensions" title="ResolveDimensions"><span class="n"><span class="pre">ResolveDimensions</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">resolveDimensions</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin17resolveDimensionsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Resolves dimensions from properties </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin16getDimensionSizeE">
+<span id="_CPPv3N19_DLiteStoragePlugin16getDimensionSizeE"></span><span id="_CPPv2N19_DLiteStoragePlugin16getDimensionSizeE"></span><span id="_DLiteStoragePlugin::getDimensionSize__GetDimensionSize"></span><span class="target" id="struct__DLiteStoragePlugin_1a4e19e8752c0b0d902457bc7bebec177d"></span><a class="reference internal" href="#_CPPv416GetDimensionSize" title="GetDimensionSize"><span class="n"><span class="pre">GetDimensionSize</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getDimensionSize</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin16getDimensionSizeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns size of dimension </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin11getPropertyE">
+<span id="_CPPv3N19_DLiteStoragePlugin11getPropertyE"></span><span id="_CPPv2N19_DLiteStoragePlugin11getPropertyE"></span><span id="_DLiteStoragePlugin::getProperty__GetProperty"></span><span class="target" id="struct__DLiteStoragePlugin_1a4ff263b9f2cc328de1504c8f4aebcd0d"></span><a class="reference internal" href="#_CPPv411GetProperty" title="GetProperty"><span class="n"><span class="pre">GetProperty</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getProperty</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin11getPropertyE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Gets value of property </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin10setMetaURIE">
+<span id="_CPPv3N19_DLiteStoragePlugin10setMetaURIE"></span><span id="_CPPv2N19_DLiteStoragePlugin10setMetaURIE"></span><span id="_DLiteStoragePlugin::setMetaURI__SetMetaURI"></span><span class="target" id="struct__DLiteStoragePlugin_1ac4708bb512c92fd38d571012548da665"></span><a class="reference internal" href="#_CPPv410SetMetaURI" title="SetMetaURI"><span class="n"><span class="pre">SetMetaURI</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setMetaURI</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin10setMetaURIE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets metadata uri </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin16setDimensionSizeE">
+<span id="_CPPv3N19_DLiteStoragePlugin16setDimensionSizeE"></span><span id="_CPPv2N19_DLiteStoragePlugin16setDimensionSizeE"></span><span id="_DLiteStoragePlugin::setDimensionSize__SetDimensionSize"></span><span class="target" id="struct__DLiteStoragePlugin_1a28beafbc8e808a1782975a90f6e842a2"></span><a class="reference internal" href="#_CPPv416SetDimensionSize" title="SetDimensionSize"><span class="n"><span class="pre">SetDimensionSize</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setDimensionSize</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin16setDimensionSizeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets size of dimension </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin11setPropertyE">
+<span id="_CPPv3N19_DLiteStoragePlugin11setPropertyE"></span><span id="_CPPv2N19_DLiteStoragePlugin11setPropertyE"></span><span id="_DLiteStoragePlugin::setProperty__SetProperty"></span><span class="target" id="struct__DLiteStoragePlugin_1a2a7412680882c6dd9741c2dcba4cadf9"></span><a class="reference internal" href="#_CPPv411SetProperty" title="SetProperty"><span class="n"><span class="pre">SetProperty</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setProperty</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin11setPropertyE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Sets value of property </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin12hasDimensionE">
+<span id="_CPPv3N19_DLiteStoragePlugin12hasDimensionE"></span><span id="_CPPv2N19_DLiteStoragePlugin12hasDimensionE"></span><span id="_DLiteStoragePlugin::hasDimension__HasDimension"></span><span class="target" id="struct__DLiteStoragePlugin_1ac0487d38390327b66f3676813aa7dda1"></span><a class="reference internal" href="#_CPPv412HasDimension" title="HasDimension"><span class="n"><span class="pre">HasDimension</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hasDimension</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin12hasDimensionE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Checks for dimension name </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin11hasPropertyE">
+<span id="_CPPv3N19_DLiteStoragePlugin11hasPropertyE"></span><span id="_CPPv2N19_DLiteStoragePlugin11hasPropertyE"></span><span id="_DLiteStoragePlugin::hasProperty__HasProperty"></span><span class="target" id="struct__DLiteStoragePlugin_1ace504497a202e1dc0a05a8d192cdff41"></span><a class="reference internal" href="#_CPPv411HasProperty" title="HasProperty"><span class="n"><span class="pre">HasProperty</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">hasProperty</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin11hasPropertyE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Checks for property name </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin11getDataNameE">
+<span id="_CPPv3N19_DLiteStoragePlugin11getDataNameE"></span><span id="_CPPv2N19_DLiteStoragePlugin11getDataNameE"></span><span id="_DLiteStoragePlugin::getDataName__GetDataName"></span><span class="target" id="struct__DLiteStoragePlugin_1a2a5df1c35cb3be402c0244b20ab07251"></span><a class="reference internal" href="#_CPPv411GetDataName" title="GetDataName"><span class="n"><span class="pre">GetDataName</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">getDataName</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin11getDataNameE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns name of instance </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin11setDataNameE">
+<span id="_CPPv3N19_DLiteStoragePlugin11setDataNameE"></span><span id="_CPPv2N19_DLiteStoragePlugin11setDataNameE"></span><span id="_DLiteStoragePlugin::setDataName__SetDataName"></span><span class="target" id="struct__DLiteStoragePlugin_1afa8fbc166f1f15888fc3ea6984061271"></span><a class="reference internal" href="#_CPPv411SetDataName" title="SetDataName"><span class="n"><span class="pre">SetDataName</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">setDataName</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin11setDataNameE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Assigns name to instance </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteStoragePlugin4dataE">
+<span id="_CPPv3N19_DLiteStoragePlugin4dataE"></span><span id="_CPPv2N19_DLiteStoragePlugin4dataE"></span><span id="_DLiteStoragePlugin::data__voidP"></span><span class="target" id="struct__DLiteStoragePlugin_1a55d4fad69bbde6c4256586805de445ba"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteStoragePlugin4dataE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Internal data used by the driver </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dlite-schemas.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">dlite-schemas</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dlite-storage.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">dlite-storage</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418GetDLiteStorageAPI"><code class="docutils literal notranslate"><span class="pre">GetDLiteStorageAPI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_storage_plugin_getPKc"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv429dlite_storage_plugin_load_allv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_load_all()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_iter_createv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_iter_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_storage_plugin_iter_nextP22DLiteStoragePluginIter"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_storage_plugin_iter_freeP22DLiteStoragePluginIter"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_iter_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_storage_plugin_paths_getv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_paths_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_storage_plugin_pathsv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_paths()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_path_stringv"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_path_insertiPKc"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_insert()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_path_appendPKc"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv433dlite_storage_plugin_path_appendnPKc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_appendn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv438dlite_storage_plugin_path_remove_indexi"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_remove_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_storage_plugin_path_removePKc"><code class="docutils literal notranslate"><span class="pre">dlite_storage_plugin_path_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv44Open"><code class="docutils literal notranslate"><span class="pre">Open</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45Close"><code class="docutils literal notranslate"><span class="pre">Close</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45Flush"><code class="docutils literal notranslate"><span class="pre">Flush</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv44Help"><code class="docutils literal notranslate"><span class="pre">Help</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410IterCreate"><code class="docutils literal notranslate"><span class="pre">IterCreate</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48IterNext"><code class="docutils literal notranslate"><span class="pre">IterNext</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48IterFree"><code class="docutils literal notranslate"><span class="pre">IterFree</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48GetUUIDs"><code class="docutils literal notranslate"><span class="pre">GetUUIDs</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412LoadInstance"><code class="docutils literal notranslate"><span class="pre">LoadInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412SaveInstance"><code class="docutils literal notranslate"><span class="pre">SaveInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414DeleteInstance"><code class="docutils literal notranslate"><span class="pre">DeleteInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415MemLoadInstance"><code class="docutils literal notranslate"><span class="pre">MemLoadInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415MemSaveInstance"><code class="docutils literal notranslate"><span class="pre">MemSaveInstance</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49DataModel"><code class="docutils literal notranslate"><span class="pre">DataModel</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413DataModelFree"><code class="docutils literal notranslate"><span class="pre">DataModelFree</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410GetMetaURI"><code class="docutils literal notranslate"><span class="pre">GetMetaURI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417ResolveDimensions"><code class="docutils literal notranslate"><span class="pre">ResolveDimensions</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416GetDimensionSize"><code class="docutils literal notranslate"><span class="pre">GetDimensionSize</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411GetProperty"><code class="docutils literal notranslate"><span class="pre">GetProperty</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410SetMetaURI"><code class="docutils literal notranslate"><span class="pre">SetMetaURI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416SetDimensionSize"><code class="docutils literal notranslate"><span class="pre">SetDimensionSize</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411SetProperty"><code class="docutils literal notranslate"><span class="pre">SetProperty</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412HasDimension"><code class="docutils literal notranslate"><span class="pre">HasDimension</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411HasProperty"><code class="docutils literal notranslate"><span class="pre">HasProperty</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411GetDataName"><code class="docutils literal notranslate"><span class="pre">GetDataName</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411SetDataName"><code class="docutils literal notranslate"><span class="pre">SetDataName</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411DriverFreer"><code class="docutils literal notranslate"><span class="pre">DriverFreer</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417DLiteStorageFlags"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N17DLiteStorageFlags13dliteReadableE"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags::dliteReadable</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N17DLiteStorageFlags13dliteWritableE"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags::dliteWritable</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N17DLiteStorageFlags12dliteGenericE"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags::dliteGeneric</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N17DLiteStorageFlags16dliteTransactionE"><code class="docutils literal notranslate"><span class="pre">DLiteStorageFlags::dliteTransaction</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416DLiteMapInstance"><code class="docutils literal notranslate"><span class="pre">DLiteMapInstance</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N16DLiteMapInstance4baseE"><code class="docutils literal notranslate"><span class="pre">DLiteMapInstance::base</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N16DLiteMapInstance3refE"><code class="docutils literal notranslate"><span class="pre">DLiteMapInstance::ref</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N16DLiteMapInstance3tmpE"><code class="docutils literal notranslate"><span class="pre">DLiteMapInstance::tmp</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413_DLiteStorage"><code class="docutils literal notranslate"><span class="pre">_DLiteStorage</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415_DLiteDataModel"><code class="docutils literal notranslate"><span class="pre">_DLiteDataModel</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419_DLiteStoragePlugin"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin4openE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::open</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin5closeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::close</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin5flushE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::flush</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin4helpE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::help</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin10iterCreateE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::iterCreate</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin8iterNextE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::iterNext</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin8iterFreeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::iterFree</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin12loadInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::loadInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin12saveInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::saveInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin14deleteInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::deleteInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin15memLoadInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::memLoadInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin15memSaveInstanceE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::memSaveInstance</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin8getUUIDsE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getUUIDs</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin9dataModelE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::dataModel</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin13dataModelFreeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::dataModelFree</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin10getMetaURIE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getMetaURI</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin17resolveDimensionsE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::resolveDimensions</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin16getDimensionSizeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getDimensionSize</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11getPropertyE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getProperty</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin10setMetaURIE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::setMetaURI</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin16setDimensionSizeE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::setDimensionSize</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11setPropertyE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::setProperty</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin12hasDimensionE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::hasDimension</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11hasPropertyE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::hasProperty</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11getDataNameE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::getDataName</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin11setDataNameE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::setDataName</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteStoragePlugin4dataE"><code class="docutils literal notranslate"><span class="pre">_DLiteStoragePlugin::data</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

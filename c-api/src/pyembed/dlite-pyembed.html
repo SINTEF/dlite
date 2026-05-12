@@ -1,0 +1,782 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dlite-pyembed &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/pyembed/dlite-pyembed';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dlite-python-mapping" href="dlite-python-mapping.html" />
+    <link rel="prev" title="dlite-pyembed-utils" href="dlite-pyembed-utils.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../pyembed.html">pyembed</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/pyembed/dlite-pyembed.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/c-api/src/pyembed/dlite-pyembed.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dlite-pyembed</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_pyembed_initialisev"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_initialise()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_pyembed_finalisev"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_finalise()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_pyembed_classnameP8PyObject"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_classname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_pyembed_errcodeP8PyObject"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_errcode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_pyembed_exception12DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_exception()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_pyembed_errmsgPc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_errmsg()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_pyembed_erriPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_err()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_pyembed_verriPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_verr()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_pyembed_err_checkPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_err_check()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_pyembed_verr_checkPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_verr_check()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425dlite_pyembed_get_addressPKc"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_get_address()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_pyembed_from_instancePKc"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_from_instance()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_pyembed_get_instanceP8PyObject"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_get_instance()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_pyembed_load_pluginsP7FUPathsP8PyObjectPPPcP6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_load_plugins()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_python_dlitedictv"><code class="docutils literal notranslate"><span class="pre">dlite_python_dlitedict()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_python_plugindictPKc"><code class="docutils literal notranslate"><span class="pre">dlite_python_plugindict()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dlite-pyembed">
+<h1>dlite-pyembed<a class="headerlink" href="#dlite-pyembed" title="Link to this heading">#</a></h1>
+<p>Shared code between plugins that embed Python. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PYFAILCODE">
+<span class="target" id="dlite-pyembed_8h_1a0899deb2e650e1a3135757687cd84429"></span><span class="sig-name descname"><span class="n"><span class="pre">PYFAILCODE</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">code</span></span>, <span class="n"><span class="pre">msg</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.PYFAILCODE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PYFAILCODE1">
+<span class="target" id="dlite-pyembed_8h_1a58a6808127f2790c24c966c9306ad529"></span><span class="sig-name descname"><span class="n"><span class="pre">PYFAILCODE1</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">code</span></span>, <span class="n"><span class="pre">msg</span></span>, <span class="n"><span class="pre">a1</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.PYFAILCODE1" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PYFAILCODE2">
+<span class="target" id="dlite-pyembed_8h_1a4b50950cfce31637a74a86c3fe9fac61"></span><span class="sig-name descname"><span class="n"><span class="pre">PYFAILCODE2</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">code</span></span>, <span class="n"><span class="pre">msg</span></span>, <span class="n"><span class="pre">a1</span></span>, <span class="n"><span class="pre">a2</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.PYFAILCODE2" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PYFAILCODE3">
+<span class="target" id="dlite-pyembed_8h_1a2c71fb2e9c0ab8ee906babf6286bd5b1"></span><span class="sig-name descname"><span class="n"><span class="pre">PYFAILCODE3</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">code</span></span>, <span class="n"><span class="pre">msg</span></span>, <span class="n"><span class="pre">a1</span></span>, <span class="n"><span class="pre">a2</span></span>, <span class="n"><span class="pre">a3</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.PYFAILCODE3" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PYFAILCODE4">
+<span class="target" id="dlite-pyembed_8h_1ad36f90ccb6b81069cebcd3a99c1bc589"></span><span class="sig-name descname"><span class="n"><span class="pre">PYFAILCODE4</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">code</span></span>, <span class="n"><span class="pre">msg</span></span>, <span class="n"><span class="pre">a1</span></span>, <span class="n"><span class="pre">a2</span></span>, <span class="n"><span class="pre">a3</span></span>, <span class="n"><span class="pre">a4</span></span><span class="sig-paren">)</span><a class="headerlink" href="#c.PYFAILCODE4" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_pyembed_initialisev">
+<span id="_CPPv324dlite_pyembed_initialisev"></span><span id="_CPPv224dlite_pyembed_initialisev"></span><span id="dlite_pyembed_initialise__void"></span><span class="target" id="dlite-pyembed_8h_1a05d781e2e4ed750d1dc6d93bf80ba4df"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_initialise</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_pyembed_initialisev" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initialises the embedded Python environment.</p>
+<p>From DLite v0.6.0, this function will only initialise an new internal Python interpreter if there are no initialised interpreters in the process. This means that if DLite is called from Python, the plugins will be called from the calling Python interpreter.</p>
+<p>This function can be called more than once. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422dlite_pyembed_finalisev">
+<span id="_CPPv322dlite_pyembed_finalisev"></span><span id="_CPPv222dlite_pyembed_finalisev"></span><span id="dlite_pyembed_finalise__void"></span><span class="target" id="dlite-pyembed_8h_1a4d616813e5bfaa9a8897399b75804779"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_finalise</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422dlite_pyembed_finalisev" title="Link to this definition">#</a><br /></dt>
+<dd><p>Finalises the embedded Python environment. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_pyembed_classnameP8PyObject">
+<span id="_CPPv323dlite_pyembed_classnameP8PyObject"></span><span id="_CPPv223dlite_pyembed_classnameP8PyObject"></span><span id="dlite_pyembed_classname__PyObjectP"></span><span class="target" id="dlite-pyembed_8h_1aff47d3d1f5cc9b24f44531a83ac5e814"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_classname</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">PyObject</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">cls</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_pyembed_classnameP8PyObject" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a static pointer to the class name of python object cls or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421dlite_pyembed_errcodeP8PyObject">
+<span id="_CPPv321dlite_pyembed_errcodeP8PyObject"></span><span id="_CPPv221dlite_pyembed_errcodeP8PyObject"></span><span id="dlite_pyembed_errcode__PyObjectP"></span><span class="target" id="dlite-pyembed_8h_1ae3c659eb923d6e0b6ce30df0ec6bdc1c"></span><a class="reference internal" href="../dlite-errors.html#_CPPv412DLiteErrCode" title="DLiteErrCode"><span class="n"><span class="pre">DLiteErrCode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_errcode</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">PyObject</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">type</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421dlite_pyembed_errcodeP8PyObject" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return DLite error code given Python exception type. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_pyembed_exception12DLiteErrCode">
+<span id="_CPPv323dlite_pyembed_exception12DLiteErrCode"></span><span id="_CPPv223dlite_pyembed_exception12DLiteErrCode"></span><span id="dlite_pyembed_exception__DLiteErrCode"></span><span class="target" id="dlite-pyembed_8h_1a6b1f53b21e24315cd9a304382a0ea97d"></span><span class="n"><span class="pre">PyObject</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_exception</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="../dlite-errors.html#_CPPv412DLiteErrCode" title="DLiteErrCode"><span class="n"><span class="pre">DLiteErrCode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">code</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_pyembed_exception12DLiteErrCode" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return Python exception class corresponding to given DLite error code. Returns NULL if <code class="docutils literal notranslate"><span class="pre">code</span></code> is zero. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420dlite_pyembed_errmsgPc6size_t">
+<span id="_CPPv320dlite_pyembed_errmsgPc6size_t"></span><span id="_CPPv220dlite_pyembed_errmsgPc6size_t"></span><span id="dlite_pyembed_errmsg__cP.s"></span><span class="target" id="dlite-pyembed_8h_1ae404aeaf0bb7f2e4dfda82999bd39bdc"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_errmsg</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">errmsg</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">errlen</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420dlite_pyembed_errmsgPc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Writes Python error message to <code class="docutils literal notranslate"><span class="pre">errmsg</span></code> (of length <code class="docutils literal notranslate"><span class="pre">len</span></code>) if an Python error has occured.</p>
+<p>On return the The Python error indicator is reset.</p>
+<p>Returns 0 if no error has occured, otherwise return the number of bytes written to <code class="docutils literal notranslate"><span class="pre">errmsg</span></code>. On error -1 is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_pyembed_erriPKcz">
+<span id="_CPPv317dlite_pyembed_erriPKcz"></span><span id="_CPPv217dlite_pyembed_erriPKcz"></span><span id="dlite_pyembed_err__i.cCP.z"></span><span class="target" id="dlite-pyembed_8h_1a40bc2341bb8260ba4e9b84ed4d5ce10d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_err</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_pyembed_erriPKcz" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reports and restes Python error.</p>
+<p>If an Python error has occured, an error message is appended to <code class="docutils literal notranslate"><span class="pre">msg</span></code>, containing the type, value and traceback.</p>
+<p>Returns <code class="docutils literal notranslate"><span class="pre">eval</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_pyembed_verriPKc7va_list">
+<span id="_CPPv318dlite_pyembed_verriPKc7va_list"></span><span id="_CPPv218dlite_pyembed_verriPKc7va_list"></span><span id="dlite_pyembed_verr__i.cCP.va_list"></span><span class="target" id="dlite-pyembed_8h_1a57a22d272a98e44fc3a8194fa9ec4f63"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_verr</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">eval</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_pyembed_verriPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-pyembed_8h_1a40bc2341bb8260ba4e9b84ed4d5ce10d"><span class="std std-ref">dlite_pyembed_err()</span></a> but takes a <code class="docutils literal notranslate"><span class="pre">va_list</span></code> as input. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_pyembed_err_checkPKcz">
+<span id="_CPPv323dlite_pyembed_err_checkPKcz"></span><span id="_CPPv223dlite_pyembed_err_checkPKcz"></span><span id="dlite_pyembed_err_check__cCP.z"></span><span class="target" id="dlite-pyembed_8h_1a77a6b05c58d433dd072cc5c255d7e13b"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_err_check</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="p"><span class="pre">...</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_pyembed_err_checkPKcz" title="Link to this definition">#</a><br /></dt>
+<dd><p>Checks if an Python error has occured. Returns zero if no error has occured. Otherwise <a class="reference internal" href="#dlite-pyembed_8h_1a40bc2341bb8260ba4e9b84ed4d5ce10d"><span class="std std-ref">dlite_pyembed_err()</span></a> is called and non-zero is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_pyembed_verr_checkPKc7va_list">
+<span id="_CPPv324dlite_pyembed_verr_checkPKc7va_list"></span><span id="_CPPv224dlite_pyembed_verr_checkPKc7va_list"></span><span id="dlite_pyembed_verr_check__cCP.va_list"></span><span class="target" id="dlite-pyembed_8h_1aed3e3415db45de1f733a349a89182821"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_verr_check</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">msg</span></span>, <span class="n"><span class="pre">va_list</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ap</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_pyembed_verr_checkPKc7va_list" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-pyembed_8h_1a77a6b05c58d433dd072cc5c255d7e13b"><span class="std std-ref">dlite_pyembed_err_check()</span></a> but takes a <code class="docutils literal notranslate"><span class="pre">va_list</span></code> as input. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425dlite_pyembed_get_addressPKc">
+<span id="_CPPv325dlite_pyembed_get_addressPKc"></span><span id="_CPPv225dlite_pyembed_get_addressPKc"></span><span id="dlite_pyembed_get_address__cCP"></span><span class="target" id="dlite-pyembed_8h_1af0d5f0205200038ab0f71ac42c65b2ff"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_get_address</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">symbol</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425dlite_pyembed_get_addressPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Loads the Python C extension module “_dlite” and returns the address of <code class="docutils literal notranslate"><span class="pre">symbol</span></code>, within this module. Returns NULL on error or if <code class="docutils literal notranslate"><span class="pre">symbol</span></code> cannot be found. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427dlite_pyembed_from_instancePKc">
+<span id="_CPPv327dlite_pyembed_from_instancePKc"></span><span id="_CPPv227dlite_pyembed_from_instancePKc"></span><span id="dlite_pyembed_from_instance__cCP"></span><span class="target" id="dlite-pyembed_8h_1a55e87f1566073dc746ca18f4ff8510a8"></span><span class="n"><span class="pre">PyObject</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_from_instance</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">id</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427dlite_pyembed_from_instancePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a Python representation of dlite instance with given id or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426dlite_pyembed_get_instanceP8PyObject">
+<span id="_CPPv326dlite_pyembed_get_instanceP8PyObject"></span><span id="_CPPv226dlite_pyembed_get_instanceP8PyObject"></span><span id="dlite_pyembed_get_instance__PyObjectP"></span><span class="target" id="dlite-pyembed_8h_1ae85cffb3aec3b27783ecbcf49dcc2ac1"></span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_get_instance</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">PyObject</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pyinst</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426dlite_pyembed_get_instanceP8PyObject" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new reference to DLite instance from Python representation or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426dlite_pyembed_load_pluginsP7FUPathsP8PyObjectPPPcP6size_t">
+<span id="_CPPv326dlite_pyembed_load_pluginsP7FUPathsP8PyObjectPPPcP6size_t"></span><span id="_CPPv226dlite_pyembed_load_pluginsP7FUPathsP8PyObjectPPPcP6size_t"></span><span id="dlite_pyembed_load_plugins__FUPathsP.PyObjectP.cPPP.sP"></span><span class="target" id="dlite-pyembed_8h_1a195826a49d7d115b6e426dce5f3e9f0c"></span><span class="n"><span class="pre">PyObject</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_pyembed_load_plugins</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="../utils/fileutils.html#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">paths</span></span>, <span class="n"><span class="pre">PyObject</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">baseclass</span></span>, <span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">failed_paths</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">failed_len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426dlite_pyembed_load_pluginsP7FUPathsP8PyObjectPPPcP6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>This function loads all Python modules found in <code class="docutils literal notranslate"><span class="pre">paths</span></code> and returns a list of plugin objects.</p>
+<p>A Python plugin is a subclass of <code class="docutils literal notranslate"><span class="pre">baseclassname</span></code> that implements the expected functionality.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">failed_paths</span></code> is given, it should be a pointer to a NULL-terminated array of pointers to paths to plugins that failed to load. In case a plugin fails to load, this array will be updated.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">failed_paths</span></code> is given, <code class="docutils literal notranslate"><span class="pre">failed_len</span></code> must also be given. It should be a pointer to the allocated length of <code class="docutils literal notranslate"><span class="pre">*failed_paths</span></code>.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv422dlite_python_dlitedictv">
+<span id="_CPPv322dlite_python_dlitedictv"></span><span id="_CPPv222dlite_python_dlitedictv"></span><span id="dlite_python_dlitedict__void"></span><span class="target" id="dlite-pyembed_8h_1addb20386bd3afa5e378c55c2f3be412f"></span><span class="n"><span class="pre">PyObject</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_python_dlitedict</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv422dlite_python_dlitedictv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return borrowed reference to the <code class="docutils literal notranslate"><span class="pre">__dict__</span></code> object in the dlite module or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_python_plugindictPKc">
+<span id="_CPPv323dlite_python_plugindictPKc"></span><span id="_CPPv223dlite_python_plugindictPKc"></span><span id="dlite_python_plugindict__cCP"></span><span class="target" id="dlite-pyembed_8h_1aa76577c53f33b12dc1c9982dc2f69388"></span><span class="n"><span class="pre">PyObject</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_python_plugindict</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">plugin_name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_python_plugindictPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return borrowed reference to a dict serving as a namespace for the given plugin.</p>
+<p>The returned dict is accessable from Python as <code class="docutils literal notranslate"><span class="pre">dlite._plugindict[plugin_name]</span></code>. The dict will be created if it doesn’t already exists.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+</div>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dlite-pyembed-utils.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">dlite-pyembed-utils</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dlite-python-mapping.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">dlite-python-mapping</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_pyembed_initialisev"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_initialise()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_pyembed_finalisev"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_finalise()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_pyembed_classnameP8PyObject"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_classname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_pyembed_errcodeP8PyObject"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_errcode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_pyembed_exception12DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_exception()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420dlite_pyembed_errmsgPc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_errmsg()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_pyembed_erriPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_err()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_pyembed_verriPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_verr()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_pyembed_err_checkPKcz"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_err_check()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_pyembed_verr_checkPKc7va_list"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_verr_check()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425dlite_pyembed_get_addressPKc"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_get_address()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_pyembed_from_instancePKc"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_from_instance()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_pyembed_get_instanceP8PyObject"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_get_instance()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_pyembed_load_pluginsP7FUPathsP8PyObjectPPPcP6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_pyembed_load_plugins()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422dlite_python_dlitedictv"><code class="docutils literal notranslate"><span class="pre">dlite_python_dlitedict()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_python_plugindictPKc"><code class="docutils literal notranslate"><span class="pre">dlite_python_plugindict()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,874 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dlite-arrays &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/dlite-arrays';</script>
+    <script src="../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dlite-behavior" href="dlite-behavior.html" />
+    <link rel="prev" title="DLite C-API" href="../src.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/dlite-arrays.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/c-api/src/dlite-arrays.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dlite-arrays</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_array_createPv9DLiteType6size_tiPK6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_array_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_array_create_orderPv9DLiteType6size_tiPK6size_ti"><code class="docutils literal notranslate"><span class="pre">dlite_array_create_order()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_array_freeP10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_array_sizePK10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_size()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425dlite_array_is_continuousPK10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_is_continuous()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_array_indexPK10DLiteArrayPi"><code class="docutils literal notranslate"><span class="pre">dlite_array_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_array_iter_initP14DLiteArrayIterPK10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_iter_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_array_iter_deinitP14DLiteArrayIter"><code class="docutils literal notranslate"><span class="pre">dlite_array_iter_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_array_iter_nextP14DLiteArrayIter"><code class="docutils literal notranslate"><span class="pre">dlite_array_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_array_comparePK10DLiteArrayPK10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_compare()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_array_slicePK10DLiteArrayPiPiPi"><code class="docutils literal notranslate"><span class="pre">dlite_array_slice()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_array_reshapePK10DLiteArrayiPK6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_array_reshape()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_array_transposeP10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_transpose()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_array_make_continuousP10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_make_continuous()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_array_printfP4FILEPK10DLiteArrayii"><code class="docutils literal notranslate"><span class="pre">dlite_array_printf()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410DLiteArray"><code class="docutils literal notranslate"><span class="pre">DLiteArray</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray4dataE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray4typeE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray4sizeE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray5ndimsE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::ndims</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray5shapeE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::shape</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray7stridesE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::strides</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414DLiteArrayIter"><code class="docutils literal notranslate"><span class="pre">DLiteArrayIter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N14DLiteArrayIter3arrE"><code class="docutils literal notranslate"><span class="pre">DLiteArrayIter::arr</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N14DLiteArrayIter3indE"><code class="docutils literal notranslate"><span class="pre">DLiteArrayIter::ind</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dlite-arrays">
+<h1>dlite-arrays<a class="headerlink" href="#dlite-arrays" title="Link to this heading">#</a></h1>
+<p>Simple API for accessing the data of multidimensional array properties. </p>
+<p>The <a class="reference internal" href="#structDLiteArray"><span class="std std-ref">DLiteArray</span></a> structure adds some basic functionality for accessing multidimensional array data. It it not a complete array library and do no memory management. It is neither optimised for speed, so don’t use it for writing optimised solvers.</p>
+<p>Included features:<ul class="simple">
+<li><p>indexing</p></li>
+<li><p>iteration</p></li>
+<li><p>comparisons</p></li>
+<li><p>reshaping</p></li>
+<li><p>slicing</p></li>
+<li><p>transpose</p></li>
+<li><p>make_continuous</p></li>
+<li><p>pretty printing </p></li>
+</ul>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_array_createPv9DLiteType6size_tiPK6size_t">
+<span id="_CPPv318dlite_array_createPv9DLiteType6size_tiPK6size_t"></span><span id="_CPPv218dlite_array_createPv9DLiteType6size_tiPK6size_t"></span><span id="dlite_array_create__voidP.DLiteType.s.i.sCP"></span><span class="target" id="dlite-arrays_8h_1a9f67dd2183a9f115e8c8db7145dd32e5"></span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_create</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data</span></span>, <a class="reference internal" href="dlite-type.html#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ndims</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">shape</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_array_createPv9DLiteType6size_tiPK6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Creates a new array object.</p>
+<p><code class="docutils literal notranslate"><span class="pre">data</span></code> is a pointer to array data. No copy is done. <code class="docutils literal notranslate"><span class="pre">type</span></code> is the type of each element. <code class="docutils literal notranslate"><span class="pre">size</span></code> is the size of each element. <code class="docutils literal notranslate"><span class="pre">ndims</span></code> is the number of dimensions. <code class="docutils literal notranslate"><span class="pre">shape</span></code> is the size of each dimensions. Length: <code class="docutils literal notranslate"><span class="pre">ndims</span></code>.</p>
+<p>Returns the new array or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_array_create_orderPv9DLiteType6size_tiPK6size_ti">
+<span id="_CPPv324dlite_array_create_orderPv9DLiteType6size_tiPK6size_ti"></span><span id="_CPPv224dlite_array_create_orderPv9DLiteType6size_tiPK6size_ti"></span><span id="dlite_array_create_order__voidP.DLiteType.s.i.sCP.i"></span><span class="target" id="dlite-arrays_8h_1a07526dea89c27388c92c054fd2c63733"></span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_create_order</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">data</span></span>, <a class="reference internal" href="dlite-type.html#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">type</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ndims</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">shape</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">order</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_array_create_orderPv9DLiteType6size_tiPK6size_ti" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-arrays_8h_1a9f67dd2183a9f115e8c8db7145dd32e5"><span class="std std-ref">dlite_array_create()</span></a>, but with argument <code class="docutils literal notranslate"><span class="pre">order</span></code>, which can have the values: ‘C’: row-major (C-style) order, no reordering. ‘F’: coloumn-major (Fortran-style) order, transposed order. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_array_freeP10DLiteArray">
+<span id="_CPPv316dlite_array_freeP10DLiteArray"></span><span id="_CPPv216dlite_array_freeP10DLiteArray"></span><span id="dlite_array_free__DLiteArrayP"></span><span class="target" id="dlite-arrays_8h_1a9d86375d3d18354532180a524e4f1281"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_free</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_array_freeP10DLiteArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Free an array object, but not the associated data. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416dlite_array_sizePK10DLiteArray">
+<span id="_CPPv316dlite_array_sizePK10DLiteArray"></span><span id="_CPPv216dlite_array_sizePK10DLiteArray"></span><span id="dlite_array_size__DLiteArrayCP"></span><span class="target" id="dlite-arrays_8h_1a421c71e8793ea20efa969029242ba7a0"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_size</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416dlite_array_sizePK10DLiteArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the memory size in bytes of array <code class="docutils literal notranslate"><span class="pre">arr</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425dlite_array_is_continuousPK10DLiteArray">
+<span id="_CPPv325dlite_array_is_continuousPK10DLiteArray"></span><span id="_CPPv225dlite_array_is_continuousPK10DLiteArray"></span><span id="dlite_array_is_continuous__DLiteArrayCP"></span><span class="target" id="dlite-arrays_8h_1a76fba485b877b178a3c7b84e7d559068"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_is_continuous</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425dlite_array_is_continuousPK10DLiteArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if array <code class="docutils literal notranslate"><span class="pre">arr</span></code> describes a C-continuous memory layout. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_array_indexPK10DLiteArrayPi">
+<span id="_CPPv317dlite_array_indexPK10DLiteArrayPi"></span><span id="_CPPv217dlite_array_indexPK10DLiteArrayPi"></span><span id="dlite_array_index__DLiteArrayCP.iP"></span><span class="target" id="dlite-arrays_8h_1a8a3bb502ba49dc0fc38e2d3dcb91453c"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_index</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">ind</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_array_indexPK10DLiteArrayPi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to data at index <code class="docutils literal notranslate"><span class="pre">ind</span></code>, where <code class="docutils literal notranslate"><span class="pre">ind</span></code> is an array of length <code class="docutils literal notranslate"><span class="pre">arr-&gt;ndims</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421dlite_array_iter_initP14DLiteArrayIterPK10DLiteArray">
+<span id="_CPPv321dlite_array_iter_initP14DLiteArrayIterPK10DLiteArray"></span><span id="_CPPv221dlite_array_iter_initP14DLiteArrayIterPK10DLiteArray"></span><span id="dlite_array_iter_init__DLiteArrayIterP.DLiteArrayCP"></span><span class="target" id="dlite-arrays_8h_1a23fd53514464ec914d25d24b26fca74c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_iter_init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv414DLiteArrayIter" title="DLiteArrayIter"><span class="n"><span class="pre">DLiteArrayIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421dlite_array_iter_initP14DLiteArrayIterPK10DLiteArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initialise array iterator object <code class="docutils literal notranslate"><span class="pre">iter</span></code>, for iteration over array <code class="docutils literal notranslate"><span class="pre">arr</span></code>.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv423dlite_array_iter_deinitP14DLiteArrayIter">
+<span id="_CPPv323dlite_array_iter_deinitP14DLiteArrayIter"></span><span id="_CPPv223dlite_array_iter_deinitP14DLiteArrayIter"></span><span id="dlite_array_iter_deinit__DLiteArrayIterP"></span><span class="target" id="dlite-arrays_8h_1a20b1fca9efb36b5f19fa349ae5225d62"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_iter_deinit</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv414DLiteArrayIter" title="DLiteArrayIter"><span class="n"><span class="pre">DLiteArrayIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv423dlite_array_iter_deinitP14DLiteArrayIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Deinitialise array iterator object <code class="docutils literal notranslate"><span class="pre">iter</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421dlite_array_iter_nextP14DLiteArrayIter">
+<span id="_CPPv321dlite_array_iter_nextP14DLiteArrayIter"></span><span id="_CPPv221dlite_array_iter_nextP14DLiteArrayIter"></span><span id="dlite_array_iter_next__DLiteArrayIterP"></span><span class="target" id="dlite-arrays_8h_1a625a9e7da8b68b55cf2ab9c0e853e0a9"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_iter_next</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv414DLiteArrayIter" title="DLiteArrayIter"><span class="n"><span class="pre">DLiteArrayIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421dlite_array_iter_nextP14DLiteArrayIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the next element of from array iterator, or NULL if all elements has been visited. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419dlite_array_comparePK10DLiteArrayPK10DLiteArray">
+<span id="_CPPv319dlite_array_comparePK10DLiteArrayPK10DLiteArray"></span><span id="_CPPv219dlite_array_comparePK10DLiteArrayPK10DLiteArray"></span><span id="dlite_array_compare__DLiteArrayCP.DLiteArrayCP"></span><span class="target" id="dlite-arrays_8h_1a40850bc1170466a376fa197294544c86"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_compare</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">a</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">b</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419dlite_array_comparePK10DLiteArrayPK10DLiteArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns 1 is arrays <code class="docutils literal notranslate"><span class="pre">a</span></code> and <code class="docutils literal notranslate"><span class="pre">b</span></code> are equal, zero otherwise. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417dlite_array_slicePK10DLiteArrayPiPiPi">
+<span id="_CPPv317dlite_array_slicePK10DLiteArrayPiPiPi"></span><span id="_CPPv217dlite_array_slicePK10DLiteArrayPiPiPi"></span><span id="dlite_array_slice__DLiteArrayCP.iP.iP.iP"></span><span class="target" id="dlite-arrays_8h_1a540897f350b764450107e8c5ca6386a8"></span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_slice</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">start</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">stop</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">step</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417dlite_array_slicePK10DLiteArrayPiPiPi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new array object representing a slice of <code class="docutils literal notranslate"><span class="pre">arr</span></code>. <code class="docutils literal notranslate"><span class="pre">start</span></code>, <code class="docutils literal notranslate"><span class="pre">stop</span></code> and <code class="docutils literal notranslate"><span class="pre">step</span></code> has the same meaning as in Python and should be either NULL or arrays of length <code class="docutils literal notranslate"><span class="pre">arr-&gt;ndims</span></code>.</p>
+<p>For <code class="docutils literal notranslate"><span class="pre">step[n]</span> <span class="pre">&gt;</span> <span class="pre">0</span></code> the range for dimension <code class="docutils literal notranslate"><span class="pre">n</span></code> is increasing (assuming <code class="docutils literal notranslate"><span class="pre">step[n]=1</span></code>): <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">start</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">start</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span> <span class="n">stop</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="n">stop</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span>
+</pre></div>
+</div>
+ For <code class="docutils literal notranslate"><span class="pre">step[n]</span> <span class="pre">&lt;</span> <span class="pre">0</span></code> the range for dimension <code class="docutils literal notranslate"><span class="pre">n</span></code> is decreasing: (assuming <code class="docutils literal notranslate"><span class="pre">step[n]=1</span></code>): <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">start</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="n">start</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">-</span><span class="mi">2</span><span class="p">,</span> <span class="o">...</span> <span class="n">stop</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">stop</span><span class="p">[</span><span class="n">n</span><span class="p">]</span>
+</pre></div>
+</div>
+ Like Python, negative values of <code class="docutils literal notranslate"><span class="pre">start</span></code> or <code class="docutils literal notranslate"><span class="pre">stop</span></code> counts from the back. Hence index <code class="docutils literal notranslate"><span class="pre">-k</span></code> is equivalent to <code class="docutils literal notranslate"><span class="pre">arr-&gt;shape[n]-|k|</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">start</span></code> is NULL, it will default to zero for dimensions <code class="docutils literal notranslate"><span class="pre">n</span></code> with positive <code class="docutils literal notranslate"><span class="pre">step</span></code> and <code class="docutils literal notranslate"><span class="pre">arr-&gt;shape[n]</span></code> for dimensions with negative <code class="docutils literal notranslate"><span class="pre">step</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">stop</span></code> is NULL, it will default to <code class="docutils literal notranslate"><span class="pre">arr-&gt;shape[n]</span></code> for dimensions <code class="docutils literal notranslate"><span class="pre">n</span></code> with positive <code class="docutils literal notranslate"><span class="pre">step</span></code> and zero for dimensions with negative <code class="docutils literal notranslate"><span class="pre">step</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">step</span></code> is NULL, it defaults to one.</p>
+<p>Returns NULL on error.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The above behavior is not fully consistent with Python for negative step sizes. While the range for negative steps in dlite is given above, Python returns the following range: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">start</span><span class="p">[</span><span class="n">n</span><span class="p">],</span> <span class="n">start</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="o">...</span> <span class="n">stop</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">+</span><span class="mi">2</span><span class="p">,</span> <span class="n">stop</span><span class="p">[</span><span class="n">n</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span>
+</pre></div>
+</div>
+ In Python, you can get the full reversed range by specifying <code class="docutils literal notranslate"><span class="pre">None</span></code> as the stop value. But <code class="docutils literal notranslate"><span class="pre">None</span></code> is not a valid C integer. In dlite you can get the full reversed range by setting <code class="docutils literal notranslate"><span class="pre">stop[n]</span></code> to zero. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419dlite_array_reshapePK10DLiteArrayiPK6size_t">
+<span id="_CPPv319dlite_array_reshapePK10DLiteArrayiPK6size_t"></span><span id="_CPPv219dlite_array_reshapePK10DLiteArrayiPK6size_t"></span><span id="dlite_array_reshape__DLiteArrayCP.i.sCP"></span><span class="target" id="dlite-arrays_8h_1a894c072fd0d8cfe5125896563b829197"></span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_reshape</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">ndims</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">shape</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419dlite_array_reshapePK10DLiteArrayiPK6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new array object representing <code class="docutils literal notranslate"><span class="pre">arr</span></code> with a new shape specified with <code class="docutils literal notranslate"><span class="pre">ndims</span></code> and <code class="docutils literal notranslate"><span class="pre">shape</span></code>. <code class="docutils literal notranslate"><span class="pre">shape</span></code> should be compatible with the old shape. The current implementation also requires that <code class="docutils literal notranslate"><span class="pre">arr</span></code> is C-continuous.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv421dlite_array_transposeP10DLiteArray">
+<span id="_CPPv321dlite_array_transposeP10DLiteArray"></span><span id="_CPPv221dlite_array_transposeP10DLiteArray"></span><span id="dlite_array_transpose__DLiteArrayP"></span><span class="target" id="dlite-arrays_8h_1a03163a14b6c57722d72d2afc1c9dbebc"></span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_transpose</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv421dlite_array_transposeP10DLiteArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new array object corresponding to the transpose of <code class="docutils literal notranslate"><span class="pre">arr</span></code> (that is, an array with reversed order of dimensions).</p>
+<p>Returns NULL on error.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This function does not change the underlying data. If you want to convert between C and Fortran array layout, you should call dlite_make_continuous() on the array object returned by this function. </p>
+</div>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427dlite_array_make_continuousP10DLiteArray">
+<span id="_CPPv327dlite_array_make_continuousP10DLiteArray"></span><span id="_CPPv227dlite_array_make_continuousP10DLiteArray"></span><span id="dlite_array_make_continuous__DLiteArrayP"></span><span class="target" id="dlite-arrays_8h_1a0d379d9dd6823569eeb630cc16b172b2"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_make_continuous</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427dlite_array_make_continuousP10DLiteArray" title="Link to this definition">#</a><br /></dt>
+<dd><p>Creates a continuous copy of the data for <code class="docutils literal notranslate"><span class="pre">arr</span></code> (using malloc()) and updates <code class="docutils literal notranslate"><span class="pre">arr</span></code>.</p>
+<p>Returns a the new copy of the data or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418dlite_array_printfP4FILEPK10DLiteArrayii">
+<span id="_CPPv318dlite_array_printfP4FILEPK10DLiteArrayii"></span><span id="_CPPv218dlite_array_printfP4FILEPK10DLiteArrayii"></span><span id="dlite_array_printf__FILEP.DLiteArrayCP.i.i"></span><span class="target" id="dlite-arrays_8h_1a724ec53a34759d31eb2b8411228ed61e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_array_printf</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">FILE</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">fp</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">arr</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">width</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">prec</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418dlite_array_printfP4FILEPK10DLiteArrayii" title="Link to this definition">#</a><br /></dt>
+<dd><p>Print array <code class="docutils literal notranslate"><span class="pre">arr</span></code> to stream <code class="docutils literal notranslate"><span class="pre">fp</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">width</span></code> and <code class="docutils literal notranslate"><span class="pre">prec</span></code> arguments corresponds to the printf() minimum field width and precision/length modifier. If you set them to -1, a suitable value will selected according to <code class="docutils literal notranslate"><span class="pre">type</span></code>. To ignore their effect, set <code class="docutils literal notranslate"><span class="pre">width</span></code> to zero or <code class="docutils literal notranslate"><span class="pre">prec</span></code> to -2.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv410DLiteArray">
+<span id="_CPPv310DLiteArray"></span><span id="_CPPv210DLiteArray"></span><span id="DLiteArray"></span><span class="target" id="structDLiteArray"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteArray</span></span></span><a class="headerlink" href="#_CPPv410DLiteArray" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dlite-arrays.h&gt;</em></div>
+<p>DLite n-dimensional arrays </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10DLiteArray4dataE">
+<span id="_CPPv3N10DLiteArray4dataE"></span><span id="_CPPv2N10DLiteArray4dataE"></span><span id="DLiteArray::data__voidP"></span><span class="target" id="structDLiteArray_1a24747d04974d30a45395c210258bd1bf"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N10DLiteArray4dataE" title="Link to this definition">#</a><br /></dt>
+<dd><p>pointer to array data </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10DLiteArray4typeE">
+<span id="_CPPv3N10DLiteArray4typeE"></span><span id="_CPPv2N10DLiteArray4typeE"></span><span id="DLiteArray::type__DLiteType"></span><span class="target" id="structDLiteArray_1ab956a52602a5b8814592073cf278206a"></span><a class="reference internal" href="dlite-type.html#_CPPv49DLiteType" title="DLiteType"><span class="n"><span class="pre">DLiteType</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">type</span></span></span><a class="headerlink" href="#_CPPv4N10DLiteArray4typeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>data type of elements </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10DLiteArray4sizeE">
+<span id="_CPPv3N10DLiteArray4sizeE"></span><span id="_CPPv2N10DLiteArray4sizeE"></span><span id="DLiteArray::size__s"></span><span class="target" id="structDLiteArray_1a10c79958f1064ba392e8f22094cdc6f6"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">size</span></span></span><a class="headerlink" href="#_CPPv4N10DLiteArray4sizeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>size of each element in bytes </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10DLiteArray5ndimsE">
+<span id="_CPPv3N10DLiteArray5ndimsE"></span><span id="_CPPv2N10DLiteArray5ndimsE"></span><span id="DLiteArray::ndims__i"></span><span class="target" id="structDLiteArray_1a7f303fcfbd20e512b82cd4fae233b84e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ndims</span></span></span><a class="headerlink" href="#_CPPv4N10DLiteArray5ndimsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>number of dimensions </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10DLiteArray5shapeE">
+<span id="_CPPv3N10DLiteArray5shapeE"></span><span id="_CPPv2N10DLiteArray5shapeE"></span><span id="DLiteArray::shape__sP"></span><span class="target" id="structDLiteArray_1abd2aab69a1beb0ec631bf77367916ad5"></span><span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">shape</span></span></span><a class="headerlink" href="#_CPPv4N10DLiteArray5shapeE" title="Link to this definition">#</a><br /></dt>
+<dd><p>dimension sizes [ndims] </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10DLiteArray7stridesE">
+<span id="_CPPv3N10DLiteArray7stridesE"></span><span id="_CPPv2N10DLiteArray7stridesE"></span><span id="DLiteArray::strides__iP"></span><span class="target" id="structDLiteArray_1a2eeac9ea85f821a2c7d9301a035d710a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">strides</span></span></span><a class="headerlink" href="#_CPPv4N10DLiteArray7stridesE" title="Link to this definition">#</a><br /></dt>
+<dd><p>strides, that is number of bytes between two following elements along each dimension [ndims] Note: strides can be negative, so we must use a signed type. </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv414DLiteArrayIter">
+<span id="_CPPv314DLiteArrayIter"></span><span id="_CPPv214DLiteArrayIter"></span><span id="DLiteArrayIter"></span><span class="target" id="structDLiteArrayIter"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteArrayIter</span></span></span><a class="headerlink" href="#_CPPv414DLiteArrayIter" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dlite-arrays.h&gt;</em></div>
+<p>Array iterator object. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14DLiteArrayIter3arrE">
+<span id="_CPPv3N14DLiteArrayIter3arrE"></span><span id="_CPPv2N14DLiteArrayIter3arrE"></span><span id="DLiteArrayIter::arr__DLiteArrayCP"></span><span class="target" id="structDLiteArrayIter_1a1d981e7a02e5132842596e1e1285715f"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410DLiteArray" title="DLiteArray"><span class="n"><span class="pre">DLiteArray</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">arr</span></span></span><a class="headerlink" href="#_CPPv4N14DLiteArrayIter3arrE" title="Link to this definition">#</a><br /></dt>
+<dd><p>pointer to the array we are iterating over </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N14DLiteArrayIter3indE">
+<span id="_CPPv3N14DLiteArrayIter3indE"></span><span id="_CPPv2N14DLiteArrayIter3indE"></span><span id="DLiteArrayIter::ind__iP"></span><span class="target" id="structDLiteArrayIter_1a154665ef12b076ebbfdbe08bd62d1c4a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ind</span></span></span><a class="headerlink" href="#_CPPv4N14DLiteArrayIter3indE" title="Link to this definition">#</a><br /></dt>
+<dd><p>the current index </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../src.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">DLite C-API</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dlite-behavior.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">dlite-behavior</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_array_createPv9DLiteType6size_tiPK6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_array_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_array_create_orderPv9DLiteType6size_tiPK6size_ti"><code class="docutils literal notranslate"><span class="pre">dlite_array_create_order()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_array_freeP10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416dlite_array_sizePK10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_size()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425dlite_array_is_continuousPK10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_is_continuous()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_array_indexPK10DLiteArrayPi"><code class="docutils literal notranslate"><span class="pre">dlite_array_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_array_iter_initP14DLiteArrayIterPK10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_iter_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv423dlite_array_iter_deinitP14DLiteArrayIter"><code class="docutils literal notranslate"><span class="pre">dlite_array_iter_deinit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_array_iter_nextP14DLiteArrayIter"><code class="docutils literal notranslate"><span class="pre">dlite_array_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_array_comparePK10DLiteArrayPK10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_compare()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417dlite_array_slicePK10DLiteArrayPiPiPi"><code class="docutils literal notranslate"><span class="pre">dlite_array_slice()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419dlite_array_reshapePK10DLiteArrayiPK6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_array_reshape()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv421dlite_array_transposeP10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_transpose()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_array_make_continuousP10DLiteArray"><code class="docutils literal notranslate"><span class="pre">dlite_array_make_continuous()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418dlite_array_printfP4FILEPK10DLiteArrayii"><code class="docutils literal notranslate"><span class="pre">dlite_array_printf()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410DLiteArray"><code class="docutils literal notranslate"><span class="pre">DLiteArray</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray4dataE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::data</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray4typeE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::type</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray4sizeE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::size</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray5ndimsE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::ndims</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray5shapeE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::shape</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10DLiteArray7stridesE"><code class="docutils literal notranslate"><span class="pre">DLiteArray::strides</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414DLiteArrayIter"><code class="docutils literal notranslate"><span class="pre">DLiteArrayIter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N14DLiteArrayIter3arrE"><code class="docutils literal notranslate"><span class="pre">DLiteArrayIter::arr</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N14DLiteArrayIter3indE"><code class="docutils literal notranslate"><span class="pre">DLiteArrayIter::ind</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

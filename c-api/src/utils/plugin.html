@@ -1,0 +1,1032 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>plugin &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/utils/plugin';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="rng" href="rng.html" />
+    <link rel="prev" title="md5" href="md5.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="md5.html">md5</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/utils/plugin.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/c-api/src/utils/plugin.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>plugin</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410PluginFunc"><code class="docutils literal notranslate"><span class="pre">PluginFunc</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414PluginErrCodes"><code class="docutils literal notranslate"><span class="pre">PluginErrCodes</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N14PluginErrCodes17pluginMemoryErrorE"><code class="docutils literal notranslate"><span class="pre">PluginErrCodes::pluginMemoryError</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_info_createPKcPKcPKcPv"><code class="docutils literal notranslate"><span class="pre">plugin_info_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416plugin_info_freeP10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_info_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419plugin_register_apiP10PluginInfoPK9PluginAPI"><code class="docutils literal notranslate"><span class="pre">plugin_register_api()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414plugin_has_apiP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_has_api()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414plugin_get_apiP10PluginInfoPKci"><code class="docutils literal notranslate"><span class="pre">plugin_get_api()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415plugin_load_allP10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_load_all()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420plugin_api_iter_initP10PluginIterPK10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_api_iter_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420plugin_api_iter_nextP10PluginIter"><code class="docutils literal notranslate"><span class="pre">plugin_api_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413plugin_unloadP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_unload()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412plugin_namesPK10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_names()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415plugin_path_getP10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_path_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_path_insertP10PluginInfoPKci"><code class="docutils literal notranslate"><span class="pre">plugin_path_insert()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_path_appendP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419plugin_path_appendnP10PluginInfoPKc6size_t"><code class="docutils literal notranslate"><span class="pre">plugin_path_appendn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_path_extendP10PluginInfoPKcPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_extend()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425plugin_path_extend_prefixP10PluginInfoPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_extend_prefix()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424plugin_path_remove_indexP10PluginInfoi"><code class="docutils literal notranslate"><span class="pre">plugin_path_remove_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_path_removeP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417plugin_path_indexP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49PluginAPI"><code class="docutils literal notranslate"><span class="pre">PluginAPI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49map_plg_t"><code class="docutils literal notranslate"><span class="pre">map_plg_t</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_plg_t4baseE"><code class="docutils literal notranslate"><span class="pre">map_plg_t::base</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_plg_t3refE"><code class="docutils literal notranslate"><span class="pre">map_plg_t::ref</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_plg_t3tmpE"><code class="docutils literal notranslate"><span class="pre">map_plg_t::tmp</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49map_api_t"><code class="docutils literal notranslate"><span class="pre">map_api_t</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_api_t4baseE"><code class="docutils literal notranslate"><span class="pre">map_api_t::base</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_api_t3refE"><code class="docutils literal notranslate"><span class="pre">map_api_t::ref</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_api_t3tmpE"><code class="docutils literal notranslate"><span class="pre">map_api_t::tmp</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410PluginInfo"><code class="docutils literal notranslate"><span class="pre">PluginInfo</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo4kindE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::kind</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo6symbolE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::symbol</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo6envvarE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::envvar</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo5stateE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::state</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo5pathsE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::paths</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo7pluginsE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::plugins</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo11pluginpathsE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::pluginpaths</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo4apisE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::apis</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410PluginIter"><code class="docutils literal notranslate"><span class="pre">PluginIter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginIter4infoE"><code class="docutils literal notranslate"><span class="pre">PluginIter::info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginIter5miterE"><code class="docutils literal notranslate"><span class="pre">PluginIter::miter</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="plugin">
+<h1>plugin<a class="headerlink" href="#plugin" title="Link to this heading">#</a></h1>
+<p>Simple portable plugin library. </p>
+<p>Plugins accessed with this library, are dynamic shared libraries exposing a single function with prototype <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">PluginAPI</span> <span class="o">*</span><span class="n">symbol</span><span class="p">(</span><span class="n">void</span> <span class="o">*</span><span class="n">state</span><span class="p">,</span> <span class="nb">int</span> <span class="o">*</span><span class="nb">iter</span><span class="p">);</span>
+</pre></div>
+</div>
+ This function should return a pointer to a struct with function pointers to all functions provided by the plugin (data member are also allowed). Below we refer to this struct as the plugin API. The first element in the API must be a pointer to a string containg the name of the plugin. Plugin names should be unique.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">state</span></code> argument is used to pass a pointer to the global state of the caller to the plugin. You may use the session.h module for that.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">iter</span></code> argument is normally ignored. It is provided to support plugins exposing several APIs. <code class="docutils literal notranslate"><span class="pre">*iter</span></code> will be zero at the first time the function is called. If the plugin has more APIs to expose, it should increase <code class="docutils literal notranslate"><span class="pre">*iter</span></code> by one to indicate that it should be called again to return the next API. When returning the last API, it should leave <code class="docutils literal notranslate"><span class="pre">*iter</span></code> unchanged.</p>
+<p>A new plugin kind, with its own API, can be created with <a class="reference internal" href="#plugin_8h_1aecb60a99b4e749d46355c99913cb13cc"><span class="std std-ref">plugin_info_create()</span></a>.</p>
+<p><div class="admonition seealso">
+<p class="admonition-title">See also</p>
+<p><a class="reference external" href="http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/">http://gernotklingler.com/blog/creating-using-shared-libraries-different-compilers-different-operating-systems/</a></p>
+</div>
+</p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-defines">Defines</p>
+<dl class="cpp macro">
+<dt class="sig sig-object cpp" id="c.PluginAPI_HEAD">
+<span class="target" id="plugin_8h_1a0480529c04e6a8ad55bf253ee6d6fc21"></span><span class="sig-name descname"><span class="n"><span class="pre">PluginAPI_HEAD</span></span></span><a class="headerlink" href="#c.PluginAPI_HEAD" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initial fields in all plugin APIs. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv410PluginFunc">
+<span id="_CPPv310PluginFunc"></span><span id="_CPPv210PluginFunc"></span><span id="PluginFunc"></span><span class="target" id="plugin_8h_1a7751f4cbb4c4ada19334832f07ef50f1"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49PluginAPI" title="PluginAPI"><span class="n"><span class="pre">PluginAPI</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">PluginFunc</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv410PluginFunc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Prototype for function that is looked up in shared library. See above for more info. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv414PluginErrCodes">
+<span id="_CPPv314PluginErrCodes"></span><span id="_CPPv214PluginErrCodes"></span><span class="target" id="plugin_8h_1ad62d921a2b0f761f0d7af7d6d15e78f2"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PluginErrCodes</span></span></span><a class="headerlink" href="#_CPPv414PluginErrCodes" title="Link to this definition">#</a><br /></dt>
+<dd><p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N14PluginErrCodes17pluginMemoryErrorE">
+<span id="_CPPv3N14PluginErrCodes17pluginMemoryErrorE"></span><span id="_CPPv2N14PluginErrCodes17pluginMemoryErrorE"></span><span class="target" id="plugin_8h_1ad62d921a2b0f761f0d7af7d6d15e78f2accf176bebc56d8dc70b7550199479aeb"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pluginMemoryError</span></span></span><a class="headerlink" href="#_CPPv4N14PluginErrCodes17pluginMemoryErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Out of memory </p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418plugin_info_createPKcPKcPKcPv">
+<span id="_CPPv318plugin_info_createPKcPKcPKcPv"></span><span id="_CPPv218plugin_info_createPKcPKcPKcPv"></span><span id="plugin_info_create__cCP.cCP.cCP.voidP"></span><span class="target" id="plugin_8h_1aecb60a99b4e749d46355c99913cb13cc"></span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plugin_info_create</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">kind</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">symbol</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">envvar</span></span>, <span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418plugin_info_createPKcPKcPKcPv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Creates a new plugin kind and returns a pointer to information about it.</p>
+<p><code class="docutils literal notranslate"><span class="pre">kind</span></code> is the name of the new plugin kind. <code class="docutils literal notranslate"><span class="pre">symbol</span></code> is the name of the function that plugins should define. <code class="docutils literal notranslate"><span class="pre">envvar</span></code> is the name of environment variable with plugin search path. <code class="docutils literal notranslate"><span class="pre">state</span></code> pointer to global state passed to the plugin function.</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv416plugin_info_freeP10PluginInfo">
+<span id="_CPPv316plugin_info_freeP10PluginInfo"></span><span id="_CPPv216plugin_info_freeP10PluginInfo"></span><span id="plugin_info_free__PluginInfoP"></span><span class="target" id="plugin_8h_1a4048c8b44f0bce0e238490a1f5dc51ab"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_info_free</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv416plugin_info_freeP10PluginInfo" title="Link to this definition">#</a><br /></dt>
+<dd><p>Free’s plugin info. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419plugin_register_apiP10PluginInfoPK9PluginAPI">
+<span id="_CPPv319plugin_register_apiP10PluginInfoPK9PluginAPI"></span><span id="_CPPv219plugin_register_apiP10PluginInfoPK9PluginAPI"></span><span id="plugin_register_api__PluginInfoP.PluginAPICP"></span><span class="target" id="plugin_8h_1a7000e0481ebde10d5847220e87ccbd64"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_register_api</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49PluginAPI" title="PluginAPI"><span class="n"><span class="pre">PluginAPI</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">api</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419plugin_register_apiP10PluginInfoPK9PluginAPI" title="Link to this definition">#</a><br /></dt>
+<dd><p>Register a plugin <code class="docutils literal notranslate"><span class="pre">api</span></code> not associated to a dynamic loadable library.</p>
+<p>This function may e.g. be useful for registering plugins written in dynamic interpreted languages, like Python. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414plugin_has_apiP10PluginInfoPKc">
+<span id="_CPPv314plugin_has_apiP10PluginInfoPKc"></span><span id="_CPPv214plugin_has_apiP10PluginInfoPKc"></span><span id="plugin_has_api__PluginInfoP.cCP"></span><span class="target" id="plugin_8h_1abe79996cd77511f32d8895d979018a84"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_has_api</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414plugin_has_apiP10PluginInfoPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if plugin api <code class="docutils literal notranslate"><span class="pre">name</span></code> is already registered. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414plugin_get_apiP10PluginInfoPKci">
+<span id="_CPPv314plugin_get_apiP10PluginInfoPKci"></span><span id="_CPPv214plugin_get_apiP10PluginInfoPKci"></span><span id="plugin_get_api__PluginInfoP.cCP.i"></span><span class="target" id="plugin_8h_1ac2093485a5265faed2aa644cd20709a8"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49PluginAPI" title="PluginAPI"><span class="n"><span class="pre">PluginAPI</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plugin_get_api</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">errcode</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414plugin_get_apiP10PluginInfoPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns pointer to plugin api.</p>
+<p>If a plugin with the given name is already registered, it is returned.</p>
+<p>Otherwise the plugin search path is checked for shared libraries matching <code class="docutils literal notranslate"><span class="pre">name.EXT</span></code> where <code class="docutils literal notranslate"><span class="pre">EXT</span></code> is the extension for shared library on the current platform (“dll” on Windows and “so” on Unix/Linux). If a plugin with the provided name is fount, it is loaded, registered and returned.</p>
+<p>Otherwise the plugin search path is checked again, but this time for any shared library. If a plugin with the provided name is found, it is loaded, registered and returned.</p>
+<p>If the plugin is not found, err() is called with <code class="docutils literal notranslate"><span class="pre">eval</span></code> set to <code class="docutils literal notranslate"><span class="pre">errcode</span></code>.</p>
+<p>Otherwise NULL is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415plugin_load_allP10PluginInfo">
+<span id="_CPPv315plugin_load_allP10PluginInfo"></span><span id="_CPPv215plugin_load_allP10PluginInfo"></span><span id="plugin_load_all__PluginInfoP"></span><span class="target" id="plugin_8h_1aa8c34360d4e8b967b6ab0e3fdd120715"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_load_all</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415plugin_load_allP10PluginInfo" title="Link to this definition">#</a><br /></dt>
+<dd><p>Load all plugins that can be found in the plugin search path. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420plugin_api_iter_initP10PluginIterPK10PluginInfo">
+<span id="_CPPv320plugin_api_iter_initP10PluginIterPK10PluginInfo"></span><span id="_CPPv220plugin_api_iter_initP10PluginIterPK10PluginInfo"></span><span id="plugin_api_iter_init__PluginIterP.PluginInfoCP"></span><span class="target" id="plugin_8h_1a517060cb718e32762f2ab7522557f4af"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_api_iter_init</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginIter" title="PluginIter"><span class="n"><span class="pre">PluginIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420plugin_api_iter_initP10PluginIterPK10PluginInfo" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initiates a plugin iterator. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv420plugin_api_iter_nextP10PluginIter">
+<span id="_CPPv320plugin_api_iter_nextP10PluginIter"></span><span id="_CPPv220plugin_api_iter_nextP10PluginIter"></span><span id="plugin_api_iter_next__PluginIterP"></span><span class="target" id="plugin_8h_1a2604bd026c6f8c77c2f6c3aaf8d7cf28"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv49PluginAPI" title="PluginAPI"><span class="n"><span class="pre">PluginAPI</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plugin_api_iter_next</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginIter" title="PluginIter"><span class="n"><span class="pre">PluginIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv420plugin_api_iter_nextP10PluginIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns pointer to the next registered API or NULL if all APIs have been visited.</p>
+<p>Used for iterating over plugins. Plugins should not be registered or removed while iterating. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413plugin_unloadP10PluginInfoPKc">
+<span id="_CPPv313plugin_unloadP10PluginInfoPKc"></span><span id="_CPPv213plugin_unloadP10PluginInfoPKc"></span><span id="plugin_unload__PluginInfoP.cCP"></span><span class="target" id="plugin_8h_1a22fcdbd3ce4613e59e867f26da6ffc95"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_unload</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413plugin_unloadP10PluginInfoPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Unloads and unregisters plugin with the given name. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412plugin_namesPK10PluginInfo">
+<span id="_CPPv312plugin_namesPK10PluginInfo"></span><span id="_CPPv212plugin_namesPK10PluginInfo"></span><span id="plugin_names__PluginInfoCP"></span><span class="target" id="plugin_8h_1aaf9c7e2a20c624d36dbfabaa45dfa75b"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plugin_names</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412plugin_namesPK10PluginInfo" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a NULL-terminated array of pointers to api names. Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv415plugin_path_getP10PluginInfo">
+<span id="_CPPv315plugin_path_getP10PluginInfo"></span><span id="_CPPv215plugin_path_getP10PluginInfo"></span><span id="plugin_path_get__PluginInfoP"></span><span class="target" id="plugin_8h_1a6a981d3ba67895e9399aebd4e87ae3da"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">plugin_path_get</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv415plugin_path_getP10PluginInfo" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a NULL-terminated array of pointers to search paths or NULL if no search path is defined. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418plugin_path_insertP10PluginInfoPKci">
+<span id="_CPPv318plugin_path_insertP10PluginInfoPKci"></span><span id="_CPPv218plugin_path_insertP10PluginInfoPKci"></span><span id="plugin_path_insert__PluginInfoP.cCP.i"></span><span class="target" id="plugin_8h_1a708bb8538fc83fd46adf1e26c72828eb"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_path_insert</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418plugin_path_insertP10PluginInfoPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inserts <code class="docutils literal notranslate"><span class="pre">path</span></code> into the current search path at index <code class="docutils literal notranslate"><span class="pre">n</span></code>. If <code class="docutils literal notranslate"><span class="pre">n</span></code> is negative, it counts from the end of the search path (like Python).</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is out of range, it is clipped.</p>
+<p>Returns the index of the newly inserted path or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418plugin_path_appendP10PluginInfoPKc">
+<span id="_CPPv318plugin_path_appendP10PluginInfoPKc"></span><span id="_CPPv218plugin_path_appendP10PluginInfoPKc"></span><span id="plugin_path_append__PluginInfoP.cCP"></span><span class="target" id="plugin_8h_1a8343cd767c715731811968f54d4e4808"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_path_append</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418plugin_path_appendP10PluginInfoPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Appends <code class="docutils literal notranslate"><span class="pre">path</span></code> into the current search path.</p>
+<p>Returns the index of the newly appended path or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv419plugin_path_appendnP10PluginInfoPKc6size_t">
+<span id="_CPPv319plugin_path_appendnP10PluginInfoPKc6size_t"></span><span id="_CPPv219plugin_path_appendnP10PluginInfoPKc6size_t"></span><span id="plugin_path_appendn__PluginInfoP.cCP.s"></span><span class="target" id="plugin_8h_1a3111fa4c198f8f62effa466b98c7bad0"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_path_appendn</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv419plugin_path_appendnP10PluginInfoPKc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#plugin_8h_1a8343cd767c715731811968f54d4e4808"><span class="std std-ref">plugin_path_append()</span></a>, but appends at most the <code class="docutils literal notranslate"><span class="pre">n</span></code> first bytes of <code class="docutils literal notranslate"><span class="pre">path</span></code> to the current search path.</p>
+<p>Returns the index of the newly appended path or -1 on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418plugin_path_extendP10PluginInfoPKcPKc">
+<span id="_CPPv318plugin_path_extendP10PluginInfoPKcPKc"></span><span id="_CPPv218plugin_path_extendP10PluginInfoPKcPKc"></span><span id="plugin_path_extend__PluginInfoP.cCP.cCP"></span><span class="target" id="plugin_8h_1a6250d3e7d91a8e301c99a42de3ebcc66"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_path_extend</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418plugin_path_extendP10PluginInfoPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Extends current search path by appending all <code class="docutils literal notranslate"><span class="pre">pathsep</span></code>-separated paths in <code class="docutils literal notranslate"><span class="pre">s</span></code> to it.</p>
+<p>Returns the index of the last appended path or zero if nothing is appended. On error, -1 is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425plugin_path_extend_prefixP10PluginInfoPKcPKcPKc">
+<span id="_CPPv325plugin_path_extend_prefixP10PluginInfoPKcPKcPKc"></span><span id="_CPPv225plugin_path_extend_prefixP10PluginInfoPKcPKcPKc"></span><span id="plugin_path_extend_prefix__PluginInfoP.cCP.cCP.cCP"></span><span class="target" id="plugin_8h_1a44a15b014caa6d7db2e3e24435fd5431"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_path_extend_prefix</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">prefix</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">pathsep</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425plugin_path_extend_prefixP10PluginInfoPKcPKcPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like plugin_paths_extend(), but prefix all relative paths in <code class="docutils literal notranslate"><span class="pre">s</span></code> with <code class="docutils literal notranslate"><span class="pre">prefix</span></code> before appending them to <code class="docutils literal notranslate"><span class="pre">paths</span></code>.</p>
+<p>Returns the index of the last appended paths or zero if nothing is appended. On error, -1 is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424plugin_path_remove_indexP10PluginInfoi">
+<span id="_CPPv324plugin_path_remove_indexP10PluginInfoi"></span><span id="_CPPv224plugin_path_remove_indexP10PluginInfoi"></span><span id="plugin_path_remove_index__PluginInfoP.i"></span><span class="target" id="plugin_8h_1af1e5f80cc07376cf0def925ab2689d42"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_path_remove_index</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424plugin_path_remove_indexP10PluginInfoi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes path index <code class="docutils literal notranslate"><span class="pre">n</span></code> from current search path. If <code class="docutils literal notranslate"><span class="pre">n</span></code> is negative, it counts from the end (like Python).</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv418plugin_path_removeP10PluginInfoPKc">
+<span id="_CPPv318plugin_path_removeP10PluginInfoPKc"></span><span id="_CPPv218plugin_path_removeP10PluginInfoPKc"></span><span id="plugin_path_remove__PluginInfoP.cCP"></span><span class="target" id="plugin_8h_1a09a092263b9d3436acccef0572f72d4d"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_path_remove</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv418plugin_path_removeP10PluginInfoPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes path <code class="docutils literal notranslate"><span class="pre">path</span></code>. Returns non-zero if there is no such path. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv417plugin_path_indexP10PluginInfoPKc">
+<span id="_CPPv317plugin_path_indexP10PluginInfoPKc"></span><span id="_CPPv217plugin_path_indexP10PluginInfoPKc"></span><span id="plugin_path_index__PluginInfoP.cCP"></span><span class="target" id="plugin_8h_1aadae57a9ebf431aea071996e9222b3a6"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugin_path_index</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">info</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv417plugin_path_indexP10PluginInfoPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns index of plugin path <code class="docutils literal notranslate"><span class="pre">path</span></code> or -1 on error. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv49PluginAPI">
+<span id="_CPPv39PluginAPI"></span><span id="_CPPv29PluginAPI"></span><span id="PluginAPI"></span><span class="target" id="structPluginAPI"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PluginAPI</span></span></span><a class="headerlink" href="#_CPPv49PluginAPI" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;plugin.h&gt;</em></div>
+<p>Base declaration of a plugin API that all plugin APIs can be cast into. </p>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv49map_plg_t">
+<span id="_CPPv39map_plg_t"></span><span id="_CPPv29map_plg_t"></span><span id="map_plg_t"></span><span class="target" id="structmap__plg__t"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">map_plg_t</span></span></span><a class="headerlink" href="#_CPPv49map_plg_t" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;plugin.h&gt;</em></div>
+<p>New map types for plugins and plugin apis </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9map_plg_t4baseE">
+<span id="_CPPv3N9map_plg_t4baseE"></span><span id="_CPPv2N9map_plg_t4baseE"></span><span id="map_plg_t::base__map_base_t"></span><span class="target" id="structmap__plg__t_1ace0738f71edc96d659e68b56b9ac4786"></span><a class="reference internal" href="map.html#_CPPv410map_base_t" title="map_base_t"><span class="n"><span class="pre">map_base_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">base</span></span></span><a class="headerlink" href="#_CPPv4N9map_plg_t4baseE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9map_plg_t3refE">
+<span id="_CPPv3N9map_plg_t3refE"></span><span id="_CPPv2N9map_plg_t3refE"></span><span id="map_plg_t::ref__PluginPP"></span><span class="target" id="structmap__plg__t_1a524ad430e0a73978fdd47d9bb5164600"></span><span class="n"><span class="pre">Plugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ref</span></span></span><a class="headerlink" href="#_CPPv4N9map_plg_t3refE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9map_plg_t3tmpE">
+<span id="_CPPv3N9map_plg_t3tmpE"></span><span id="_CPPv2N9map_plg_t3tmpE"></span><span id="map_plg_t::tmp__PluginP"></span><span class="target" id="structmap__plg__t_1acd8dba790e369df9e940699d7b6621ae"></span><span class="n"><span class="pre">Plugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tmp</span></span></span><a class="headerlink" href="#_CPPv4N9map_plg_t3tmpE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv49map_api_t">
+<span id="_CPPv39map_api_t"></span><span id="_CPPv29map_api_t"></span><span id="map_api_t"></span><span class="target" id="structmap__api__t"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">map_api_t</span></span></span><a class="headerlink" href="#_CPPv49map_api_t" title="Link to this definition">#</a><br /></dt>
+<dd><div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9map_api_t4baseE">
+<span id="_CPPv3N9map_api_t4baseE"></span><span id="_CPPv2N9map_api_t4baseE"></span><span id="map_api_t::base__map_base_t"></span><span class="target" id="structmap__api__t_1abcb02f11df09c6f1a5511f15af655050"></span><a class="reference internal" href="map.html#_CPPv410map_base_t" title="map_base_t"><span class="n"><span class="pre">map_base_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">base</span></span></span><a class="headerlink" href="#_CPPv4N9map_api_t4baseE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9map_api_t3refE">
+<span id="_CPPv3N9map_api_t3refE"></span><span id="_CPPv2N9map_api_t3refE"></span><span id="map_api_t::ref__PluginAPIPP"></span><span class="target" id="structmap__api__t_1aa0e8fcce3db7657090bb22bcb6d75c76"></span><a class="reference internal" href="#_CPPv49PluginAPI" title="PluginAPI"><span class="n"><span class="pre">PluginAPI</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">ref</span></span></span><a class="headerlink" href="#_CPPv4N9map_api_t3refE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N9map_api_t3tmpE">
+<span id="_CPPv3N9map_api_t3tmpE"></span><span id="_CPPv2N9map_api_t3tmpE"></span><span id="map_api_t::tmp__PluginAPIP"></span><span class="target" id="structmap__api__t_1a9892805b89b406809eaea5a1fc88cd1c"></span><a class="reference internal" href="#_CPPv49PluginAPI" title="PluginAPI"><span class="n"><span class="pre">PluginAPI</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">tmp</span></span></span><a class="headerlink" href="#_CPPv4N9map_api_t3tmpE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv410PluginInfo">
+<span id="_CPPv310PluginInfo"></span><span id="_CPPv210PluginInfo"></span><span id="PluginInfo"></span><span class="target" id="structPluginInfo"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PluginInfo</span></span></span><a class="headerlink" href="#_CPPv410PluginInfo" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;plugin.h&gt;</em></div>
+<p>Info about a plugin kind </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginInfo4kindE">
+<span id="_CPPv3N10PluginInfo4kindE"></span><span id="_CPPv2N10PluginInfo4kindE"></span><span id="PluginInfo::kind__cCP"></span><span class="target" id="structPluginInfo_1a8e0dda0715f8316d71385a569d7d602c"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">kind</span></span></span><a class="headerlink" href="#_CPPv4N10PluginInfo4kindE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Name of this plugin kind </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginInfo6symbolE">
+<span id="_CPPv3N10PluginInfo6symbolE"></span><span id="_CPPv2N10PluginInfo6symbolE"></span><span id="PluginInfo::symbol__cCP"></span><span class="target" id="structPluginInfo_1a8ac862406f9bd410737e33b3869c83fa"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">symbol</span></span></span><a class="headerlink" href="#_CPPv4N10PluginInfo6symbolE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Name of function in plugin returning the api </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginInfo6envvarE">
+<span id="_CPPv3N10PluginInfo6envvarE"></span><span id="_CPPv2N10PluginInfo6envvarE"></span><span id="PluginInfo::envvar__cCP"></span><span class="target" id="structPluginInfo_1aa21848dabf7772de3912ff7c41dea82c"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">envvar</span></span></span><a class="headerlink" href="#_CPPv4N10PluginInfo6envvarE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Name of environment variable initialising the plugin search path </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginInfo5stateE">
+<span id="_CPPv3N10PluginInfo5stateE"></span><span id="_CPPv2N10PluginInfo5stateE"></span><span id="PluginInfo::state__voidP"></span><span class="target" id="structPluginInfo_1aeca1097d70c04b5c1ecb66393496dd53"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">state</span></span></span><a class="headerlink" href="#_CPPv4N10PluginInfo5stateE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Pointer to global state passed to PluginFunc </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginInfo5pathsE">
+<span id="_CPPv3N10PluginInfo5pathsE"></span><span id="_CPPv2N10PluginInfo5pathsE"></span><span id="PluginInfo::paths__FUPaths"></span><span class="target" id="structPluginInfo_1a96fea40f8a3a6917fd46399690fde708"></span><a class="reference internal" href="fileutils.html#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">paths</span></span></span><a class="headerlink" href="#_CPPv4N10PluginInfo5pathsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Current plugin search paths </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginInfo7pluginsE">
+<span id="_CPPv3N10PluginInfo7pluginsE"></span><span id="_CPPv2N10PluginInfo7pluginsE"></span><span id="PluginInfo::plugins__map_plg_t"></span><span class="target" id="structPluginInfo_1a154a8faab138df45b2418319891c725e"></span><a class="reference internal" href="#_CPPv49map_plg_t" title="map_plg_t"><span class="n"><span class="pre">map_plg_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">plugins</span></span></span><a class="headerlink" href="#_CPPv4N10PluginInfo7pluginsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Maps plugin paths to loaded plugins </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginInfo11pluginpathsE">
+<span id="_CPPv3N10PluginInfo11pluginpathsE"></span><span id="_CPPv2N10PluginInfo11pluginpathsE"></span><span id="PluginInfo::pluginpaths__map_str_t"></span><span class="target" id="structPluginInfo_1acb5506dbe824dde6580cfb828add3cab"></span><span class="n"><span class="pre">map_str_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pluginpaths</span></span></span><a class="headerlink" href="#_CPPv4N10PluginInfo11pluginpathsE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Maps api names to plugin path names </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginInfo4apisE">
+<span id="_CPPv3N10PluginInfo4apisE"></span><span id="_CPPv2N10PluginInfo4apisE"></span><span id="PluginInfo::apis__map_api_t"></span><span class="target" id="structPluginInfo_1a572e56bd816def14a0d6211982f85be1"></span><a class="reference internal" href="#_CPPv49map_api_t" title="map_api_t"><span class="n"><span class="pre">map_api_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">apis</span></span></span><a class="headerlink" href="#_CPPv4N10PluginInfo4apisE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Maps api names to plugin apis </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv410PluginIter">
+<span id="_CPPv310PluginIter"></span><span id="_CPPv210PluginIter"></span><span id="PluginIter"></span><span class="target" id="structPluginIter"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">PluginIter</span></span></span><a class="headerlink" href="#_CPPv410PluginIter" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;plugin.h&gt;</em></div>
+<p>Struct for iterating over registered plugins </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginIter4infoE">
+<span id="_CPPv3N10PluginIter4infoE"></span><span id="_CPPv2N10PluginIter4infoE"></span><span id="PluginIter::info__PluginInfoCP"></span><span class="target" id="structPluginIter_1acaa7800376be5f99ad2fb6040100e14f"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><a class="reference internal" href="#_CPPv410PluginInfo" title="PluginInfo"><span class="n"><span class="pre">PluginInfo</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">info</span></span></span><a class="headerlink" href="#_CPPv4N10PluginIter4infoE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N10PluginIter5miterE">
+<span id="_CPPv3N10PluginIter5miterE"></span><span id="_CPPv2N10PluginIter5miterE"></span><span id="PluginIter::miter__map_iter_t"></span><span class="target" id="structPluginIter_1a599e57f98a4791faddc16d2429433009"></span><a class="reference internal" href="map.html#_CPPv410map_iter_t" title="map_iter_t"><span class="n"><span class="pre">map_iter_t</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">miter</span></span></span><a class="headerlink" href="#_CPPv4N10PluginIter5miterE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="md5.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">md5</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="rng.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">rng</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410PluginFunc"><code class="docutils literal notranslate"><span class="pre">PluginFunc</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414PluginErrCodes"><code class="docutils literal notranslate"><span class="pre">PluginErrCodes</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N14PluginErrCodes17pluginMemoryErrorE"><code class="docutils literal notranslate"><span class="pre">PluginErrCodes::pluginMemoryError</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_info_createPKcPKcPKcPv"><code class="docutils literal notranslate"><span class="pre">plugin_info_create()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv416plugin_info_freeP10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_info_free()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419plugin_register_apiP10PluginInfoPK9PluginAPI"><code class="docutils literal notranslate"><span class="pre">plugin_register_api()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414plugin_has_apiP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_has_api()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414plugin_get_apiP10PluginInfoPKci"><code class="docutils literal notranslate"><span class="pre">plugin_get_api()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415plugin_load_allP10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_load_all()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420plugin_api_iter_initP10PluginIterPK10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_api_iter_init()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv420plugin_api_iter_nextP10PluginIter"><code class="docutils literal notranslate"><span class="pre">plugin_api_iter_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413plugin_unloadP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_unload()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412plugin_namesPK10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_names()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv415plugin_path_getP10PluginInfo"><code class="docutils literal notranslate"><span class="pre">plugin_path_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_path_insertP10PluginInfoPKci"><code class="docutils literal notranslate"><span class="pre">plugin_path_insert()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_path_appendP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419plugin_path_appendnP10PluginInfoPKc6size_t"><code class="docutils literal notranslate"><span class="pre">plugin_path_appendn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_path_extendP10PluginInfoPKcPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_extend()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425plugin_path_extend_prefixP10PluginInfoPKcPKcPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_extend_prefix()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424plugin_path_remove_indexP10PluginInfoi"><code class="docutils literal notranslate"><span class="pre">plugin_path_remove_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418plugin_path_removeP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_remove()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv417plugin_path_indexP10PluginInfoPKc"><code class="docutils literal notranslate"><span class="pre">plugin_path_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49PluginAPI"><code class="docutils literal notranslate"><span class="pre">PluginAPI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49map_plg_t"><code class="docutils literal notranslate"><span class="pre">map_plg_t</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_plg_t4baseE"><code class="docutils literal notranslate"><span class="pre">map_plg_t::base</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_plg_t3refE"><code class="docutils literal notranslate"><span class="pre">map_plg_t::ref</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_plg_t3tmpE"><code class="docutils literal notranslate"><span class="pre">map_plg_t::tmp</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49map_api_t"><code class="docutils literal notranslate"><span class="pre">map_api_t</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_api_t4baseE"><code class="docutils literal notranslate"><span class="pre">map_api_t::base</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_api_t3refE"><code class="docutils literal notranslate"><span class="pre">map_api_t::ref</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N9map_api_t3tmpE"><code class="docutils literal notranslate"><span class="pre">map_api_t::tmp</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410PluginInfo"><code class="docutils literal notranslate"><span class="pre">PluginInfo</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo4kindE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::kind</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo6symbolE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::symbol</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo6envvarE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::envvar</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo5stateE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::state</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo5pathsE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::paths</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo7pluginsE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::plugins</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo11pluginpathsE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::pluginpaths</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginInfo4apisE"><code class="docutils literal notranslate"><span class="pre">PluginInfo::apis</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410PluginIter"><code class="docutils literal notranslate"><span class="pre">PluginIter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginIter4infoE"><code class="docutils literal notranslate"><span class="pre">PluginIter::info</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N10PluginIter5miterE"><code class="docutils literal notranslate"><span class="pre">PluginIter::miter</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
