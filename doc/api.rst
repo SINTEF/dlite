@@ -11,9 +11,8 @@ Python API
 
 .. toctree::
    :maxdepth: 2
-   :glob:
 
-   Python modules <autoapi/*/index>
+   Python modules <autoapi/dlite/index>
 
 
 C-API

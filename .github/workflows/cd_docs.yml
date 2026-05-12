@@ -82,19 +82,35 @@ jobs:
       - name: Verify Python AutoAPI output
         run: |
           set -euo pipefail
-          if [[ ! -d build/doc/html/autoapi ]]; then
-            echo "ERROR: AutoAPI output directory build/doc/html/autoapi is missing."
+          AUTOAPI_DIR=$(find build/doc -type d -path '*/html/autoapi' | head -n 1 || true)
+          if [[ -z "${AUTOAPI_DIR}" ]]; then
+            echo "ERROR: AutoAPI output directory was not found under build/doc."
+            echo "---- Sphinx config excerpt ----"
+            sed -n '1,260p' build/doc/_build/conf.py | grep -E 'autoapi_(dirs|ignore|file_patterns|python_use_implicit_namespaces)' || true
+            echo "---- build/doc directories ----"
+            find build/doc -maxdepth 4 -type d | sort
+            echo "---- build/doc/html listing ----"
+            ls -la build/doc/html || true
             exit 1
           fi
 
-          AUTOAPI_INDEX_COUNT=$(find build/doc/html/autoapi -type f -name index.html | wc -l)
+          echo "Using AutoAPI directory: ${AUTOAPI_DIR}"
+          AUTOAPI_INDEX_COUNT=$(find "${AUTOAPI_DIR}" -type f -name index.html | wc -l)
           echo "Detected ${AUTOAPI_INDEX_COUNT} AutoAPI index page(s)."
           if [[ "${AUTOAPI_INDEX_COUNT}" -lt 1 ]]; then
             echo "ERROR: AutoAPI did not generate index pages."
+            find "${AUTOAPI_DIR}" -maxdepth 4 -type f | sort | head -n 100
             exit 1
           fi
 
-          find build/doc/html/autoapi -maxdepth 3 -type f -name index.html | sort | head -n 20
+          if [[ ! -f build/doc/html/api.html ]] || ! grep -q 'autoapi/dlite/index.html' build/doc/html/api.html; then
+            echo "ERROR: API landing page does not link to Python AutoAPI pages."
+            echo "---- api.html excerpt ----"
+            sed -n '460,620p' build/doc/html/api.html || true
+            exit 1
+          fi
+
+          find "${AUTOAPI_DIR}" -maxdepth 3 -type f -name index.html | sort | head -n 20
 
       - name: Determine deployment target
         run: |
