@@ -77,16 +77,18 @@ if plugin_root.exists():
         if plugin_dir.is_dir()
     ]
 
-# Prefer built package paths when present, but gracefully fall back to source
-# locations so Python API docs are still generated in partial build setups.
+# Prefer generated package sources in the build tree, but fall back to the
+# source tree when docs are built without full package generation.
 candidate_autoapi_dirs = [
     Path("@CMAKE_BINARY_DIR@/bindings/python/dlite"),
-    Path("@CMAKE_BINARY_DIR@/bindings/python"),
     Path("@CMAKE_SOURCE_DIR@/bindings/python"),
 ]
 
-autoapi_dirs = [str(p) for p in candidate_autoapi_dirs if p.exists()]
-if not autoapi_dirs:
+for autoapi_dir in candidate_autoapi_dirs:
+    if autoapi_dir.exists():
+        autoapi_dirs = [str(autoapi_dir)]
+        break
+else:
     autoapi_dirs = [str(candidate_autoapi_dirs[-1])]
 autoapi_type = "python"
 autoapi_file_patterns = ["*.py", "*.pyi"]
@@ -96,6 +98,8 @@ autoapi_ignore = [
     "*/tests/*",
     "*/scripts/*",
     "*/doxy2swig.py",
+    "*/share/dlite/*",
+    "*/python-*-plugins/*",
 ]
 autoapi_options = [
     "members",
