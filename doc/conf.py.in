@@ -77,17 +77,16 @@ if plugin_root.exists():
         if plugin_dir.is_dir()
     ]
 
-# Use source-tree Python modules for stable AutoAPI discovery across local and
-# CI builds. Generated build-tree locations can vary and have caused
-# non-readable/missing-path issues.
+# Prefer the built Python package tree (stable module namespace), but fall
+# back to source tree if docs are built without package generation.
+autoapi_build_dir = Path("@CMAKE_BINARY_DIR@/bindings/python/dlite")
 autoapi_source_dir = Path("@CMAKE_SOURCE_DIR@/bindings/python")
-if autoapi_source_dir.exists():
-    autoapi_dirs = [str(autoapi_source_dir)]
+if autoapi_build_dir.exists():
+    autoapi_dirs = [str(autoapi_build_dir)]
 else:
     autoapi_dirs = [str(autoapi_source_dir)]
 autoapi_type = "python"
 autoapi_file_patterns = ["*.py", "*.pyi"]
-autoapi_root = "autoapi/python"
 autoapi_template_dir = "_templates/autoapi"
 autoapi_add_toctree_entry = False
 autoapi_ignore = [

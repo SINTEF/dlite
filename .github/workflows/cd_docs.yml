@@ -79,6 +79,23 @@ jobs:
         run: make
         working-directory: build
 
+      - name: Verify Python AutoAPI output
+        run: |
+          set -euo pipefail
+          if [[ ! -d build/doc/html/autoapi ]]; then
+            echo "ERROR: AutoAPI output directory build/doc/html/autoapi is missing."
+            exit 1
+          fi
+
+          AUTOAPI_INDEX_COUNT=$(find build/doc/html/autoapi -type f -name index.html | wc -l)
+          echo "Detected ${AUTOAPI_INDEX_COUNT} AutoAPI index page(s)."
+          if [[ "${AUTOAPI_INDEX_COUNT}" -lt 1 ]]; then
+            echo "ERROR: AutoAPI did not generate index pages."
+            exit 1
+          fi
+
+          find build/doc/html/autoapi -maxdepth 3 -type f -name index.html | sort | head -n 20
+
       - name: Determine deployment target
         run: |
           set -euo pipefail
