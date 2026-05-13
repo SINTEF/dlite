@@ -1,0 +1,869 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dlite-mapping-plugins &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/dlite-mapping-plugins';</script>
+    <script src="../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dlite-mapping" href="dlite-mapping.html" />
+    <link rel="prev" title="dlite-macros" href="dlite-macros.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/dlite-mapping-plugins.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/c-api/src/dlite-mapping-plugins.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dlite-mapping-plugins</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv46Mapper"><code class="docutils literal notranslate"><span class="pre">Mapper</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45Freer"><code class="docutils literal notranslate"><span class="pre">Freer</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_mapping_plugin_getPKc"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_mapping_plugin_init_iterP22DLiteMappingPluginIter"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_init_iter()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425dlite_mapping_plugin_nextP22DLiteMappingPluginIter"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_mapping_plugin_unloadPKc"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_unload()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv431dlite_mapping_plugin_unload_allv"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_unload_all()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_mapping_plugin_paths_getv"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_paths_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_mapping_plugin_pathsv"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_paths()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_mapping_plugin_path_stringv"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_mapping_plugin_path_insertiPKc"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_insert()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_mapping_plugin_path_appendPKc"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv433dlite_mapping_plugin_path_appendnPKc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_appendn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv438dlite_mapping_plugin_path_remove_indexi"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_remove_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418GetDLiteMappingAPI"><code class="docutils literal notranslate"><span class="pre">GetDLiteMappingAPI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422DLiteMappingPluginIter"><code class="docutils literal notranslate"><span class="pre">DLiteMappingPluginIter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N22DLiteMappingPluginIter4iterE"><code class="docutils literal notranslate"><span class="pre">DLiteMappingPluginIter::iter</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N22DLiteMappingPluginIter1nE"><code class="docutils literal notranslate"><span class="pre">DLiteMappingPluginIter::n</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N22DLiteMappingPluginIter4stopE"><code class="docutils literal notranslate"><span class="pre">DLiteMappingPluginIter::stop</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419_DLiteMappingPlugin"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin10output_uriE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::output_uri</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin6ninputE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::ninput</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin10input_urisE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::input_uris</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin6mapperE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::mapper</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin4costE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::cost</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin4dataE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::data</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dlite-mapping-plugins">
+<h1>dlite-mapping-plugins<a class="headerlink" href="#dlite-mapping-plugins" title="Link to this heading">#</a></h1>
+<p>Common API for all mapping plugins (internal). </p>
+<p>A DPite mapping plugin should be a shared library that defines the function <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">const</span> <span class="n">DLiteMappingPlugin</span> <span class="o">*</span>
+<span class="n">get_dlite_mapping_api</span><span class="p">(</span><span class="n">const</span> <span class="n">char</span> <span class="o">*</span><span class="n">name</span><span class="p">);</span>
+</pre></div>
+</div>
+ that returns a pointer to a struct with pointers to all functions provided by the plugin. The <code class="docutils literal notranslate"><span class="pre">name</span></code> is just a hint that plugins are free to ignore. It is used by mapping plugins that supports several different drivers, to select which api that should be returned.</p>
+<p>The mapping plugin search path is initialised from the environment variable <code class="docutils literal notranslate"><span class="pre">DLITE_MAPPING_PLUGIN_DIRS</span></code>. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-signatures-of-functions-defined-by-the-plugins.">Signatures of functions defined by the plugins.</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv46Mapper">
+<span id="_CPPv36Mapper"></span><span id="_CPPv26Mapper"></span><span id="Mapper"></span><span class="target" id="dlite-mapping-plugins_8h_1ab2810b51fc72a9f695e47bd081a51ab0"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Mapper</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteMappingPlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">api</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteInstance</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">instances</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv46Mapper" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a new instance obtained by mapping <code class="docutils literal notranslate"><span class="pre">instances</span></code>. Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv45Freer">
+<span id="_CPPv35Freer"></span><span id="_CPPv25Freer"></span><span id="Freer"></span><span class="target" id="dlite-mapping-plugins_8h_1af04a4662ac80a80e34c492fb2960a0c0"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">Freer</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="n"><span class="pre">DLiteMappingPlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">api</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv45Freer" title="Link to this definition">#</a><br /></dt>
+<dd><p>Releases internal resources associated with <code class="docutils literal notranslate"><span class="pre">api</span></code>. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-plugin-frontend">Plugin frontend</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv424dlite_mapping_plugin_getPKc">
+<span id="_CPPv324dlite_mapping_plugin_getPKc"></span><span id="_CPPv224dlite_mapping_plugin_getPKc"></span><span id="dlite_mapping_plugin_get__cCP"></span><span class="target" id="dlite-mapping-plugins_8h_1a98821837bb2cfda764561d228dc6a895"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteMappingPlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_get</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv424dlite_mapping_plugin_getPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a mapping plugin with the given name, or NULL if it cannot be found.</p>
+<p>If a plugin with the given name is registered, it is returned.</p>
+<p>Otherwise the plugin search path is checked for shared libraries matching <code class="docutils literal notranslate"><span class="pre">name.EXT</span></code> where <code class="docutils literal notranslate"><span class="pre">EXT</span></code> is the extension for shared library on the current platform (“dll” on Windows and “so” on Unix/Linux). If a plugin with the provided name is found, it is loaded, registered and returned.</p>
+<p>Otherwise the plugin search path is checked again, but this time for any shared library. If a plugin with the provided name is found, it is loaded, registered and returned.</p>
+<p>Otherwise NULL is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv430dlite_mapping_plugin_init_iterP22DLiteMappingPluginIter">
+<span id="_CPPv330dlite_mapping_plugin_init_iterP22DLiteMappingPluginIter"></span><span id="_CPPv230dlite_mapping_plugin_init_iterP22DLiteMappingPluginIter"></span><span id="dlite_mapping_plugin_init_iter__DLiteMappingPluginIterP"></span><span class="target" id="dlite-mapping-plugins_8h_1ad360131142d1f8033eada4841183fda4"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_init_iter</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv422DLiteMappingPluginIter" title="DLiteMappingPluginIter"><span class="n"><span class="pre">DLiteMappingPluginIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430dlite_mapping_plugin_init_iterP22DLiteMappingPluginIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Initiates a mapping plugin iterator. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv425dlite_mapping_plugin_nextP22DLiteMappingPluginIter">
+<span id="_CPPv325dlite_mapping_plugin_nextP22DLiteMappingPluginIter"></span><span id="_CPPv225dlite_mapping_plugin_nextP22DLiteMappingPluginIter"></span><span id="dlite_mapping_plugin_next__DLiteMappingPluginIterP"></span><span class="target" id="dlite-mapping-plugins_8h_1a7a19983d6c76ec2e2de457374a6a6130"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteMappingPlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_next</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv422DLiteMappingPluginIter" title="DLiteMappingPluginIter"><span class="n"><span class="pre">DLiteMappingPluginIter</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">iter</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv425dlite_mapping_plugin_nextP22DLiteMappingPluginIter" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the next registered mapping plugin or NULL if all plugins has been visited.</p>
+<p>Used for iterating over plugins. Plugins should not be registered or removed while iterating. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv427dlite_mapping_plugin_unloadPKc">
+<span id="_CPPv327dlite_mapping_plugin_unloadPKc"></span><span id="_CPPv227dlite_mapping_plugin_unloadPKc"></span><span id="dlite_mapping_plugin_unload__cCP"></span><span class="target" id="dlite-mapping-plugins_8h_1a9d1fbf50c527be379d4af8bd85da5243"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_unload</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv427dlite_mapping_plugin_unloadPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Unloads and unregisters mapping plugin with the given name.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">name</span></code> is NULL, <a class="reference internal" href="#dlite-mapping-plugins_8h_1a6735c657715d0a618e9c083f6035d1d7"><span class="std std-ref">dlite_mapping_plugin_unload_all()</span></a> is called.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv431dlite_mapping_plugin_unload_allv">
+<span id="_CPPv331dlite_mapping_plugin_unload_allv"></span><span id="_CPPv231dlite_mapping_plugin_unload_allv"></span><span id="dlite_mapping_plugin_unload_all__void"></span><span class="target" id="dlite-mapping-plugins_8h_1a6735c657715d0a618e9c083f6035d1d7"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_unload_all</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv431dlite_mapping_plugin_unload_allv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Unloads and unregisters all mappings. Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv430dlite_mapping_plugin_paths_getv">
+<span id="_CPPv330dlite_mapping_plugin_paths_getv"></span><span id="_CPPv230dlite_mapping_plugin_paths_getv"></span><span id="dlite_mapping_plugin_paths_get__void"></span><span class="target" id="dlite-mapping-plugins_8h_1abe32fb6a8cb31fd10b10ea02d3dc98b3"></span><a class="reference internal" href="utils/fileutils.html#_CPPv47FUPaths" title="FUPaths"><span class="n"><span class="pre">FUPaths</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_paths_get</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv430dlite_mapping_plugin_paths_getv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to the underlying <a class="reference internal" href="utils/fileutils.html#structFUPaths"><span class="std std-ref">FUPaths</span></a> object for storage plugins or NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv426dlite_mapping_plugin_pathsv">
+<span id="_CPPv326dlite_mapping_plugin_pathsv"></span><span id="_CPPv226dlite_mapping_plugin_pathsv"></span><span id="dlite_mapping_plugin_paths__void"></span><span class="target" id="dlite-mapping-plugins_8h_1a65ae4f1eb499825901f16764e69e2931"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_paths</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv426dlite_mapping_plugin_pathsv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a pointer to the current mapping plugin search path. It is initialised from the environment variable <code class="docutils literal notranslate"><span class="pre">DLITE_MAPPING_PLUGIN_DIRS</span></code>.</p>
+<p>Use <a class="reference internal" href="#dlite-mapping-plugins_8h_1afb6daa6d7714d2ddb597aed8dc107468"><span class="std std-ref">dlite_mapping_plugin_path_insert()</span></a>, <a class="reference internal" href="#dlite-mapping-plugins_8h_1ae50ad4c826f295417501b5d10c602fef"><span class="std std-ref">dlite_mapping_plugin_path_append()</span></a> and dlite_mapping_plugin_path_remove() to modify it. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv432dlite_mapping_plugin_path_stringv">
+<span id="_CPPv332dlite_mapping_plugin_path_stringv"></span><span id="_CPPv232dlite_mapping_plugin_path_stringv"></span><span id="dlite_mapping_plugin_path_string__void"></span><span class="target" id="dlite-mapping-plugins_8h_1ad151b22890242a860517fc94129509c6"></span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_path_string</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432dlite_mapping_plugin_path_stringv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns an allocated string with the content of <code class="docutils literal notranslate"><span class="pre">paths</span></code> formatted according to the current platform. See dlite_set_platform().</p>
+<p>Returns NULL on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv432dlite_mapping_plugin_path_insertiPKc">
+<span id="_CPPv332dlite_mapping_plugin_path_insertiPKc"></span><span id="_CPPv232dlite_mapping_plugin_path_insertiPKc"></span><span id="dlite_mapping_plugin_path_insert__i.cCP"></span><span class="target" id="dlite-mapping-plugins_8h_1afb6daa6d7714d2ddb597aed8dc107468"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_path_insert</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432dlite_mapping_plugin_path_insertiPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inserts <code class="docutils literal notranslate"><span class="pre">path</span></code> into the current search path at index <code class="docutils literal notranslate"><span class="pre">n</span></code>. If <code class="docutils literal notranslate"><span class="pre">n</span></code> is negative, it counts from the end of the search path (like Python).</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">n</span></code> is out of range, it is clipped.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv432dlite_mapping_plugin_path_appendPKc">
+<span id="_CPPv332dlite_mapping_plugin_path_appendPKc"></span><span id="_CPPv232dlite_mapping_plugin_path_appendPKc"></span><span id="dlite_mapping_plugin_path_append__cCP"></span><span class="target" id="dlite-mapping-plugins_8h_1ae50ad4c826f295417501b5d10c602fef"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_path_append</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv432dlite_mapping_plugin_path_appendPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Appends <code class="docutils literal notranslate"><span class="pre">path</span></code> into the current search path.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv433dlite_mapping_plugin_path_appendnPKc6size_t">
+<span id="_CPPv333dlite_mapping_plugin_path_appendnPKc6size_t"></span><span id="_CPPv233dlite_mapping_plugin_path_appendnPKc6size_t"></span><span id="dlite_mapping_plugin_path_appendn__cCP.s"></span><span class="target" id="dlite-mapping-plugins_8h_1a67c0ebd560225e9cf2d418d464312c2e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_path_appendn</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">path</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">n</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv433dlite_mapping_plugin_path_appendnPKc6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like <a class="reference internal" href="#dlite-mapping-plugins_8h_1ae50ad4c826f295417501b5d10c602fef"><span class="std std-ref">dlite_mapping_plugin_path_append()</span></a>, but appends at most the first <code class="docutils literal notranslate"><span class="pre">n</span></code> bytes of <code class="docutils literal notranslate"><span class="pre">path</span></code> to the current search path.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv438dlite_mapping_plugin_path_remove_indexi">
+<span id="_CPPv338dlite_mapping_plugin_path_remove_indexi"></span><span id="_CPPv238dlite_mapping_plugin_path_remove_indexi"></span><span id="dlite_mapping_plugin_path_remove_index__i"></span><span class="target" id="dlite-mapping-plugins_8h_1a6b37db5e90d533b4a6a28acb5b8c9d04"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_mapping_plugin_path_remove_index</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">index</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv438dlite_mapping_plugin_path_remove_indexi" title="Link to this definition">#</a><br /></dt>
+<dd><p>Removes path number <code class="docutils literal notranslate"><span class="pre">n</span></code> from current search path.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-typedefs">Typedefs</p>
+<dl class="cpp type">
+<dt class="sig sig-object cpp" id="_CPPv418GetDLiteMappingAPI">
+<span id="_CPPv318GetDLiteMappingAPI"></span><span id="_CPPv218GetDLiteMappingAPI"></span><span id="GetDLiteMappingAPI"></span><span class="target" id="dlite-mapping-plugins_8h_1abe24e277643c7bc48a1e9ed66635f244"></span><span class="k"><span class="pre">typedef</span></span><span class="w"> </span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="n"><span class="pre">DLiteMappingPlugin</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">(</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">GetDLiteMappingAPI</span></span></span><span class="p"><span class="pre">)</span></span><span class="p"><span class="pre">(</span></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n"><span class="pre">iter</span></span><span class="p"><span class="pre">)</span></span><a class="headerlink" href="#_CPPv418GetDLiteMappingAPI" title="Link to this definition">#</a><br /></dt>
+<dd><p>Prototype for function returning a pointer to a DLiteMappingPlugin or NULL on error.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">iter</span></code> argument is normally ignored. It is provided to support plugins exposing several APIs. If the plugin has more APIs to expose, it should increase the integer pointed to by <code class="docutils literal notranslate"><span class="pre">iter</span></code> by one. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv422DLiteMappingPluginIter">
+<span id="_CPPv322DLiteMappingPluginIter"></span><span id="_CPPv222DLiteMappingPluginIter"></span><span id="DLiteMappingPluginIter"></span><span class="target" id="structDLiteMappingPluginIter"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteMappingPluginIter</span></span></span><a class="headerlink" href="#_CPPv422DLiteMappingPluginIter" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dlite-mapping-plugins.h&gt;</em></div>
+<p>An iterator over all registered mapping plugins. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22DLiteMappingPluginIter4iterE">
+<span id="_CPPv3N22DLiteMappingPluginIter4iterE"></span><span id="_CPPv2N22DLiteMappingPluginIter4iterE"></span><span id="DLiteMappingPluginIter::iter__PluginIter"></span><span class="target" id="structDLiteMappingPluginIter_1acbce43275c962218de5da375a89003d7"></span><a class="reference internal" href="utils/plugin.html#_CPPv410PluginIter" title="PluginIter"><span class="n"><span class="pre">PluginIter</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">iter</span></span></span><a class="headerlink" href="#_CPPv4N22DLiteMappingPluginIter4iterE" title="Link to this definition">#</a><br /></dt>
+<dd><p>plugin iterator </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22DLiteMappingPluginIter1nE">
+<span id="_CPPv3N22DLiteMappingPluginIter1nE"></span><span id="_CPPv2N22DLiteMappingPluginIter1nE"></span><span id="DLiteMappingPluginIter::n__i"></span><span class="target" id="structDLiteMappingPluginIter_1a3169556e64011b99db439b6d66704406"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">n</span></span></span><a class="headerlink" href="#_CPPv4N22DLiteMappingPluginIter1nE" title="Link to this definition">#</a><br /></dt>
+<dd><p>counter for python mappings </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N22DLiteMappingPluginIter4stopE">
+<span id="_CPPv3N22DLiteMappingPluginIter4stopE"></span><span id="_CPPv2N22DLiteMappingPluginIter4stopE"></span><span id="DLiteMappingPluginIter::stop__i"></span><span class="target" id="structDLiteMappingPluginIter_1a2f9c34965f33a9a333b539dfb5ab1016"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">stop</span></span></span><a class="headerlink" href="#_CPPv4N22DLiteMappingPluginIter4stopE" title="Link to this definition">#</a><br /></dt>
+<dd><p>set to non-zero if no more python mappings are available </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv419_DLiteMappingPlugin">
+<span id="_CPPv319_DLiteMappingPlugin"></span><span id="_CPPv219_DLiteMappingPlugin"></span><span id="_DLiteMappingPlugin"></span><span class="target" id="struct__DLiteMappingPlugin"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">_DLiteMappingPlugin</span></span></span><a class="headerlink" href="#_CPPv419_DLiteMappingPlugin" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;dlite-mapping-plugins.h&gt;</em></div>
+<p>Struct with the name and pointers to function for a plugin. All plugins should define themselves by defining an intance of DLiteMappingPlugin.</p>
+<p>The cost of a mapping is an integer greater than (or equal to) zero. Mappings with low costs are preferred in front of mappings with high costs. The default cost for a mapping is 20, while the cost for the trivial mapping to an existing input is zero.</p>
+<p>A struct with data and function pointers provided by a plugin. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteMappingPlugin10output_uriE">
+<span id="_CPPv3N19_DLiteMappingPlugin10output_uriE"></span><span id="_CPPv2N19_DLiteMappingPlugin10output_uriE"></span><span id="_DLiteMappingPlugin::output_uri__cCP"></span><span class="target" id="struct__DLiteMappingPlugin_1a88367d7ff20c1b07e3b61fd34fb7f470"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">output_uri</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteMappingPlugin10output_uriE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Output metedata URI </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteMappingPlugin6ninputE">
+<span id="_CPPv3N19_DLiteMappingPlugin6ninputE"></span><span id="_CPPv2N19_DLiteMappingPlugin6ninputE"></span><span id="_DLiteMappingPlugin::ninput__i"></span><span class="target" id="struct__DLiteMappingPlugin_1ac973a829776907b6e81a46eff4f393f0"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">ninput</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteMappingPlugin6ninputE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Number of inputs </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteMappingPlugin10input_urisE">
+<span id="_CPPv3N19_DLiteMappingPlugin10input_urisE"></span><span id="_CPPv2N19_DLiteMappingPlugin10input_urisE"></span><span id="_DLiteMappingPlugin::input_uris__cCPP"></span><span class="target" id="struct__DLiteMappingPlugin_1a8ac9dacc83d9761820ec8921302782e1"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">input_uris</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteMappingPlugin10input_urisE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Array of input metedata URIs </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteMappingPlugin6mapperE">
+<span id="_CPPv3N19_DLiteMappingPlugin6mapperE"></span><span id="_CPPv2N19_DLiteMappingPlugin6mapperE"></span><span id="_DLiteMappingPlugin::mapper__Mapper"></span><span class="target" id="struct__DLiteMappingPlugin_1aef1b728c6d6efcfbe1a3613ce850ad49"></span><a class="reference internal" href="#_CPPv46Mapper" title="Mapper"><span class="n"><span class="pre">Mapper</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mapper</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteMappingPlugin6mapperE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Pointer to mapping function </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteMappingPlugin4costE">
+<span id="_CPPv3N19_DLiteMappingPlugin4costE"></span><span id="_CPPv2N19_DLiteMappingPlugin4costE"></span><span id="_DLiteMappingPlugin::cost__i"></span><span class="target" id="struct__DLiteMappingPlugin_1a7431262c9b3f95dde67d2b0b5889dd8a"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">cost</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteMappingPlugin4costE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Cost of this mapping. Default: 20 </p>
+</dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N19_DLiteMappingPlugin4dataE">
+<span id="_CPPv3N19_DLiteMappingPlugin4dataE"></span><span id="_CPPv2N19_DLiteMappingPlugin4dataE"></span><span id="_DLiteMappingPlugin::data__voidP"></span><span class="target" id="struct__DLiteMappingPlugin_1a537fee9f2007dc7269f9eea33c34bcf8"></span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">data</span></span></span><a class="headerlink" href="#_CPPv4N19_DLiteMappingPlugin4dataE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Internal data used by the mapper </p>
+</dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dlite-macros.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">dlite-macros</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dlite-mapping.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">dlite-mapping</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv46Mapper"><code class="docutils literal notranslate"><span class="pre">Mapper</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45Freer"><code class="docutils literal notranslate"><span class="pre">Freer</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv424dlite_mapping_plugin_getPKc"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_mapping_plugin_init_iterP22DLiteMappingPluginIter"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_init_iter()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv425dlite_mapping_plugin_nextP22DLiteMappingPluginIter"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_next()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv427dlite_mapping_plugin_unloadPKc"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_unload()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv431dlite_mapping_plugin_unload_allv"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_unload_all()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv430dlite_mapping_plugin_paths_getv"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_paths_get()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv426dlite_mapping_plugin_pathsv"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_paths()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_mapping_plugin_path_stringv"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_string()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_mapping_plugin_path_insertiPKc"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_insert()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv432dlite_mapping_plugin_path_appendPKc"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_append()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv433dlite_mapping_plugin_path_appendnPKc6size_t"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_appendn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv438dlite_mapping_plugin_path_remove_indexi"><code class="docutils literal notranslate"><span class="pre">dlite_mapping_plugin_path_remove_index()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv418GetDLiteMappingAPI"><code class="docutils literal notranslate"><span class="pre">GetDLiteMappingAPI</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv422DLiteMappingPluginIter"><code class="docutils literal notranslate"><span class="pre">DLiteMappingPluginIter</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N22DLiteMappingPluginIter4iterE"><code class="docutils literal notranslate"><span class="pre">DLiteMappingPluginIter::iter</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N22DLiteMappingPluginIter1nE"><code class="docutils literal notranslate"><span class="pre">DLiteMappingPluginIter::n</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N22DLiteMappingPluginIter4stopE"><code class="docutils literal notranslate"><span class="pre">DLiteMappingPluginIter::stop</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv419_DLiteMappingPlugin"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin10output_uriE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::output_uri</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin6ninputE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::ninput</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin10input_urisE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::input_uris</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin6mapperE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::mapper</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin4costE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::cost</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N19_DLiteMappingPlugin4dataE"><code class="docutils literal notranslate"><span class="pre">_DLiteMappingPlugin::data</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

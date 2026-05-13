@@ -1,0 +1,948 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dlite-errors &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/dlite-errors';</script>
+    <script src="../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="dlite-getlicense" href="dlite-getlicense.html" />
+    <link rel="prev" title="dlite-entity" href="dlite-entity.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/dlite-errors.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/c-api/src/dlite-errors.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dlite-errors</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode12dliteSuccessE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteSuccess</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode17dliteUnknownErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteUnknownError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode12dliteIOErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteIOError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode17dliteRuntimeErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteRuntimeError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode15dliteIndexErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteIndexError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode14dliteTypeErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteTypeError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode24dliteDivisionByZeroErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteDivisionByZeroError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode18dliteOverflowErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteOverflowError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteSyntaxErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteSyntaxError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode15dliteValueErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteValueError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteSystemErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteSystemError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode19dliteAttributeErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteAttributeError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteMemoryErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMemoryError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode23dliteNullReferenceErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteNullReferenceError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode12dliteOSErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteOSError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode13dliteKeyErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteKeyError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode14dliteNameErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteNameError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteLookupErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteLookupError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode15dliteParseErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteParseError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode20dlitePermissionErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dlitePermissionError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode19dliteSerialiseErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteSerialiseError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode21dliteUnsupportedErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteUnsupportedError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteVerifyErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteVerifyError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode26dliteInconsistentDataErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteInconsistentDataError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode25dliteInvalidMetadataErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteInvalidMetadataError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode21dliteStorageOpenErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteStorageOpenError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode21dliteStorageLoadErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteStorageLoadError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode21dliteStorageSaveErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteStorageSaveError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteOptionErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteOptionError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode25dliteMissingInstanceErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMissingInstanceError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode25dliteMissingMetadataErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMissingMetadataError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode23dliteMetadataExistErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMetadataExistError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode17dliteMappingErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMappingError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode18dliteProtocolErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteProtocolError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dlitePythonErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dlitePythonError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode17dliteTimeoutErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteTimeoutError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode14dliteLastErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteLastError</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_errname12DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">dlite_errname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_errdescr12DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">dlite_errdescr()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_errcodePKc"><code class="docutils literal notranslate"><span class="pre">dlite_errcode()</span></code></a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dlite-errors">
+<h1>dlite-errors<a class="headerlink" href="#dlite-errors" title="Link to this heading">#</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-enums">Enums</p>
+<dl class="cpp enum">
+<dt class="sig sig-object cpp" id="_CPPv412DLiteErrCode">
+<span id="_CPPv312DLiteErrCode"></span><span id="_CPPv212DLiteErrCode"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bf"></span><span class="k"><span class="pre">enum</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">DLiteErrCode</span></span></span><a class="headerlink" href="#_CPPv412DLiteErrCode" title="Link to this definition">#</a><br /></dt>
+<dd><p>DLite error codes </p>
+<p><em>Values:</em></p>
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode12dliteSuccessE">
+<span id="_CPPv3N12DLiteErrCode12dliteSuccessE"></span><span id="_CPPv2N12DLiteErrCode12dliteSuccessE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa4bd637e9647720be97166ed6a1ad4f11"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteSuccess</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode12dliteSuccessE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Success </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode17dliteUnknownErrorE">
+<span id="_CPPv3N12DLiteErrCode17dliteUnknownErrorE"></span><span id="_CPPv2N12DLiteErrCode17dliteUnknownErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa3c6d6b0b00f7906ecd996d9296b775fd"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteUnknownError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode17dliteUnknownErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Generic unknown error </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode12dliteIOErrorE">
+<span id="_CPPv3N12DLiteErrCode12dliteIOErrorE"></span><span id="_CPPv2N12DLiteErrCode12dliteIOErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa4c6b2e7d58201423f468eac65475708a"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteIOError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode12dliteIOErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>File input/output error </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode17dliteRuntimeErrorE">
+<span id="_CPPv3N12DLiteErrCode17dliteRuntimeErrorE"></span><span id="_CPPv2N12DLiteErrCode17dliteRuntimeErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa1bf131820ffcf14cac62ca6e084864ea"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteRuntimeError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode17dliteRuntimeErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Unspecified run-time error </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode15dliteIndexErrorE">
+<span id="_CPPv3N12DLiteErrCode15dliteIndexErrorE"></span><span id="_CPPv2N12DLiteErrCode15dliteIndexErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa0e9b09adfeae8ecd409a3ba678cc69a3"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteIndexError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode15dliteIndexErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Index out of range. Ex: int x[]={1,2,3}; x[7]; </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode14dliteTypeErrorE">
+<span id="_CPPv3N12DLiteErrCode14dliteTypeErrorE"></span><span id="_CPPv2N12DLiteErrCode14dliteTypeErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfad2e0fd351f65c0ba649f75aca40c2ad6"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteTypeError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode14dliteTypeErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inappropriate argument type </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode24dliteDivisionByZeroErrorE">
+<span id="_CPPv3N12DLiteErrCode24dliteDivisionByZeroErrorE"></span><span id="_CPPv2N12DLiteErrCode24dliteDivisionByZeroErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa1be4f3f654e3a64357150e8af6342983"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteDivisionByZeroError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode24dliteDivisionByZeroErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Division by zero </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode18dliteOverflowErrorE">
+<span id="_CPPv3N12DLiteErrCode18dliteOverflowErrorE"></span><span id="_CPPv2N12DLiteErrCode18dliteOverflowErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfab90ef20db67d5b0dd95bb1180bf6cc70"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteOverflowError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode18dliteOverflowErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Result too large to be represented </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode16dliteSyntaxErrorE">
+<span id="_CPPv3N12DLiteErrCode16dliteSyntaxErrorE"></span><span id="_CPPv2N12DLiteErrCode16dliteSyntaxErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa797f7ae0778253fafa23c417eba9edb5"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteSyntaxError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode16dliteSyntaxErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Invalid syntax </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode15dliteValueErrorE">
+<span id="_CPPv3N12DLiteErrCode15dliteValueErrorE"></span><span id="_CPPv2N12DLiteErrCode15dliteValueErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa19b7e9f657552a3aaf04fe89f8ae4c62"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteValueError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode15dliteValueErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inappropriate argument value </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode16dliteSystemErrorE">
+<span id="_CPPv3N12DLiteErrCode16dliteSystemErrorE"></span><span id="_CPPv2N12DLiteErrCode16dliteSystemErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa165da88f7c407093d55570256b6da6d4"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteSystemError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode16dliteSystemErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Internal error in DLite. Please report this </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode19dliteAttributeErrorE">
+<span id="_CPPv3N12DLiteErrCode19dliteAttributeErrorE"></span><span id="_CPPv2N12DLiteErrCode19dliteAttributeErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa4c89dbd51dc680eb7c0c0471b2091e13"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteAttributeError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode19dliteAttributeErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Attribute or variable not found </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode16dliteMemoryErrorE">
+<span id="_CPPv3N12DLiteErrCode16dliteMemoryErrorE"></span><span id="_CPPv2N12DLiteErrCode16dliteMemoryErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa6ba4e42b651652e4f72d28223d438a0e"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteMemoryError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode16dliteMemoryErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Out of memory </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode23dliteNullReferenceErrorE">
+<span id="_CPPv3N12DLiteErrCode23dliteNullReferenceErrorE"></span><span id="_CPPv2N12DLiteErrCode23dliteNullReferenceErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfabbb7f0a135cfd06559adcd6f75cbbffa"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteNullReferenceError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode23dliteNullReferenceErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Unexpected NULL argument </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode12dliteOSErrorE">
+<span id="_CPPv3N12DLiteErrCode12dliteOSErrorE"></span><span id="_CPPv2N12DLiteErrCode12dliteOSErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfacd77d76018e521c37330abf39a97f951"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteOSError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode12dliteOSErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Error calling a system function </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode13dliteKeyErrorE">
+<span id="_CPPv3N12DLiteErrCode13dliteKeyErrorE"></span><span id="_CPPv2N12DLiteErrCode13dliteKeyErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa1db20fd4bd89ead1d4a2c08fc2cfc9d4"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteKeyError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode13dliteKeyErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Mapping key not found </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode14dliteNameErrorE">
+<span id="_CPPv3N12DLiteErrCode14dliteNameErrorE"></span><span id="_CPPv2N12DLiteErrCode14dliteNameErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa2c1debcadc2784a5927c5b3af7aeebed"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteNameError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode14dliteNameErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Name not found </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode16dliteLookupErrorE">
+<span id="_CPPv3N12DLiteErrCode16dliteLookupErrorE"></span><span id="_CPPv2N12DLiteErrCode16dliteLookupErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfae354f8f25727516de36415653c71c4a3"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteLookupError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode16dliteLookupErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Error looking up item </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode15dliteParseErrorE">
+<span id="_CPPv3N12DLiteErrCode15dliteParseErrorE"></span><span id="_CPPv2N12DLiteErrCode15dliteParseErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa3f0107e1405d8d0b866cfc3a76ec0973"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteParseError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode15dliteParseErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Cannot parse input </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode20dlitePermissionErrorE">
+<span id="_CPPv3N12DLiteErrCode20dlitePermissionErrorE"></span><span id="_CPPv2N12DLiteErrCode20dlitePermissionErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfaf8f8c82043d8ab29357a86c1b0b3112a"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlitePermissionError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode20dlitePermissionErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Not enough permissions </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode19dliteSerialiseErrorE">
+<span id="_CPPv3N12DLiteErrCode19dliteSerialiseErrorE"></span><span id="_CPPv2N12DLiteErrCode19dliteSerialiseErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa35859a1396243268aea8539768d935b8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteSerialiseError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode19dliteSerialiseErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Cannot serialise output </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode21dliteUnsupportedErrorE">
+<span id="_CPPv3N12DLiteErrCode21dliteUnsupportedErrorE"></span><span id="_CPPv2N12DLiteErrCode21dliteUnsupportedErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa288a1a90ad367bbd4df10c269da8a96b"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteUnsupportedError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode21dliteUnsupportedErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Feature is not implemented/supported </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode16dliteVerifyErrorE">
+<span id="_CPPv3N12DLiteErrCode16dliteVerifyErrorE"></span><span id="_CPPv2N12DLiteErrCode16dliteVerifyErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfad6f8bce79db884eed51404fb18ff2bc9"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteVerifyError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode16dliteVerifyErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Object cannot be verified </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode26dliteInconsistentDataErrorE">
+<span id="_CPPv3N12DLiteErrCode26dliteInconsistentDataErrorE"></span><span id="_CPPv2N12DLiteErrCode26dliteInconsistentDataErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfafd2c753be95362a8dd7717deb4eea311"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteInconsistentDataError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode26dliteInconsistentDataErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Inconsistent data </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode25dliteInvalidMetadataErrorE">
+<span id="_CPPv3N12DLiteErrCode25dliteInvalidMetadataErrorE"></span><span id="_CPPv2N12DLiteErrCode25dliteInvalidMetadataErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa3d4b578cf40f4cadcb961b2b09adafe9"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteInvalidMetadataError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode25dliteInvalidMetadataErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Invalid metadata </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode21dliteStorageOpenErrorE">
+<span id="_CPPv3N12DLiteErrCode21dliteStorageOpenErrorE"></span><span id="_CPPv2N12DLiteErrCode21dliteStorageOpenErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa1a6f5bad306233aa931d93cca391ade8"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteStorageOpenError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode21dliteStorageOpenErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Cannot open storage plugin </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode21dliteStorageLoadErrorE">
+<span id="_CPPv3N12DLiteErrCode21dliteStorageLoadErrorE"></span><span id="_CPPv2N12DLiteErrCode21dliteStorageLoadErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa0b8534c3186adc19698c0ff101ac5422"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteStorageLoadError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode21dliteStorageLoadErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Cannot load storage plugin </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode21dliteStorageSaveErrorE">
+<span id="_CPPv3N12DLiteErrCode21dliteStorageSaveErrorE"></span><span id="_CPPv2N12DLiteErrCode21dliteStorageSaveErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa593aa6b6c370b521a1601ce9bee84640"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteStorageSaveError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode21dliteStorageSaveErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Cannot save storage plugin </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode16dliteOptionErrorE">
+<span id="_CPPv3N12DLiteErrCode16dliteOptionErrorE"></span><span id="_CPPv2N12DLiteErrCode16dliteOptionErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa684eaf2fce59d6cb11b3bc9a8d4e40a4"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteOptionError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode16dliteOptionErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Invalid storage plugin option </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode25dliteMissingInstanceErrorE">
+<span id="_CPPv3N12DLiteErrCode25dliteMissingInstanceErrorE"></span><span id="_CPPv2N12DLiteErrCode25dliteMissingInstanceErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa5df94d92a3356669e210f939b0ef6244"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteMissingInstanceError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode25dliteMissingInstanceErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>No instance with given id can be found </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode25dliteMissingMetadataErrorE">
+<span id="_CPPv3N12DLiteErrCode25dliteMissingMetadataErrorE"></span><span id="_CPPv2N12DLiteErrCode25dliteMissingMetadataErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa3ea0a1c35317b688462ea05c1f784cc1"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteMissingMetadataError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode25dliteMissingMetadataErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>No metadata with given id can be found </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode23dliteMetadataExistErrorE">
+<span id="_CPPv3N12DLiteErrCode23dliteMetadataExistErrorE"></span><span id="_CPPv2N12DLiteErrCode23dliteMetadataExistErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa228c695eb660b3755fa678bf07c8ce2f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteMetadataExistError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode23dliteMetadataExistErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Metadata with given id already exists </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode17dliteMappingErrorE">
+<span id="_CPPv3N12DLiteErrCode17dliteMappingErrorE"></span><span id="_CPPv2N12DLiteErrCode17dliteMappingErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa7ed786baad1caeb28b466b7358dca62f"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteMappingError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode17dliteMappingErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Error in instance mappings </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode18dliteProtocolErrorE">
+<span id="_CPPv3N12DLiteErrCode18dliteProtocolErrorE"></span><span id="_CPPv2N12DLiteErrCode18dliteProtocolErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa61ac79faddb90fc8614bb184163e3b6d"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteProtocolError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode18dliteProtocolErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Error in a protocol plugin </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode16dlitePythonErrorE">
+<span id="_CPPv3N12DLiteErrCode16dlitePythonErrorE"></span><span id="_CPPv2N12DLiteErrCode16dlitePythonErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfad6ca743436f7f7076c0e9eb766883d06"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlitePythonError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode16dlitePythonErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Error calling Python API </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode17dliteTimeoutErrorE">
+<span id="_CPPv3N12DLiteErrCode17dliteTimeoutErrorE"></span><span id="_CPPv2N12DLiteErrCode17dliteTimeoutErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfa6dc5d595f107ec8d79b2e704aaad4eb5"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteTimeoutError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode17dliteTimeoutErrorE" title="Link to this definition">#</a><br /></dt>
+<dd><p>Raised when a function times out </p>
+</dd></dl>
+
+<dl class="cpp enumerator">
+<dt class="sig sig-object cpp" id="_CPPv4N12DLiteErrCode14dliteLastErrorE">
+<span id="_CPPv3N12DLiteErrCode14dliteLastErrorE"></span><span id="_CPPv2N12DLiteErrCode14dliteLastErrorE"></span><span class="target" id="dlite-errors_8h_1a0255aba44713c69ab62b7d212f4e15bfaa686a97f2c41228c892ccd5f9f545166"></span><span class="k"><span class="pre">enumerator</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dliteLastError</span></span></span><a class="headerlink" href="#_CPPv4N12DLiteErrCode14dliteLastErrorE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413dlite_errname12DLiteErrCode">
+<span id="_CPPv313dlite_errname12DLiteErrCode"></span><span id="_CPPv213dlite_errname12DLiteErrCode"></span><span id="dlite_errname__DLiteErrCode"></span><span class="target" id="dlite-errors_8h_1aca8b53bdd3d62830307f43ec298a5754"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_errname</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412DLiteErrCode" title="DLiteErrCode"><span class="n"><span class="pre">DLiteErrCode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">code</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413dlite_errname12DLiteErrCode" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the name corresponding to error code </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414dlite_errdescr12DLiteErrCode">
+<span id="_CPPv314dlite_errdescr12DLiteErrCode"></span><span id="_CPPv214dlite_errdescr12DLiteErrCode"></span><span id="dlite_errdescr__DLiteErrCode"></span><span class="target" id="dlite-errors_8h_1adb3f06d166a634874d197921118650c8"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">dlite_errdescr</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv412DLiteErrCode" title="DLiteErrCode"><span class="n"><span class="pre">DLiteErrCode</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">code</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414dlite_errdescr12DLiteErrCode" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns a description of the corresponding to error code </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413dlite_errcodePKc">
+<span id="_CPPv313dlite_errcodePKc"></span><span id="_CPPv213dlite_errcodePKc"></span><span id="dlite_errcode__cCP"></span><span class="target" id="dlite-errors_8h_1a65adf34e576e230c3758d453e328159e"></span><a class="reference internal" href="#_CPPv412DLiteErrCode" title="DLiteErrCode"><span class="n"><span class="pre">DLiteErrCode</span></span></a><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">dlite_errcode</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">name</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413dlite_errcodePKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return DLite error code corresponding to <code class="docutils literal notranslate"><span class="pre">name</span></code>. Unknown names will return <code class="docutils literal notranslate"><span class="pre">dliteUnknownError</span></code>. </p>
+</dd></dl>
+
+</div>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="dlite-entity.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">dlite-entity</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="dlite-getlicense.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">dlite-getlicense</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode12dliteSuccessE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteSuccess</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode17dliteUnknownErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteUnknownError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode12dliteIOErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteIOError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode17dliteRuntimeErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteRuntimeError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode15dliteIndexErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteIndexError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode14dliteTypeErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteTypeError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode24dliteDivisionByZeroErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteDivisionByZeroError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode18dliteOverflowErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteOverflowError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteSyntaxErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteSyntaxError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode15dliteValueErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteValueError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteSystemErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteSystemError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode19dliteAttributeErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteAttributeError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteMemoryErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMemoryError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode23dliteNullReferenceErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteNullReferenceError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode12dliteOSErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteOSError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode13dliteKeyErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteKeyError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode14dliteNameErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteNameError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteLookupErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteLookupError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode15dliteParseErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteParseError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode20dlitePermissionErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dlitePermissionError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode19dliteSerialiseErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteSerialiseError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode21dliteUnsupportedErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteUnsupportedError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteVerifyErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteVerifyError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode26dliteInconsistentDataErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteInconsistentDataError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode25dliteInvalidMetadataErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteInvalidMetadataError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode21dliteStorageOpenErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteStorageOpenError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode21dliteStorageLoadErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteStorageLoadError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode21dliteStorageSaveErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteStorageSaveError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dliteOptionErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteOptionError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode25dliteMissingInstanceErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMissingInstanceError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode25dliteMissingMetadataErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMissingMetadataError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode23dliteMetadataExistErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMetadataExistError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode17dliteMappingErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteMappingError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode18dliteProtocolErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteProtocolError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode16dlitePythonErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dlitePythonError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode17dliteTimeoutErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteTimeoutError</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N12DLiteErrCode14dliteLastErrorE"><code class="docutils literal notranslate"><span class="pre">DLiteErrCode::dliteLastError</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_errname12DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">dlite_errname()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414dlite_errdescr12DLiteErrCode"><code class="docutils literal notranslate"><span class="pre">dlite_errdescr()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413dlite_errcodePKc"><code class="docutils literal notranslate"><span class="pre">dlite_errcode()</span></code></a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

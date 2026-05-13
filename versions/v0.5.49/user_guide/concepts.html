@@ -1,0 +1,934 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>DLite Concepts &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=5029451f"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/concepts';</script>
+    <script src="../_static/version-switcher.js"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Representing a datamodel" href="datamodels.html" />
+    <link rel="prev" title="User Guide" href="index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">User Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../c-api/src/utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fuser_guide/concepts.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/user_guide/concepts.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>DLite Concepts</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datamodel-hierarchy">Datamodel hierarchy</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-models">Data models</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uniqueness-immutability">Uniqueness &amp; immutability</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-model-semantics">Data model semantics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dimension">Dimension</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#property">Property</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relation">Relation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#identifiers">Identifiers</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="dlite-concepts">
+<h1>DLite Concepts<a class="headerlink" href="#dlite-concepts" title="Link to this heading">#</a></h1>
+<p>DLite is a lightweight data-centric framework for semantic interoperability.</p>
+<p>The core of DLite is a framework for formalised representation of data
+described by data models (also called metadata or entities).
+On top of this, DLite has a plugin system for various representations of
+the data in different formats and storages, as well as bindings to popular
+languages like Python, mappings to ontological concepts for enhanced
+semantics and a set of tools.</p>
+<p>DLite is a C implementation of the <a class="reference internal" href="history.html"><span class="std std-doc">SINTEF Open Framework and Tools
+(SOFT)</span></a>, which is a set of concepts and tools for using data
+models to efficiently describe and work with scientific data.</p>
+<p>The main components of DLite are shown in Figure 1, including bindings
+to several programming languages, tools, the plugin framework for
+storages, and mappings.</p>
+<p><img alt="DLite Architecture" src="../_images/architecture.svg" /></p>
+<p><em><strong>Figure 1.</strong> DLite Architecture.</em></p>
+<p>DLite contains a core library, implementing a simple, but powerful
+datamodel-based framework for semantic interoperability.
+On top of this, it implements a set of bindings, storages, mappings
+(using <a class="reference external" href="https://github.com/EMMC-ASBL/tripper">tripper</a>) and tools.
+The library also comes with a set of interfaces (API) to create
+extensions and custom plugins.</p>
+<p>DLite currently provides bindings with well-documented APIs to Python,
+C and Fortran.
+For C and Fortran it provides tools for code generation for easy and
+efficient integration into simulation software.
+The Python bindings are dynamic in nature and provide a simple way to
+interact with semantic data from Python.</p>
+<p>It also provides a plugin architecture for storages and mappings and
+comes with a set of generic storages.
+The plugins can be written either in C or Python and are available in any
+of the bindings (including C and Fortran) due to the embedded Python
+interpreter.</p>
+<p>The main approach to developing software with DLite is to
+incrementally describe the domain of the software using data models
+(see below).
+The data models can represent different elements of the software, and
+be used in handling I/O as well as in code generation and
+documentation.
+Data models can also be used for annotating data and data sets.
+This might be useful in cases where for instance the origin of the
+data, license and ownership are of importance.</p>
+<p>Since any complex software will have many data models and often multiple
+instances of the same data model, DLite allows for creating collections of
+data models with defined relationships.</p>
+<p>An important idea is that software may be written is such way that
+business logic is handled by the codebase, while I/O, file-formats,
+version handling, data import/export and interoperability can be
+handled by reusable components in the DLite-framework, thus reducing
+risk and development time.</p>
+<section id="datamodel-hierarchy">
+<h2>Datamodel hierarchy<a class="headerlink" href="#datamodel-hierarchy" title="Link to this heading">#</a></h2>
+<p><img alt="Datamodel hierarchy" src="../_images/datamodel-hierarchy.svg" /></p>
+<p><em><strong>Figure 2.</strong> Datamodel hierarchy.
+The instances colored orange are predefined, while the other may be defined by the user.
+Data instances 5 and 6 are what we normally will call a collection.</em></p>
+<p>Figure 2 shows the datamodel hierarchy implemented in DLite.
+As a user, you will almost always deal with only data models or data
+instances, but the hierarchy gives DLite a strong and theoretically
+well-defined schema.</p>
+<p>An <em>instance</em> in DLite is a formal representation of a dataset.  It is
+called an instance, because it is an instance of a data model.
+This is similar to instances of classes in object oriented programming.</p>
+<p>In DLite we often say that an instance is described by its data model
+(also called entity for historical reasons).
+The DLite data models are themselves formalised and described by their metadata.
+Hence, data models are instances, too.</p>
+<p>Data models are instances of the <em>EntitySchema</em>.
+The <em>EntitySchema</em> is an instance of the <em>BasicMetadataSchema</em>, which is an
+instance of itself (meaning that it can be used to describe itself).
+Hence, in DLite <strong>everything is an instance</strong>.  This has a practical
+implication that the API for instances can be applied to all data models
+as well.  Since the BasicMetadataSchema can describe itself, no more
+abstraction levels are needed, making the DLite metadata schema
+complete and well-defined.</p>
+<p>From Figure 2, one can also see that <em><a class="reference internal" href="collections.html"><span class="std std-doc">collections</span></a></em> are simply
+instances of the <em>CollectionEntity</em>.</p>
+<p>In DLite all instances that describe other instances (of a lower abstraction
+level) are called <em>metadata</em>.</p>
+<p>Compared to ontologies, <em>data instances</em> correspond to OWL individuals
+while <em>data models</em> correspond to OWL classes.
+OWL, which is based on first order logic, does not have concepts corresponding
+to the higher abstraction levels of EntitySchema and BasicMetadataSchema.</p>
+<p>A (so far unexplored possibility) with such a datamodel hierarchy is
+that it can enable cross-platform semantic interoperability between
+independent systems that describe their datamodel hierarchies using a
+common BasicMetadataSchema.
+Of course, this requires a common agreement on the BasicMetadataSchema.</p>
+<section id="data-models">
+<h3>Data models<a class="headerlink" href="#data-models" title="Link to this heading">#</a></h3>
+<p>A data model contains information about the data that constitutes the
+state of the object it describes.
+The data model does not contain the actual data, but describes what the
+different data fields are, in terms of name, data types, units,
+dimensionality etc.
+Information about data is often called metadata.
+Formal metadata enables for the correct interpretation of a set of
+data, which otherwise would be unreadable.</p>
+<p>An example of a data model is ‘Atom’, which can be defined as something
+that has a position, an atomic number (which characterizes the
+chemical element), mass, charge, etc.
+Another example of a completely different kind of data model can be a data
+reference-data model with properties such as name, description, license,
+access-url, media-type, format, etc. The first data model is suitable as
+an object in a simulation code, while the latter is more suitable for
+a data catalog distribution description (e.g. <a class="reference external" href="https://www.w3.org/TR/vocab-dcat-3/#Class:Distribution">dcat:Distribution</a>).
+Data models allows for describing many aspects of the domain.
+While each data model describes a single unit of information, a set of
+data models can describe the complete domain.</p>
+<section id="uniqueness-immutability">
+<h4>Uniqueness &amp; immutability<a class="headerlink" href="#uniqueness-immutability" title="Link to this heading">#</a></h4>
+<p>To ensure consistency, a data model (or metadata) should never be
+changed once published.
+They are uniquely identified by their <em>URI</em>, which has 3 separate
+parts: a namespace, a version number and a name.
+An data model named ‘Particle’ is unlikely to have the same meaning and
+the set of parameters across all domains.
+In particle physics, it would constitute matter and
+radiation, while in other fields the term ‘Particle’ can be a general
+term to describe a small inclusion or innoculant.
+For this reason data models have namespaces, similar to how
+vocabularies are defined in OWL.
+The version number is a pragmatic solution to handle how properties of
+a data model might evolve during the development process.
+In order to handle different versions of a software, the data model
+version number can be used to identify the necessary transformation
+(instance mappings) between two versions of a data model.</p>
+<p>For example, the URI for the EntitySchema is
+http://onto-ns.com/meta/0.3/EntitySchema, with
+<code class="docutils literal notranslate"><span class="pre">http://onto-ns.com/meta</span></code> being the namespace, <code class="docutils literal notranslate"><span class="pre">0.3</span></code> the version and
+<code class="docutils literal notranslate"><span class="pre">EntitySchema</span></code> the name.
+URIs do not have to be resolvable, but it is good practice that they
+resolves to their definition.</p>
+</section>
+</section>
+</section>
+<section id="data-model-semantics">
+<h2>Data model semantics<a class="headerlink" href="#data-model-semantics" title="Link to this heading">#</a></h2>
+<p><img alt="The datamodel of DLite." src="../_images/datamodel.svg" /></p>
+<p><em><strong>Figure 3</strong>. The DLite data model.</em></p>
+<p>The DLite data model is defined by the <a class="reference external" href="https://github.com/emmo-repo/datamodel">Datamodel ontology</a> and shown
+schematically in Figure 3.
+In orange we have the same hierarchy as shown in Figure 2, with <em>instance</em>
+as the most general concepts.</p>
+<p>All data models and metadata have the following fields:</p>
+<ul class="simple">
+<li><p><em>uri</em>: URI that uniquely identifies the data model.</p></li>
+<li><p><em>uuid</em>: An UUID calculated as a hash of the <em>uri</em>. Used for database lookup.</p></li>
+<li><p><em>meta</em>: The URI of the meta-metadata that this metadata is an instance of.
+If omitted, it defaults to the entity schema, which describes data models.</p></li>
+<li><p><em>description</em>: A human description of the data model.</p></li>
+<li><p><em>dimensions</em>: Common dimension used for array properties.</p></li>
+<li><p><em>properties</em>: Descriptions of each of the underlying data properties.</p></li>
+<li><p><em>relations</em>: A sequence of RDF subject-predicate-object triples with
+additional documentation.</p></li>
+</ul>
+<p>Properties describe data in terms of keyword-value pairs, dimensions
+enable efficient description of multi-dimensional arrays and relations
+can describe anything that can be represented in a knowledge base.
+Together they provide a general means to describe all types of data
+that can be represented digitally.
+Note however, that not all metadata uses all of these three ways to
+describe their instances.
+For example, data models have only dimensions and properties.
+Also note that dimensions and properties cannot have the same name, since
+they are accessed from the same namespace.</p>
+<section id="dimension">
+<h3>Dimension<a class="headerlink" href="#dimension" title="Link to this heading">#</a></h3>
+<p>A metadata dimension simply provides a <em>name</em> and a human <em>description</em> of a
+given dimension of an array property.</p>
+<p><strong>Convention</strong>: For metadata schemata, should the dimension names start with an
+“n” followed by the name of a property how’s length is defined by the dimension.
+For example, the dimension that determine the number of properties in a metadata
+schema should be named “nproperties”.</p>
+</section>
+<section id="property">
+<h3>Property<a class="headerlink" href="#property" title="Link to this heading">#</a></h3>
+<p>A property describes an element or item of an instance and has the following
+attributes:</p>
+<ul class="simple">
+<li><p><em>name</em>: a name identifying the property.</p></li>
+<li><p><em>type</em>: the type of the described property, f.ex. an integer.</p></li>
+<li><p><em>$ref</em>: formally a part of type.
+<code class="docutils literal notranslate"><span class="pre">$ref</span></code> is used together with the “ref” type, which is a special datatype for
+referring to other instances.</p></li>
+<li><p><em>shape</em>: The dimensions of multi-dimensional properties.
+This is a list of dimension expressions referring to the dimensions defined above.
+For instance, if a data model have dimensions with names <code class="docutils literal notranslate"><span class="pre">H</span></code>, <code class="docutils literal notranslate"><span class="pre">K</span></code> and <code class="docutils literal notranslate"><span class="pre">L</span></code> and
+a property with shape <code class="docutils literal notranslate"><span class="pre">[&quot;K&quot;,</span> <span class="pre">&quot;H+1&quot;]</span></code>, the property of an instance of this data
+model with dimension values <code class="docutils literal notranslate"><span class="pre">H=2,</span> <span class="pre">K=2,</span> <span class="pre">L=6</span></code> will have shape <code class="docutils literal notranslate"><span class="pre">[2,</span> <span class="pre">3]</span></code>.</p></li>
+<li><p><em>unit</em>: The unit of the property.</p></li>
+<li><p><em>description</em>: A human description of the property.</p></li>
+</ul>
+<p>Please note that <em>dims</em> is a now deprecated alias for <em>shape</em>.</p>
+<p><strong>Convention</strong>: If a metadata schema has an array property of type ‘dimension’,
+‘property’ or ‘relation’, it should be named “dimensions”, “properties” and
+“relations”, respectively.  Their shape should be <code class="docutils literal notranslate"><span class="pre">[&quot;ndimensions&quot;]</span></code>,
+<code class="docutils literal notranslate"><span class="pre">[&quot;nproperties&quot;]</span></code> and <code class="docutils literal notranslate"><span class="pre">[&quot;nrelations&quot;]</span></code>, respectively.</p>
+</section>
+<section id="relation">
+<h3>Relation<a class="headerlink" href="#relation" title="Link to this heading">#</a></h3>
+<p>A RDF subject-predicate-object triplet.
+Relations are currently not explored in data models, but are included because of
+their generality.
+However, relations are heavily used in <a class="reference internal" href="collections.html"><span class="std std-doc">collections</span></a>.</p>
+</section>
+<section id="identifiers">
+<h3>Identifiers<a class="headerlink" href="#identifiers" title="Link to this heading">#</a></h3>
+<p>Instances are uniquely identified by a <a class="reference external" href="https://en.wikipedia.org/wiki/Universally_unique_identifier">universally unique identifier
+(UUID)</a>, which is a 128 bit label expressed as a string of the
+form <code class="docutils literal notranslate"><span class="pre">xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxx</span></code>, where the <code class="docutils literal notranslate"><span class="pre">x</span></code>es are
+hexadecimal digits in the range [0-9a-fA-F].</p>
+<p>Since data models are a subclass of instances, as described above,
+they are also uniquely identified by their UUID. The UUID of a data
+model is calculated as a version 5 SHA1-based UUID hash of the data
+model URI using the DNS namespace (with an optional final hash (#) or
+slash (/) stripped off).</p>
+<p>Furthermore, to allow identifiers to be used in triplestores, they can
+also be normalised to (potentially) resolvable IRIs. The columns in
+the table below list the three representations of identifiers. Any
+representation can be considered an ID, while normalised IDs are valid
+IRIs.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>ID</p></th>
+<th class="head"><p>Normalised ID</p></th>
+<th class="head"><p>Corresponding UUID</p></th>
+<th class="head"><p>Note</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><em>uuid</em></p></td>
+<td><p><em>ns</em> / <em>uuid</em></p></td>
+<td><p><em>uuid</em></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><em>uri</em> / <em>uuid</em></p></td>
+<td><p><em>uri</em> / <em>uuid</em></p></td>
+<td><p><em>uuid</em></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-even"><td><p><em>uri</em></p></td>
+<td><p><em>uri</em></p></td>
+<td><p>hash of <em>uri</em></p></td>
+<td><p></p></td>
+</tr>
+<tr class="row-odd"><td><p><em>name</em></p></td>
+<td><p><em>ns</em> / <em>name</em></p></td>
+<td><p>hash of <em>name</em></p></td>
+<td><p>experimental, before v0.6.0</p></td>
+</tr>
+<tr class="row-even"><td><p><em>name</em></p></td>
+<td><p><em>ns</em> / <em>name</em></p></td>
+<td><p>hash of <em>ns</em> / <em>name</em></p></td>
+<td><p>experimental, v0.6.0+</p></td>
+</tr>
+<tr class="row-odd"><td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Explanation of the symbols used in the table</strong></p>
+<ul class="simple">
+<li><p><em>uuid</em> is a valid UUID. Ex: “0a46cacf-ce65-5b5b-a7d7-ad32deaed748”</p></li>
+<li><p><em>ns</em> is the predefined namespace string: “http://onto-ns.com/data”</p></li>
+<li><p><em>uri</em> is a valid URI with no query or fragment parts (as defined in
+the <a class="reference external" href="https://datatracker.ietf.org/doc/html/rfc3986">RFC 3986</a> standard). Ex: “http://onto-ns.com/meta/0.1/MyDatamodel”</p></li>
+<li><p><em>name</em> is a string that is neither a UUID or a URL. Ex: “aa6060”.</p></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The support of name IDs is considered experimental!</p>
+<p>The way a UUID is calculated from an ID of the form of a <em>name</em> was changed
+in version 0.6.0.</p>
+<p>The reason for this change is to ensure that the same UUID is obtained,
+regardless of whether it is calculated from the <em>name</em> or its corresponding
+normalised ID.</p>
+<p>The behavior can be controlled with the <code class="docutils literal notranslate"><span class="pre">namespacedID</span></code> <a class="reference external" href="https://sintef.github.io/dlite/user_guide/configure_behavior_changes.html">behavior</a>.</p>
+</div>
+<p>Any ID can uniquely be converted to a normalised ID and any normalised
+ID can uniquely be converted to a UUID.  Most importantly, using a
+normalised ID or UUID as an ID will result in the same corresponding UUID.</p>
+<p>Going back is also possible. A UUID can be converted to a normalised
+ID (ex: <em>uuid</em> -&gt; <em>ns</em> / <em>uuid</em>) and a normalised `ID can be converted
+to an ID (ex: <em>uri</em> -&gt; <em>uri</em>). However, these conversions are not
+unique.</p>
+<p>The <em>id</em> form is convenient for human readable identifiers. But please
+note, that such <em>id</em>’s must be globally unique. it is therefore
+recommended to use normalised IDs instead. These are also valid IRIs
+and can be used knowledge bases.</p>
+<p>The tool <code class="docutils literal notranslate"><span class="pre">dlite-getuuid</span></code> can be used to manually convert URIs to their
+corresponding UUIDs (or normalised IRI).</p>
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">User Guide</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="datamodels.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Representing a datamodel</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#datamodel-hierarchy">Datamodel hierarchy</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data-models">Data models</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#uniqueness-immutability">Uniqueness &amp; immutability</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#data-model-semantics">Data model semantics</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#dimension">Dimension</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#property">Property</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#relation">Relation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#identifiers">Identifiers</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

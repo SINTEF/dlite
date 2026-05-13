@@ -1,0 +1,892 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>rng &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/utils/rng';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="session" href="session.html" />
+    <link rel="prev" title="plugin" href="plugin.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin.html">plugin</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/utils/rng.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/c-api/src/utils/rng.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>rng</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48rand_mwcv"><code class="docutils literal notranslate"><span class="pre">rand_mwc()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49srand_mwc8uint32_t"><code class="docutils literal notranslate"><span class="pre">srand_mwc()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410rand_mwc_rP8MWCState"><code class="docutils literal notranslate"><span class="pre">rand_mwc_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411srand_mwc_rP8MWCState8uint32_t"><code class="docutils literal notranslate"><span class="pre">srand_mwc_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411rand_msws32v"><code class="docutils literal notranslate"><span class="pre">rand_msws32()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412drand_msws32v"><code class="docutils literal notranslate"><span class="pre">drand_msws32()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412srand_msws328uint64_t"><code class="docutils literal notranslate"><span class="pre">srand_msws32()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413rand_msws32_rP11MSWS32State"><code class="docutils literal notranslate"><span class="pre">rand_msws32_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414drand_msws32_rP11MSWS32State"><code class="docutils literal notranslate"><span class="pre">drand_msws32_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414srand_msws32_rP11MSWS32State8uint64_t"><code class="docutils literal notranslate"><span class="pre">srand_msws32_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411rand_msws64v"><code class="docutils literal notranslate"><span class="pre">rand_msws64()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412drand_msws64v"><code class="docutils literal notranslate"><span class="pre">drand_msws64()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412srand_msws648uint64_t"><code class="docutils literal notranslate"><span class="pre">srand_msws64()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413rand_msws64_rP11MSWS64State"><code class="docutils literal notranslate"><span class="pre">rand_msws64_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414drand_msws64_rP11MSWS64State"><code class="docutils literal notranslate"><span class="pre">drand_msws64_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414srand_msws64_rP11MSWS64State8uint64_t"><code class="docutils literal notranslate"><span class="pre">srand_msws64_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411random_seedPv6size_t"><code class="docutils literal notranslate"><span class="pre">random_seed()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48MWCState"><code class="docutils literal notranslate"><span class="pre">MWCState</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8MWCState9mwc_upperE"><code class="docutils literal notranslate"><span class="pre">MWCState::mwc_upper</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8MWCState9mwc_lowerE"><code class="docutils literal notranslate"><span class="pre">MWCState::mwc_lower</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411MSWS32State"><code class="docutils literal notranslate"><span class="pre">MSWS32State</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS32State1xE"><code class="docutils literal notranslate"><span class="pre">MSWS32State::x</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS32State1wE"><code class="docutils literal notranslate"><span class="pre">MSWS32State::w</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS32State1sE"><code class="docutils literal notranslate"><span class="pre">MSWS32State::s</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411MSWS64State"><code class="docutils literal notranslate"><span class="pre">MSWS64State</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2x1E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::x1</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2w1E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::w1</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2s1E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::s1</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2x2E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::x2</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2w2E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::w2</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2s2E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::s2</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="rng">
+<h1>rng<a class="headerlink" href="#rng" title="Link to this heading">#</a></h1>
+<p>Pseudo random number generators. </p>
+<p><em>MWC by George Marsaglia, 1994 </em></p>
+<p>The MWC generator concatenates two 16-bit multiply-with-carry generators, x(n)=36969x(n-1)+carry, y(n)=18000y(n-1)+carry mod 2^16, has period about 2^60 and seems to pass all tests of randomness.</p>
+<p><em>MSWS by Bernard Widynski, 2022 </em></p>
+<p>A variation on John von Neumann’s original middle-square method. This generator may be the fastest RNG that passes all the statistical tests. It is provided in 32 and 64 bit variants. The 32 bit variant has periodicity of 2^64. The periodicity of 64 bit variant is not documented in Widynski (2022), but it should at least be 2^64, more likely 2^128.</p>
+<p>Ref: <a class="reference external" href="https://arxiv.org/abs/1704.00358">https://arxiv.org/abs/1704.00358</a></p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-mwc-by-george-marsaglia,-1994">MWC by George Marsaglia, 1994</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv48rand_mwcv">
+<span id="_CPPv38rand_mwcv"></span><span id="_CPPv28rand_mwcv"></span><span id="rand_mwc"></span><span class="target" id="rng_8h_1a21c190ac2558363ac571ed1ac72c129d"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rand_mwc</span></span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48rand_mwcv" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return new random number using the MWC RNG. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49srand_mwc8uint32_t">
+<span id="_CPPv39srand_mwc8uint32_t"></span><span id="_CPPv29srand_mwc8uint32_t"></span><span id="srand_mwc__uint32_t"></span><span class="target" id="rng_8h_1a3876525f2949d13700a6467728670116"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">srand_mwc</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">seed</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49srand_mwc8uint32_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Seed the rand_mws() RNG. If <code class="docutils literal notranslate"><span class="pre">seed</span></code> is zero, it is seeded with <a class="reference internal" href="#rng_8h_1acad9e1b646a6e93446d72da051443a71"><span class="std std-ref">random_seed()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410rand_mwc_rP8MWCState">
+<span id="_CPPv310rand_mwc_rP8MWCState"></span><span id="_CPPv210rand_mwc_rP8MWCState"></span><span id="rand_mwc_r__MWCStateP"></span><span class="target" id="rng_8h_1a14c6ce14a07f5e5eae5ca179e5a15d68"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rand_mwc_r</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48MWCState" title="MWCState"><span class="n"><span class="pre">MWCState</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">state</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410rand_mwc_rP8MWCState" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reentrant version of <a class="reference internal" href="#rng_8h_1a21c190ac2558363ac571ed1ac72c129d"><span class="std std-ref">rand_mwc()</span></a>. The internal state should always be seeded with srand_mws_r(). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411srand_mwc_rP8MWCState8uint32_t">
+<span id="_CPPv311srand_mwc_rP8MWCState8uint32_t"></span><span id="_CPPv211srand_mwc_rP8MWCState8uint32_t"></span><span id="srand_mwc_r__MWCStateP.uint32_t"></span><span class="target" id="rng_8h_1a68b2a3bbb8cb73468717e824ad58b06f"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">srand_mwc_r</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv48MWCState" title="MWCState"><span class="n"><span class="pre">MWCState</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">state</span></span>, <span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">seed</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411srand_mwc_rP8MWCState8uint32_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reentrant version of <a class="reference internal" href="#rng_8h_1a3876525f2949d13700a6467728670116"><span class="std std-ref">srand_mwc()</span></a>. If <code class="docutils literal notranslate"><span class="pre">seed</span></code> is zero, it is seeded with <a class="reference internal" href="#rng_8h_1acad9e1b646a6e93446d72da051443a71"><span class="std std-ref">random_seed()</span></a>. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-msws-by-bernard-widynski,-2022">MSWS by Bernard Widynski, 2022</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411rand_msws32v">
+<span id="_CPPv311rand_msws32v"></span><span id="_CPPv211rand_msws32v"></span><span id="rand_msws32__void"></span><span class="target" id="rng_8h_1ad579bf73a750f4e22d663c71f33092f5"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rand_msws32</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411rand_msws32v" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return new 32 bit random number using the MSWS RNG. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412drand_msws32v">
+<span id="_CPPv312drand_msws32v"></span><span id="_CPPv212drand_msws32v"></span><span id="drand_msws32__void"></span><span class="target" id="rng_8h_1a8c7fcec9453f6cdb6b4242196c950676"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">drand_msws32</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412drand_msws32v" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return a 32-bit floating point number in the range [0,1). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412srand_msws328uint64_t">
+<span id="_CPPv312srand_msws328uint64_t"></span><span id="_CPPv212srand_msws328uint64_t"></span><span id="srand_msws32__uint64_t"></span><span class="target" id="rng_8h_1ab35d04305a6f72f088e3e626fd9c47a5"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">srand_msws32</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">seed</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412srand_msws328uint64_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Seed the <a class="reference internal" href="#rng_8h_1ad579bf73a750f4e22d663c71f33092f5"><span class="std std-ref">rand_msws32()</span></a> RNG. If <code class="docutils literal notranslate"><span class="pre">seed</span></code> is zero, it is seeded with <a class="reference internal" href="#rng_8h_1acad9e1b646a6e93446d72da051443a71"><span class="std std-ref">random_seed()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413rand_msws32_rP11MSWS32State">
+<span id="_CPPv313rand_msws32_rP11MSWS32State"></span><span id="_CPPv213rand_msws32_rP11MSWS32State"></span><span id="rand_msws32_r__MSWS32StateP"></span><span class="target" id="rng_8h_1a32bde06eb0beb19524c8423246c93037"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rand_msws32_r</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411MSWS32State" title="MSWS32State"><span class="n"><span class="pre">MSWS32State</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413rand_msws32_rP11MSWS32State" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reentrant version of <a class="reference internal" href="#rng_8h_1ad579bf73a750f4e22d663c71f33092f5"><span class="std std-ref">rand_msws32()</span></a>. Should always be seeded before use. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414drand_msws32_rP11MSWS32State">
+<span id="_CPPv314drand_msws32_rP11MSWS32State"></span><span id="_CPPv214drand_msws32_rP11MSWS32State"></span><span id="drand_msws32_r__MSWS32StateP"></span><span class="target" id="rng_8h_1a3b3668612c26790bfe65467c7dfaa151"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">drand_msws32_r</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411MSWS32State" title="MSWS32State"><span class="n"><span class="pre">MSWS32State</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414drand_msws32_rP11MSWS32State" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reentrant version of <a class="reference internal" href="#rng_8h_1a8c7fcec9453f6cdb6b4242196c950676"><span class="std std-ref">drand_msws32()</span></a></p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414srand_msws32_rP11MSWS32State8uint64_t">
+<span id="_CPPv314srand_msws32_rP11MSWS32State8uint64_t"></span><span id="_CPPv214srand_msws32_rP11MSWS32State8uint64_t"></span><span id="srand_msws32_r__MSWS32StateP.uint64_t"></span><span class="target" id="rng_8h_1a9d744b010f90c9a12426e4bf1fdf115f"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">srand_msws32_r</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411MSWS32State" title="MSWS32State"><span class="n"><span class="pre">MSWS32State</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">seed</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414srand_msws32_rP11MSWS32State8uint64_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reentrant version of <a class="reference internal" href="#rng_8h_1ab35d04305a6f72f088e3e626fd9c47a5"><span class="std std-ref">srand_msws32()</span></a> If <code class="docutils literal notranslate"><span class="pre">seed</span></code> is zero, it is seeded with <a class="reference internal" href="#rng_8h_1acad9e1b646a6e93446d72da051443a71"><span class="std std-ref">random_seed()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411rand_msws64v">
+<span id="_CPPv311rand_msws64v"></span><span id="_CPPv211rand_msws64v"></span><span id="rand_msws64__void"></span><span class="target" id="rng_8h_1a0bdcde0536b5d04ee630e32a60b540fc"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rand_msws64</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411rand_msws64v" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return new 64 bit random number using the MSWS RNG. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412drand_msws64v">
+<span id="_CPPv312drand_msws64v"></span><span id="_CPPv212drand_msws64v"></span><span id="drand_msws64__void"></span><span class="target" id="rng_8h_1ac01e335542ac9762ad92e9e2526e3f45"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">drand_msws64</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412drand_msws64v" title="Link to this definition">#</a><br /></dt>
+<dd><p>Return a 53-bit floating point number in the range [0,1). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv412srand_msws648uint64_t">
+<span id="_CPPv312srand_msws648uint64_t"></span><span id="_CPPv212srand_msws648uint64_t"></span><span id="srand_msws64__uint64_t"></span><span class="target" id="rng_8h_1af16deef727f9396edf3be0ec9dfcbdb7"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">srand_msws64</span></span></span><span class="sig-paren">(</span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">seed</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv412srand_msws648uint64_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Seed the <a class="reference internal" href="#rng_8h_1a0bdcde0536b5d04ee630e32a60b540fc"><span class="std std-ref">rand_msws64()</span></a> RNG. If <code class="docutils literal notranslate"><span class="pre">seed</span></code> is zero, it is seeded with <a class="reference internal" href="#rng_8h_1acad9e1b646a6e93446d72da051443a71"><span class="std std-ref">random_seed()</span></a>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv413rand_msws64_rP11MSWS64State">
+<span id="_CPPv313rand_msws64_rP11MSWS64State"></span><span id="_CPPv213rand_msws64_rP11MSWS64State"></span><span id="rand_msws64_r__MSWS64StateP"></span><span class="target" id="rng_8h_1a14c5776b6d3cffc6345ac9979758d76b"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">rand_msws64_r</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411MSWS64State" title="MSWS64State"><span class="n"><span class="pre">MSWS64State</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv413rand_msws64_rP11MSWS64State" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reentrant version of <a class="reference internal" href="#rng_8h_1a0bdcde0536b5d04ee630e32a60b540fc"><span class="std std-ref">rand_msws64()</span></a>. Should always be seeded before use. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414drand_msws64_rP11MSWS64State">
+<span id="_CPPv314drand_msws64_rP11MSWS64State"></span><span id="_CPPv214drand_msws64_rP11MSWS64State"></span><span id="drand_msws64_r__MSWS64StateP"></span><span class="target" id="rng_8h_1a99a5a8ebe68e918954830565396ccd71"></span><span class="kt"><span class="pre">double</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">drand_msws64_r</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411MSWS64State" title="MSWS64State"><span class="n"><span class="pre">MSWS64State</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414drand_msws64_rP11MSWS64State" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reentrant version of <a class="reference internal" href="#rng_8h_1ac01e335542ac9762ad92e9e2526e3f45"><span class="std std-ref">drand_msws64()</span></a>. Should always be seeded before use. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv414srand_msws64_rP11MSWS64State8uint64_t">
+<span id="_CPPv314srand_msws64_rP11MSWS64State8uint64_t"></span><span id="_CPPv214srand_msws64_rP11MSWS64State8uint64_t"></span><span id="srand_msws64_r__MSWS64StateP.uint64_t"></span><span class="target" id="rng_8h_1a381b5560e344a225c426fb4f4068acc5"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">srand_msws64_r</span></span></span><span class="sig-paren">(</span><a class="reference internal" href="#_CPPv411MSWS64State" title="MSWS64State"><span class="n"><span class="pre">MSWS64State</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">s</span></span>, <span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">seed</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv414srand_msws64_rP11MSWS64State8uint64_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Reentrant version of <a class="reference internal" href="#rng_8h_1af16deef727f9396edf3be0ec9dfcbdb7"><span class="std std-ref">srand_msws64()</span></a> If <code class="docutils literal notranslate"><span class="pre">seed</span></code> is zero, it is seeded with <a class="reference internal" href="#rng_8h_1acad9e1b646a6e93446d72da051443a71"><span class="std std-ref">random_seed()</span></a>. </p>
+</dd></dl>
+
+</div>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411random_seedPv6size_t">
+<span id="_CPPv311random_seedPv6size_t"></span><span id="_CPPv211random_seedPv6size_t"></span><span id="random_seed__voidP.s"></span><span class="target" id="rng_8h_1acad9e1b646a6e93446d72da051443a71"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">random_seed</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">void</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="n"><span class="pre">size_t</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411random_seedPv6size_t" title="Link to this definition">#</a><br /></dt>
+<dd><p>Ask system to write <code class="docutils literal notranslate"><span class="pre">size</span></code> random bytes to <code class="docutils literal notranslate"><span class="pre">buf</span></code>.</p>
+<p>This function is intended to be used to seed the RNGs. It is called when the seed functions are called with <code class="docutils literal notranslate"><span class="pre">seed=0</span></code>.</p>
+<p>It tries first to use the system random source. If that doesn’t work and macro <code class="docutils literal notranslate"><span class="pre">RNG_ONLY_HIGH_QUALITY_SEED</span></code> is not defined, it falls back to using the system clock.</p>
+<p>Returns non-zero on error. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv48MWCState">
+<span id="_CPPv38MWCState"></span><span id="_CPPv28MWCState"></span><span id="MWCState"></span><span class="target" id="structMWCState"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MWCState</span></span></span><a class="headerlink" href="#_CPPv48MWCState" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;rng.h&gt;</em></div>
+<p>Internal state of the MWC RNG. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8MWCState9mwc_upperE">
+<span id="_CPPv3N8MWCState9mwc_upperE"></span><span id="_CPPv2N8MWCState9mwc_upperE"></span><span id="MWCState::mwc_upper__uint32_t"></span><span class="target" id="structMWCState_1a8830924c43823f23435cec28b45b0315"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mwc_upper</span></span></span><a class="headerlink" href="#_CPPv4N8MWCState9mwc_upperE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N8MWCState9mwc_lowerE">
+<span id="_CPPv3N8MWCState9mwc_lowerE"></span><span id="_CPPv2N8MWCState9mwc_lowerE"></span><span id="MWCState::mwc_lower__uint32_t"></span><span class="target" id="structMWCState_1ac3497b6a70757d522adc184365e782bf"></span><span class="n"><span class="pre">uint32_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">mwc_lower</span></span></span><a class="headerlink" href="#_CPPv4N8MWCState9mwc_lowerE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv411MSWS32State">
+<span id="_CPPv311MSWS32State"></span><span id="_CPPv211MSWS32State"></span><span id="MSWS32State"></span><span class="target" id="structMSWS32State"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MSWS32State</span></span></span><a class="headerlink" href="#_CPPv411MSWS32State" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;rng.h&gt;</em></div>
+<p>Internal state of the MSWS32 RNG. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11MSWS32State1xE">
+<span id="_CPPv3N11MSWS32State1xE"></span><span id="_CPPv2N11MSWS32State1xE"></span><span id="MSWS32State::x__uint64_t"></span><span class="target" id="structMSWS32State_1a8c96e03e2f66072e39a64408420d3dbe"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">x</span></span></span><a class="headerlink" href="#_CPPv4N11MSWS32State1xE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11MSWS32State1wE">
+<span id="_CPPv3N11MSWS32State1wE"></span><span id="_CPPv2N11MSWS32State1wE"></span><span id="MSWS32State::w__uint64_t"></span><span class="target" id="structMSWS32State_1a21886585326e8066484919c477ac54a7"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">w</span></span></span><a class="headerlink" href="#_CPPv4N11MSWS32State1wE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11MSWS32State1sE">
+<span id="_CPPv3N11MSWS32State1sE"></span><span id="_CPPv2N11MSWS32State1sE"></span><span id="MSWS32State::s__uint64_t"></span><span class="target" id="structMSWS32State_1a45dff2833606316e71630486d2ee402b"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">s</span></span></span><a class="headerlink" href="#_CPPv4N11MSWS32State1sE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv411MSWS64State">
+<span id="_CPPv311MSWS64State"></span><span id="_CPPv211MSWS64State"></span><span id="MSWS64State"></span><span class="target" id="structMSWS64State"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">MSWS64State</span></span></span><a class="headerlink" href="#_CPPv411MSWS64State" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;rng.h&gt;</em></div>
+<p>Internal state of the MSWS64 RNG. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11MSWS64State2x1E">
+<span id="_CPPv3N11MSWS64State2x1E"></span><span id="_CPPv2N11MSWS64State2x1E"></span><span id="MSWS64State::x1__uint64_t"></span><span class="target" id="structMSWS64State_1a5b697ecdd22f68b657b9703c691de04c"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">x1</span></span></span><a class="headerlink" href="#_CPPv4N11MSWS64State2x1E" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11MSWS64State2w1E">
+<span id="_CPPv3N11MSWS64State2w1E"></span><span id="_CPPv2N11MSWS64State2w1E"></span><span id="MSWS64State::w1__uint64_t"></span><span class="target" id="structMSWS64State_1ac4d06257b46b99f84f417e8a23e1a922"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">w1</span></span></span><a class="headerlink" href="#_CPPv4N11MSWS64State2w1E" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11MSWS64State2s1E">
+<span id="_CPPv3N11MSWS64State2s1E"></span><span id="_CPPv2N11MSWS64State2s1E"></span><span id="MSWS64State::s1__uint64_t"></span><span class="target" id="structMSWS64State_1af28b2d31be8aa37666bf11fc16878c52"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">s1</span></span></span><a class="headerlink" href="#_CPPv4N11MSWS64State2s1E" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11MSWS64State2x2E">
+<span id="_CPPv3N11MSWS64State2x2E"></span><span id="_CPPv2N11MSWS64State2x2E"></span><span id="MSWS64State::x2__uint64_t"></span><span class="target" id="structMSWS64State_1a7da7fc87c89635c1f47916e1b0e1ff0d"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">x2</span></span></span><a class="headerlink" href="#_CPPv4N11MSWS64State2x2E" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11MSWS64State2w2E">
+<span id="_CPPv3N11MSWS64State2w2E"></span><span id="_CPPv2N11MSWS64State2w2E"></span><span id="MSWS64State::w2__uint64_t"></span><span class="target" id="structMSWS64State_1abed88121d43f2b95c4684a5a77cf6e5a"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">w2</span></span></span><a class="headerlink" href="#_CPPv4N11MSWS64State2w2E" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N11MSWS64State2s2E">
+<span id="_CPPv3N11MSWS64State2s2E"></span><span id="_CPPv2N11MSWS64State2s2E"></span><span id="MSWS64State::s2__uint64_t"></span><span class="target" id="structMSWS64State_1a062d0e7eb3fb65da17a26f97df7400ea"></span><span class="n"><span class="pre">uint64_t</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">s2</span></span></span><a class="headerlink" href="#_CPPv4N11MSWS64State2s2E" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="plugin.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">plugin</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="session.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">session</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48rand_mwcv"><code class="docutils literal notranslate"><span class="pre">rand_mwc()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49srand_mwc8uint32_t"><code class="docutils literal notranslate"><span class="pre">srand_mwc()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410rand_mwc_rP8MWCState"><code class="docutils literal notranslate"><span class="pre">rand_mwc_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411srand_mwc_rP8MWCState8uint32_t"><code class="docutils literal notranslate"><span class="pre">srand_mwc_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411rand_msws32v"><code class="docutils literal notranslate"><span class="pre">rand_msws32()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412drand_msws32v"><code class="docutils literal notranslate"><span class="pre">drand_msws32()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412srand_msws328uint64_t"><code class="docutils literal notranslate"><span class="pre">srand_msws32()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413rand_msws32_rP11MSWS32State"><code class="docutils literal notranslate"><span class="pre">rand_msws32_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414drand_msws32_rP11MSWS32State"><code class="docutils literal notranslate"><span class="pre">drand_msws32_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414srand_msws32_rP11MSWS32State8uint64_t"><code class="docutils literal notranslate"><span class="pre">srand_msws32_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411rand_msws64v"><code class="docutils literal notranslate"><span class="pre">rand_msws64()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412drand_msws64v"><code class="docutils literal notranslate"><span class="pre">drand_msws64()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv412srand_msws648uint64_t"><code class="docutils literal notranslate"><span class="pre">srand_msws64()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413rand_msws64_rP11MSWS64State"><code class="docutils literal notranslate"><span class="pre">rand_msws64_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414drand_msws64_rP11MSWS64State"><code class="docutils literal notranslate"><span class="pre">drand_msws64_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv414srand_msws64_rP11MSWS64State8uint64_t"><code class="docutils literal notranslate"><span class="pre">srand_msws64_r()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411random_seedPv6size_t"><code class="docutils literal notranslate"><span class="pre">random_seed()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48MWCState"><code class="docutils literal notranslate"><span class="pre">MWCState</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8MWCState9mwc_upperE"><code class="docutils literal notranslate"><span class="pre">MWCState::mwc_upper</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N8MWCState9mwc_lowerE"><code class="docutils literal notranslate"><span class="pre">MWCState::mwc_lower</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411MSWS32State"><code class="docutils literal notranslate"><span class="pre">MSWS32State</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS32State1xE"><code class="docutils literal notranslate"><span class="pre">MSWS32State::x</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS32State1wE"><code class="docutils literal notranslate"><span class="pre">MSWS32State::w</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS32State1sE"><code class="docutils literal notranslate"><span class="pre">MSWS32State::s</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411MSWS64State"><code class="docutils literal notranslate"><span class="pre">MSWS64State</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2x1E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::x1</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2w1E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::w1</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2s1E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::s1</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2x2E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::x2</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2w2E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::w2</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N11MSWS64State2s2E"><code class="docutils literal notranslate"><span class="pre">MSWS64State::s2</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

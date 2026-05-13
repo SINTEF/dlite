@@ -1,0 +1,844 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>urlsplit &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'c-api/src/utils/urlsplit';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="uuid" href="uuid.html" />
+    <link rel="prev" title="uri_encode" href="uri_encode.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../../src.html">C-API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 current active has-children"><a class="reference internal" href="../utils.html">utils</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l3"><a class="reference internal" href="bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3 current active"><a class="current reference internal" href="#">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fc-api/src/utils/urlsplit.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/c-api/src/utils/urlsplit.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>urlsplit</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45isurlPKc"><code class="docutils literal notranslate"><span class="pre">isurl()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv46isurlnPKci"><code class="docutils literal notranslate"><span class="pre">isurln()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48urlsplitPKcP13UrlComponents"><code class="docutils literal notranslate"><span class="pre">urlsplit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49urlsplitnPKciP13UrlComponents"><code class="docutils literal notranslate"><span class="pre">urlsplitn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47urljoinPclP13UrlComponents"><code class="docutils literal notranslate"><span class="pre">urljoin()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410pct_encodePclPKc"><code class="docutils literal notranslate"><span class="pre">pct_encode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411pct_nencodePclPKcl"><code class="docutils literal notranslate"><span class="pre">pct_nencode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411pct_xencodePclPKcl11StrCategoryPKc"><code class="docutils literal notranslate"><span class="pre">pct_xencode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410pct_decodePclPKc"><code class="docutils literal notranslate"><span class="pre">pct_decode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411pct_ndecodePclPKcl"><code class="docutils literal notranslate"><span class="pre">pct_ndecode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413UrlComponents"><code class="docutils literal notranslate"><span class="pre">UrlComponents</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents6schemeE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::scheme</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents10scheme_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::scheme_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents9authorityE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::authority</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents13authority_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::authority_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8userinfoE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::userinfo</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents12userinfo_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::userinfo_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents4hostE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::host</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8host_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::host_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents4portE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::port</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8port_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::port_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents4pathE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8path_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::path_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents5queryE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::query</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents9query_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::query_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8fragmentE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::fragment</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents12fragment_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::fragment_len</span></code></a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="urlsplit">
+<h1>urlsplit<a class="headerlink" href="#urlsplit" title="Link to this heading">#</a></h1>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-functions">Functions</p>
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv45isurlPKc">
+<span id="_CPPv35isurlPKc"></span><span id="_CPPv25isurlPKc"></span><span id="isurl__cCP"></span><span class="target" id="urlsplit_8h_1aa5252a5045e86117ff2e1466efbc91dd"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isurl</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">url</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv45isurlPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns non-zero if <code class="docutils literal notranslate"><span class="pre">url</span></code> is a valid URL.</p>
+<p>Note: If <code class="docutils literal notranslate"><span class="pre">url</span></code> starts with an upper case letter followed by colon (e.g. “C:”), then it is interpreted as a Windows drive and not an URL. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv46isurlnPKci">
+<span id="_CPPv36isurlnPKci"></span><span id="_CPPv26isurlnPKci"></span><span id="isurln__cCP.i"></span><span class="target" id="urlsplit_8h_1afd3e9bdcb2b317cc9d67538c6d7fede9"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">isurln</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">url</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv46isurlnPKci" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like isurl(), but only considers the first <code class="docutils literal notranslate"><span class="pre">len</span></code> bytes of <code class="docutils literal notranslate"><span class="pre">url</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">len</span></code> is negative, all of <code class="docutils literal notranslate"><span class="pre">url</span></code> is checked. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv48urlsplitPKcP13UrlComponents">
+<span id="_CPPv38urlsplitPKcP13UrlComponents"></span><span id="_CPPv28urlsplitPKcP13UrlComponents"></span><span id="urlsplit__cCP.UrlComponentsP"></span><span class="target" id="urlsplit_8h_1a98e666e36db9b5fa433b582dbd898064"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">urlsplit</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">url</span></span>, <a class="reference internal" href="#_CPPv413UrlComponents" title="UrlComponents"><span class="n"><span class="pre">UrlComponents</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">components</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv48urlsplitPKcP13UrlComponents" title="Link to this definition">#</a><br /></dt>
+<dd><p>Returns the length of the initial segment of <code class="docutils literal notranslate"><span class="pre">url</span></code> that correspond to a valid URL. Hence, zero is returned if <code class="docutils literal notranslate"><span class="pre">url</span></code> is not a valid URL.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">components</span></code> is not NULL, the memory it points to is filled in with start and length information of the different components of <code class="docutils literal notranslate"><span class="pre">url</span></code>. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv49urlsplitnPKciP13UrlComponents">
+<span id="_CPPv39urlsplitnPKciP13UrlComponents"></span><span id="_CPPv29urlsplitnPKciP13UrlComponents"></span><span id="urlsplitn__cCP.i.UrlComponentsP"></span><span class="target" id="urlsplit_8h_1a8bbd78a82f61ed0c21c552dbae40a9c8"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">urlsplitn</span></span></span><span class="sig-paren">(</span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">url</span></span>, <span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <a class="reference internal" href="#_CPPv413UrlComponents" title="UrlComponents"><span class="n"><span class="pre">UrlComponents</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">components</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv49urlsplitnPKciP13UrlComponents" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like urlsplit(), but takes an extra argument <code class="docutils literal notranslate"><span class="pre">len</span></code>.</p>
+<p>If <code class="docutils literal notranslate"><span class="pre">len</span></code> is positive, the <code class="docutils literal notranslate"><span class="pre">len</span></code> first characters of <code class="docutils literal notranslate"><span class="pre">url</span></code> must be a valid URL (in which case <code class="docutils literal notranslate"><span class="pre">len</span></code> is returned), otherwise zero is returned.</p>
+<p>A negative <code class="docutils literal notranslate"><span class="pre">len</span></code> means that the whole length of <code class="docutils literal notranslate"><span class="pre">url</span></code> is parsed (equivalent to <code class="docutils literal notranslate"><span class="pre">len=strlen(url)</span></code>). </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv47urljoinPclP13UrlComponents">
+<span id="_CPPv37urljoinPclP13UrlComponents"></span><span id="_CPPv27urljoinPclP13UrlComponents"></span><span id="urljoin__cP.l.UrlComponentsP"></span><span class="target" id="urlsplit_8h_1a3ba43189f75e9228bf3598ef50968f38"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">urljoin</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <a class="reference internal" href="#_CPPv413UrlComponents" title="UrlComponents"><span class="n"><span class="pre">UrlComponents</span></span></a><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">components</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv47urljoinPclP13UrlComponents" title="Link to this definition">#</a><br /></dt>
+<dd><p>Join URL components <code class="docutils literal notranslate"><span class="pre">components</span></code> and write them to buffer <code class="docutils literal notranslate"><span class="pre">buf</span></code>.</p>
+<p>At most <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes are written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> (incl. terminating NUL.</p>
+<p>If the ‘host’ field of <code class="docutils literal notranslate"><span class="pre">components</span></code> is not NULL, the authority will be derived from the ‘username’, ‘host’ and ‘port’ fields, otherwise the <code class="docutils literal notranslate"><span class="pre">authority</span></code> field will be used.</p>
+<p>Return number of bytes written to <code class="docutils literal notranslate"><span class="pre">buf</span></code>, or the number of bytes that would have been written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> if <code class="docutils literal notranslate"><span class="pre">size</span></code> would be big enough. On error, a negative value is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410pct_encodePclPKc">
+<span id="_CPPv310pct_encodePclPKc"></span><span id="_CPPv210pct_encodePclPKc"></span><span id="pct_encode__cP.l.cCP"></span><span class="target" id="urlsplit_8h_1a0abd46051e122979218a500897c6dc2c"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pct_encode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410pct_encodePclPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Write percent-encoded copy of <code class="docutils literal notranslate"><span class="pre">src</span></code> to <code class="docutils literal notranslate"><span class="pre">buf</span></code>.</p>
+<p>At most <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes are written (including NUL-termination).</p>
+<p>Return the number of bytes that would have been written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> (excluding NUL-terminator), or would have been written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> if it would have been large enough. On error a negative number is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411pct_nencodePclPKcl">
+<span id="_CPPv311pct_nencodePclPKcl"></span><span id="_CPPv211pct_nencodePclPKcl"></span><span id="pct_nencode__cP.l.cCP.l"></span><span class="target" id="urlsplit_8h_1ad2992fe9d89aeb760dfdd3098f3416e9"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pct_nencode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411pct_nencodePclPKcl" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like pct_encode(), but at most <code class="docutils literal notranslate"><span class="pre">len</span></code> bytes are read from <code class="docutils literal notranslate"><span class="pre">src</span></code>. If <code class="docutils literal notranslate"><span class="pre">len</span></code> is negative, all of <code class="docutils literal notranslate"><span class="pre">src</span></code> is read. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411pct_xencodePclPKcl11StrCategoryPKc">
+<span id="_CPPv311pct_xencodePclPKcl11StrCategoryPKc"></span><span id="_CPPv211pct_xencodePclPKcl11StrCategoryPKc"></span><span id="pct_xencode__cP.l.cCP.l.StrCategory.cCP"></span><span class="target" id="urlsplit_8h_1a5e983bbec9a5647de266b69d97b5b467"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pct_xencode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">src</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span>, <a class="reference internal" href="strutils.html#_CPPv411StrCategory" title="StrCategory"><span class="n"><span class="pre">StrCategory</span></span></a><span class="w"> </span><span class="n sig-param"><span class="pre">maxcat</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">accepted</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411pct_xencodePclPKcl11StrCategoryPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Write percent-encoded copy of the first <code class="docutils literal notranslate"><span class="pre">len</span></code> bytes of <code class="docutils literal notranslate"><span class="pre">src</span></code> to <code class="docutils literal notranslate"><span class="pre">buf</span></code>.</p>
+<p>At most <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes are written (including NUL-termination). Character in categories larger than <code class="docutils literal notranslate"><span class="pre">maxcat</span></code> and not in <code class="docutils literal notranslate"><span class="pre">accepted</span></code>, will be percent-encoded.</p>
+<p>Return the number of bytes that would have been written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> (excluding NUL-terminator), or would have been written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> if it would have been large enough. On error a negative number is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv410pct_decodePclPKc">
+<span id="_CPPv310pct_decodePclPKc"></span><span id="_CPPv210pct_decodePclPKc"></span><span id="pct_decode__cP.l.cCP"></span><span class="target" id="urlsplit_8h_1a936657e5e47b490fe1f9cbd729e34047"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pct_decode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">encoded</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv410pct_decodePclPKc" title="Link to this definition">#</a><br /></dt>
+<dd><p>Write percent-decoded copy of <code class="docutils literal notranslate"><span class="pre">encoded</span></code> to <code class="docutils literal notranslate"><span class="pre">buf</span></code>.</p>
+<p>At most <code class="docutils literal notranslate"><span class="pre">size</span></code> bytes are written (including NUL-termination).</p>
+<p>Return the number of bytes that would have been written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> (excluding NUL-terminator), or would have been written to <code class="docutils literal notranslate"><span class="pre">buf</span></code> if it would have been large enough. On error a negative number is returned. </p>
+</dd></dl>
+
+<dl class="cpp function">
+<dt class="sig sig-object cpp" id="_CPPv411pct_ndecodePclPKcl">
+<span id="_CPPv311pct_ndecodePclPKcl"></span><span id="_CPPv211pct_ndecodePclPKcl"></span><span id="pct_ndecode__cP.l.cCP.l"></span><span class="target" id="urlsplit_8h_1aa46a573fd7e6851761f68c88cdf66c89"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">pct_ndecode</span></span></span><span class="sig-paren">(</span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">buf</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">size</span></span>, <span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="n sig-param"><span class="pre">encoded</span></span>, <span class="kt"><span class="pre">long</span></span><span class="w"> </span><span class="n sig-param"><span class="pre">len</span></span><span class="sig-paren">)</span><a class="headerlink" href="#_CPPv411pct_ndecodePclPKcl" title="Link to this definition">#</a><br /></dt>
+<dd><p>Like pct_decode(), but at most <code class="docutils literal notranslate"><span class="pre">len</span></code> bytes are read from <code class="docutils literal notranslate"><span class="pre">encoded</span></code>. If <code class="docutils literal notranslate"><span class="pre">len</span></code> is negative, all of <code class="docutils literal notranslate"><span class="pre">encoded</span></code> is read. </p>
+</dd></dl>
+
+</div>
+<dl class="cpp struct">
+<dt class="sig sig-object cpp" id="_CPPv413UrlComponents">
+<span id="_CPPv313UrlComponents"></span><span id="_CPPv213UrlComponents"></span><span id="UrlComponents"></span><span class="target" id="structUrlComponents"></span><span class="k"><span class="pre">struct</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">UrlComponents</span></span></span><a class="headerlink" href="#_CPPv413UrlComponents" title="Link to this definition">#</a><br /></dt>
+<dd><div class="docutils container">
+<em>#include &lt;urlsplit.h&gt;</em></div>
+<p>Following <a class="reference external" href="https://datatracker.ietf.org/doc/html/rfc3986">RFC 3986</a>, an URL has the general structure: <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">URL</span> <span class="o">=</span> <span class="n">scheme</span> <span class="s2">&quot;:&quot;</span> <span class="p">[</span><span class="s2">&quot;//&quot;</span> <span class="n">authority</span><span class="p">]</span> <span class="n">path</span> <span class="p">[</span><span class="s2">&quot;?&quot;</span> <span class="n">query</span><span class="p">]</span> <span class="p">[</span><span class="s2">&quot;#&quot;</span> <span class="n">fragment</span><span class="p">]</span>
+
+<span class="n">authority</span> <span class="o">=</span> <span class="p">[</span><span class="n">userinfo</span> <span class="s2">&quot;@&quot;</span><span class="p">]</span> <span class="n">host</span> <span class="p">[</span><span class="s2">&quot;:&quot;</span> <span class="n">port</span><span class="p">]</span>
+</pre></div>
+</div>
+</p>
+<p><em>References </em></p>
+<p>Struct filled in by urlsplit() with the start position and length of the different components of an url.</p>
+<p>The scheme always start at position zero. </p>
+<div class="breathe-sectiondef docutils container">
+<p class="breathe-sectiondef-title rubric" id="breathe-section-title-public-members">Public Members</p>
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents6schemeE">
+<span id="_CPPv3N13UrlComponents6schemeE"></span><span id="_CPPv2N13UrlComponents6schemeE"></span><span id="UrlComponents::scheme__cCP"></span><span class="target" id="structUrlComponents_1a31184b116184cd9f0869412458c899fb"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">scheme</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents6schemeE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents10scheme_lenE">
+<span id="_CPPv3N13UrlComponents10scheme_lenE"></span><span id="_CPPv2N13UrlComponents10scheme_lenE"></span><span id="UrlComponents::scheme_len__i"></span><span class="target" id="structUrlComponents_1a84b62070d194923993852076d5d0e0aa"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">scheme_len</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents10scheme_lenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents9authorityE">
+<span id="_CPPv3N13UrlComponents9authorityE"></span><span id="_CPPv2N13UrlComponents9authorityE"></span><span id="UrlComponents::authority__cCP"></span><span class="target" id="structUrlComponents_1aaba3bf729844e64cdd111a70eb8f1da2"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">authority</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents9authorityE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents13authority_lenE">
+<span id="_CPPv3N13UrlComponents13authority_lenE"></span><span id="_CPPv2N13UrlComponents13authority_lenE"></span><span id="UrlComponents::authority_len__i"></span><span class="target" id="structUrlComponents_1a60e4979927169acfa2ece9f2f62d9cbb"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">authority_len</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents13authority_lenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents8userinfoE">
+<span id="_CPPv3N13UrlComponents8userinfoE"></span><span id="_CPPv2N13UrlComponents8userinfoE"></span><span id="UrlComponents::userinfo__cCP"></span><span class="target" id="structUrlComponents_1a3a6c418a8818b0cd858422f1e49345e9"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">userinfo</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents8userinfoE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents12userinfo_lenE">
+<span id="_CPPv3N13UrlComponents12userinfo_lenE"></span><span id="_CPPv2N13UrlComponents12userinfo_lenE"></span><span id="UrlComponents::userinfo_len__i"></span><span class="target" id="structUrlComponents_1a12da3353b17888f86de7c3bdac8f1e01"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">userinfo_len</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents12userinfo_lenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents4hostE">
+<span id="_CPPv3N13UrlComponents4hostE"></span><span id="_CPPv2N13UrlComponents4hostE"></span><span id="UrlComponents::host__cCP"></span><span class="target" id="structUrlComponents_1ab7eaec5f531bb21793b7403dfb88479c"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">host</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents4hostE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents8host_lenE">
+<span id="_CPPv3N13UrlComponents8host_lenE"></span><span id="_CPPv2N13UrlComponents8host_lenE"></span><span id="UrlComponents::host_len__i"></span><span class="target" id="structUrlComponents_1a8b2cd662acc5dda55f156f560d8648ef"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">host_len</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents8host_lenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents4portE">
+<span id="_CPPv3N13UrlComponents4portE"></span><span id="_CPPv2N13UrlComponents4portE"></span><span id="UrlComponents::port__cCP"></span><span class="target" id="structUrlComponents_1a4ea8ef8b90d602dda89f1e847067d127"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">port</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents4portE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents8port_lenE">
+<span id="_CPPv3N13UrlComponents8port_lenE"></span><span id="_CPPv2N13UrlComponents8port_lenE"></span><span id="UrlComponents::port_len__i"></span><span class="target" id="structUrlComponents_1ab1fdd9fbd13000efd3bb1ce8ec61945e"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">port_len</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents8port_lenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents4pathE">
+<span id="_CPPv3N13UrlComponents4pathE"></span><span id="_CPPv2N13UrlComponents4pathE"></span><span id="UrlComponents::path__cCP"></span><span class="target" id="structUrlComponents_1ac978ed601deae5347abf0c514196a9e3"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">path</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents4pathE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents8path_lenE">
+<span id="_CPPv3N13UrlComponents8path_lenE"></span><span id="_CPPv2N13UrlComponents8path_lenE"></span><span id="UrlComponents::path_len__i"></span><span class="target" id="structUrlComponents_1a55134a7999727b89fcfd9a8b9fc0fedc"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">path_len</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents8path_lenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents5queryE">
+<span id="_CPPv3N13UrlComponents5queryE"></span><span id="_CPPv2N13UrlComponents5queryE"></span><span id="UrlComponents::query__cCP"></span><span class="target" id="structUrlComponents_1aaa8e635178dac48d167929561b49e466"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">query</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents5queryE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents9query_lenE">
+<span id="_CPPv3N13UrlComponents9query_lenE"></span><span id="_CPPv2N13UrlComponents9query_lenE"></span><span id="UrlComponents::query_len__i"></span><span class="target" id="structUrlComponents_1a3787a5aea8da4be25a8d335806792f15"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">query_len</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents9query_lenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents8fragmentE">
+<span id="_CPPv3N13UrlComponents8fragmentE"></span><span id="_CPPv2N13UrlComponents8fragmentE"></span><span id="UrlComponents::fragment__cCP"></span><span class="target" id="structUrlComponents_1aef6be25d06811e4d3f6beefd475a3a6a"></span><span class="k"><span class="pre">const</span></span><span class="w"> </span><span class="kt"><span class="pre">char</span></span><span class="w"> </span><span class="p"><span class="pre">*</span></span><span class="sig-name descname"><span class="n"><span class="pre">fragment</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents8fragmentE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+<dl class="cpp var">
+<dt class="sig sig-object cpp" id="_CPPv4N13UrlComponents12fragment_lenE">
+<span id="_CPPv3N13UrlComponents12fragment_lenE"></span><span id="_CPPv2N13UrlComponents12fragment_lenE"></span><span id="UrlComponents::fragment_len__i"></span><span class="target" id="structUrlComponents_1ad114e98ff6b71aa7d5094806b0f00d13"></span><span class="kt"><span class="pre">int</span></span><span class="w"> </span><span class="sig-name descname"><span class="n"><span class="pre">fragment_len</span></span></span><a class="headerlink" href="#_CPPv4N13UrlComponents12fragment_lenE" title="Link to this definition">#</a><br /></dt>
+<dd></dd></dl>
+
+</div>
+</dd></dl>
+
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="uri_encode.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">uri_encode</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="uuid.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">uuid</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv45isurlPKc"><code class="docutils literal notranslate"><span class="pre">isurl()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv46isurlnPKci"><code class="docutils literal notranslate"><span class="pre">isurln()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv48urlsplitPKcP13UrlComponents"><code class="docutils literal notranslate"><span class="pre">urlsplit()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv49urlsplitnPKciP13UrlComponents"><code class="docutils literal notranslate"><span class="pre">urlsplitn()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv47urljoinPclP13UrlComponents"><code class="docutils literal notranslate"><span class="pre">urljoin()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410pct_encodePclPKc"><code class="docutils literal notranslate"><span class="pre">pct_encode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411pct_nencodePclPKcl"><code class="docutils literal notranslate"><span class="pre">pct_nencode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411pct_xencodePclPKcl11StrCategoryPKc"><code class="docutils literal notranslate"><span class="pre">pct_xencode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv410pct_decodePclPKc"><code class="docutils literal notranslate"><span class="pre">pct_decode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv411pct_ndecodePclPKcl"><code class="docutils literal notranslate"><span class="pre">pct_ndecode()</span></code></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv413UrlComponents"><code class="docutils literal notranslate"><span class="pre">UrlComponents</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents6schemeE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::scheme</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents10scheme_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::scheme_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents9authorityE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::authority</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents13authority_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::authority_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8userinfoE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::userinfo</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents12userinfo_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::userinfo_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents4hostE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::host</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8host_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::host_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents4portE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::port</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8port_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::port_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents4pathE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::path</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8path_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::path_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents5queryE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::query</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents9query_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::query_len</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents8fragmentE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::fragment</span></code></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#_CPPv4N13UrlComponents12fragment_lenE"><code class="docutils literal notranslate"><span class="pre">UrlComponents::fragment_len</span></code></a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,874 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Storage plugins / Drivers &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=5029451f"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/storage_plugins';</script>
+    <script src="../_static/version-switcher.js"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="MongoDB storage plugin" href="storage_plugins_mongodb.html" />
+    <link rel="prev" title="Collections" href="collections.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">User Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vocabulary.html">Short vocabulary</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
+
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../c-api/src/utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fuser_guide/storage_plugins.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/user_guide/storage_plugins.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Storage plugins / Drivers</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-make-storage-plugins-available">How to make storage plugins available</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-storages-implicitly-from-python">Using storages implicitly from Python</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-an-instance">Loading an instance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-an-instance">Saving an instance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-storages-in-python">Working with storages in Python</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#writing-python-storage-plugins">Writing Python storage plugins</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distributing-storage-plugins">Distributing storage plugins</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-storages-from-c-and-fortran">Working with storages from C and Fortran</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="storage-plugins-drivers">
+<h1>Storage plugins / Drivers<a class="headerlink" href="#storage-plugins-drivers" title="Link to this heading">#</a></h1>
+<section id="content">
+<h2>Content<a class="headerlink" href="#content" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#introduction">Introduction</a></p></li>
+<li><p><a class="reference internal" href="#how-to-make-storage-plugins-available">How to make storage plugins available</a></p></li>
+<li><p><a class="reference internal" href="#using-storages-implicitly-from-python">Using storages implicitely from Python</a></p></li>
+<li><p><a class="reference internal" href="#working-with-storages-in-python">Working with storages in Python</a></p></li>
+<li><p><a class="reference internal" href="#writing-python-storage-plugins">Writing Python storage plugins</a></p></li>
+<li><p><a class="reference internal" href="#working-with-storages-from-c-and-fortran">Working with storages from C and Fortran</a></p></li>
+</ol>
+</section>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<p>A storage is in DLite an abstract concept that represent a generic data source or sink.
+It can be a file on disk, a local database or a database accessed via a web interface.
+Loading data from a storage into an instance and saving it back again is a key mechanism for interoperability at a syntactic level.</p>
+<p>DLite provides a plugin system that makes it easy to connect to new data sources via a common interface (using a <a class="reference external" href="https://en.wikipedia.org/wiki/Strategy_pattern">strategy design pattern</a>).
+Opening a storage takes in the general case four arguments, a <code class="docutils literal notranslate"><span class="pre">protocol</span></code> name identifying the <a class="reference external" href="https://sintef.github.io/dlite/user_guide/storage_plugins.html">protocol plugin</a> to use for data transfer, a <code class="docutils literal notranslate"><span class="pre">driver</span></code> name identifying the storage plugin to use for parsing/serialisation, the <code class="docutils literal notranslate"><span class="pre">location</span></code> of the storage and a set of storage-specific <code class="docutils literal notranslate"><span class="pre">options</span></code>.</p>
+<p>The <code class="docutils literal notranslate"><span class="pre">protocol</span></code> argument was introduced in v0.5.22 to provide a clear separation between transfer of raw data from/to the storage and parsing/serialisation of the data.</p>
+<p>Storage plugins can be categorised as either <em>generic</em> or <em>specific</em>.
+A generic storage plugin can store and retrieve any type of instance and metadata while a specific storage plugin typically deals with specific instances of one type of entity.
+DLite comes with a set of generic storage plugins, like json, yaml, rdf, hdf5, postgresql and mongodb.
+It also comes with a specific <code class="docutils literal notranslate"><span class="pre">Blob</span></code> and <code class="docutils literal notranslate"><span class="pre">Image</span></code> storage plugin, that can load and save instances of <code class="docutils literal notranslate"><span class="pre">http://onto-ns.com/meta/0.1/Blob</span></code> and <code class="docutils literal notranslate"><span class="pre">http://onto-ns.com/meta/0.1/Image</span></code>, respectively.
+Storage plugins can be written in either C or Python.</p>
+</section>
+<section id="how-to-make-storage-plugins-available">
+<h2>How to make storage plugins available<a class="headerlink" href="#how-to-make-storage-plugins-available" title="Link to this heading">#</a></h2>
+<p>As described below it is possible (and most often advisable) to create specific drivers (storage plugins) for your data.
+Additional storage plugins drivers can be made available by setting the environment variables
+<code class="docutils literal notranslate"><span class="pre">DLITE_STORAGE_PLUGIN_DIRS</span></code> or <code class="docutils literal notranslate"><span class="pre">DLITE_PYTHON_STORAGE_PLUGIN_DIRS</span></code> e.g.:</p>
+<div class="highlight-bash notranslate"><div class="highlight"><pre><span></span><span class="nb">export</span><span class="w"> </span><span class="nv">DLITE_STORAGE_PLUGIN_DIRS</span><span class="o">=</span>/path/to/new/folder:<span class="nv">$DLITE_STORAGE_PLUGIN_DIRS</span>
+</pre></div>
+</div>
+<p>Within python, the path to the directory containing plugins can be added as follows:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
+<span class="n">dlite</span><span class="o">.</span><span class="n">python_storage_plugin_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;/path/to/plugins/dir&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Often drivers are connected to very specific datamodel (entities).
+DLite will find these datamodels if the path to their directory is set with the
+environment variable <code class="docutils literal notranslate"><span class="pre">DLITE_STORAGES</span></code> or added within python with <code class="docutils literal notranslate"><span class="pre">dlite.storage_path.append</span></code> similarly to described above for drivers.</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>Often, during development dlite will fail unexpectedly. This is typically either because of an error in the
+datamodel or the driver.
+The variable DLITE_PYDEBUG can be set as <code class="docutils literal notranslate"><span class="pre">export</span> <span class="pre">DLITE_PYDEBUG=</span></code> to get python debugging information.
+This will give information about the driver.
+It is advisable to first check that the datamodel is valid with the command <code class="docutils literal notranslate"><span class="pre">dlite-validate</span> <span class="pre">datamodelfilename</span></code>.</p>
+</div>
+</section>
+<section id="using-storages-implicitly-from-python">
+<h2>Using storages implicitly from Python<a class="headerlink" href="#using-storages-implicitly-from-python" title="Link to this heading">#</a></h2>
+<p>For convenience DLite also has an interface for creating storages implicitly.</p>
+<section id="loading-an-instance">
+<h3>Loading an instance<a class="headerlink" href="#loading-an-instance" title="Link to this heading">#</a></h3>
+<p>If you only want to load a single instance from a storage, you can use one of the following class methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.load()</span></code>: load from a location using a specific protocol</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.from_location()</span></code>: load from a location</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.from_url()</span></code>: load from URL</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.from_bytes()</span></code>: load from a buffer</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.from_dict()</span></code>: load from Python dict</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.from_json()</span></code>: load from a JSON string</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.from_bson()</span></code>: load from a BSON string</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.from_storage()</span></code>: load from a storage</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.from_metaid()</span></code>: create a new empty instance (not loading anything)</p></li>
+</ul>
+<p>For example</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">newinst</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Instance</span><span class="o">.</span><span class="n">from_location</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;newfile.json&quot;</span><span class="p">,</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ex:blob1&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">newinst</span><span class="o">.</span><span class="n">uri</span>
+    <span class="s1">&#39;ex:blob1&#39;</span>
+
+</pre></div>
+</div>
+<p>To load a YAML file from a web location, you can combine the <code class="docutils literal notranslate"><span class="pre">http</span></code> <a class="reference external" href="https://sintef.github.io/dlite/user_guide/storage_plugins.html">protocol plugin</a> with the <code class="docutils literal notranslate"><span class="pre">yaml</span></code> storage plugin using <code class="docutils literal notranslate"><span class="pre">dlite.Instance.load()</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://raw.githubusercontent.com/SINTEF/dlite/refs/heads/master/storages/python/tests-python/input/test_meta.yaml&quot;</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Instance</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">protocol</span><span class="o">=</span><span class="s2">&quot;http&quot;</span><span class="p">,</span> <span class="n">driver</span><span class="o">=</span><span class="s2">&quot;yaml&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="n">url</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</section>
+<section id="saving-an-instance">
+<h3>Saving an instance<a class="headerlink" href="#saving-an-instance" title="Link to this heading">#</a></h3>
+<p>Similarly, if you want to save an instance, you can use the following methods:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.save()</span></code>: save to location, optionally using a specific protocol.
+Can also take an open <code class="docutils literal notranslate"><span class="pre">dlite.Storage</span></code> object or an URL as argument.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.to_bytes()</span></code>: returns the instance as a bytes object</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.asdict()</span></code>: returns the instance as a python dict</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.asjson()</span></code>: returns the instance as a JSON string</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">dlite.Instance.asbson()</span></code>: returns the instance as a BSON string</p></li>
+</ul>
+<p>For example, saving <code class="docutils literal notranslate"><span class="pre">newinst</span></code> to  BSON, can be done with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="n">newinst</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s2">&quot;bson&quot;</span><span class="p">,</span> <span class="s2">&quot;newinst.bson&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;mode=w&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</section>
+</section>
+<section id="working-with-storages-in-python">
+<h2>Working with storages in Python<a class="headerlink" href="#working-with-storages-in-python" title="Link to this heading">#</a></h2>
+<p>For instance, to create a new file-based JSON storage can in Python be done with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;newfile.json&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;mode=w&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>where the first argument is the name of the driver to use.
+It is also possible to combine the three arguments into a URL as in</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="n">s</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">&quot;json://newfile.json?mode=w&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>Note that the URL form is less flexible, since the scheme part identifies the driver and can therefore not be used in the location of an external storage.</p>
+<p>The options are plugin specific, but most file-based plugins take a <code class="docutils literal notranslate"><span class="pre">mode</span></code> option, with the following three values:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">r</span></code>: Open existing file for read-only.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">w</span></code>: Truncate existing file or create new file.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">a</span></code>: Append to existing file or create new file.</p></li>
+</ul>
+<p>The values of <code class="docutils literal notranslate"><span class="pre">driver</span></code>, <code class="docutils literal notranslate"><span class="pre">location</span></code> and <code class="docutils literal notranslate"><span class="pre">options</span></code> are available as attributes:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">driver</span>
+    <span class="s1">&#39;json&#39;</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">location</span>
+    <span class="s1">&#39;newfile.json&#39;</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">s</span><span class="o">.</span><span class="n">options</span>
+    <span class="s1">&#39;mode=w&#39;</span>
+
+</pre></div>
+</div>
+<p>Currently, the Python interface does not implement a <code class="docutils literal notranslate"><span class="pre">close()</span></code> method to avoid risking unexpected crashes if one tries to access a closed storage object.
+If you want to ensure a storage is closed (and possible buffered data is committed), you can delete it:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="k">del</span> <span class="n">s</span>
+
+</pre></div>
+</div>
+<p>Alternatively, you can open a storage in a <code class="docutils literal notranslate"><span class="pre">with</span></code>-statement.
+This is the preferred way, since it ensures that the storage is closed after use.</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;newfile.json&quot;</span><span class="p">,</span> <span class="n">options</span><span class="o">=</span><span class="s2">&quot;mode=w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="o">...</span>     <span class="o">...</span>  <span class="c1"># doctest: +SKIP</span>
+
+</pre></div>
+</div>
+<p>Instances can be stored using the <code class="docutils literal notranslate"><span class="pre">save()</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Create some Blob data instances</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">Blob</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">get_instance</span><span class="p">(</span><span class="s1">&#39;http://onto-ns.com/meta/0.1/Blob&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">blob1</span> <span class="o">=</span> <span class="n">Blob</span><span class="p">(</span><span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ex:blob1&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">blob2</span> <span class="o">=</span> <span class="n">Blob</span><span class="p">(</span><span class="n">dims</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;n&quot;</span><span class="p">:</span> <span class="mi">5</span><span class="p">},</span> <span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ex:blob2&quot;</span><span class="p">)</span>
+
+    <span class="c1"># Add the instances to the storage</span>
+    <span class="c1"># The option &quot;mode=w&quot; create a new JSON file (or overwrite it if it already exists)</span>
+    <span class="c1"># The option &quot;single=no&quot; make sure that we store in a format that can accomodate multiple instances.</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="n">location</span><span class="o">=</span><span class="s2">&quot;newfile.json&quot;</span><span class="p">,</span>
+    <span class="o">...</span>                    <span class="n">options</span><span class="o">=</span><span class="s2">&quot;mode=w;single=no&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="o">...</span>     <span class="n">s</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">blob1</span><span class="p">)</span>
+    <span class="o">...</span>     <span class="n">s</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">blob2</span><span class="p">)</span>
+    <span class="o">...</span>     <span class="n">s</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">Blob</span><span class="p">)</span>  <span class="c1"># entities can also be saved</span>
+
+</pre></div>
+</div>
+<p>Note that we in the above example also store the Blob entity to the storage.
+That can be a good idea if you don’t have a proper metadata storage, since DLite needs the metadata in order to instantiate an instance.
+When loading an instance and the metadata is not already in memory, DLite will first look for the metadata in the current and all other open storages before checking <code class="docutils literal notranslate"><span class="pre">dlite.storage_path</span></code>.</p>
+<p>The instances can be loaded back from the storage with the <code class="docutils literal notranslate"><span class="pre">load()</span></code> method:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;newfile.json&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">s</span><span class="p">:</span>
+    <span class="o">...</span>     <span class="n">inst1</span> <span class="o">=</span> <span class="n">s</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="s2">&quot;ex:blob1&quot;</span><span class="p">)</span>
+
+</pre></div>
+</div>
+<p>Note that we in the above example have omitted the <code class="docutils literal notranslate"><span class="pre">options</span></code> argument to <code class="docutils literal notranslate"><span class="pre">dlite.Storage</span></code>, since default is <code class="docutils literal notranslate"><span class="pre">mode=r</span></code>.
+We also have to provide an <code class="docutils literal notranslate"><span class="pre">id</span></code> argument to <code class="docutils literal notranslate"><span class="pre">load()</span></code>, to specify which of the instances in the storage we want to load.
+We can easily see that the loaded instance has the same UUID as the blob we stored:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="n">inst1</span><span class="o">.</span><span class="n">uuid</span> <span class="o">==</span> <span class="n">blob1</span><span class="o">.</span><span class="n">uuid</span>
+    <span class="kc">True</span>
+
+</pre></div>
+</div>
+<p>In fact, even though <code class="docutils literal notranslate"><span class="pre">blob1</span></code> and <code class="docutils literal notranslate"><span class="pre">inst1</span></code> are different python objects, they share the same underlying memory:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="nb">id</span><span class="p">(</span><span class="n">inst1</span><span class="p">)</span> <span class="o">==</span> <span class="nb">id</span><span class="p">(</span><span class="n">blob1</span><span class="p">)</span>
+    <span class="kc">False</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">blob1</span><span class="o">.</span><span class="n">content</span>
+    <span class="n">array</span><span class="p">([</span><span class="mi">0</span><span class="p">,</span> <span class="mi">0</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">uint8</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">inst1</span><span class="o">.</span><span class="n">content</span> <span class="o">=</span> <span class="sa">b</span><span class="s1">&#39;</span><span class="se">\x01\x08</span><span class="s1">&#39;</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">blob1</span><span class="o">.</span><span class="n">content</span>
+    <span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="p">,</span> <span class="mi">8</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">uint8</span><span class="p">)</span>
+
+</pre></div>
+</div>
+</section>
+<section id="writing-python-storage-plugins">
+<h2>Writing Python storage plugins<a class="headerlink" href="#writing-python-storage-plugins" title="Link to this heading">#</a></h2>
+<p>Storage plugins can be written in either C or Python.</p>
+<p>In Python the storage plugin should be a Python module defining a subclass of <code class="docutils literal notranslate"><span class="pre">dlite.DLiteStorageBase</span></code> defining one or more of the following methods:</p>
+<ul class="simple">
+<li><p><strong>open()</strong>: Open and initiate the storage.  Required if any of load(), save(), delete(), query(), flush(), close() are defined.</p></li>
+<li><p><strong>load()</strong>: Load an instance from the storage and return it.</p></li>
+<li><p><strong>save()</strong>: Save an instance to the storage.</p></li>
+<li><p><strong>delete()</strong>: Delete and an instance from the storage.</p></li>
+<li><p><strong>query()</strong>: Query the storage for instance UUIDs.</p></li>
+<li><p><strong>flush()</strong>: Flushed cached data to the storage.</p></li>
+<li><p><strong>close()</strong>: Close the storage.</p></li>
+<li><p><strong>from_bytes()</strong>: Class method that loads an instance from a buffer.</p></li>
+<li><p><strong>to_bytes()</strong>: Class method that saves an instance to a buffer.</p></li>
+</ul>
+<p>A plugin can be defined with only the <code class="docutils literal notranslate"><span class="pre">from_bytes</span></code> and <code class="docutils literal notranslate"><span class="pre">to_bytes</span></code> methods. This has the advantage that only serialisation/deserialisation of the data and datamodels is considered in the actual plugin. In such cases Instances must
+be instantiated with the dlite.Instance.load method, and the <a class="reference external" href="https://sintef.github.io/dlite/user_guide/storage_plugins.html">protocol plugin</a> must be given.</p>
+<p>All methods are optional. You only have to implement the methods providing the functionality you need.
+See the <a class="reference external" href="https://github.com/SINTEF/dlite/blob/master/doc/user_guide/storage_plugin.py">Python storage plugin template</a> for how to write a Python storage plugin.
+A complete example can be found in the <a class="reference external" href="https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin">Python storage plugin example</a>.</p>
+<p>In order for DLite to find the storage plugin, it should be in the search path defined by the <code class="docutils literal notranslate"><span class="pre">DLITE_PYTHON_STORAGE_PLUGIN_DIRS</span></code> environment variable or from Python, in <code class="docutils literal notranslate"><span class="pre">dlite.python_storage_plugin_path</span></code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p><strong>Prior to DLite v0.5.23 all storage plugins were executed in the same scope.</strong>
+This could lead to confusing and hard-to-find bugs due to interference between your plugins.</p>
+</div>
+<p>However, since DLite v0.5.23, plugins are evaluated in separate scopes (which are available in `dlite._plugindict).</p>
+<section id="distributing-storage-plugins">
+<h3>Distributing storage plugins<a class="headerlink" href="#distributing-storage-plugins" title="Link to this heading">#</a></h3>
+<p>If you created a python package with new storage plugins, you can make them
+available for users of your package by creating entry points with the paths to the storage plugins.</p>
+<p>Add the following section to your <code class="docutils literal notranslate"><span class="pre">pyproject.toml</span></code>:</p>
+<div class="highlight-toml notranslate"><div class="highlight"><pre><span></span><span class="k">[project.entry-points.dlite]</span>
+<span class="n">python_storage_plugins</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;path/to/python_storage_plugins/directory&quot;</span>
+</pre></div>
+</div>
+<p>See <a class="reference external" href="https://sintef.github.io/dlite/user_guide/search_paths.html">Search paths</a> for more information about entry points.</p>
+</section>
+</section>
+<section id="working-with-storages-from-c-and-fortran">
+<h2>Working with storages from C and Fortran<a class="headerlink" href="#working-with-storages-from-c-and-fortran" title="Link to this heading">#</a></h2>
+<p>The C API for storages is documented in the <a class="reference external" href="https://sintef.github.io/dlite/dlite/storage.html">C reference manual</a>.
+Conceptually it is similar to the Python interface, except that everything is implemented as functions.
+For an example, see <a class="reference external" href="https://github.com/SINTEF/dlite/tree/master/examples/ex1">ex1</a>.</p>
+<p>The Fortran interface relies heavily on code generation.
+An example is available in <a class="reference external" href="https://github.com/SINTEF/dlite/tree/master/examples/ex4">ex4</a>.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="collections.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Collections</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="storage_plugins_mongodb.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">MongoDB storage plugin</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-make-storage-plugins-available">How to make storage plugins available</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#using-storages-implicitly-from-python">Using storages implicitly from Python</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#loading-an-instance">Loading an instance</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#saving-an-instance">Saving an instance</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-storages-in-python">Working with storages in Python</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#writing-python-storage-plugins">Writing Python storage plugins</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#distributing-storage-plugins">Distributing storage plugins</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#working-with-storages-from-c-and-fortran">Working with storages from C and Fortran</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
