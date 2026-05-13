@@ -52,7 +52,7 @@ assert isinstance(m21, dlite.Metadata)
 assert isinstance(m22, dlite.Metadata)
 assert m21.description == "First data model."
 assert m21.getprop("temperature").type == "float64"
-assert m21.getprop("temperature").unit == "°C"
+assert m21.getprop("temperature").unit == "\u00b0C"
 assert m22.getprop("key").type == "string"
 assert m22.getprop("indices").type == "int64"
 assert m22.getprop("indices").shape.tolist() == ["N", "M"]
