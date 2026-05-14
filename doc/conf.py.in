@@ -77,17 +77,27 @@ if plugin_root.exists():
         if plugin_dir.is_dir()
     ]
 
-# Prefer built package paths when present, but gracefully fall back to source
-# locations so Python API docs are still generated in partial build setups.
-candidate_autoapi_dirs = [
-    Path("@CMAKE_BINARY_DIR@/bindings/python/dlite"),
-    Path("@CMAKE_BINARY_DIR@/bindings/python"),
-    Path("@CMAKE_SOURCE_DIR@/bindings/python"),
-]
+# Prefer the built Python package tree (stable module namespace), but fall
+# back to source tree if docs are built without package generation.
+autoapi_build_dir = Path("@CMAKE_BINARY_DIR@/bindings/python/dlite")
+autoapi_source_dir = Path("@CMAKE_SOURCE_DIR@/bindings/python")
 
-autoapi_dirs = [str(p) for p in candidate_autoapi_dirs if p.exists()]
+def _has_python_sources(path: Path) -> bool:
+    if not path.exists() or not path.is_dir():
+        return False
+    return any(path.rglob("*.py")) or any(path.rglob("*.pyi"))
+
+# Prefer the source tree for deterministic docs in CI. The build tree can
+# exist but still be incomplete depending on build order/configuration.
+autoapi_dirs = []
+if _has_python_sources(autoapi_source_dir):
+    autoapi_dirs.append(str(autoapi_source_dir))
+if _has_python_sources(autoapi_build_dir):
+    autoapi_dirs.append(str(autoapi_build_dir))
 if not autoapi_dirs:
-    autoapi_dirs = [str(candidate_autoapi_dirs[-1])]
+    autoapi_dirs = [str(autoapi_source_dir)]
+
+print(f"[conf.py] AutoAPI dirs: {autoapi_dirs}")
 autoapi_type = "python"
 autoapi_file_patterns = ["*.py", "*.pyi"]
 autoapi_template_dir = "_templates/autoapi"
@@ -96,6 +106,8 @@ autoapi_ignore = [
     "*/tests/*",
     "*/scripts/*",
     "*/doxy2swig.py",
+    "*/share/dlite/*",
+    "*/python-*-plugins/*",
 ]
 autoapi_options = [
     "members",

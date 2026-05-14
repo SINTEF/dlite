@@ -117,12 +117,12 @@ class DMTable():
                         continue
 
                     if k == "shape":
-                            prop[k] = [
-                                s.strip()
-                                for s in value.strip("[]").split(",")
-                            ]
-                            for dim in prop[k]:
-                                dims[dim] = f"{dim} dimension"
+                        prop[k] = [
+                            s.strip()
+                            for s in value.strip("[]").split(",")
+                        ]
+                        for dim in prop[k]:
+                            dims[dim] = f"{dim} dimension"
                     elif k == "unit" and HAVE_TRIPPER:
                         try:
                             get_unit_iri(value)
