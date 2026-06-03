@@ -37,7 +37,8 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.13.5"
+          # Keep docs on a stable interpreter for current Sphinx/AutoAPI stack.
+          python-version: "3.12"
 
       - name: Install system dependencies
         run: |
