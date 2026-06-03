@@ -1,0 +1,24 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+COPY .github/docker/cd_docs_apt_packages.txt /tmp/cd_docs_apt_packages.txt
+
+RUN apt-get update --fix-missing && \
+    xargs -a /tmp/cd_docs_apt_packages.txt apt-get install -y --no-install-recommends && \
+    rm -rf /var/lib/apt/lists/* /tmp/cd_docs_apt_packages.txt
+
+WORKDIR /workspace
+
+COPY requirements.txt requirements_doc.txt requirements_dev.txt ./
+
+RUN python3 -m venv /opt/venv
+ENV PATH="/opt/venv/bin:${PATH}"
+
+RUN pip install --upgrade pip && \
+    pip install -r requirements.txt -r requirements_doc.txt -r requirements_dev.txt
+
+COPY .github/docker/run_cd_docs_ci_local_in_container.sh /usr/local/bin/run_cd_docs_ci_local_in_container.sh
+RUN chmod +x /usr/local/bin/run_cd_docs_ci_local_in_container.sh
+
+ENTRYPOINT ["/usr/local/bin/run_cd_docs_ci_local_in_container.sh"]
