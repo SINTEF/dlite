@@ -84,7 +84,7 @@ jobs:
           #echo "CACHE_DIR=.buildx-cache-${SYSTEM}" >> "$GITHUB_ENV"
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Create docker file
         run: |
