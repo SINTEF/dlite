@@ -151,6 +151,9 @@ class Service:
         compose: Docker compose file to use.
         autostop: Automatically stop the service when the script exists.
         sleep: Sleep time in seconds for service to get ready after start.
+        stamp: Whether to create a stamp file if the service is already running.
+             If a stamp file exists when stopping a service, the stamp file
+             is removed instead of stopping the service.
     """
     # Possible configuration keys:
     #   - port: Port number that service is listening to.
@@ -175,6 +178,7 @@ class Service:
         compose_file: Optional[str] = None,
         autostop: bool = True,
         sleep: Optional[float] = None,
+        stamp: bool = False,
     ):
         rootdir = Path(dlite_SOURCE_ROOT)
         datadir = Path(DLITE_DATA_DIR)
@@ -202,6 +206,7 @@ class Service:
         self.container_name = f"ctest-{name}-server"
         self.autostop = autostop
         self.sleep = sleep if sleep else conf_sleep
+        self.stamp = stamp
         self.running = None  # Whether the service is already running
         # File created by start() if service is already running
         self.stampfile = outdir / f"{name}.stamp"
@@ -224,7 +229,8 @@ class Service:
         # Don't start service if it is already running
         self.running = self.status()
         if self.running:
-            self.stampfile.touch()
+            if self.stamp:
+                self.stampfile.touch()
             return
 
         # Make sure there is not stampfile
@@ -257,7 +263,7 @@ class Service:
     def stop(self):
         """Stop service."""
         # Do not stop service if a stampfile exists - just remove the stampfile
-        if self.stampfile.exists():
+        if self.stamp and self.stampfile.exists():
             self.stampfile.unlink()
             return
 

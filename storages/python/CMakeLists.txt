@@ -97,11 +97,11 @@ string(REPLACE "\n" ";" services ${stripped})
 foreach(service ${services})
   add_test(
     NAME start_${service}
-    COMMAND ${RUNNER} ${DLITE_SERVICE} --start ${service}
+    COMMAND ${RUNNER} ${DLITE_SERVICE} --stamp --start ${service}
   )
   add_test(
     NAME stop_${service}
-    COMMAND ${RUNNER} ${DLITE_SERVICE} --stop ${service}
+    COMMAND ${RUNNER} ${DLITE_SERVICE} --stamp --stop ${service}
   )
   set_tests_properties(start_${service} PROPERTIES FIXTURES_SETUP   ${service})
   set_tests_properties(stop_${service}  PROPERTIES FIXTURES_CLEANUP ${service})

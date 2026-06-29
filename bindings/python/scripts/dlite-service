@@ -92,6 +92,14 @@ def main():
         help="Sleep time to let the service getting ready.",
     )
     parser.add_argument(
+        "--stamp",
+        action="store_true",
+        help=(
+            "Whether to create a 'stamp' file if the service is already "
+            "running."
+        ),
+    )
+    parser.add_argument(
         "--debug", "-d",
         action="store_true",
         help="Whether to print debug traceback on error."
@@ -119,6 +127,7 @@ def main():
             compose_file=args.compose_file,
             autostop=False,
             sleep=args.sleep,
+            stamp=args.stamp,
         )
         try:
             if args.stop:

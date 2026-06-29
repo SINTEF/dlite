@@ -71,8 +71,6 @@ add_custom_target(
     ${dlite_BINARY_DIR}/storages/python/c-tests
   )
 
-# Copy metadata def. to working directory
-file(COPY Person.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Compile and add tests
 foreach(test ${tests})
@@ -140,10 +138,11 @@ endforeach()
 set_property(TEST test_postgresql_storage2 APPEND
   PROPERTY DEPEND test_postgresql_storage)
 
-# Set fixtures
+# Set fixtures and dependencies
 set_tests_properties(test_postgresql_storage PROPERTIES
   FIXTURES_REQUIRED postgres
 )
 set_tests_properties(test_postgresql_storage2 PROPERTIES
   FIXTURES_REQUIRED postgres
+  #DEPEND test_postgresql_storage
 )
