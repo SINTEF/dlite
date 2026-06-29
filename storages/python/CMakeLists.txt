@@ -88,6 +88,7 @@ set(DLITE_SERVICE
 # Fixture tests
 execute_process(
   COMMAND ${RUNNER} ${DLITE_SERVICE} --list
+  ENVIRONMENT PYTHONPATH="${dlite_PYTHONPATH}${PATHSEP}$ENV{PYTHONPATH}"
   OUTPUT_VARIABLE output
 )
 string(STRIP ${output} stripped)
