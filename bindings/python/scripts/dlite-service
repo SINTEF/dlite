@@ -19,20 +19,23 @@ CROSS = f"{RED}\u2717{RESET}"
 
 
 def main():
+    # Argument `suggest_on_error` is only available from Python 4.14
+    kw = {"suggest_on_error": True} if sys.version_info >= (3, 14) else {}
+
     parser = argparse.ArgumentParser(
         description="Start/stop or list status of DLite test service(s).",
         epilog=(
-            "If no service is listed, the command will apply to all registered "
-            "services (see the --list option). "
+            "If no service is listed, the command will apply to all "
+            "registered services (see the --list option). "
             "If neither --start nor --stop is provided, the status is shown."
         ),
         usage="%(prog)s [--start,--stop] [OTHER_OPTIONS] [SERVICE...]",
-        suggest_on_error=True,
+        **kw,
     )
     parser.add_argument(
         "service",
         metavar="SERVICE",
-        choices=SERVICES,
+        choices=SERVICES if sys.version_info >= (3, 14) else None,
         action="extend",
         default=[],
         nargs="*",
@@ -60,7 +63,10 @@ def main():
     )
     parser.add_argument(
         "--port", "-p",
-        help="Port that service is running on. Default is inferred form `name`.",
+        help=(
+            "Port that service is running on. Default is inferred from "
+            "`name`."
+        ),
     )
     parser.add_argument(
         "--timeout", "-t",

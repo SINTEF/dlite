@@ -10,7 +10,7 @@ from pathlib import Path
 from typing import Optional
 
 import dlite
-from dlite.paths import dlite_SOURCE_ROOT
+from dlite.paths import dlite_SOURCE_ROOT, DLITE_DATA_DIR
 
 
 class UnexpectedSuccessError(Exception):
@@ -177,12 +177,20 @@ class Service:
         sleep: Optional[float] = None,
     ):
         rootdir = Path(dlite_SOURCE_ROOT)
+        datadir = Path(DLITE_DATA_DIR)
         testdir = rootdir / "bindings" / "python" / "tests"
-        composedir = testdir / "services"
-        outdir = testdir / "output"
+        if datadir.exists():
+            outdir = Path("/tmp") / "dlite"
+            outdir.mkdir(parents=True, exist_ok=True)
+            composedir = datadir / "services"
+        else:
+            composedir = testdir / "services"
+            outdir = testdir / "output"
+
         compfile = composedir / f"compose-{name}.yml"
         if compose_file is None and compfile.exists():
             compose_file = compfile
+
         conf_sleep = self.conf.get(name, {}).get("sleep", 0.5)
 
         self.name = name
@@ -199,7 +207,7 @@ class Service:
         self.stampfile = outdir / f"{name}.stamp"
 
     def run(self, cmd, **kwargs):
-        """Help function for executing a command.
+        """Help function for executing a command capturing errors.
 
         Keyword arguments are passed to subprocess.run()."""
         command = [str(c) for c in cmd]
@@ -254,14 +262,18 @@ class Service:
             return
 
         if self.compose_file:
-            cmds = [["docker", "compose", "-f", self.compose_file, "down"]]
+            self.run(
+                ["docker", "compose", "-f", self.compose_file, "down"],
+                capture_output=True,
+            )
         elif self.image:
             cmds = [
                 ["docker", "stop", self.container_name],
                 ["docker", "rm", self.container_name],
             ]
-        for args in cmds:
-            self.run(args, capture_output=True)
+            for args in cmds:
+                subprocess.run(args, capture_output=True)
+
         if self.autostop and self.running is False:
             atexit.unregister(self.stop)
 

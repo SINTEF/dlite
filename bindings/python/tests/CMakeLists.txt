@@ -73,3 +73,12 @@ set_tests_properties(test_postgresql2_read-py PROPERTIES
 set_property(TEST test_collection_load-py APPEND PROPERTY
   DEPENDS test_collection-py
 )
+
+# Install
+install(
+  DIRECTORY services
+  DESTINATION ${DLITE_DATA_DIR}
+  USE_SOURCE_PERMISSIONS
+  PATTERN ".gitignore" EXCLUDE
+  PATTERN "*~" EXCLUDE
+)
