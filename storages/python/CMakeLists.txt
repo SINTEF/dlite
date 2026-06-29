@@ -80,31 +80,37 @@ if(NOT WITH_STATIC_PYTHON)
 endif()
 add_subdirectory(tests-python)
 
-# Fixture tests
-set(services
-  postgres
-  minio
-  redis
-  mongo
+# Service script
+set(DLITE_SERVICE
+  ${python_exe} ${dlite-bindings-python-scripts_SOURCE_DIR}/dlite-service
 )
+
+# Fixture tests
+execute_process(
+  COMMAND ${RUNNER} ${DLITE_SERVICE} --list
+  OUTPUT_VARIABLE output
+)
+string(STRIP ${output} stripped)
+string(REPLACE "\n" ";" services ${stripped})
+
 foreach(service ${services})
   add_test(
     NAME start_${service}
-    COMMAND ${RUNNER} dlite-service --start ${service}
+    COMMAND ${RUNNER} ${DLITE_SERVICE} --start ${service}
   )
   add_test(
     NAME stop_${service}
-    COMMAND ${RUNNER} dlite-service --stop ${service}
+    COMMAND ${RUNNER} ${DLITE_SERVICE} --stop ${service}
   )
   set_tests_properties(start_${service} PROPERTIES FIXTURES_SETUP   ${service})
   set_tests_properties(stop_${service}  PROPERTIES FIXTURES_CLEANUP ${service})
 
   # Disable cleanup fixture if service is already running
   execute_process(
-    COMMAND ${RUNNER} dlite-service ${service}
+    COMMAND ${RUNNER} ${DLITE_SERVICE} ${service}
     RESULT_VARIABLE running
+    OUTPUT_VARIABLE unused
   )
-  message("*** running=${running}")
   if(${running} EQUAL 0)
     set_tests_properties(stop_${service} PROPERTIES DISABLED TRUE)
   endif()
