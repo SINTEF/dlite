@@ -63,7 +63,13 @@ foreach(test ${tests})
 endforeach()
 
 # Additional properties
-set_property(TEST test_postgresql2_read-py PROPERTY
-  DEPENDS test_postgresql1_write-py)
+set_tests_properties(test_postgresql1_write-py PROPERTIES
+  FIXTURES_REQUIRED postgres
+)
+set_tests_properties(test_postgresql2_read-py PROPERTIES
+  FIXTURES_REQUIRED postgres
+  DEPENDS test_postgresql1_write-py
+)
 set_property(TEST test_collection_load-py APPEND PROPERTY
-  DEPENDS test_collection-py)
+  DEPENDS test_collection-py
+)

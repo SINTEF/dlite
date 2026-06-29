@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: my_postgres_db
+    restart: always
+    environment:
+      POSTGRES_USER: pguser
+      POSTGRES_PASSWORD: pgpass
+      POSTGRES_DB: testdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - /var/lib/postgresql/data  # Anonymous volume (no host path specified)
+      # Optional: Mount initialization scripts here
+      # - /tmp/dlite/pg_initdb:/docker-entrypoint-initdb.d

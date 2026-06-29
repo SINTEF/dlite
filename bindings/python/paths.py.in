@@ -1,5 +1,6 @@
 dlite_INSTALL_ROOT = '@CMAKE_INSTALL_PREFIX@'
 dlite_BUILD_ROOT = '@dlite_BINARY_DIR@'
+dlite_SOURCE_ROOT = '@dlite_SOURCE_DIR@'
 
 dlite_PATH = '@dlite_PATH@'
 dlite_LD_LIBRARY_PATH = '@dlite_LD_LIBRARY_PATH@'

@@ -90,3 +90,7 @@ endforeach()
 set_property(TEST test_minio PROPERTY
   SKIP_REGULAR_EXPRESSION "(XMinioStorageFull)|(ConnectTimeoutError)"
 )
+
+# Set fixtures
+set_tests_properties(test_minio PROPERTIES FIXTURES_REQUIRED minio)
+set_tests_properties(test_redis PROPERTIES FIXTURES_REQUIRED redis)

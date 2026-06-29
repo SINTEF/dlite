@@ -1,0 +1,141 @@
+#!/usr/bin/env python3
+"""Starts/stops test services."""
+import argparse
+import sys
+
+from dlite.testutils import Service
+
+
+# Registered services
+SERVICES = ["minio", "mongo", "postgres", "redis"]
+
+# ANSI colour codes
+RED = "\033[31m"
+GREEN = "\033[32m"
+RESET = "\033[0m"
+
+TICK = f"{GREEN}\u2714{RESET}"
+CROSS = f"{RED}\u2717{RESET}"
+
+
+def main():
+    parser = argparse.ArgumentParser(
+        description="Start/stop or list status of DLite test service(s).",
+        epilog=(
+            "If no service is listed, the command will apply to all registered "
+            "services (see the --list option). "
+            "If neither --start nor --stop is provided, the status is shown."
+        ),
+        usage="%(prog)s [--start,--stop] [OTHER_OPTIONS] [SERVICE...]",
+        suggest_on_error=True,
+    )
+    parser.add_argument(
+        "service",
+        metavar="SERVICE",
+        choices=SERVICES,
+        action="extend",
+        default=[],
+        nargs="*",
+        help="Name of service.",
+    )
+    parser.add_argument(
+        "--start", "-s",
+        action="store_true",
+        help="Start the service(s).",
+    )
+    parser.add_argument(
+        "--stop", "-S",
+        action="store_true",
+        help="Stop the service(s).",
+    )
+    parser.add_argument(
+        "--list", "-l",
+        action="store_true",
+        help="List all registered services and exit.",
+    )
+    parser.add_argument(
+        "--host", "-H",
+        default="localhost",
+        help="Host on which to ping for status.",
+    )
+    parser.add_argument(
+        "--port", "-p",
+        help="Port that service is running on. Default is inferred form `name`.",
+    )
+    parser.add_argument(
+        "--timeout", "-t",
+        metavar="SECONDS",
+        type=float,
+        help="Timeout for checking if service is running.",
+    )
+    parser.add_argument(
+        "--image", "-i",
+        help="Name of docker image to use. Default is inferred from `name`.",
+    )
+    parser.add_argument(
+        "--compose-file", "-c",
+        help=(
+            "Docker compose file for the service. Default is inferred from "
+            "`name`."
+        ),
+    )
+    parser.add_argument(
+        "--sleep",
+        metavar="SECONDS",
+        type=float,
+        help="Sleep time to let the service getting ready.",
+    )
+    parser.add_argument(
+        "--debug", "-d",
+        action="store_true",
+        help="Whether to print debug traceback on error."
+    )
+    args = parser.parse_args()
+    timeout = (
+        args.timeout if args.timeout else 3.05 if args.start else 0.1
+    )
+
+    if args.list:
+        for service in SERVICES:
+            print(service)
+        sys.exit(0)
+
+    success = True
+    services = args.service if args.service else SERVICES
+    for service in services:
+
+        serv = Service(
+            name=service,
+            host=args.host,
+            port=args.port,
+            timeout=timeout,
+            image=args.image,
+            compose_file=args.compose_file,
+            autostop=False,
+            sleep=args.sleep,
+        )
+        try:
+            if args.stop:
+                serv.stop()
+                print(f" {TICK} Container {serv.container_name} Stopped")
+            if args.start:
+                serv.start()
+                print(f" {TICK} Container {serv.container_name} Started")
+            if not args.start and not args.stop:
+                if serv.status():
+                    print(
+                        f" {TICK} Container {serv.container_name} is up")
+                else:
+                    print(f" {CROSS} Container {serv.container_name} is down")
+                    success = False
+        except Exception as exc:
+            if args.debug:
+                raise
+            print(f" {CROSS} {exc}")
+            success = False
+
+    if not success:
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main()

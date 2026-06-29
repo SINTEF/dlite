@@ -5,40 +5,48 @@ from pathlib import Path
 
 import dlite
 from dlite.options import Options
-from dlite.testutils import importskip
+from dlite.testutils import importskip, Service
 
-importskip("pymongo", env_exitcode=None)
-mongomock = importskip("mongomock", env_exitcode=None)
-
-from dlite.testutils import importskip
-
-
-@mongomock.patch(servers=(('localhost', 27017),))
-def create_storage():
-    """ Create storage with mongomock """
-    storage = dlite.Storage(
-        "mongodb", "localhost", "user=testuser;password=testpw"
-    )
-    return storage
+importskip("pymongo")
+#importskip("pymongo", env_exitcode=None)
+#mongomock = importskip("mongomock", env_exitcode=None)
 
 
-if 'DLITETEST_MONGODB_AZURE' in os.environ:
-    print('Test MongoDB on Azure')
-    conn_str = os.environ['DLITETEST_MONGODB_AZURE']
-    options = Options("mode=w")
-    options.update(
-        database=os.environ['DLITETEST_MONGODB_AZURE_DATABASE'],
-        collection=os.environ['DLITETEST_MONGODB_AZURE_COLLECTION']
-    )
-    storage = dlite.Storage("mongodb", conn_str, str(options))
-    print(storage.options)
-    instances = list(storage.instances())
-    print('azure instances', len(instances))
-    assert len(instance) == int(os.environ['DLITETEST_MONGODB_AZURE_COUNT'])
+#@mongomock.patch(servers=(('localhost', 27017),))
+#def create_storage():
+#    """ Create storage with mongomock """
+#    storage = dlite.Storage(
+#        "mongodb", "localhost", "user=testuser;password=testpw"
+#    )
+#    return storage
+#
+#
+#if 'DLITETEST_MONGODB_AZURE' in os.environ:
+#    print('Test MongoDB on Azure')
+#    conn_str = os.environ['DLITETEST_MONGODB_AZURE']
+#    options = Options("mode=w")
+#    options.update(
+#        database=os.environ['DLITETEST_MONGODB_AZURE_DATABASE'],
+#        collection=os.environ['DLITETEST_MONGODB_AZURE_COLLECTION']
+#    )
+#    storage = dlite.Storage("mongodb", conn_str, str(options))
+#    print(storage.options)
+#    instances = list(storage.instances())
+#    print('azure instances', len(instances))
+#    assert len(instance) == int(os.environ['DLITETEST_MONGODB_AZURE_COUNT'])
 
 
 thisdir = Path(__file__).absolute().parent
 inputdir = thisdir / "input"
+
+# Start test server
+options = "username=mongouser;password=mongopass"
+serv = Service("mongo")
+serv.start()
+assert serv.status()
+
+storage = dlite.Storage("mongodb", "localhost", options)
+
 
 # Load existing test data
 meta = dlite.Instance.from_location("json", inputdir / "test_meta.json")
@@ -48,7 +56,6 @@ inst2 = dlite.Instance.from_location("json", inputdir / "test_data.json",
                                      id="410ace1a-1e71-5e08-9ff3-b952307dbffe")
 
 
-storage = create_storage()
 # Store metadata and data
 meta.save(storage)
 inst1.save(storage)
