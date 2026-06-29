@@ -91,8 +91,8 @@ execute_process(
   ENVIRONMENT PYTHONPATH="${dlite_PYTHONPATH}${PATHSEP}$ENV{PYTHONPATH}"
   OUTPUT_VARIABLE output
 )
-string(STRIP ${output} stripped)
-string(REPLACE "\n" ";" services ${stripped})
+string(STRIP "${output}" stripped)
+string(REPLACE "\n" ";" services "${stripped}")
 
 foreach(service ${services})
   add_test(
