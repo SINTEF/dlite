@@ -10,7 +10,7 @@
 #define dlite_PYTHONPATH              "@dlite_PYTHONPATH@"
 #define dlite_PYTHONPATH_NATIVE       "@dlite_PYTHONPATH_NATIVE@"
 
-//#define dlite_BUILD_ROOT              "@dlite_BUILD_ROOT_NATIVE@"
+#define dlite_SOURCE_ROOT             "@dlite_SOURCE_DIR@"
 #define dlite_BUILD_ROOT              "@dlite_BINARY_DIR@"
 #define dlite_INSTALL_ROOT            "@CMAKE_INSTALL_PREFIX@"
 

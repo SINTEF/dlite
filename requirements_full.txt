@@ -18,7 +18,7 @@ redis>=5.0,<8
 minio>=6.0,<8
 pymongo>=4.4.0,<5
 urllib3>=1.0.0,<3
-psycopg>=2,<4
+psycopg[binary]>=2,<4
 
 # Utilities
 # Bug in pydantic 2.10.0, 2.10.1: See https://github.com/pydantic/pydantic/issues/9898

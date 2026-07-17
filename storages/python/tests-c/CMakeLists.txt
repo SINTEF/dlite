@@ -47,10 +47,9 @@ if(NOT PY_PYMONGO)
   list(REMOVE_ITEM tests test_bson_storage)
 endif()
 
-# Disable postgresql tests if psycopg is not installed or if pgconf.h
-# cannot be found
+# Disable postgresql tests if psycopg is not installed
 find_python_module(psycopg)
-if(NOT PY_PSYCOPG OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
+if(NOT PY_PSYCOPG)
   add_test(NAME test_postgresql_storage
     COMMAND ${CMAKE_COMMAND} -E echo "disabled")
   add_test(NAME test_postgresql_storage2
@@ -72,8 +71,6 @@ add_custom_target(
     ${dlite_BINARY_DIR}/storages/python/c-tests
   )
 
-# Copy metadata def. to working directory
-file(COPY Person.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 # Compile and add tests
 foreach(test ${tests})
@@ -140,3 +137,12 @@ endforeach()
 # Set dependencies
 set_property(TEST test_postgresql_storage2 APPEND
   PROPERTY DEPEND test_postgresql_storage)
+
+# Set fixtures and dependencies
+set_tests_properties(test_postgresql_storage PROPERTIES
+  FIXTURES_REQUIRED postgres
+)
+set_tests_properties(test_postgresql_storage2 PROPERTIES
+  FIXTURES_REQUIRED postgres
+  #DEPEND test_postgresql_storage
+)

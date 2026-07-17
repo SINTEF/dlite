@@ -21,21 +21,21 @@ target_include_directories(dlite-plugins-python PUBLIC
 
 # PLUGIN RPATH/ RUNPATH: dlite-plugins-python
 # ===========================================
-# 
+#
 # At build, set absolute RPATHS to the other libraries.
-# 
+#
 # At install the library will be loaded from the directory:
-# 
+#
 #   ${CMAKE_INSTALL_PREFIX}/lib/python${Python3_VERSION_MAJOR}.${Python3_VERSION_MINOR}/site-packages/dlite/share/dlite/storage-plugins
 #   - OR - using CMake dlite directory variables:
 #   ${DLITE_PYTHONPATH}/dlite/share/dlite/storage-plugins
-# 
-# 
+#
+#
 # Needs to locate the libraries in:
-# 
+#
 #   ${DLITE_PYTHONPATH}/dlite
-# 
-# 
+#
+#
 # The two linked libraries will be copied into the above noted folder at install.
 
 if(APPLE)
@@ -79,3 +79,41 @@ if(NOT WITH_STATIC_PYTHON)
   add_subdirectory(tests-c)
 endif()
 add_subdirectory(tests-python)
+
+# Service script
+set(DLITE_SERVICE
+  ${python_exe} ${dlite-bindings-python-scripts_SOURCE_DIR}/dlite-service
+)
+
+# Fixture tests
+execute_process(
+  COMMAND ${RUNNER} ${DLITE_SERVICE} --list
+  ENVIRONMENT PYTHONPATH="${dlite_PYTHONPATH}${PATHSEP}$ENV{PYTHONPATH}"
+  OUTPUT_VARIABLE output
+)
+string(STRIP "${output}" stripped)
+string(REPLACE "\n" ";" services "${stripped}")
+
+foreach(service ${services})
+  add_test(
+    NAME start_${service}
+    COMMAND ${RUNNER} ${DLITE_SERVICE} --stamp --start ${service}
+  )
+  add_test(
+    NAME stop_${service}
+    COMMAND ${RUNNER} ${DLITE_SERVICE} --stamp --stop ${service}
+  )
+  set_tests_properties(start_${service} PROPERTIES FIXTURES_SETUP   ${service})
+  set_tests_properties(stop_${service}  PROPERTIES FIXTURES_CLEANUP ${service})
+
+  # Disable cleanup fixture if service is already running
+  execute_process(
+    COMMAND ${RUNNER} ${DLITE_SERVICE} ${service}
+    RESULT_VARIABLE running
+    OUTPUT_VARIABLE unused
+  )
+  if(${running} EQUAL 0)
+    set_tests_properties(stop_${service} PROPERTIES DISABLED TRUE)
+  endif()
+
+endforeach()

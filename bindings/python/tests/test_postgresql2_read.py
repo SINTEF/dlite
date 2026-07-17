@@ -5,28 +5,29 @@ import re
 from pathlib import Path
 
 import dlite
-from check_import import check_import
-from test_postgresql1_write import parse_pgconf, ping_server
+from dlite.testutils import importskip, Service
+from test_postgresql1_write import host, options
 
+
+# Skip this test if psycopg is not available
+importskip("psycopg")
 
 # Paths
 thisdir = Path(__file__).resolve().parent
 
-
 # Check if postgresql server is running
-check_import("psycopg", skip=True)
-ping_server()
+serv = Service("postgres")
+assert serv.status()
 
 # Add metadata to search path
 dlite.storage_path.append(f"{thisdir}/Person.json")
 
 
 # Read from postgresql DB
-host, user, database, password = parse_pgconf()
 inst = dlite.Instance.from_location(
     driver="postgresql",
     location=host,
-    options=f"user={user};database={database};password={password}",
+    options=options,
     id="Cleopatra",
 )
 

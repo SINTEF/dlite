@@ -1,5 +1,10 @@
 project(dlite-bindings-python-scripts C)
 
+set(scripts
+  dlite-validate
+  dlite-service
+)
+
 # Convinience functions for check for success
 # Usage: test_success(name, command...)
 function(test_success name)
@@ -34,7 +39,7 @@ execute_process(
 
 # Install
 install(
-  PROGRAMS dlite-validate
+  PROGRAMS ${scripts}
   DESTINATION bin
   #CODE "
   # execute_process(

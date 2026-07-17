@@ -7,6 +7,7 @@
 #include "dlite-macros.h"
 #include "pyembed/dlite-pyembed-utils.h"
 #include "dlite-storage-plugins.h"
+#include "config-paths.h"
 
 /* This header should define HOST, DATABASE, USER and PASSWORD */
 #include "pgconf.h"
@@ -34,9 +35,9 @@ MU_TEST(test_load_meta)
 {
   DLiteInstance *meta;
   char url[256], *id="http://onto-ns.com/meta/0.1/Person";
-  char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests-c/*.json";
+  char *dmdir = dlite_SOURCE_ROOT "/bindings/python/tests/entities";
 
-  mu_check(dlite_storage_plugin_path_append(paths) >= 0);
+  mu_check(dlite_storage_plugin_path_append(dmdir) >= 0);
 
   snprintf(url, sizeof(url), "postgresql://%s?%s#%s", HOST, options, id);
   mu_check((meta = dlite_instance_load_url(url)));

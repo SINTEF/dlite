@@ -1,0 +1,12 @@
+services:
+    mongodb:
+        image: mongo:7
+        container_name: ctest-mongo-server
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: mongouser
+            MONGO_INITDB_ROOT_PASSWORD: mongopass
+        restart: unless-stopped
+        ports:
+            - "27017:27017"
+        volumes:
+            - /data/db  # Anonymous volume (no host path specified)

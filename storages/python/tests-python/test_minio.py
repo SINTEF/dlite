@@ -1,29 +1,33 @@
-"""Script to test the 'redis' DLite plugin from Python."""
+"""Script to test the 'minio' DLite plugin from Python."""
+import subprocess
 import sys
-
 from pathlib import Path
 
 import dlite
-from dlite.testutils import importskip, serverskip
+from dlite.testutils import importskip, Service
 
 
 # skip this test if minio or urllib3 are not available
 importskip("minio")
 importskip("urllib3")
-#serverskip("play.min.io", 9000)  # skip test if minio is down
 
 
 thisdir = Path(__file__).resolve().parent
+rootdir = thisdir.parent.parent.parent
 dlite.storage_path.append(thisdir / "input/*.json")
 
-
-# Access and secret keys for free MinIO playground
-access_key = "Q3AM3UQ867SPQQA43P2F"
-secret_key = "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+# Start test server
+host = "localhost:9000"
+access_key = "minioadmin"
+secret_key = "minioadmin"
+secure = False
 options = (
     f"bucket_name=dlite-test;access_key={access_key};"
-    f"secret_key={secret_key};timeout=2"
+    f"secret_key={secret_key};secure={secure};timeout=2"
 )
+serv = Service("minio")
+serv.start()
+assert serv.status()
 
 inst1 = dlite.get_instance("http://data.org/my_test_instance_1")
 inst2 = dlite.get_instance("52522ba5-6bfe-4a64-992d-e9ec4080fbac")
@@ -40,14 +44,14 @@ uuid2 = inst2.uuid
 
 
 # Empty minio store
-with dlite.Storage("minio", "play.min.io", options=options) as s:
+with dlite.Storage("minio", host, options=options) as s:
     uuids = list(s.get_uuids())
     for uuid in uuids:
         s.delete(uuid)
 
 
 # Test storing
-with dlite.Storage("minio", "play.min.io", options=options) as s:
+with dlite.Storage("minio", host, options=options) as s:
     try:
         s.save(inst1)
     except dlite.DLiteError as exc:
@@ -70,7 +74,7 @@ del inst2
 
 
 # Test retrieving
-with dlite.Storage("minio", "play.min.io", options=options) as s:
+with dlite.Storage("minio", host, options=options) as s:
     newmeta = s.load(uuid0)
     newinst1 = s.load(uuid1)
     newinst2 = s.load(uuid2)
@@ -84,13 +88,13 @@ with dlite.Storage("minio", "play.min.io", options=options) as s:
 
 del newinst2
 inst = dlite.Instance.from_location(
-    "minio", "play.min.io", options=options, id=uuid2,
+    "minio", host, options=options, id=uuid2,
 )
 assert inst.asdict() == save2
 
 
 # Test remove
-with dlite.Storage("minio", "play.min.io", options=options) as s:
+with dlite.Storage("minio", host, options=options) as s:
     s.delete(uuid2)
     s.delete(uuid1)
     s.delete(uuid0)

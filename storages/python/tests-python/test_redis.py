@@ -1,18 +1,23 @@
 """Script to test the 'redis' DLite plugin from Python."""
+import subprocess
 import sys
 from time import sleep
 
 from pathlib import Path
 
 import dlite
-from dlite.testutils import importskip, serverskip
+from dlite.testutils import importskip, Service
 
-importskip("redis", env_exitcode=None)  # skip this test if redis is not available
-serverskip("localhost", 6379)  # skip test if redis is down
-
+importskip("redis", env_exitcode=None)  # skip test if redis isn't installed
 
 thisdir = Path(__file__).resolve().parent
+rootdir = thisdir.parent.parent.parent
 dlite.storage_path.append(thisdir / "input/*.json")
+
+# Start test server
+serv = Service("redis")
+serv.start()
+assert serv.status()
 
 
 inst1 = dlite.get_instance("410ace1a-1e71-5e08-9ff3-b952307dbffe")
