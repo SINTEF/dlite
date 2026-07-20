@@ -70,7 +70,7 @@ jobs:
         PY
 
     - name: Install Python for running cibuildwheel
-      uses: actions/setup-python@v6
+      uses: actions/setup-python@v7
       with:
         python-version: "3.13.5"
         architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
