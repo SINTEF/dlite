@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - master
+      - ghpagesfail
   release:
     types:
       - published
@@ -32,26 +33,18 @@ jobs:
         uses: actions/checkout@v7
         with:
           fetch-depth: 0
+          clean: true
 
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          python-version: "3.13.5"
+          # Keep docs on a stable interpreter for current Sphinx/AutoAPI stack.
+          python-version: "3.12"
 
       - name: Install system dependencies
         run: |
           sudo apt-get update --fix-missing
-          sudo apt-get install \
-            libxml2-dev \
-            libxslt-dev \
-            libhdf5-dev \
-            doxygen \
-            graphviz \
-            python3 \
-            python3-pip \
-            python3-dev \
-            python3-numpy \
-            python3-yaml
+          xargs -a .github/docker/cd_docs_apt_packages.txt sudo apt-get install -y
           #python3 -m pip install psycopg2-binary==2.9.5
 
       - name: Install Python dependencies
@@ -67,74 +60,10 @@ jobs:
           doxygen --version
           dot -V
 
-      - name: Run CMAKE
+      - name: Build and verify docs (single source of truth)
         run: |
-          rm -rf "${BUILD_DIR}"
-          mkdir -p "${BUILD_DIR}"
-          cd "${BUILD_DIR}"
-          Python3_ROOT=$(python3 -c 'import sys; print(sys.exec_prefix)') \
-            CFLAGS='-Wno-missing-field-initializers' \
-            cmake .. -DFORCE_EXAMPLES=ON -DWITH_DOC=ON
-
-      - name: Run MakeFile
-        run: make
-        working-directory: ${{ env.BUILD_DIR }}
-
-      - name: Verify Python AutoAPI output
-        run: |
-          set -euo pipefail
-          mapfile -t DOCS_CANDIDATES < <(find . -type f -path '*/doc/html/index.html' -not -path './gh-pages/*' | sed 's#/index.html$##' | sort -u)
-          if [[ "${#DOCS_CANDIDATES[@]}" -eq 0 ]]; then
-            echo "ERROR: Could not locate Sphinx HTML output directory (*/doc/html)."
-            echo "---- Candidate doc directories ----"
-            find . -maxdepth 4 -type d -name doc | sort || true
-            echo "---- Candidate html directories ----"
-            find . -maxdepth 6 -type d -name html | sort || true
-            exit 1
-          fi
-
-          DOCS_HTML_DIR=""
-          AUTOAPI_DIR=""
-          BEST_AUTOAPI_INDEX_COUNT=-1
-          for CANDIDATE_DIR in "${DOCS_CANDIDATES[@]}"; do
-            CANDIDATE_AUTOAPI_DIR="${CANDIDATE_DIR}/autoapi"
-            CANDIDATE_AUTOAPI_INDEX_COUNT=$(find "${CANDIDATE_AUTOAPI_DIR}" -type f -name index.html 2>/dev/null | wc -l)
-            echo "Candidate docs HTML directory: ${CANDIDATE_DIR} (AutoAPI index pages: ${CANDIDATE_AUTOAPI_INDEX_COUNT})"
-            if [[ "${CANDIDATE_AUTOAPI_INDEX_COUNT}" -gt "${BEST_AUTOAPI_INDEX_COUNT}" ]]; then
-              BEST_AUTOAPI_INDEX_COUNT="${CANDIDATE_AUTOAPI_INDEX_COUNT}"
-              DOCS_HTML_DIR="${CANDIDATE_DIR}"
-              AUTOAPI_DIR="${CANDIDATE_AUTOAPI_DIR}"
-            fi
-          done
-
-          echo "Using docs HTML directory: ${DOCS_HTML_DIR}"
-          echo "DOCS_HTML_DIR=${DOCS_HTML_DIR}" >> "$GITHUB_ENV"
-
-          if [[ "${BEST_AUTOAPI_INDEX_COUNT}" -lt 1 ]]; then
-            echo "ERROR: AutoAPI output was not found in any docs HTML directory."
-            echo "---- All AutoAPI directories under workspace ----"
-            find . -type d -path '*/autoapi' | sort || true
-            echo "---- All AutoAPI index files under workspace ----"
-            find . -type f -path '*/autoapi/*/index.html' | sort | head -n 200 || true
-            echo "---- Sphinx config excerpt ----"
-            find . -type f -path '*/doc/_build/conf.py' -print -exec sed -n '1,260p' {} \; | grep -E 'autoapi_(dirs|ignore|file_patterns|python_use_implicit_namespaces)' || true
-            echo "---- docs HTML listing ----"
-            ls -la "${DOCS_HTML_DIR}" || true
-            exit 1
-          fi
-
-          echo "Using AutoAPI directory: ${AUTOAPI_DIR}"
-          AUTOAPI_INDEX_COUNT="${BEST_AUTOAPI_INDEX_COUNT}"
-          echo "Detected ${AUTOAPI_INDEX_COUNT} AutoAPI index page(s)."
-
-          if [[ ! -f "${DOCS_HTML_DIR}/api.html" ]] || ! grep -Eq 'autoapi/.*/index.html' "${DOCS_HTML_DIR}/api.html"; then
-            echo "ERROR: API landing page does not link to Python AutoAPI pages."
-            echo "---- api.html excerpt ----"
-            sed -n '460,620p' "${DOCS_HTML_DIR}/api.html" || true
-            exit 1
-          fi
-
-          find "${AUTOAPI_DIR}" -maxdepth 3 -type f -name index.html | sort | head -n 20
+          chmod +x tools/cd_docs_build_and_verify.sh
+          BUILD_DIR="${BUILD_DIR}" tools/cd_docs_build_and_verify.sh
 
       - name: Determine deployment target
         run: |

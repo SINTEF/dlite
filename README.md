@@ -33,6 +33,31 @@ Documentation
 -------------
 The official documentation for DLite can be found on https://sintef.github.io/dlite/.
 
+Reproduce docs CI locally (Docker)
+----------------------------------
+To reproduce the `cd_docs.yml` docs build and AutoAPI checks locally in a
+Docker container, run:
+
+```shell
+./tools/run_cd_docs_ci_local.sh
+```
+
+To run against the exact checked-in commit (matching `actions/checkout` source
+semantics), provide a git ref explicitly:
+
+```shell
+./tools/run_cd_docs_ci_local.sh HEAD
+```
+
+This runs the same core steps as the GitHub docs workflow (configure, build,
+and AutoAPI verification) and prints the same diagnostics used in CI.
+Both GitHub Actions and the local Docker runner call the shared script
+`tools/cd_docs_build_and_verify.sh`, so docs build/check logic is maintained
+in one place.
+System package parity is also centralized in
+`.github/docker/cd_docs_apt_packages.txt`, which is used by both the workflow
+and the local Docker image.
+
 
 Installation
 ------------

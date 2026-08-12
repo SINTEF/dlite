@@ -7,6 +7,7 @@ import os
 import sys
 from pathlib import Path
 import re
+import shutil
 from typing import TYPE_CHECKING
 from subprocess import call
 
@@ -77,25 +78,32 @@ if plugin_root.exists():
         if plugin_dir.is_dir()
     ]
 
-# Prefer the built Python package tree (stable module namespace), but fall
-# back to source tree if docs are built without package generation.
+# Stage API sources into the docs build tree and point AutoAPI there.
+# This avoids CI path/readability issues when mixing source and build trees.
 autoapi_build_dir = Path("@CMAKE_BINARY_DIR@/bindings/python/dlite")
 autoapi_source_dir = Path("@CMAKE_SOURCE_DIR@/bindings/python")
+autoapi_stage_root = Path(__file__).resolve().parent / "_autoapi_sources"
+autoapi_stage_pkg = autoapi_stage_root / "dlite"
 
-def _has_python_sources(path: Path) -> bool:
-    if not path.exists() or not path.is_dir():
-        return False
-    return any(path.rglob("*.py")) or any(path.rglob("*.pyi"))
+if autoapi_stage_root.exists():
+    shutil.rmtree(autoapi_stage_root)
+autoapi_stage_pkg.mkdir(parents=True, exist_ok=True)
 
-# Prefer the source tree for deterministic docs in CI. The build tree can
-# exist but still be incomplete depending on build order/configuration.
-autoapi_dirs = []
-if _has_python_sources(autoapi_source_dir):
-    autoapi_dirs.append(str(autoapi_source_dir))
-if _has_python_sources(autoapi_build_dir):
-    autoapi_dirs.append(str(autoapi_build_dir))
-if not autoapi_dirs:
-    autoapi_dirs = [str(autoapi_source_dir)]
+for source_file in sorted(autoapi_source_dir.glob("*.py")):
+    if source_file.name == "doxy2swig.py":
+        continue
+    shutil.copy2(source_file, autoapi_stage_pkg / source_file.name)
+
+# Keep generated package entry points when available.
+for generated_name in ("__init__.py", "paths.py"):
+    generated_path = autoapi_build_dir / generated_name
+    if generated_path.exists():
+        shutil.copy2(generated_path, autoapi_stage_pkg / generated_name)
+
+if not (autoapi_stage_pkg / "__init__.py").exists():
+    (autoapi_stage_pkg / "__init__.py").write_text('"""DLite Python API."""\n', encoding="utf-8")
+
+autoapi_dirs = [str(autoapi_stage_root)]
 
 print(f"[conf.py] AutoAPI dirs: {autoapi_dirs}")
 autoapi_type = "python"
