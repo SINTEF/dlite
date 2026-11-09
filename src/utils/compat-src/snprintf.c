@@ -1502,6 +1502,7 @@ rpl_vasprintf(char **ret, const char *format, va_list ap)
 	VA_COPY(aq, ap);
         // cppcheck-suppress va_list_usedBeforeStarted
 	len = rpl_vsnprintf(NULL, 0, format, aq);
+        // cppcheck-suppress va_list_usedBeforeStarted
 	VA_END_COPY(aq);
 	if (len < 0 || (*ret = malloc(size = len + 1)) == NULL)
                 // cppcheck-suppress memleak
