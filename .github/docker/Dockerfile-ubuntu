@@ -2,7 +2,7 @@
 # Dockerfile for building Alpine-based Python pypi package
 #
 # Copy this template file and replace:
-# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
+# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14 15"
 #
 # Generate dockerfile:
 #
