@@ -26,6 +26,12 @@ void writepx(TC_INT iph,TC_INT* iwsg,TC_INT* iwse)
 
   phname=malloc(TC_STRLEN_PHASES);
   sname=malloc(TC_STRLEN_MAX);
+  if (!phname || !sname) {
+    fprintf(stderr, "writepx: memory allocation failed\n");
+    free(phname);
+    free(sname);
+    return;
+  }
 
   fprintf(stdout,"phase name    composition, Wt percent Cu     amount\n");
   for (i=0; i<iph; i++) {
@@ -56,6 +62,13 @@ void get_fv(TC_INT iph, TC_INT icomp, TC_INT* iwsg, TC_INT* iwse, double fv[] , 
 
 	phname = malloc(TC_STRLEN_PHASES);
 	sname = malloc(TC_STRLEN_MAX);
+	if (!valw || !phname || !sname) {
+		fprintf(stderr, "get_fv: memory allocation failed\n");
+		free(valw);
+		free(phname);
+		free(sname);
+		return;
+	}
 
 	fprintf(stdout, "phase name    XMg, XSi, fv     amount\n");
 	for (i = 0; i < iph; i++) {
