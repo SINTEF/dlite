@@ -30,7 +30,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0
           clean: true
@@ -38,8 +38,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v6
         with:
-          # Keep docs on a stable interpreter for current Sphinx/AutoAPI stack.
-          python-version: "3.12"
+          python-version: "3.14"
 
       - name: Install system dependencies
         run: |
