@@ -62,9 +62,13 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
+      # Run build_and_test.sh from the checked-out repo instead of the copy
+      # baked into the image, so changes to the script are tested without
+      # having to rebuild the image first.
       - name: Run tests inside the container
         run: |
           docker run --rm \
             --volume $PWD:/io \
             --network=host \
-            ghcr.io/sintef/dlite/ubuntu_x86_64:latest
+            ghcr.io/sintef/dlite/ubuntu_x86_64:latest \
+            bash /io/.github/docker/build_and_test.sh
