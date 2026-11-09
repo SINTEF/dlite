@@ -59,6 +59,7 @@ extern "C" {
 #endif
 
 #else
+/* cppcheck-suppress preprocessorErrorDirective */
 #error "Unable to define timers for an unknown OS."
 #endif
 
