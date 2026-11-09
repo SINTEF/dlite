@@ -67,3 +67,5 @@ set_property(TEST test_postgresql2_read-py PROPERTY
   DEPENDS test_postgresql1_write-py)
 set_property(TEST test_collection_load-py APPEND PROPERTY
   DEPENDS test_collection-py)
+set_property(TEST test_dataset2_load-py APPEND PROPERTY
+  DEPENDS test_dataset1_save-py)
