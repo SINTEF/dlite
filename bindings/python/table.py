@@ -6,7 +6,13 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 import dlite
-from dlite.dataset import MissingUnitError, get_unit_iri
+try:
+    import tripper
+except ModuleNotFoundError:
+    HAVE_TRIPPER = False
+else:
+    HAVE_TRIPPER = True
+    from dlite.dataset import MissingUnitError, UnknownUnitWarning, get_unit_iri
 
 if TYPE_CHECKING:  # pragma: no cover
     from typing import Optional, Sequence
@@ -46,7 +52,7 @@ class DMTable():
         datamodel_mappings: dict = DEFAULT_DATAMODEL_MAPPINGS,
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
-        unit_handling: "Literal['raise', 'ignore', 'create']" = "raise",
+        unit_handling: "Literal['raise', 'ignore', 'force']" = "raise",
 
     ) -> None:
         """Initialises a DMTable object from a list of lists.
@@ -64,10 +70,17 @@ class DMTable():
                 For example, if `baseuri="http://example.com/data/0.1/"` for
                 a column with identifier "blah" will result in the URI
                 "http://example.com/data/0.1/blah".
-            unit_handling: How to handle missing units. May be:
-                - 'raise': Raise and MissingUnit exception (default)
-                - 'ignore': Ignore the unit.
-                - 'create': Create the unit.
+            unit_handling: How to handle units that are not found in the EMMO
+                ontology.  Must be one of:
+                - 'raise': Raise a MissingUnit exception (default)
+                - 'ignore': Don't add the unit to the property.  Will issue
+                  a warning.
+                - 'force': Add the unit to the property. Will issue a warning.
+
+                Note: this option is only used if tripper is installed.
+                If tripper is not installed, the unit will not be looked up
+                in EMMO and behaviour will be the same as for
+                `unit_handling='force'`.
 
         """
         self.dmdicts = {}  # Maps uri to datamodel dict
@@ -104,22 +117,36 @@ class DMTable():
                         continue
 
                     if k == "shape":
-                            prop[k] = [
-                                s.strip()
-                                for s in value.strip("[]").split(",")
-                            ]
-                            for dim in prop[k]:
-                                dims[dim] = f"{dim} dimension"
-                    elif k == "unit":
+                        prop[k] = [
+                            s.strip()
+                            for s in value.strip("[]").split(",")
+                        ]
+                        for dim in prop[k]:
+                            dims[dim] = f"{dim} dimension"
+                    elif k == "unit" and HAVE_TRIPPER:
                         try:
-                            prop[k] = get_unit_iri(value)
+                            get_unit_iri(value)
                         except MissingUnitError:
-                            if unit_handling == "except":
+                            if unit_handling == "raise":
                                 raise
                             elif unit_handling == "ignore":
-                                pass
-                            elif unit_handling == "create":
-                                raise NotImplementedError("DMTable unit_handling='create' not implemented")
+                                warnings.warn(
+                                    f"discarding unknown unit: {value}",
+                                    UnknownUnitWarning,
+                                )
+                            elif unit_handling == "force":
+                                warnings.warn(
+                                    f"forcing unknown unit: {value}",
+                                    UnknownUnitWarning,
+                                )
+                                prop[k] = value
+                            else:
+                                raise dlite.DLiteValueError(
+                                    "`unit_handling` must be 'raise', 'ignore' "
+                                    f"or 'force'. Got '{unit_handling}'"
+                                )
+                        else:
+                            prop[k] = value
                     else:
                         prop[k] = value
 
@@ -182,6 +209,7 @@ class DMTable():
         datamodel_mappings: dict = DEFAULT_DATAMODEL_MAPPINGS,
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
+        unit_handling: "Literal['raise', 'ignore', 'force']" = "raise",
         **kwargs,
     ) -> "DMTable":
         # pylint: disable=line-too-long
@@ -203,6 +231,12 @@ class DMTable():
             baseuri: Base URI to use if the identifier has no namespace.
                 See the corresponding argument of the __init__() method for
                 details.
+            unit_handling: How to handle units that are not found in the EMMO
+                ontology.  Must be one of:
+                - 'raise': Raise a MissingUnit exception (default)
+                - 'ignore': Don't add the unit to the property.  Will issue
+                  a warning.
+                - 'force': Add the unit to the property. Will issue a warning.
             kwargs: Additional keyword arguments overriding individual
                 formatting parameters.  For more details, see
                 [Dialects and Formatting Parameters].
@@ -240,6 +274,7 @@ class DMTable():
             datamodel_mappings=datamodel_mappings,
             property_mappings=property_mappings,
             baseuri=baseuri,
+            unit_handling=unit_handling,
         )
 
     @staticmethod
@@ -250,7 +285,7 @@ class DMTable():
         datamodel_mappings: dict = DEFAULT_DATAMODEL_MAPPINGS,
         property_mappings: dict = DEFAULT_PROPERTY_MAPPINGS,
         baseuri: "Optional[str]" = None,
-        **kwargs,
+        unit_handling: "Literal['raise', 'ignore', 'force']" = "raise",
     ) -> "DMTable":
         """Parse a csv file using the standard library csv module.
 
@@ -271,9 +306,12 @@ class DMTable():
             baseuri: Base URI to use if the identifier has no namespace.
                 See the corresponding argument of the __init__() method for
                 details.
-            kwargs: Additional keyword arguments overriding individual
-                formatting parameters.  For more details, see
-                [Dialects and Formatting Parameters].
+            unit_handling: How to handle units that are not found in the EMMO
+                ontology.  Must be one of:
+                - 'raise': Raise a MissingUnit exception (default)
+                - 'ignore': Don't add the unit to the property.  Will issue
+                  a warning.
+                - 'force': Add the unit to the property. Will issue a warning.
 
         Returns:
             New DMTable instance.
@@ -317,6 +355,7 @@ class DMTable():
             datamodel_mappings=datamodel_mappings,
             property_mappings=property_mappings,
             baseuri=baseuri,
+            unit_handling=unit_handling,
         )
 
     def to_triplestore(self, ts: "Triplestore"):

@@ -6,6 +6,7 @@ NOTE: This module depends on Tripper.
 """
 import json
 import re
+import unicodedata
 import warnings
 from collections import defaultdict
 from typing import TYPE_CHECKING
@@ -77,7 +78,10 @@ EMMO_TYPES = {
 unit_cache = {}
 
 
-class MissingUnitError(ValueError):
+class MissingUnitError(dlite.DLiteValueError):
+    "Unit not found in ontology."
+
+class UnknownUnitWarning(Warning):
     "Unit not found in ontology."
 
 class UnsupportedTypeError(TypeError, NotImplementedError):
@@ -192,6 +196,9 @@ def get_unit_iri(unit):
     """Returns the IRI for the given unit."""
     if is_valid_url(unit):
         return unit
+
+    # Convert unicodes that prints identical to standard form
+    unit = unicodedata.normalize("NFC", unit).replace("\u22c5", "\u00b7")
 
     if not unit_cache:
         ts = TS_EMMO

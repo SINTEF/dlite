@@ -59,7 +59,6 @@ MU_TEST(test_map)
 
   dlite_instance_decref(inst3);
   dlite_instance_decref(ent3);
-  //dlite_instance_decref((DLiteInstance *)instances[0]);
 }
 
 
@@ -73,7 +72,6 @@ MU_TEST(test_finalize)
 
 MU_TEST(test_plugin_unload_all)
 {
-  dlite_storage_plugin_unload_all();
   dlite_mapping_plugin_unload_all();
 }
 

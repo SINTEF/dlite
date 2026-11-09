@@ -233,7 +233,9 @@ class _JSONEncoder(json.JSONEncoder):
           if id and id != uuid:
               d.setdefault("uri", id)
 
-          self.load_json(json.dumps(d, cls=_JSONEncoder))
+          # Keep Unicode literals (e.g. "°C") instead of ASCII escapes
+          # so downstream parsers receive the original unit symbols.
+          self.load_json(json.dumps(d, cls=_JSONEncoder, ensure_ascii=False))
 
       def get_dict(self, id=None, soft7=True, single=None, with_uuid=None,
                    with_meta=False, with_parent=True, urikey=False):

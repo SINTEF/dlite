@@ -127,10 +127,6 @@ MU_TEST(test_load)
   while (dlite_instance_decref(bson_meta)); // Remove all json_meta references
 }
 
-MU_TEST(test_unload_plugins)
-{
-  dlite_storage_plugin_unload_all();
-}
 
 /****************************************************************************/
 
@@ -139,7 +135,6 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_for_bson);
   MU_RUN_TEST(test_save);
   MU_RUN_TEST(test_load);
-  MU_RUN_TEST(test_unload_plugins);
 }
 
 int main()

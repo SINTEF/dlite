@@ -2287,7 +2287,7 @@ const DLiteInstance *dlite_instance_get_snapshot(const DLiteInstance *inst,
   if (n < 0) return err(1, "snapshot number must be positive"), NULL;
   for (i=0; i<n; i++) {
     DLiteParent *p = cur->_parent;
-    if (!p) return err(1, "snapshot index %d exceeds number of snapsshots: %d",
+    if (!p) return err(1, "snapshot index %d exceeds number of snapshots: %d",
                        n, i), NULL;
     if (p->parent) {
       cur = p->parent;

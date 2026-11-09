@@ -44,13 +44,3 @@ print()
 print("Undocumented plugins")
 print("====================")
 print("  - " + "\n  - ".join(undoc))
-
-
-
-# Unload json plugin
-# FIXME: Creates a dangling pointer to ->apis on cached instances - at least on macOS
-# DLite `plugin_unload` needs to be reviewed regarding how this behavior should work.
-import sys
-if sys.platform != "darwin":
-    dlite.Storage.unload_plugin("json")
-    assert "json" not in set(dlite.StoragePluginIter())

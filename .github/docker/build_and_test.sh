@@ -4,8 +4,18 @@
 # Exit on errors and treat unbound variables as errors
 set -eu
 
-#PY_MINORS="${PY_MINORS:-10 14}"
-PY_MINORS="${PY_MINORS:-14}"
+# Python minor versions to test.  Defaults to the newest Python for which
+# the docker image has a virtual environment (/tmp/cp3<minor>-venv), so
+# that this script doesn't need updating when the image's Python versions
+# change.  Set PY_MINORS (e.g. "9 15") to test other or several versions.
+if [ -z "${PY_MINORS:-}" ]; then
+    PY_MINORS=$(ls -d /tmp/cp3*-venv 2>/dev/null \
+                    | sed -E 's|^/tmp/cp3([0-9]+)-venv$|\1|' | sort -n | tail -1)
+    if [ -z "$PY_MINORS" ]; then
+        echo "No /tmp/cp3*-venv virtual environment found" >&2
+        exit 1
+    fi
+fi
 
 
 for minor in $PY_MINORS; do

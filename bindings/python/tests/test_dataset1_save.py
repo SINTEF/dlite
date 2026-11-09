@@ -27,6 +27,9 @@ from dlite.dataset import MissingUnitError, get_unit_iri
 assert get_unit_iri("Kelvin") == "https://w3id.org/emmo#Kelvin"
 assert get_unit_iri("K") == "https://w3id.org/emmo#Kelvin"
 assert get_unit_iri("°C") == "https://w3id.org/emmo#DegreeCelsius"
+assert get_unit_iri("g·mm") == "https://w3id.org/emmo#GramMilliMetre"
+# Alternative unicode (\u22c5 instead of \u00b7)
+assert get_unit_iri("g⋅mm") == "https://w3id.org/emmo#GramMilliMetre"
 assert get_unit_iri("m/s") == "https://w3id.org/emmo#MetrePerSecond"
 
 with raises(MissingUnitError):
@@ -36,6 +39,7 @@ with raises(MissingUnitError):
     # Ångström is not included in EMMO by default. It can be including by
     # importing https://w3id.org/emmo/1.0.0-rc1/disciplines/units/specialunits
     get_unit_iri("Å")
+
 
 
 # To be fixed in issue https://github.com/SINTEF/dlite/issues/878

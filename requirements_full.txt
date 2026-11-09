@@ -8,11 +8,11 @@ pint>=0.15,<1
 
 # Plugins
 PyYAML>=5.4.1,<7
-pandas>=1.2,<2.4
-pyarrow>=14.0,<23.0.0
+pandas>=1.2,<3.2
+pyarrow>=14.0,<27.0.0
 openpyxl>=3.0.9,<3.2
 jinja2>=3.0,<4
-paramiko>=3.0.0,<3.5.2
+paramiko>=4.0.0,<=5.0.0
 requests>=2.10,<3
 redis>=5.0,<8
 minio>=6.0,<8
@@ -23,10 +23,11 @@ psycopg>=2,<4
 # Utilities
 # Bug in pydantic 2.10.0, 2.10.1: See https://github.com/pydantic/pydantic/issues/9898
 annotated-types>=0.5.0,<0.8.0
-pydantic>=1.10.0,!=2.10.0,!=2.10.1,<=2.12.6
-pydantic-core>=0.42,<=2.41.5
-typing_extensions>=4.1,<5; python_version<'3.9'
-scikit-image>=0.19,<1
+pydantic>=1.10.0,!=2.10.0,!=2.10.1,<=2.14.3
+pydantic-core>=0.42,<=2.50.4
+# No stable scikit-image release has wheels for Python 3.15 yet (first is 0.27.0rc1).
+# Only used by the image storage plugin, so skip it on 3.15 for now.
+scikit-image>=0.19,<1; python_version<'3.15'
 
 # Requirements for running tests
 mongomock==4.3.0

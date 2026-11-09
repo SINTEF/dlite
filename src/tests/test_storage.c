@@ -134,14 +134,6 @@ MU_TEST(test_close)
 }
 
 
-MU_TEST(unload_plugins)
-{
-  dlite_storage_plugin_unload_all();
-}
-
-
-
-
 /***********************************************************************/
 
 
@@ -160,7 +152,6 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_load_all);
 
   MU_RUN_TEST(test_close);  /* teardown */
-  MU_RUN_TEST(unload_plugins);
 }
 
 int main()

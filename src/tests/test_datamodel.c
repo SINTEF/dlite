@@ -261,12 +261,6 @@ MU_TEST(test_has_property)
   mu_check(dlite_datamodel_has_property(d, "xxx") == 0);
 }
 
-MU_TEST(test_storage_plugin_unload_all)
-{
-  dlite_storage_plugin_unload_all();
-}
-
-
 
 /***********************************************************************/
 
@@ -295,8 +289,6 @@ MU_TEST_SUITE(test_suite)
   MU_RUN_TEST(test_has_property);
 
   MU_RUN_TEST(test_close);  /* tear down */
-
-  MU_RUN_TEST(test_storage_plugin_unload_all);
 }
 
 

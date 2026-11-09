@@ -235,9 +235,6 @@ Iterates over loaded storage plugins.
 %rename(_load_all_storage_plugins) dlite_storage_plugin_load_all;
 int dlite_storage_plugin_load_all();
 
-%rename(_unload_storage_plugin) dlite_storage_plugin_unload;
-int dlite_storage_plugin_unload(const char *name);
-
 char *_storage_plugin_help(const char *name);
 
 

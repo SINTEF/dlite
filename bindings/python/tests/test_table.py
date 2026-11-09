@@ -4,7 +4,13 @@ from pathlib import Path
 
 import dlite
 from dlite.table import DMTable
-from dlite.testutils import importcheck
+from dlite.testutils import importcheck, raises
+if importcheck("tripper"):
+    HAVE_TRIPPER = True
+    from dlite.dataset import MissingUnitError, UnknownUnitWarning
+else:
+    HAVE_TRIPPER = False
+    UnknownUnitWarning = Warning
 
 
 thisdir = Path(__file__).resolve().parent
@@ -45,8 +51,8 @@ m21, m22 = t2.get_datamodels()
 assert isinstance(m21, dlite.Metadata)
 assert isinstance(m22, dlite.Metadata)
 assert m21.description == "First data model."
-assert m21.getprop("length").type == "float64"
-assert m21.getprop("length").unit == "https://w3id.org/emmo#CentiMetre"
+assert m21.getprop("temperature").type == "float64"
+assert m21.getprop("temperature").unit == "\u00b0C"
 assert m22.getprop("key").type == "string"
 assert m22.getprop("indices").type == "int64"
 assert m22.getprop("indices").shape.tolist() == ["N", "M"]
@@ -94,7 +100,7 @@ if importcheck("openpyxl"):
 
 
 # Test saving to triplestore (slow...)
-if importcheck("tripper") and importcheck("rdflib"):
+if HAVE_TRIPPER and importcheck("rdflib"):
     from tripper import Triplestore, EMMO, OWL, RDF, RDFS, SKOS
     from tripper.utils import en
 
@@ -109,8 +115,45 @@ if importcheck("tripper") and importcheck("rdflib"):
     assert ts.has(m1, RDFS.subClassOf, EMMO.Dataset)
     assert ts.has(m1, SKOS.prefLabel, en("M1"))
 
-    length = "http://onto-ns.com/meta/test/0.1/m1#length"
-    assert ts.has(length, RDF.type, OWL.Class)
-    assert ts.has(length, RDFS.subClassOf, EMMO.Datum)
-    assert ts.has(length, RDFS.subClassOf, EMMO.DoubleData)
-    assert ts.has(length, SKOS.prefLabel, en("Length"))
+    temp = "http://onto-ns.com/meta/test/0.1/m1#temperature"
+    assert ts.has(temp, RDF.type, OWL.Class)
+    assert ts.has(temp, RDFS.subClassOf, EMMO.Datum)
+    assert ts.has(temp, RDFS.subClassOf, EMMO.DoubleData)
+    assert ts.has(temp, SKOS.prefLabel, en("Temperature"))
+
+
+# Test invalid unit
+# Test loading a python table
+table = [
+    ("@id",     "@type",  "datumName[1]", "datumType[1]", "datumUnit[1]"),
+    ("ex:dm61", "ex:DM1", "mass",         "float64",      "cm"),
+    ("ex:dm62", "ex:DM1", "mass",         "float64",      "dansk mil"),
+]
+if HAVE_TRIPPER:
+    with raises(MissingUnitError):
+        t6 = DMTable(table, baseuri="http://onto-ns.com/meta/test/0.2/")
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=UnknownUnitWarning)
+    t6 = DMTable(
+        table,
+        baseuri="http://onto-ns.com/meta/test/0.2/",
+        unit_handling="ignore"
+    )
+with dlite.HideDLiteWarnings():
+    dm61, dm62 = t6.get_datamodels()
+assert dm61.getprop("mass").unit == "cm"
+if HAVE_TRIPPER:
+    assert not dm62.getprop("mass").unit
+
+with warnings.catch_warnings():
+    warnings.filterwarnings("ignore", category=UnknownUnitWarning)
+    t7 = DMTable(
+        table,
+        baseuri="http://onto-ns.com/meta/test/0.3/",
+        unit_handling="force"
+    )
+with dlite.HideDLiteWarnings():
+    dm71, dm72 = t7.get_datamodels()
+assert dm71.getprop("mass").unit == "cm"
+assert dm72.getprop("mass").unit == "dansk mil"

@@ -130,11 +130,6 @@ const DLiteStoragePlugin *dlite_storage_plugin_get(const char *name);
 int dlite_storage_plugin_load_all();
 
 /**
-  Unloads and unregisters all storage plugins.
-*/
-void dlite_storage_plugin_unload_all();
-
-/**
   Returns a pointer to a new plugin iterator or NULL on error.  It
   should be free'ed with dlite_storage_plugin_iter_free().
  */
@@ -153,12 +148,6 @@ dlite_storage_plugin_iter_next(DLiteStoragePluginIter *iter);
  */
 void dlite_storage_plugin_iter_free(DLiteStoragePluginIter *iter);
 
-
-/**
-  Unloads and unregisters storage plugin with the given name.
-  Returns non-zero on error.
-*/
-int dlite_storage_plugin_unload(const char *name);
 
 /**
   Returns a pointer to the underlying FUPaths object for storage plugins
