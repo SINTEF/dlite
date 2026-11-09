@@ -39,20 +39,20 @@ jobs:
         - system: "manylinux"
           arch: "x86_64"
           distribution: "almalinux"
-          py_minors: "8 9 10 11 12 13 14"
+          py_minors: "9 10 11 12 13 14 15"
 
         # 32-bit manylinux
         - system: "manylinux"
           arch: "i686"
           #distribution: "almalinux"
           distribution: "centos"
-          py_minors: "10 11 12 13 14"
+          py_minors: "10 11 12 13 14 15"
 
         # 64-bit musllinux
         - system: "musllinux"
           arch: "x86_64"
           distribution: "alpine"
-          py_minors: "8 9 10 11 12 13 14"
+          py_minors: "9 10 11 12 13 14 15"
 
         # 32-bit musllinux
         - system: "musllinux"
@@ -64,7 +64,7 @@ jobs:
         - system: "ubuntu"
           arch: "x86_64"
           distribution: "ubuntu"
-          py_minors: "8 14"
+          py_minors: "9 15"
 
     steps:
       - name: Define environment variables
@@ -84,7 +84,7 @@ jobs:
           #echo "CACHE_DIR=.buildx-cache-${SYSTEM}" >> "$GITHUB_ENV"
 
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Create docker file
         run: |
@@ -100,7 +100,7 @@ jobs:
 #      # https://github.com/sigstore/cosign-installer
       - name: Install cosign
         if: github.event_name != 'pull_request'
-        uses: sigstore/cosign-installer@v4.1.0
+        uses: sigstore/cosign-installer@v4.1.2
 
       # Set up BuildKit Docker container builder to be able to build
       # multi-platform images and export cache
@@ -122,7 +122,7 @@ jobs:
       # https://github.com/docker/metadata-action
       - name: Extract Docker metadata
         id: meta
-        uses: docker/metadata-action@v6.0.0
+        uses: docker/metadata-action@v6.1.0
         with:
           images: ${{ env.IMAGE }}
           flavor: latest=true
