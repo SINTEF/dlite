@@ -297,11 +297,11 @@ char *fu_vjoin_sep(int sep, const char *a, va_list ap)
 char *fu_lastsep(const char *path)
 {
 #ifdef WINDOWS
-  char *p = strrchr(path, '/');
-  char *q = strrchr(path, '\\');
-  return (p > q) ? p : q;
+  const char *p = strrchr(path, '/');
+  const char *q = strrchr(path, '\\');
+  return (char *)((p > q) ? p : q);
 #else
-  return strrchr(path, DIRSEP[0]);
+  return (char *)strrchr(path, DIRSEP[0]);
 #endif
 }
 
@@ -350,7 +350,7 @@ char *fu_stem(const char *path)
 */
 const char *fu_fileext(const char *path)
 {
-  char *q, *p = strrchr(path, '.');
+  const char *q, *p = strrchr(path, '.');
   if (!p || (q = fu_lastsep(path)) > p) return path + strlen(path);
   return p+1;
 }

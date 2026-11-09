@@ -199,7 +199,7 @@ def infer_meta(data: pd.DataFrame, metauri: str, uri: str) -> dlite.Metadata:
     props = []
     for i, col in enumerate(data.columns):
         name = infer_prop_name(col)
-        type = data.dtypes[i].name
+        type = data.dtypes.iloc[i].name
         if type == "object":
             type = "string"
         col_shape = ["rows"]
