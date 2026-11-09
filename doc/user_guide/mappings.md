@@ -48,8 +48,9 @@ mapping is registered, a `DLiteMappingError` is raised.
 The top-level mapping function is also available directly:
 
 ```python
->>> substance = dlite.mapping('http://onto-ns.com/meta/0.1/Substance',
-...                           [molecule])
+>>> substance = dlite.mapping(
+...    'http://onto-ns.com/meta/0.1/Substance', [molecule]
+... )
 ```
 
 If several mappings can produce the requested output, the one with the
@@ -62,19 +63,18 @@ existing input has cost zero.
 A Python instance mapping plugin is a Python module defining a subclass
 of `dlite.DLiteMappingBase` with the following class attributes:
 
-| Attribute | Type | Description |
-|-----------|------|-------------|
-| `name` | str | Name of the mapping. |
-| `input_uris` | sequence of str | URIs of the metadata of the input instances. |
-| `output_uri` | str | URI of the metadata of the produced instance. |
-| `cost` | int | Cost of the mapping (optional, default is 25). |
+| Attribute    | Type            | Description                                    |
+|--------------|-----------------|------------------------------------------------|
+| `name`       | str             | Name of the mapping.                           |
+| `input_uris` | sequence of str | URIs of the metadata of the input instances.   |
+| `output_uri` | str             | URI of the metadata of the produced instance.  |
+| `cost`       | int             | Cost of the mapping (optional, default is 25). |
 
 and a `map()` method that takes the sequence of input instances as
 argument and returns a new instance of `output_uri`:
 
 ```python
 import dlite
-
 
 class Molecule2Substance(dlite.DLiteMappingBase):
     name = 'Molecule2Substance'
@@ -117,7 +117,7 @@ Loaded mapping plugins can be unloaded with:
 
 ```python
 >>> dlite.mapping_plugin_unload('Molecule2Substance')  # unload one
->>> dlite.mapping_plugin_unload()                     # unload all
+>>> dlite.mapping_plugin_unload()                      # unload all
 ```
 
 
@@ -198,14 +198,14 @@ instead.
 
 
 Which kind of mapping to choose
---------------------------------
+-------------------------------
 
-| | Instance mappings | Property mappings |
-|---|---|---|
-| Granularity | Whole instances | Individual properties |
-| Ontology | Not required | Required (tripper/triplestore) |
-| Implementation | Mapping plugin (C/Python) | RDF triples + mapping functions |
-| Units | Manual | Automatic (pint) |
+|                 | Instance mappings                          | Property mappings                        |
+|-----------------|--------------------------------------------|------------------------------------------|
+| Granularity     | Whole instances                            | Individual properties                    |
+| Ontology        | Not required                               | Required (tripper/triplestore)           |
+| Implementation  | Mapping plugin (C/Python)                  | RDF triples + mapping functions          |
+| Units           | Manual                                     | Automatic (pint)                         |
 | Best suited for | Connecting workflows with known datamodels | Semantic interoperability across domains |
 
 In short: use an **instance mapping** when you know both datamodels and

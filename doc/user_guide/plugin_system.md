@@ -1,5 +1,5 @@
 The DLite plugin system
-======================
+=======================
 
 Content
 -------
@@ -84,10 +84,10 @@ a struct with function pointers (see the [C reference manual] for details).
 Plugins written in Python are modules with a class subclassing one of the
 plugin base classes:
 
-| Plugin family | Python base class       | See |
-|---------------|-------------------------|-----|
-| Storage       | `dlite.DLiteStorageBase` | [Storage plugins] |
-| Mapping       | `dlite.DLiteMappingBase` | [Mappings] |
+| Plugin family | Python base class         | See                |
+|---------------|---------------------------|--------------------|
+| Storage       | `dlite.DLiteStorageBase`  | [Storage plugins]  |
+| Mapping       | `dlite.DLiteMappingBase`  | [Mappings]         |
 | Protocol      | `dlite.DLiteProtocolBase` | [Protocol plugins] |
 
 
