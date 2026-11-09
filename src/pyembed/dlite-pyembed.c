@@ -1,3 +1,7 @@
+/* Python.h must be included before any standard headers, see
+   https://docs.python.org/3/c-api/intro.html#include-files */
+#include <Python.h>
+
 #include <stdarg.h>
 
 #include "utils/strutils.h"
@@ -688,10 +692,8 @@ PyObject *dlite_pyembed_load_plugins(FUPaths *paths, PyObject *baseclass,
       if (stat)
         FAIL("cannot assign path to '__file__' in dict of main module");
 
-      size_t n;
       char **q = (failed_paths) ? *failed_paths : NULL;
-      for (n=0; q && *q; n++)
-        if (strcmp(*(q++), path) == 0) break;
+      while (q && *q && strcmp(*q, path) != 0) q++;
       int in_failed = (q && *q) ? 1 : 0;  // whether loading path has failed
 
       if (!in_failed) {

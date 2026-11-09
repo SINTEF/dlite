@@ -113,27 +113,23 @@ MU_TEST(test_strnput_escape)
 {
   char *buf=NULL;
   size_t size=0;
-  int n=0, m;
+  int m;
 
   m = strnput_escape(&buf, &size, 0, "1 Å", -1, strcatSpace, "%");
   mu_assert_int_eq(8, m);
   mu_assert_string_eq("1 %C3%85", buf);
-  n += m;
 
   m = strnput_escape(&buf, &size, 0, "1 Å", -1, strcatSpace, "\\x");
   mu_assert_int_eq(10, m);
   mu_assert_string_eq("1 \\xC3\\x85", buf);
-  n += m;
 
   m = strnput_escape(&buf, &size, 0, "1 Å", -1, strcatSubDelims, "%");
   mu_assert_int_eq(10, m);
   mu_assert_string_eq("1%20%C3%85", buf);
-  n += m;
 
   m = strnput_escape(&buf, &size, 0, "2 €", -1, strcatSpace, "%");
   mu_assert_int_eq(11, m);
   mu_assert_string_eq("2 %E2%82%AC", buf);
-  n += m;
 
   free(buf);
 }
