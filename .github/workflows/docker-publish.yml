@@ -44,8 +44,9 @@ jobs:
         # 32-bit manylinux
         - system: "manylinux"
           arch: "i686"
-          #distribution: "almalinux"
-          distribution: "centos"
+          # manylinux2014 (centos) has GCC 10.2, but NumPy >= 2.5.2 (needed for
+          # Python 3.15) requires GCC >= 10.3 and has no i686 wheels
+          distribution: "almalinux"
           py_minors: "10 11 12 13 14 15"
 
         # 64-bit musllinux
