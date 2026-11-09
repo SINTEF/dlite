@@ -4,7 +4,7 @@
 # Copy this template file and replace:
 # - `{{ SYSTEM }}` system, ex: manylinux
 # - `{{ ARCH }}` architecture, ex: i686
-# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14"
+# - `{{ PY_MINORS }}` minor Python3 version numbers, ex: "10 11 12 13 14 15"
 #
 # Examples
 # --------
