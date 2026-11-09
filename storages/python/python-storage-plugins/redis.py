@@ -120,7 +120,7 @@ class redis(dlite.DLiteStorageBase):
         uuid = dlite.get_uuid(id)
         self.redis.delete(f"dlite:{uuid}")
 
-    def queue(self, pattern=None):
+    def query(self, pattern=None):
         """Generator method that iterates over all UUIDs in the storage
         who"s metadata URI matches glob pattern `pattern`.
 

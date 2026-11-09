@@ -18,6 +18,16 @@ if [ -z "${PY_MINORS:-}" ]; then
 fi
 
 
+# Run ctest in parallel.  Failed tests are rerun serially and verbosely,
+# since some tests may fail when the machine is busy.
+# Arguments are passed to both ctest invocations, so that the tests are
+# numbered the same way in the rerun.  Note that ctest only uses the last
+# -E option, so combine several exclude patterns with "|".
+run_ctest() {
+    ctest -j "$@" || ctest "$@" --rerun-failed --output-on-failure -V
+}
+
+
 for minor in $PY_MINORS; do
     echo "======================================================="
     echo "===  Test for Python 3.$minor"
@@ -46,16 +56,16 @@ for minor in $PY_MINORS; do
 
     echo
     echo "=== Python 3.$minor: Run all tests ==="
-    ctest -j || ctest --rerun-failed --output-on-failure -V
+    run_ctest
 
     echo
     echo "=== Python 3.$minor: Test with all behavior changes disabled ==="
     export DLITE_BEHAVIOR=OFF
-    ctest -j -E static-code-analysis -E test_python_bindings-py || ctest --rerun-failed --output-on-failure -V
+    run_ctest -E 'static-code-analysis|test_python_bindings-py'
 
     echo
     echo "=== Python 3.$minor: Test with all behavior changes enabled ==="
     export DLITE_BEHAVIOR=ON
-    ctest -j -E static-code-analysis -E test_python_bindings-py -E test_dataset2_load-py || ctest --rerun-failed --output-on-failure -V
+    run_ctest -E 'static-code-analysis|test_python_bindings-py|test_dataset2_load-py'
 
 done
