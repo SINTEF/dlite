@@ -25,7 +25,9 @@ psycopg[binary]>=2,<4
 annotated-types>=0.5.0,<0.8.0
 pydantic>=1.10.0,!=2.10.0,!=2.10.1,<=2.14.3
 pydantic-core>=0.42,<=2.50.4
-scikit-image>=0.19,<1
+# No stable scikit-image release has wheels for Python 3.15 yet (first is 0.27.0rc1).
+# Only used by the image storage plugin, so skip it on 3.15 for now.
+scikit-image>=0.19,<1; python_version<'3.15'
 
 # Requirements for running tests
 mongomock==4.3.0
