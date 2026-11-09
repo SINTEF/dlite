@@ -24,8 +24,14 @@ save1 = inst1.asdict(single=True, uuid=True)
 save2 = inst2.asdict(single=True, uuid=True)
 
 
+# Keys stored by the tests below expire after this many seconds, so that
+# the redis server is cleaned up even if the test fails.  Keep it long
+# enough that the instances don't expire before we read them back when
+# the machine is busy (e.g. with `ctest -j`).
+EXPIRE = 60
+
 # Test storing to Redis
-with dlite.Storage("redis", "localhost", "expire=1;db=13") as s:
+with dlite.Storage("redis", "localhost", f"expire={EXPIRE};db=13") as s:
     try:
         s.save(inst1)
     except dlite.DLiteError as exc:
@@ -62,8 +68,15 @@ with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
 
 
 # Test instance expiration
+# Remove what is left from the tests above (and earlier runs), then store
+# an instance with a short expiration time and check that it disappears.
+with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
+    for uuid in s.get_uuids():
+        s.delete(uuid)
+    assert not s.get_uuids()
+newinst1.save("redis", "localhost", "port=6379;db=13;expire=1")
 print("Wait for instances in redis storage has expired...")
-sleep(1.1)
+sleep(2)
 with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
     assert not s.get_uuids()
 
@@ -75,7 +88,7 @@ except ImportError:
     print("Skipping testing encryption")
 else:
     fernet_key = Fernet.generate_key().decode()
-    options = f"port=6379;expire=1;db=13;fernet_key={fernet_key}"
+    options = f"port=6379;expire={EXPIRE};db=13;fernet_key={fernet_key}"
 
     newinst2.save("redis", "localhost", options)
 
@@ -83,3 +96,8 @@ else:
     inst2 = dlite.Instance.from_location(
         "redis", "localhost", options, id=save2["uuid"],
     )
+
+    # Clean up
+    with dlite.Storage("redis", "localhost", options) as s:
+        s.delete(save2["uuid"])
+        assert not s.get_uuids()

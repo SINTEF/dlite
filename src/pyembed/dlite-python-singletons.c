@@ -1,3 +1,7 @@
+/* Python.h must be included before any standard headers, see
+   https://docs.python.org/3/c-api/intro.html#include-files */
+#include <Python.h>
+
 #include "dlite-macros.h"
 #include "dlite-pyembed.h"
 #include "dlite-python-singletons.h"
