@@ -28,6 +28,10 @@ DLite comes with a set of generic storage plugins, like json, yaml, rdf, hdf5, p
 It also comes with a specific `Blob` and `Image` storage plugin, that can load and save instances of `http://onto-ns.com/meta/0.1/Blob` and `http://onto-ns.com/meta/0.1/Image`, respectively.
 Storage plugins can be written in either C or Python.
 
+For an overview of the whole plugin system, see [plugin system], and for a
+complete list of the plugins that ship with DLite, see the
+[plugin reference].
+
 
 How to make storage plugins available
 -------------------------------------
@@ -281,7 +285,9 @@ An example is available in [ex4].
 
 [strategy design pattern]: https://en.wikipedia.org/wiki/Strategy_pattern
 [C reference manual]: https://sintef.github.io/dlite/dlite/storage.html
-[protocol plugin]: https://sintef.github.io/dlite/user_guide/storage_plugins.html
+[protocol plugin]: https://sintef.github.io/dlite/user_guide/protocol_plugins.html
+[plugin system]: https://sintef.github.io/dlite/user_guide/plugin_system.html
+[plugin reference]: https://sintef.github.io/dlite/user_guide/plugin_reference.html
 [Python storage plugin template]: https://github.com/SINTEF/dlite/blob/master/doc/user_guide/storage_plugin.py
 [Python storage plugin example]: https://github.com/SINTEF/dlite/tree/master/examples/storage_plugin
 [ex1]: https://github.com/SINTEF/dlite/tree/master/examples/ex1

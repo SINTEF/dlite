@@ -10,9 +10,11 @@ User Guide
    type-system
    exceptions
    collections
+   plugin_system
    storage_plugins
    storage_plugins_mongodb
    protocol_plugins
+   plugin_reference
    search_paths
    mappings
    transactions
