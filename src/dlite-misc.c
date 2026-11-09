@@ -317,7 +317,8 @@ char *dlite_join_meta_uri(const char *name, const char *version,
 int dlite_split_meta_uri(const char *uri, char **name, char **version,
                          char **namespace)
 {
-  char *p, *q, *namep=NULL, *versionp=NULL, *namespacep=NULL;
+  const char *p, *q;
+  char *namep=NULL, *versionp=NULL, *namespacep=NULL;
 
   if (!(p = strrchr(uri, '/')))
     FAIL1("invalid metadata uri: '%s'", uri);
