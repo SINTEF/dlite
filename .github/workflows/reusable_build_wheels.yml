@@ -72,16 +72,8 @@ jobs:
     - name: Install Python for running cibuildwheel
       uses: actions/setup-python@v6
       with:
-        python-version: "3.13.5"
+        python-version: "3.14"
         architecture: ${{ matrix.arch == '' && 'x86' || matrix.arch == 'arm64' && 'arm64' || 'x64' }}
-
-    # https://cibuildwheel.pypa.io/en/stable/faq/#macos-building-cpython-38-wheels-on-arm64
-    - name: Install Python3.8 from python.org for macOS compiling
-      if: matrix.os == 'macos-14'
-      run: |
-        url="https://www.python.org/ftp/python/3.8.10/python-3.8.10-macos11.pkg"
-        curl $url -o python-3.8.10-macos11.pkg
-        sudo installer -pkg python-3.8.10-macos11.pkg -target /
 
     - name: Login to GitHub Container Registry
       if: startsWith(matrix.os, 'ubuntu')
