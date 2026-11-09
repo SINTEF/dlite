@@ -1,16 +1,19 @@
 /* dlite-plugins-python.c -- a DLite plugin for plugins written in python */
+
+/* Make sure that #-formats for PyObject_CallMethod() uses Py_ssize_t for
+   Python 3.9 and older...
+   See https://docs.python.org/3/c-api/arg.html#strings-and-buffers */
+#define PY_SSIZE_T_CLEAN
+/* Python.h must be included before any standard headers, see
+   https://docs.python.org/3/c-api/intro.html#include-files */
+#include "Python.h"
+
 #include <assert.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
 #include <errno.h>
-
-/* Make sure that #-formats for PyObject_CallMethod() uses Py_ssize_t for
-   Python 3.9 and older...
-   See https://docs.python.org/3/c-api/arg.html#strings-and-buffers */
-#define PY_SSIZE_T_CLEAN
-#include "Python.h"
 
 #include "utils/boolean.h"
 #include "dlite.h"

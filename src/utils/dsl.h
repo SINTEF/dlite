@@ -92,6 +92,7 @@
 */
 # endif
 #else
+/* cppcheck-suppress preprocessorErrorDirective */
 # error "Unsupported platform"
 #endif
 
