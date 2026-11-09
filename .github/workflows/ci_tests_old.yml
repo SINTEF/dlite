@@ -41,9 +41,9 @@ jobs:
             subsystem: none
             testargs: ""
 
-          # ubuntu-latest-none-py3.8
+          # ubuntu-latest-none-py3.9 (oldest supported Python version)
           - os: ubuntu-latest
-            python-version: "3.8"
+            python-version: "3.9"
             subsystem: none
             testargs: ""
 
@@ -53,14 +53,16 @@ jobs:
             subsystem: none
             testargs: ""
 
-          # windows-latest-none-py3.14
-          - os: windows-latest
+          # windows-2022-none-py3.14
+          # Pinned to windows-2022, since configure uses the
+          # "Visual Studio 17 2022" generator (same as the wheel builds).
+          - os: windows-2022
             python-version: "3.14"
             subsystem: none
             testargs: "-E static-code-analysis"
 
-          # windows-latest-mingw-py3.14
-          - os: windows-latest
+          # windows-2022-mingw-py3.14
+          - os: windows-2022
             python-version: "3.14"
             subsystem: mingw
             testargs: "-E static-code-analysis"
@@ -71,7 +73,8 @@ jobs:
         if: ${{ matrix.subsystem == 'mingw' }}
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          # MINGW64 is deprecated by MSYS2, use UCRT64 instead
+          msystem: UCRT64
           update: true
           release: false
           path-type: inherit

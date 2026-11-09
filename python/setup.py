@@ -149,13 +149,22 @@ class CMakeBuildExt(build_ext):
         if cachefile.exists():
             cachefile.unlink()
 
-        # Find cmake executable (using os.path for Python 3.7 compatibility)
-        stem, fileext = os.path.splitext(sys.executable)
-        cmake_exe = os.path.join(os.path.dirname(stem), "cmake" + fileext)
+        # Find cmake executable.  Note that we cannot use the file
+        # extension of sys.executable, since that would be ".14" for
+        # an executable named "python3.14".
+        fileext = ".exe" if os.name == "nt" else ""
+        cmake_exe = os.path.join(
+            os.path.dirname(sys.executable), "cmake" + fileext
+        )
         if "CMAKE_EXECUTABLE" in os.environ:
             cmake_exe = os.environ["CMAKE_EXECUTABLE"]
         elif not os.path.exists(cmake_exe):
             cmake_exe = shutil.which("cmake" + fileext)
+        if not cmake_exe:
+            raise RuntimeError(
+                "cannot find cmake executable. Install cmake or set the "
+                "CMAKE_EXECUTABLE environment variable"
+            )
 
         build_type = "Debug" if self.debug else "Release"
         cmake_args = [
