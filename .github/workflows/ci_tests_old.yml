@@ -41,8 +41,10 @@ jobs:
             subsystem: none
             testargs: ""
 
-          # ubuntu-latest-none-py3.9 (oldest supported Python version)
-          - os: ubuntu-latest
+          # ubuntu-24.04-none-py3.9 (oldest supported Python version)
+          # Pinned to ubuntu-24.04, since actions/setup-python doesn't
+          # provide Python 3.9 (end-of-life) for Ubuntu 26.04.
+          - os: ubuntu-24.04
             python-version: "3.9"
             subsystem: none
             testargs: ""
