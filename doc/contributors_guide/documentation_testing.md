@@ -7,15 +7,15 @@ Several tests for the storage plugins requires that you have a service running.
 
 Start all services with
 
-    docker compose -f examples/docker-compose.yml up -d
+    docker compose -f test-services/compose.yaml up -d
 
 or only some of them, e.g.
 
-    docker compose -f examples/docker-compose.yml up -d postgres redis
+    docker compose -f test-services/compose.yaml up -d postgres redis
 
 and stop them again with
 
-    docker compose -f examples/docker-compose.yml down
+    docker compose -f test-services/compose.yaml down
 
 Tests that need a service which is not running are skipped.
 
@@ -24,7 +24,7 @@ tripper tests, so when developing DLite and tripper together, the same
 services can be used for testing both projects.  Tripper only needs
 fuseki and graphdb:
 
-    docker compose -f examples/docker-compose.yml up -d fuseki graphdb
+    docker compose -f test-services/compose.yaml up -d fuseki graphdb
 
 Starting graphdb also starts graphdb-init, which creates the
 "test_repo" repository.

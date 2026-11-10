@@ -112,10 +112,10 @@ install and setup a postgresql server on Fedora. Short instructions:
 
 The tests of the postgresql, redis, minio and mongodb storages require
 running servers.  The easiest way to start them is with the
-[docker-compose.yml](../../examples/docker-compose.yml) file in the
-examples directory:
+[compose.yaml](../../test-services/compose.yaml) file in the
+[test-services](../../test-services) directory:
 
-    docker compose -f examples/docker-compose.yml up -d
+    docker compose -f test-services/compose.yaml up -d
 
 Tests that need a server that is not running are skipped.  The
 credentials are defined by `TEST_SERVICES` in

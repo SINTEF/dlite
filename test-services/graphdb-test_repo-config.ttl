@@ -1,6 +1,6 @@
 # GraphDB configuration of the "test_repo" repository with full-text
 # search, as expected by the tripper tests.  Created by the graphdb-init
-# service in docker-compose.yml.
+# service in compose.yaml.
 #
 # Based on tripper's tests/input/graphdb-test_repo-config.ttl, but with
 # the full-text search (FTS) indexes configured explicitly.  With only

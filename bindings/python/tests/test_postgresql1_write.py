@@ -14,7 +14,7 @@ entitydir = thisdir / "entities"
 
 # Skip this test if psycopg is not installed or the PostgreSQL server
 # is not running.  The server and its credentials are configured in
-# examples/docker-compose.yml (see dlite.testutils.service_config()).
+# test-services/compose.yaml (see dlite.testutils.service_config()).
 check_import("psycopg", skip=True)
 pg = serviceskip("postgresql")
 location = f"{pg['host']}:{pg['port']}"

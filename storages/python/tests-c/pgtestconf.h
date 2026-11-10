@@ -1,7 +1,7 @@
 /* pgtestconf.h -- configuration of the PostgreSQL server used by the tests
  *
  * The defaults agree with the postgres service in
- * examples/docker-compose.yml and with TEST_SERVICES in
+ * test-services/compose.yaml and with TEST_SERVICES in
  * bindings/python/testutils.py.  They can be overridden with the
  * environment variables:
  *

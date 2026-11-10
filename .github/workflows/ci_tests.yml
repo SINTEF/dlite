@@ -3,7 +3,7 @@ name: CI tests
 # This CI builds DLite and runs (almost) all tests.
 #
 # The services needed by the storage plugin tests (postgresql, redis,
-# minio and mongodb) are started from examples/docker-compose.yml, so
+# minio and mongodb) are started from test-services/compose.yaml, so
 # that CI and local testing use the same configuration.  The tests
 # connect to them with the default credentials defined in
 # bindings/python/testutils.py.  These are only used for throw-away
@@ -21,7 +21,7 @@ jobs:
 
       - name: Start services
         run: |
-          docker compose -f examples/docker-compose.yml up -d --wait \
+          docker compose -f test-services/compose.yaml up -d --wait \
             postgres redis minio mongodb
 
       - name: Log in to Container Registry
@@ -44,8 +44,8 @@ jobs:
 
       - name: Show service logs
         if: failure()
-        run: docker compose -f examples/docker-compose.yml logs
+        run: docker compose -f test-services/compose.yaml logs
 
       - name: Stop services
         if: always()
-        run: docker compose -f examples/docker-compose.yml down
+        run: docker compose -f test-services/compose.yaml down

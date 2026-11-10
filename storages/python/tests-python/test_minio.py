@@ -12,7 +12,7 @@ importskip("minio")
 importskip("urllib3")
 
 # Skip test if the MinIO server is down.  The server and its credentials
-# are configured in examples/docker-compose.yml (see
+# are configured in test-services/compose.yaml (see
 # dlite.testutils.service_config()).
 config = serviceskip("minio")
 location = f"{config['host']}:{config['port']}"

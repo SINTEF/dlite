@@ -3,7 +3,7 @@
 # The test_postgresql_storage tests require a running PostgreSQL server.
 # Start it with
 #
-#     docker compose -f examples/docker-compose.yml up -d postgres
+#     docker compose -f test-services/compose.yaml up -d postgres
 #
 # The server and credentials can be configured with the
 # DLITE_TEST_POSTGRESQL_* environment variables (see pgtestconf.h).

@@ -131,13 +131,13 @@ def serverskip(server, port, timeout=2, exitcode=44):
 
 
 # Default configurations of external services used by the tests.  They
-# agree with examples/docker-compose.yml, which starts all of them with
+# agree with test-services/compose.yaml, which starts all of them with
 #
-#     docker compose -f examples/docker-compose.yml up -d
+#     docker compose -f test-services/compose.yaml up -d
 #
 # Any value can be overridden with an environment variable named
 # DLITE_TEST_<SERVICE>_<KEY>, e.g. DLITE_TEST_POSTGRESQL_PASSWORD.  The
-# same environment variables are used by docker-compose.yml.
+# same environment variables are used by test-services/compose.yaml.
 TEST_SERVICES = {
     "postgresql": {
         "host": "localhost",
@@ -262,7 +262,7 @@ class skip_on_service_mismatch:
             print(
                 f"{self.service} server doesn't accept the test "
                 f"configuration: {exc_value}\n"
-                f"Start the server in examples/docker-compose.yml or set "
+                f"Start the server in test-services/compose.yaml or set "
                 f"the {prefix}* environment variables.  Skipping test.",
                 file=sys.stderr,
             )

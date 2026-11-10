@@ -13,7 +13,7 @@ importskip("pymongo", env_exitcode=None)
 def create_storage():
     """Create storage.
 
-    Uses the MongoDB server configured in examples/docker-compose.yml
+    Uses the MongoDB server configured in test-services/compose.yaml
     (see dlite.testutils.service_config()) if it is running.  Otherwise
     the server is mocked with mongomock.
     """

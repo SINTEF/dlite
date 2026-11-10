@@ -10,7 +10,7 @@ from dlite.testutils import importskip, serviceskip
 importskip("redis", env_exitcode=None)  # skip this test if redis is not available
 
 # Skip test if redis is down.  The server is configured in
-# examples/docker-compose.yml (see dlite.testutils.service_config()).
+# test-services/compose.yaml (see dlite.testutils.service_config()).
 config = serviceskip("redis")
 host = config["host"]
 port = config["port"]
