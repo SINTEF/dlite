@@ -1,16 +1,13 @@
 # -*- Mode: cmake -*-
 #
-# The test_postgresql_storage test require local configurations of the
-# PostgreSQL server.  The test is only enabled if a file pgconf.h can be
-# found in the source directory with the following content:
+# The test_postgresql_storage tests require a running PostgreSQL server.
+# Start it with
 #
-#     #define HOST "pg_server_host"
-#     #define USER "my_username"
-#     #define DATABASE "my_database"
-#     #define PASSWORD "my_password"
+#     docker compose -f examples/docker-compose.yml up -d postgres
 #
-# Depending on how the server is set up, or if you have a ~/.pgpass
-# file, PASSWORD can be left undefined.
+# The server and credentials can be configured with the
+# DLITE_TEST_POSTGRESQL_* environment variables (see pgtestconf.h).
+# The tests are skipped if the server is not running.
 
 
 set(tests
@@ -47,10 +44,9 @@ if(NOT PY_PYMONGO)
   list(REMOVE_ITEM tests test_bson_storage)
 endif()
 
-# Disable postgresql tests if psycopg is not installed or if pgconf.h
-# cannot be found
+# Disable postgresql tests if psycopg is not installed
 find_python_module(psycopg)
-if(NOT PY_PSYCOPG OR NOT EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/pgconf.h)
+if(NOT PY_PSYCOPG)
   add_test(NAME test_postgresql_storage
     COMMAND ${CMAKE_COMMAND} -E echo "disabled")
   add_test(NAME test_postgresql_storage2
@@ -136,7 +132,23 @@ foreach(test ${tests})
 
 endforeach()
 
+# Skip the postgresql tests if the server is not running or doesn't
+# accept the test configuration (should agree with
+# SERVICE_MISMATCH_PATTERNS in bindings/python/testutils.py)
+foreach(test test_postgresql_storage test_postgresql_storage2)
+  if(TEST ${test})
+    set_property(TEST ${test} PROPERTY SKIP_REGULAR_EXPRESSION
+      "Connection refused"
+      "password authentication failed"
+      "role \".*\" does not exist"
+      "database \".*\" does not exist"
+    )
+    # Don't run tests using the same PostgreSQL database concurrently
+    set_property(TEST ${test} APPEND PROPERTY RESOURCE_LOCK postgresql)
+  endif()
+endforeach()
+
 
 # Set dependencies
 set_property(TEST test_postgresql_storage2 APPEND
-  PROPERTY DEPEND test_postgresql_storage)
+  PROPERTY DEPENDS test_postgresql_storage)

@@ -1,0 +1,28 @@
+# GraphDB configuration of the "test_repo" repository with full-text
+# search, as expected by the tripper tests.  Created by the graphdb-init
+# service in docker-compose.yml.
+#
+# Based on tripper's tests/input/graphdb-test_repo-config.ttl, but with
+# the full-text search (FTS) indexes configured explicitly.  With only
+# `graphdb:enable-fts-index "true"`, GraphDB 10.8 reports FTS as enabled,
+# but `onto:fts` queries return no results.
+
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix rep: <http://www.openrdf.org/config/repository#> .
+@prefix sr: <http://www.openrdf.org/config/repository/sail#> .
+@prefix sail: <http://www.openrdf.org/config/sail#> .
+@prefix graphdb: <http://www.ontotext.com/config/graphdb#> .
+
+[] a rep:Repository ;
+   rep:repositoryID "test_repo" ;
+   rdfs:label "tripper test repository" ;
+   rep:repositoryImpl [
+      rep:repositoryType "graphdb:SailRepository" ;
+      sr:sailImpl [
+         sail:sailType "graphdb:Sail" ;
+         graphdb:enable-fts-index "true" ;
+         graphdb:fts-indexes ("default" "iri") ;
+         graphdb:fts-string-literals-index "default" ;
+         graphdb:fts-iris-index "none"
+      ]
+   ] .

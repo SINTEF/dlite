@@ -1,9 +1,7 @@
-import sys
-import re
-import socket
 from pathlib import Path
 
 import dlite
+from dlite.testutils import serviceskip, skip_on_service_mismatch
 from check_import import check_import
 
 
@@ -14,54 +12,21 @@ outdir = thisdir / "output"
 entitydir = thisdir / "entities"
 
 
-def parse_pgconf():
-    """Read storages/python/test-c/pgconf.h file and returns the tuple
-
-        (host, user, database, password)
-
-    Exit with code 44 (skip test) if the pgconf.h file does not exists.
-    """
-    rootdir = thisdir.parent.parent.parent
-    pgconf = rootdir / "storages/python/tests-c/pgconf.h"
-    if not pgconf.exists():
-        print(f"No configuration file: {pgconf}")
-        print("For more info, see storages/python/README.md")
-        sys.exit(44)
-    regex = re.compile(r'^#define +(\w+) +"(\w+)"')
-    with open(pgconf, "rt") as f:
-        d = {}
-        for line in f:
-            matchobj = regex.match(line)
-            if matchobj:
-                keyword, value = matchobj.groups()
-                d[keyword.lower()] = value
-    keywords = "host,user,database,password".split(",")
-    return tuple(d.get(key) for key in keywords)
-
-
-def ping_server(server="localhost", port=5432, timeout=3):
-    """Exit with code 44 if the server cannot be contacted."""
-    try:
-        socket.setdefaulttimeout(timeout)
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((server, port))
-    except (OSError, ConnectionRefusedError) as exc:
-        print(f"Cannot contact PostgreSQL server on {server}:{port}: {exc}")
-        sys.exit(44)
-    else:
-        s.close()
-
-
-# Check if postgresql server is running
+# Skip this test if psycopg is not installed or the PostgreSQL server
+# is not running.  The server and its credentials are configured in
+# examples/docker-compose.yml (see dlite.testutils.service_config()).
 check_import("psycopg", skip=True)
-ping_server()
+pg = serviceskip("postgresql")
+location = f"{pg['host']}:{pg['port']}"
+options = (
+    f"user={pg['user']};database={pg['database']};password={pg['password']}"
+)
 
 # Add metadata to search path
 dlite.storage_path.append(f"{entitydir}/Person.json")
 dlite.storage_path.append(f"{entitydir}/SimplePerson.json")
 
 # Load dataset
-host, user, database, password = parse_pgconf()
 inst = dlite.Instance.from_location(
     "json",
     f"{indir}/persons.json",
@@ -70,6 +35,5 @@ inst = dlite.Instance.from_location(
 
 
 # Save to postgresql DB
-inst.save(
-    f"postgresql://{host}?user={user};database={database};password={password}"
-)
+with skip_on_service_mismatch("postgresql"):
+    inst.save(f"postgresql://{location}?{options}")

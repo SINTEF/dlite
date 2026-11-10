@@ -57,22 +57,26 @@ Specialised plugins supports storing/retrieving instances of a specific data mod
   Requires: scikit-image
 
 
-Enabling the postgresql storage tests
--------------------------------------
-The test_postgresql_storage test requires local configurations of the
-PostgreSQL server.  The tests are only enabled if a file pgconf.h can
-be found in the [storage/python/tests](../tests) source directory.
+Running the storage tests that need a server
+--------------------------------------------
+The tests of the postgresql, redis, minio and mongodb storages require
+running servers.  The easiest way to start them is with the
+[docker-compose.yml](../../../examples/docker-compose.yml) file in the
+examples directory:
 
-Hence, to enable the postgresql storage tests, you should add the file
-`storage/python/tests/pgconf.h` with the following content:
+    docker compose -f examples/docker-compose.yml up -d
 
-    #define HOST "pg_server_host"
-    #define USER "my_username"
-    #define DATABASE "my_database"
-    #define PASSWORD "my_password"
+Tests that need a server that is not running are skipped.  The
+credentials are defined by `TEST_SERVICES` in
+[testutils.py](../../../bindings/python/testutils.py) and can be
+overridden with environment variables named
+`DLITE_TEST_<SERVICE>_<KEY>`, e.g.
 
-Depending on how the server is set up, or if you have a ~/.pgpass
-file, PASSWORD can be left undefined.
+    export DLITE_TEST_POSTGRESQL_HOST=pg_server_host
+    export DLITE_TEST_POSTGRESQL_PORT=5432
+    export DLITE_TEST_POSTGRESQL_USER=my_username
+    export DLITE_TEST_POSTGRESQL_PASSWORD=my_password
+    export DLITE_TEST_POSTGRESQL_DATABASE=my_database
 
 
 

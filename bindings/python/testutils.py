@@ -1,6 +1,7 @@
 """Some utilities for testing."""
 import importlib
 import os
+import re
 import socket
 import sys
 
@@ -127,3 +128,143 @@ def serverskip(server, port, timeout=2, exitcode=44):
         sys.exit(exitcode)
     else:
         s.close()
+
+
+# Default configurations of external services used by the tests.  They
+# agree with examples/docker-compose.yml, which starts all of them with
+#
+#     docker compose -f examples/docker-compose.yml up -d
+#
+# Any value can be overridden with an environment variable named
+# DLITE_TEST_<SERVICE>_<KEY>, e.g. DLITE_TEST_POSTGRESQL_PASSWORD.  The
+# same environment variables are used by docker-compose.yml.
+TEST_SERVICES = {
+    "postgresql": {
+        "host": "localhost",
+        "port": 5432,
+        "user": "dlite",
+        "password": "dlite-test",
+        "database": "dlite",
+    },
+    "redis": {
+        "host": "localhost",
+        "port": 6379,
+    },
+    "minio": {
+        "host": "localhost",
+        "port": 9000,
+        "access_key": "dlite",
+        "secret_key": "dlite-test",
+    },
+    "mongodb": {
+        "host": "localhost",
+        "port": 27017,
+        "user": "dlite",
+        "password": "dlite-test",
+    },
+    # Agrees with what the tripper tests expect
+    "fuseki": {
+        "host": "localhost",
+        "port": 3030,
+        "user": "admin",
+        "password": "admin0",
+        "dataset": "test_repo",
+    },
+    # Agrees with what the tripper tests expect
+    "graphdb": {
+        "host": "localhost",
+        "port": 7200,
+        "repository": "test_repo",
+    },
+}
+
+
+def service_config(service):
+    """Return a dict with the configuration of the given test service.
+
+    Arguments:
+        service: Name of the service.  Should be a key in `TEST_SERVICES`.
+
+    Returns:
+        Dict with the default configuration in `TEST_SERVICES`, where
+        each value may be overridden by the environment variable
+        DLITE_TEST_<SERVICE>_<KEY>.
+    """
+    config = {}
+    prefix = f"DLITE_TEST_{service.upper()}_"
+    for key, default in TEST_SERVICES[service].items():
+        value = os.environ.get(prefix + key.upper(), default)
+        config[key] = type(default)(value)
+    return config
+
+
+def service_available(service, timeout=2):
+    """Return true if the given test service can be contacted, otherwise
+    false."""
+    config = service_config(service)
+    try:
+        with socket.create_connection(
+            (config["host"], config["port"]), timeout=timeout
+        ):
+            pass
+    except OSError:
+        return False
+    return True
+
+
+def serviceskip(service, timeout=2, exitcode=44):
+    """Call `sys.exit()` with the given exit code if the given test
+    service cannot be contacted.  Otherwise return its configuration
+    (see `service_config()`)."""
+    config = service_config(service)
+    serverskip(
+        config["host"], config["port"], timeout=timeout, exitcode=exitcode
+    )
+    return config
+
+
+# Regular expressions matching errors indicating that a server running
+# on the configured host and port is not the expected test service, e.g.
+# another local server with other credentials.
+SERVICE_MISMATCH_PATTERNS = {
+    "postgresql": (
+        r'password authentication failed|role ".*" does not exist|'
+        r'database ".*" does not exist'
+    ),
+    "mongodb": r"Authentication failed",
+}
+
+
+class skip_on_service_mismatch:
+    """Context manager that calls `sys.exit()` with the given exit code
+    if the code block raises an exception indicating that the server is
+    not configured as expected (e.g. wrong credentials).
+
+    Example:
+
+        with skip_on_service_mismatch("postgresql"):
+            inst.save(f"postgresql://{location}?{options}")
+    """
+
+    def __init__(self, service, exitcode=44):
+        self.service = service
+        self.exitcode = exitcode
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_value, tb):
+        pattern = SERVICE_MISMATCH_PATTERNS.get(self.service)
+        if exc_value is not None and pattern and re.search(
+            pattern, str(exc_value)
+        ):
+            prefix = f"DLITE_TEST_{self.service.upper()}_"
+            print(
+                f"{self.service} server doesn't accept the test "
+                f"configuration: {exc_value}\n"
+                f"Start the server in examples/docker-compose.yml or set "
+                f"the {prefix}* environment variables.  Skipping test.",
+                file=sys.stderr,
+            )
+            sys.exit(self.exitcode)
+        return False
