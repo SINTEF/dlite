@@ -71,7 +71,10 @@ services:
       retries: 10
 
   mongodb:
-    image: docker.io/library/mongo:8
+    # MongoDB 8 refuses to start on Linux kernels from 6.19 up to 7.0.14
+    # (used by the GitHub runners), due to an incompatibility in TCMalloc.
+    # See https://jira.mongodb.org/browse/SERVER-121912
+    image: docker.io/library/mongo:7
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${DLITE_TEST_MONGODB_USER:-dlite}
       MONGO_INITDB_ROOT_PASSWORD: ${DLITE_TEST_MONGODB_PASSWORD:-dlite-test}
