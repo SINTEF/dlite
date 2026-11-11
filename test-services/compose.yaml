@@ -41,54 +41,6 @@ services:
       timeout: 3s
       retries: 10
 
-  # Not used by the DLite tests yet.  Configured as expected by the
-  # tripper tests (admin password "admin0" and a "test_repo" dataset on
-  # port 3030), so that the same services can be used when developing
-  # DLite and tripper together.
-  fuseki:
-    image: docker.io/stain/jena-fuseki
-    environment:
-      ADMIN_PASSWORD: ${DLITE_TEST_FUSEKI_PASSWORD:-admin0}
-      FUSEKI_DATASET_1: ${DLITE_TEST_FUSEKI_DATASET:-test_repo}
-    ports:
-      - "${DLITE_TEST_FUSEKI_PORT:-3030}:3030"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:3030/$$/ping || exit 1"]
-      interval: 5s
-      timeout: 3s
-      retries: 10
-
-  # Not used by the DLite tests yet.  Configured as expected by the
-  # tripper tests (a "test_repo" repository with full-text search on
-  # port 7200).
-  graphdb:
-    image: docker.io/ontotext/graphdb:10.8.3
-    ports:
-      - "${DLITE_TEST_GRAPHDB_PORT:-7200}:7200"
-    healthcheck:
-      test: ["CMD-SHELL", "curl -fs http://localhost:7200/protocol || exit 1"]
-      interval: 5s
-      timeout: 3s
-      retries: 30
-
-  # One-shot service that creates the "test_repo" repository in graphdb
-  # (if it doesn't already exist) when graphdb is up.
-  graphdb-init:
-    image: docker.io/curlimages/curl
-    depends_on:
-      graphdb:
-        condition: service_healthy
-    volumes:
-      - ./graphdb-test_repo-config.ttl:/config.ttl:ro,z
-    command:
-      - sh
-      - -c
-      - >-
-        curl -fs http://graphdb:7200/rest/repositories/test_repo >/dev/null
-        || curl -fsS -X POST -F config=@/config.ttl
-        http://graphdb:7200/rest/repositories
-    restart: "no"
-
   redis:
     image: docker.io/library/redis:7
     ports:
@@ -130,3 +82,51 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  ## Not used by the DLite tests yet.  Configured as expected by the
+  ## tripper tests (admin password "admin0" and a "test_repo" dataset on
+  ## port 3030), so that the same services can be used when developing
+  ## DLite and tripper together.
+  #fuseki:
+  #  image: docker.io/stain/jena-fuseki
+  #  environment:
+  #    ADMIN_PASSWORD: ${DLITE_TEST_FUSEKI_PASSWORD:-admin0}
+  #    FUSEKI_DATASET_1: ${DLITE_TEST_FUSEKI_DATASET:-test_repo}
+  #  ports:
+  #    - "${DLITE_TEST_FUSEKI_PORT:-3030}:3030"
+  #  healthcheck:
+  #    test: ["CMD-SHELL", "curl -fs http://localhost:3030/$$/ping || exit 1"]
+  #    interval: 5s
+  #    timeout: 3s
+  #    retries: 10
+  #
+  ## Not used by the DLite tests yet.  Configured as expected by the
+  ## tripper tests (a "test_repo" repository with full-text search on
+  ## port 7200).
+  #graphdb:
+  #  image: docker.io/ontotext/graphdb:10.8.3
+  #  ports:
+  #    - "${DLITE_TEST_GRAPHDB_PORT:-7200}:7200"
+  #  healthcheck:
+  #    test: ["CMD-SHELL", "curl -fs http://localhost:7200/protocol || exit 1"]
+  #    interval: 5s
+  #    timeout: 3s
+  #    retries: 30
+  #
+  ## One-shot service that creates the "test_repo" repository in graphdb
+  ## (if it doesn't already exist) when graphdb is up.
+  #graphdb-init:
+  #  image: docker.io/curlimages/curl
+  #  depends_on:
+  #    graphdb:
+  #      condition: service_healthy
+  #  volumes:
+  #    - ./graphdb-test_repo-config.ttl:/config.ttl:ro,z
+  #  command:
+  #    - sh
+  #    - -c
+  #    - >-
+  #      curl -fs http://graphdb:7200/rest/repositories/test_repo >/dev/null
+  #      || curl -fsS -X POST -F config=@/config.ttl
+  #      http://graphdb:7200/rest/repositories
+  #  restart: "no"

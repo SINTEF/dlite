@@ -12,17 +12,62 @@ name: CI tests
 on: [push]
 
 jobs:
+
+  # Pull the Docker images of the test services once and store them with
+  # actions/cache, such that the pytest jobs don't pull from Docker Hub,
+  # whose rate limit for anonymous pulls may otherwise make CI fail.
+  # The cache key changes when the image tags in compose.yaml change.
+  docker-images:
+    name: Cache Docker images for test services
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout tripper
+      uses: actions/checkout@v7
+
+    - name: Look up cached Docker images
+      id: cache
+      uses: actions/cache@v6
+      with:
+        path: ~/docker-images.tar
+        key: docker-images-${{ hashFiles('test-services/compose.yaml') }}
+        lookup-only: true
+
+    - name: Pull and save Docker images
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: |
+        images=$(docker compose -f test-services/compose.yaml config --images)
+        for image in $images; do
+          for attempt in 1 2 3 4 5; do
+            docker pull "$image" && break
+            if [ "$attempt" -eq 5 ]; then exit 1; fi
+            echo "Pull of $image failed, retrying in $((attempt * 30)) s"
+            sleep $((attempt * 30))
+          done
+        done
+        docker save -o ~/docker-images.tar $images
+
   test:
+    needs: docker-images
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout repo
         uses: actions/checkout@v7
 
+      - name: Restore Docker images
+        uses: actions/cache/restore@v6
+        with:
+          path: ~/docker-images.tar
+          key: docker-images-${{ hashFiles('test-services/compose.yaml') }}
+          fail-on-cache-miss: true
+
+      - name: Load Docker images
+        run: docker load -i ~/docker-images.tar
+
       - name: Start services
         run: |
-          docker compose -f test-services/compose.yaml up -d --wait \
-            postgres redis minio mongodb
+          docker compose -f test-services/compose.yaml up -d --wait --pull never
 
       - name: Log in to Container Registry
         uses: docker/login-action@v4

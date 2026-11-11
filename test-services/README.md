@@ -11,8 +11,6 @@ the external services used by the DLite tests.  It works with both
 | `redis`    | 6379       | redis storage                                   |
 | `minio`    | 9000, 9001 | minio storage (9001 is the web console)         |
 | `mongodb`  | 27017      | mongodb storage (falls back to mongomock)       |
-| `fuseki`   | 3030       | tripper tests (not used by DLite yet)           |
-| `graphdb`  | 7200       | tripper tests (not used by DLite yet)           |
 
 
 Usage
@@ -53,23 +51,13 @@ running the tests, e.g.
     export DLITE_TEST_POSTGRESQL_PASSWORD=my-secret
 
 
-Testing DLite and tripper together
-----------------------------------
-The fuseki and graphdb services are configured as expected by the
-tripper tests, so the same services can be used when developing DLite
-and tripper together.  Tripper only needs fuseki and graphdb:
-
-    docker compose -f test-services/compose.yaml up -d fuseki graphdb
-
-- fuseki is started with admin password `admin0` and a `test_repo`
-  dataset.
-- Starting graphdb also starts the one-shot `graphdb-init` service,
-  which creates the `test_repo` repository with full-text search from
-  [graphdb-test_repo-config.ttl](graphdb-test_repo-config.ttl), unless
-  it already exists.
-
-
 Continuous integration
 ----------------------
 The [CI tests](../.github/workflows/ci_tests.yml) workflow starts the
 services needed by the DLite tests from the same compose file.
+
+To avoid the rate limit of Docker Hub, the `docker-images` job pulls the
+images once and stores them with `actions/cache`.  The pytest jobs load
+the images from the cache and start the services without pulling.  The
+cache key is a hash of [compose.yaml](compose.yaml), so keep the images
+pinned to fixed tags and change the tag to update an image.
