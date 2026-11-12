@@ -1,7 +1,7 @@
 import dlite
 
 
-class Molecule2Substance(DLiteMappingBase):
+class Molecule2Substance(dlite.DLiteMappingBase):
     name = 'Molecule2Substance'
     input_uris = ['http://onto-ns.com/meta/0.1/Molecule']
     output_uri = 'http://onto-ns.com/meta/0.1/Substance'
