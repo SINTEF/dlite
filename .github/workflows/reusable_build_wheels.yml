@@ -103,10 +103,13 @@ jobs:
           python -m pip install -U pip setuptools wheel
         CIBW_BUILD: cp3${{ contains(matrix.py_minors, ',') && format('{{{0}}}', matrix.py_minors) || matrix.py_minors }}-${{ matrix.system_type[0] }}${{ matrix.arch != '' && '_' || '' }}${{ matrix.arch }}
         CIBW_ENVIRONMENT_MACOS: "MACOSX_DEPLOYMENT_TARGET=${{ matrix.deployment-target }}"
-        CIBW_MANYLINUX_X86_64_IMAGE: ${{ inputs.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_x86_64:latest
-        CIBW_MANYLINUX_I686_IMAGE:   ${{ inputs.container_registry }}/sintef/dlite-python-manylinux${{ matrix.system_type[1] }}_i686:latest
-        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ inputs.container_registry }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_x86_64:latest
-        CIBW_MUSLLINUX_I686_IMAGE:   ${{ inputs.container_registry }}/sintef/dlite-python-musllinux${{ matrix.system_type[1] }}_i686:latest
+        # Images built by the docker-publish.yml workflow.  Their
+        # manylinux/musllinux versions are given by the base images in
+        # .github/docker/Dockerfile-*.
+        CIBW_MANYLINUX_X86_64_IMAGE: ${{ inputs.container_registry }}/sintef/dlite/manylinux_x86_64:latest
+        CIBW_MANYLINUX_I686_IMAGE:   ${{ inputs.container_registry }}/sintef/dlite/manylinux_i686:latest
+        CIBW_MUSLLINUX_X86_64_IMAGE: ${{ inputs.container_registry }}/sintef/dlite/musllinux_x86_64:latest
+        CIBW_MUSLLINUX_I686_IMAGE:   ${{ inputs.container_registry }}/sintef/dlite/musllinux_i686:latest
 
     - name: Store wheels for publishing
       if: inputs.upload_artifacts
