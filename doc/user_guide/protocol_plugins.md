@@ -28,6 +28,7 @@ Protocol plugins can also be accessed in Python via the `Protocol` class.
 
 In the example below the data `b"hello world"`  is first saved to the file `hello.txt` and then loaded back again:
 ```python
+    >>> from dlite.protocol import Protocol
     >>> with Protocol(protocol="file", location="hello.txt", options="mode=rw") as pr:
     ...     pr.save(b"hello world")
     ...     s = pr.load()
@@ -41,7 +42,13 @@ In the example below the data `b"hello world"`  is first saved to the file `hell
 
 Creating protocol plugins
 -------------------------
-Currently, DLite is shipped with the following protocols: *file*, *http*, *sftp*.
-New protocols will be available if the path to the directory is added to the `dlite.python_protocol_plugin` path variable.
+Currently, DLite is shipped with the following protocols: *file*, *http*, *sftp* and *zip*.
+New protocols will be available if the path to the directory is added to the `dlite.python_protocol_plugin_path` path variable.
 
-Please see the existing plugins, for how to implement a new plugin.
+A protocol plugin is a Python module defining a class subclassing `dlite.DLiteProtocolBase`
+with the same name as the module.
+All methods operate on bytes objects.
+Please see the existing plugins (in `bindings/python/python-protocol-plugins/` in the [DLite repository]), for how to implement a new plugin.
+
+
+[DLite repository]: https://github.com/SINTEF/dlite

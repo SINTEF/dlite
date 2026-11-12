@@ -3,7 +3,9 @@ requires = [
   "numpy>=1.14.5,<=2.5.4", # must agree with ../requirements.txt
   "swig==4.3.1",  # must agree with ../requirements_dev.txt
   "cmake==4.0.2", # must agree with ../requirements_dev.txt
-  "setuptools==84.1.0", # must agree with ../requirements_dev.txt
+  # setuptools>=83 requires Python>=3.10, so use a range that lets pip pick
+  # the newest version supporting the Python version we build for.
+  "setuptools>=75.3.0,<=84.1.0", # must agree with ../requirements_dev.txt
   "wheel==0.45.1", # must agree with ../requirements_dev.txt
 ]
 build-backend = "setuptools.build_meta"
