@@ -4,6 +4,7 @@
 #include "dlite-mapping.h"
 #include "dlite-bson.h"
 #include "dlite-errors.h"
+#include "utils/err.h"
 %}
 
 
@@ -767,13 +768,14 @@ Returns:
            "    with_meta: Always include 'meta' (even for metadata).\n"
            "    with_arrays: Write metadata dimension and properties as json arrays (old format).\n"
            "    no_parent: Do not write transaction parent info.\n"
-           "    compact_rel: Write relations with no newlines.\n"
+           "    compact: Write relations with no newlines.\n"
+           "    compact_rel: Deprecated alias for `compact`.\n"
            ) _asjson;
   %newobject _asjson;
   char *_asjson(int indent=0, bool single=false, bool urikey=false,
                 bool with_uuid=false, bool with_meta=false,
                 bool with_arrays=false, bool no_parent=false,
-                bool compact_rel=false) {
+                bool compact=false, bool compact_rel=false) {
     DLiteJsonFlag flags=0;
     if (single) flags |= dliteJsonSingle;
     if (urikey) flags |= dliteJsonUriKey;
@@ -781,7 +783,13 @@ Returns:
     if (with_meta) flags |= dliteJsonWithMeta;
     if (with_arrays) flags |= dliteJsonArrays;
     if (no_parent) flags |= dliteJsonNoParent;
-    if (compact_rel) flags |= dliteJsonCompactRel;
+    if (compact) flags |= dliteJsonCompactRel;
+    if (compact_rel) {
+      if (dlite_deprecation_warning("0.7.0", "Argument `compact_rel` of "
+                                    "_asjson() is deprecated, use `compact` "
+                                    "instead.")) return NULL;
+      flags |= dliteJsonCompactRel;
+    }
     return dlite_json_aprint($self, indent, flags);
   }
 

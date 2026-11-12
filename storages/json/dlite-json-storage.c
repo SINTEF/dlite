@@ -365,7 +365,9 @@ int json_memsave(const DLiteStoragePlugin *api,
   if (atob(opts[6].value)) flags |= dliteJsonNoParent;
   if (atob(opts[7].value)) flags |= dliteJsonCompactRel;
   if (atob(opts[8].value)) {
-    warn("json option `compact-rel` is deprecated, use `compact` instead");
+    if (dlite_deprecation_warning("0.7.0", "json option `compact-rel` is "
+                                  "deprecated, use `compact` instead."))
+      goto fail;
     flags |= dliteJsonCompactRel;
   }
   retval = dlite_json_sprint((char *)buf, size, inst, indent, flags);

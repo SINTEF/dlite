@@ -1048,7 +1048,7 @@ def get_instance(
 
     def asjson(self, indent=0, single=None,
                urikey=False, with_uuid=False, with_meta=False,
-               with_arrays=False, no_parent=False,
+               with_arrays=False, no_parent=False, compact=False,
                soft7=None, uuid=None):
         """Returns a JSON representation of self.
 
@@ -1063,6 +1063,7 @@ def get_instance(
             with_arrays: Write metadata dimensions and properties as jSON
                 arrays (old format).
             no_parent: Do not include transaction parent info.
+            compact: Write relations with no newlines.
             soft7: Whether to structure metadata as SOFT7. Deprecated.
                 Use `with_arrays=False` instead.
             uuid: Alias for `with_uuid`. Deprecated.
@@ -1086,13 +1087,14 @@ def get_instance(
 
         return self._asjson(indent=indent, single=single, urikey=urikey,
                             with_uuid=with_uuid, with_meta=with_meta,
-                            with_arrays=with_arrays, no_parent=no_parent)
+                            with_arrays=with_arrays, no_parent=no_parent,
+                            compact=compact)
 
 
     # Deprecated methods
     def tojson(self, indent=0, single=False,
                urikey=False, with_uuid=False, with_meta=False,
-               with_arrays=False, no_parent=False,
+               with_arrays=False, no_parent=False, compact=False,
                soft7=None, uuid=None):
         """Deprecated alias for asjson()."""
         warnings.warn(
@@ -1100,7 +1102,8 @@ def get_instance(
              DeprecationWarning, stacklevel=2)
         return self._asjson(indent=indent, single=single, urikey=urikey,
                             with_uuid=with_uuid, with_meta=with_meta,
-                            with_arrays=with_arrays, no_parent=no_parent)
+                            with_arrays=with_arrays, no_parent=no_parent,
+                            compact=compact)
 
     def get_copy(self):
         """Returns a copy of self.

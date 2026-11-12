@@ -121,6 +121,11 @@ s8 = inst.to_bytes("json", options="single=true;compact-rel=true").decode()
 assert s7 == s8
 assert s7 != s6  # the compact option should make a difference
 
+# Test `compact` argument of asjson() (`compact_rel` argument of
+# _asjson() is a deprecated alias for it)
+assert inst.asjson(single=True, compact=True) == s7
+assert inst._asjson(single=True, compact_rel=True) == s7
+
 # FIXME: Add test for the `arrays` and `no-parent` options.
 # Should we rename `arrays` to `soft7` for consistency with the Python API?
 
