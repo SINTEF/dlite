@@ -115,11 +115,11 @@ assert math.isnan(d["properties"]["a-float"])
 assert math.isinf(d["properties"]["a-float64-array"][0])
 assert math.isinf(d["properties"]["a-float64-array"][1])
 
-# Test compact-rel option (`compact` is a deprecated alias for it)
-s7 = inst.to_bytes("json", options="single=true;compact-rel=true").decode()
-s8 = inst.to_bytes("json", options="single=true;compact=true").decode()
+# Test compact option (`compact-rel` is a deprecated alias for it)
+s7 = inst.to_bytes("json", options="single=true;compact=true").decode()
+s8 = inst.to_bytes("json", options="single=true;compact-rel=true").decode()
 assert s7 == s8
-assert s8 != s6  # the compact-rel option should make a difference
+assert s7 != s6  # the compact option should make a difference
 
 # FIXME: Add test for the `arrays` and `no-parent` options.
 # Should we rename `arrays` to `soft7` for consistency with the Python API?
