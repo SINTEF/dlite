@@ -1,3 +1,5 @@
+# History
+
 DLite is an implementation of [SOFT], which stands for SINTEF Open
 Framework and Tools and is a set of concepts for how to achieve
 semantic interoperability as well as implementations and corresponding
