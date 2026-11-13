@@ -24,3 +24,4 @@ User Guide
    environment_variables
    features
    vocabulary
+   history
