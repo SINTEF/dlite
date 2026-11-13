@@ -1,4 +1,6 @@
 """Test storages."""
+import json
+import math
 from pathlib import Path
 
 import numpy as np
@@ -95,7 +97,31 @@ assert s3.startswith("{\n  \"http://data.org/my-data\":")
 s4 = inst.to_bytes("json", options="single=true;with-uuid=true").decode()
 assert s4.startswith("{\n  \"uri\": \"http://data.org/my-data\",\n  \"uuid\":")
 
-# FIXME: Add test for the `arrays`, `no-parent` and `compact` options.
+# Test to_bytes() with options given as dict
+s5 = inst.to_bytes("json", {"single": "true"}).decode()
+assert s5 == s2
+
+# Test non-finite floats.  They should be serialised as "NaN",
+# "Infinity" and "-Infinity", which are understood by Python's json
+# module (as opposed to "nan" and "inf" produced by C's printf).
+inst["a-float"] = float("nan")
+inst["a-float64-array"][0] = float("inf")
+inst["a-float64-array"][1] = float("-inf")
+s6 = inst.to_bytes("json", options="single=true").decode()
+assert '"a-float": NaN' in s6
+assert '"a-float64-array": [Infinity, -Infinity' in s6
+d = json.loads(s6)  # must be parseable with the json module
+assert math.isnan(d["properties"]["a-float"])
+assert math.isinf(d["properties"]["a-float64-array"][0])
+assert math.isinf(d["properties"]["a-float64-array"][1])
+
+# Test compact-rel option (`compact` is a deprecated alias for it)
+s7 = inst.to_bytes("json", options="single=true;compact-rel=true").decode()
+s8 = inst.to_bytes("json", options="single=true;compact=true").decode()
+assert s7 == s8
+assert s8 != s6  # the compact-rel option should make a difference
+
+# FIXME: Add test for the `arrays` and `no-parent` options.
 # Should we rename `arrays` to `soft7` for consistency with the Python API?
 
 
@@ -136,11 +162,16 @@ Arguments:
         - `w`: Open for writing. If `location` exists, it is truncated.
     - `soft7`: Whether to save using SOFT7 format.
     - `single`: Whether to save in single-instance form.
-    - `with_uuid`: Whether to include UUID when saving.
-    - with_meta: Whether to always include "meta" (even for metadata)
-    - with_parent: Whether to include parent info for transactions.
-    - urikey: Whether the URI is the preferred keys in multi-instance
-        format.
+    - `with-uuid`: Whether to include UUID when saving.
+    - `with-meta`: Whether to always include "meta" (even for
+        metadata).
+    - `with_parent`: Whether to include parent info for transactions.
+    - `uri-key`: Whether the URI is the preferred keys in
+        multi-instance format.
+
+    The option names `with_uuid`, `with_meta` and `urikey` are
+    deprecated aliases for `with-uuid`, `with-meta` and `uri-key`,
+    respectively.
 """
     s = dlite.Storage(
         "yaml", outdir / "test_storage_inst.yaml", options="mode=a"

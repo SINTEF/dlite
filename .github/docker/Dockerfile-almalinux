@@ -55,7 +55,15 @@ ARG PY_MINORS="{{ PY_MINORS }}"
 
 COPY requirements*.txt /tmp/
 
+# Most optional requirements (e.g. pyarrow) have no i686 wheels and cannot
+# be built here, so 32-bit images only get the base and dev requirements.
 RUN \
+  if [ "{{ ARCH }}" = "i686" ]; then \
+    sed -e '/mongomock/d' -i /tmp/requirements_dev.txt && \
+    REQ_FULL=""; \
+  else \
+    REQ_FULL="-r /tmp/requirements_full.txt"; \
+  fi && \
   mkdir -p /ci/pip_cache && \
   for minor in ${PY_MINORS}; do \
     echo && \
@@ -64,7 +72,7 @@ RUN \
     python3.${minor} -m pip install --cache-dir=/ci/pip_cache \
       -r /tmp/requirements.txt \
       -r /tmp/requirements_dev.txt \
-      -r /tmp/requirements_full.txt; \
+      ${REQ_FULL}; \
   done && \
   rm -rf /ci/pip_cache
 

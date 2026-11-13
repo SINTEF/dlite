@@ -9,7 +9,10 @@ name: CI tests
 # bindings/python/testutils.py.  These are only used for throw-away
 # containers that are reachable from the runner itself.
 
-on: [push]
+on:
+  push:
+  pull_request:
+
 
 jobs:
 

@@ -289,9 +289,8 @@ DLiteInstance *mapping_map_rec(const DLiteMapping *m, Instances *instances)
   /* Call the mapper function from plugin */
   if (!(inst = m->api->mapper(m->api, insts, m->ninput))) goto fail;
 
-  /* Add new instance to `instances` */
+  /* Add new instance to `instances`, which takes over the reference */
   assert(strcmp(inst->meta->uri, m->output_uri) == 0);
-  dlite_instance_incref(inst);  // TODO: is this correct?
   map_set(instances, inst->meta->uri, inst);
 
  fail:
@@ -373,21 +372,6 @@ int decref_inputs(Instances *inputs)
 
 
 
-/* Recursive help function that removes all references to input instances
-   found in `m`, from `inputs`. */
-void remove_inputs_rec(const DLiteMapping *m, Instances *inputs)
-{
-  int i;
-  for (i=0; i < m->ninput; i++) {
-    if (m->input_maps[i])
-      remove_inputs_rec(m->input_maps[i], inputs);
-    else {
-      map_remove(inputs, m->input_uris[i]);
-    }
-  }
-  map_remove(inputs, m->output_uri);
-}
-
 /*
   Applies the mapping `m` on `instances` (array of length `n` of
   instance pointers) and returns a new instance.
@@ -395,10 +379,7 @@ void remove_inputs_rec(const DLiteMapping *m, Instances *inputs)
 DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
                                  const DLiteInstance **instances, int n)
 {
-  int i;
-  const char *key;
   Instances inputs;
-  map_iter_t iter;
   DLiteInstance *inst=NULL, **instp;
 
   map_init(&inputs);
@@ -414,24 +395,19 @@ DLiteInstance *dlite_mapping_map(const DLiteMapping *m,
     assert(!m->name);
     inst = *instp;
     assert(inst);
-    dlite_instance_incref(inst);
   } else {
     /* Apply mapping */
     assert(m->name);  /* trivial case is already handled */
     inst = mapping_map_rec(m, &inputs);
   }
 
-  /* Done - remove temporary created instances */
-  remove_inputs_rec(m, &inputs);
-  iter = map_iter(&inputs);
-  while ((key = map_next(&inputs, &iter))) {
-    DLiteInstance **ip = map_get(&inputs, key);
-    assert(ip && *ip);
-    dlite_instance_decref(*ip);
-  }
+  /* Return a new reference to the output instance */
+  if (inst) dlite_instance_incref(inst);
 
+  /* Done - release the references held by `inputs`.  This frees
+     intermediate instances created by the mapping. */
+  decref_inputs(&inputs);
   map_deinit(&inputs);
-  for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
   return inst;
 }
 
