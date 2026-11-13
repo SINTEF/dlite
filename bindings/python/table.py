@@ -72,6 +72,7 @@ class DMTable():
                 "http://example.com/data/0.1/blah".
             unit_handling: How to handle units that are not found in the EMMO
                 ontology.  Must be one of:
+
                 - 'raise': Raise a MissingUnit exception (default)
                 - 'ignore': Don't add the unit to the property.  Will issue
                   a warning.
@@ -233,6 +234,7 @@ class DMTable():
                 details.
             unit_handling: How to handle units that are not found in the EMMO
                 ontology.  Must be one of:
+
                 - 'raise': Raise a MissingUnit exception (default)
                 - 'ignore': Don't add the unit to the property.  Will issue
                   a warning.
@@ -287,7 +289,7 @@ class DMTable():
         baseuri: "Optional[str]" = None,
         unit_handling: "Literal['raise', 'ignore', 'force']" = "raise",
     ) -> "DMTable":
-        """Parse a csv file using the standard library csv module.
+        """Parse an Excel file using openpyxl.
 
         Arguments:
             excelfile: Name of excel file to parse.
@@ -308,6 +310,7 @@ class DMTable():
                 details.
             unit_handling: How to handle units that are not found in the EMMO
                 ontology.  Must be one of:
+
                 - 'raise': Raise a MissingUnit exception (default)
                 - 'ignore': Don't add the unit to the property.  Will issue
                   a warning.
