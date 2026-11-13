@@ -552,7 +552,7 @@ Call signatures:
            "This function may pull snapshots back into memory. Use\n"
            "`dlite_instance_pull()` if you know the storage where the snapshots "
            "are stored.") get_snapshot;
-  %newobject get_snapshop;
+  %newobject get_snapshot;
   struct _DLiteInstance *get_snapshot(int n=1) {
     DLiteInstance *inst =
       (DLiteInstance *)dlite_instance_get_snapshot($self, n);
@@ -568,7 +568,7 @@ Call signatures:
            "counts backward.  Hence, `n=0` returns the current instance,\n"
            "`n=1` returns its parent, etc... "
            ) pull_snapshot;
-  %newobject get_snapshop;
+  %newobject pull_snapshot;
   struct _DLiteInstance *pull_snapshot(struct _DLiteStorage *storage, int n) {
     DLiteInstance *inst =
       (DLiteInstance *)dlite_instance_pull_snapshot($self, storage, n);
@@ -864,6 +864,7 @@ void dlite_swig_set_property(struct _DLiteInstance *inst, const char *name,
 bool dlite_instance_has_property(struct _DLiteInstance *inst, const char *name);
 
 %rename(_from_bytes) dlite_instance_memload;
+%newobject dlite_instance_memload;
 %feature("docstring", "Loads instance from string.") dlite_instance_memload;
 struct _DLiteInstance *
          dlite_instance_memload(const char *driver,
