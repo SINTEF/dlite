@@ -51,10 +51,7 @@ Returns next instance or None if exhausted.") next;
   struct _DLiteInstance *next(void) {
     char uuid[DLITE_UUID_LENGTH+1];
     if (dlite_storage_iter_next($self->s, $self->state, uuid) == 0) {
-      DLiteInstance *inst = dlite_instance_load($self->s, uuid);
-      // Why isn't the refcount already increased?
-      if (inst) dlite_instance_incref(inst);
-      return inst;
+      return dlite_instance_load($self->s, uuid);
     }
     return NULL;
   }
