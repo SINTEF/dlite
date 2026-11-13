@@ -646,6 +646,19 @@ def get_instance(
         )
         return instance_cast(inst)
 
+    def to_bytes(self, driver, options=None):
+        """Serialise this instance to a bytes object using the given
+        storage driver.
+
+        Arguments:
+            driver: Storage driver to use.
+            options: Driver options.  May be an URL query string or a dict.
+        """
+        from dlite.options import make_query
+        if options and not isinstance(options, str):
+            options = make_query(options)
+        return self._to_bytes(driver, options)
+
     @classmethod
     def create_metadata(cls, uri, dimensions, properties, description):
         """Create a new metadata entity (instance of entity schema) casted
