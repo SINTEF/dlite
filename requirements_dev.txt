@@ -3,8 +3,9 @@ swig==4.3.1 # Must agree with python/pyproject.toml
 cmake==4.0.2 # Must agree with python/pyproject.toml
 wheel==0.45.1 # Must agree with python/pyproject.toml
 
-# Note, that setuptools 75.3.0 is the highest supported version in the Windows wheel
-setuptools==75.3.0 # Must agree with python/pyproject.toml
+# Note, that setuptools>=83 requires Python>=3.10, so we use a range that
+# lets pip pick the newest version supporting the current Python version.
+setuptools>=75.3.0,<=84.1.0 # Must agree with python/pyproject.toml
 
 # Used by patch-activate.sh
 virtualenvwrapper==6.1.1
