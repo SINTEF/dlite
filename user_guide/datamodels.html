@@ -194,9 +194,11 @@
 <li class="toctree-l2"><a class="reference internal" href="type-system.html">Type system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exceptions.html">Errors and exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html">The DLite plugin system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storage_plugins.html">Storage plugins / Drivers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_reference.html">Plugin reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="search_paths.html">Search paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mappings.html">Mappings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transactions.html">Transactions</a></li>
@@ -211,8 +213,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
-
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
@@ -222,6 +223,22 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/dlite/index.html">Python API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/datamodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.datamodel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dataset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dlite/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dlite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/factory/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/mappings/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.mappings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/options/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.options</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/paths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/protocol/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/quantity/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/rdf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.rdf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/table/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/testutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.testutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.utils</span></code></a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
@@ -642,25 +659,25 @@ The datamodel below has three properties; “name”, “age” and “skills”
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">string</span>
 <span class="w">  </span><span class="nt">indices</span><span class="p">:</span>
 <span class="w">    </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">int64</span>
-<span class="w">    </span><span class="nt">shape</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">&quot;N&quot;</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">&quot;M&quot;</span><span class="p p-Indicator">]</span>
+<span class="w">    </span><span class="nt">shape</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[</span><span class="s">"N"</span><span class="p p-Indicator">,</span><span class="w"> </span><span class="s">"M"</span><span class="p p-Indicator">]</span>
 </pre></div>
 </div>
 <p>The fields in the datamodel are mapped to the table headers via the following default mappings.</p>
 <p>Note that <code class="docutils literal notranslate"><span class="pre">dimensions</span></code> is inferred from the shapes of the properties.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="c1"># Default mappings of DLite metadata fields to table header names</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">DEFAULT_DATAMODEL_MAPPINGS</span> <span class="o">=</span> <span class="p">{</span>
-<span class="o">...</span>     <span class="s2">&quot;uri&quot;</span><span class="p">:</span> <span class="s2">&quot;@id&quot;</span><span class="p">,</span>
-<span class="o">...</span>     <span class="s2">&quot;dimensions&quot;</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
-<span class="o">...</span>     <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;description&quot;</span><span class="p">,</span>
+<span class="o">...</span>     <span class="s2">"uri"</span><span class="p">:</span> <span class="s2">"@id"</span><span class="p">,</span>
+<span class="o">...</span>     <span class="s2">"dimensions"</span><span class="p">:</span> <span class="kc">None</span><span class="p">,</span>
+<span class="o">...</span>     <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"description"</span><span class="p">,</span>
 <span class="o">...</span> <span class="p">}</span>
 <span class="c1"># Default mappings of DLite property fields to table header names</span>
 <span class="o">&gt;&gt;&gt;</span> <span class="n">DEFAULT_PROPERTY_MAPPINGS</span> <span class="o">=</span> <span class="p">{</span>
-<span class="o">...</span>     <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="s2">&quot;datumName&quot;</span><span class="p">,</span>
-<span class="o">...</span>     <span class="s2">&quot;type&quot;</span><span class="p">:</span> <span class="s2">&quot;datumType&quot;</span><span class="p">,</span>
-<span class="o">...</span>     <span class="s2">&quot;ref&quot;</span><span class="p">:</span> <span class="s2">&quot;datumRef&quot;</span><span class="p">,</span>
-<span class="o">...</span>     <span class="s2">&quot;unit&quot;</span><span class="p">:</span> <span class="s2">&quot;datumUnit&quot;</span><span class="p">,</span>
-<span class="o">...</span>     <span class="s2">&quot;shape&quot;</span><span class="p">:</span> <span class="s2">&quot;datumShape&quot;</span><span class="p">,</span>
-<span class="o">...</span>     <span class="s2">&quot;description&quot;</span><span class="p">:</span> <span class="s2">&quot;datumDescription&quot;</span><span class="p">,</span>
+<span class="o">...</span>     <span class="s2">"name"</span><span class="p">:</span> <span class="s2">"datumName"</span><span class="p">,</span>
+<span class="o">...</span>     <span class="s2">"type"</span><span class="p">:</span> <span class="s2">"datumType"</span><span class="p">,</span>
+<span class="o">...</span>     <span class="s2">"ref"</span><span class="p">:</span> <span class="s2">"datumRef"</span><span class="p">,</span>
+<span class="o">...</span>     <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"datumUnit"</span><span class="p">,</span>
+<span class="o">...</span>     <span class="s2">"shape"</span><span class="p">:</span> <span class="s2">"datumShape"</span><span class="p">,</span>
+<span class="o">...</span>     <span class="s2">"description"</span><span class="p">:</span> <span class="s2">"datumDescription"</span><span class="p">,</span>
 <span class="o">...</span> <span class="p">}</span>
 
 </pre></div>
@@ -673,7 +690,7 @@ The content of these brackets have (currently) no semantic meaning, but are used
 <p>Assuming that the above table is stored in a CSV file called <code class="docutils literal notranslate"><span class="pre">datamodels.csv</span></code>.
 Python objects <code class="docutils literal notranslate"><span class="pre">m1</span></code> and <code class="docutils literal notranslate"><span class="pre">m2</span></code> for these datamodels can then be created with the following code</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dlite.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">DMTable</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span> <span class="o">=</span> <span class="n">DMTable</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">indir</span> <span class="o">/</span> <span class="s2">&quot;datamodels.csv&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span> <span class="o">=</span> <span class="n">DMTable</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">indir</span> <span class="o">/</span> <span class="s2">"datamodels.csv"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">get_datamodels</span><span class="p">()</span>
 
 </pre></div>
@@ -724,7 +741,7 @@ The above table could then be rewritten as follows:</p>
 </div>
 <p>and the python code to create the same datamodels as above would be:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dlite.table</span><span class="w"> </span><span class="kn">import</span> <span class="n">DMTable</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span> <span class="o">=</span> <span class="n">DMTable</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">indir</span> <span class="o">/</span> <span class="s2">&quot;datamodels.csv&quot;</span><span class="p">,</span> <span class="n">baseuri</span><span class="o">=</span><span class="s2">&quot;http://onto-ns.com/meta/test/0.1&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span> <span class="o">=</span> <span class="n">DMTable</span><span class="o">.</span><span class="n">from_csv</span><span class="p">(</span><span class="n">indir</span> <span class="o">/</span> <span class="s2">"datamodels.csv"</span><span class="p">,</span> <span class="n">baseuri</span><span class="o">=</span><span class="s2">"http://onto-ns.com/meta/test/0.1"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">m1</span><span class="p">,</span> <span class="n">m2</span> <span class="o">=</span> <span class="n">t2</span><span class="o">.</span><span class="n">get_datamodels</span><span class="p">()</span>
 
 </pre></div>
@@ -735,7 +752,7 @@ The above table could then be rewritten as follows:</p>
 <p>Continuing with example above, the DMTable class has a <code class="docutils literal notranslate"><span class="pre">to_triplestore()</span></code> method that can be used to store the datamodels to a triplestore using the <a class="reference external" href="https://emmc-asbl.github.io/tripper/">tripper</a> package.</p>
 <p>For example will the following</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">tripper</span><span class="w"> </span><span class="kn">import</span> <span class="n">Triplestore</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">Triplestore</span><span class="p">(</span><span class="s2">&quot;rdflib&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">Triplestore</span><span class="p">(</span><span class="s2">"rdflib"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">t2</span><span class="o">.</span><span class="n">to_triplestore</span><span class="p">(</span><span class="n">ts</span><span class="p">)</span>
 
 </pre></div>

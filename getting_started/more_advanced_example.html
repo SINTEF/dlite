@@ -194,9 +194,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/type-system.html">Type system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/exceptions.html">Errors and exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plugin_system.html">The DLite plugin system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plugin_reference.html">Plugin reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/search_paths.html">Search paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/mappings.html">Mappings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/transactions.html">Transactions</a></li>
@@ -211,8 +213,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
-
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
@@ -222,6 +223,22 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/dlite/index.html">Python API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/datamodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.datamodel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dataset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dlite/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dlite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/factory/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/mappings/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.mappings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/options/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.options</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/paths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/protocol/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/quantity/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/rdf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.rdf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/table/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/testutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.testutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.utils</span></code></a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
@@ -499,14 +516,14 @@ document.write(`
 <h1>More advanced example<a class="headerlink" href="#more-advanced-example" title="Link to this heading">#</a></h1>
 <p>Let’s say that you have the following Python class:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;A person.</span>
+<span class="w">    </span><span class="sd">"""A person.</span>
 
 <span class="sd">    Arguments:</span>
 <span class="sd">        name: Full name.</span>
 <span class="sd">        age: Age of person.</span>
 <span class="sd">        skills: List of skills.</span>
 
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">age</span><span class="p">:</span> <span class="nb">float</span><span class="p">,</span> <span class="n">skills</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">])</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
@@ -520,34 +537,34 @@ Here we define <code class="docutils literal notranslate"><span class="pre">name
 The metadata uniquely identifies itself with the “name”, “version” and “namespace” fields and “meta” refers to the metadata schema (meta-metadata) that this metadata is described by.
 Finally, human descriptions of the metadata itself, its dimensions and its properties are provided in the “description” fields.</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">  </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Person&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://onto-ns.com/meta&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://onto-ns.com/meta/0.3/EntitySchema&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A person.&quot;</span><span class="p">,</span>
-<span class="w">  </span><span class="nt">&quot;dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Person"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.1"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"namespace"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://onto-ns.com/meta"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://onto-ns.com/meta/0.3/EntitySchema"</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A person."</span><span class="p">,</span>
+<span class="w">  </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;N&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Number of skills.&quot;</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"N"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Number of skills."</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">],</span>
-<span class="w">  </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">  </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;name&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Full name.&quot;</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"name"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Full name."</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;age&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;year&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Age of person.&quot;</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"age"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"float"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"year"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Age of person."</span>
 <span class="w">    </span><span class="p">},</span>
 <span class="w">    </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;skills&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;string&quot;</span><span class="p">,</span>
-<span class="w">      </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">      </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;List of skills.&quot;</span>
+<span class="w">      </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"skills"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"string"</span><span class="p">,</span>
+<span class="w">      </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">      </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"List of skills."</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="w">  </span><span class="p">]</span>
 <span class="p">}</span>
@@ -558,17 +575,17 @@ In Python we can now make a DLite-aware subclass of <code class="docutils litera
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
 
 <span class="c1"># Create a DLite-aware subclass of Person</span>
-<span class="n">DLitePerson</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">classfactory</span><span class="p">(</span><span class="s2">&quot;Person&quot;</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">&quot;json://Person.json&quot;</span><span class="p">)</span>
+<span class="n">DLitePerson</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">classfactory</span><span class="p">(</span><span class="s2">"Person"</span><span class="p">,</span> <span class="n">url</span><span class="o">=</span><span class="s2">"json://Person.json"</span><span class="p">)</span>
 
 <span class="c1"># Instantiate</span>
 <span class="n">person</span> <span class="o">=</span> <span class="n">DLitePerson</span><span class="p">(</span>
-    <span class="s2">&quot;Sherlock Holmes&quot;</span><span class="p">,</span>
+    <span class="s2">"Sherlock Holmes"</span><span class="p">,</span>
     <span class="mf">34.</span><span class="p">,</span>
-    <span class="p">[</span><span class="s2">&quot;observing&quot;</span><span class="p">,</span> <span class="s2">&quot;chemistry&quot;</span><span class="p">,</span> <span class="s2">&quot;violin&quot;</span><span class="p">,</span> <span class="s2">&quot;boxing&quot;</span><span class="p">],</span>
+    <span class="p">[</span><span class="s2">"observing"</span><span class="p">,</span> <span class="s2">"chemistry"</span><span class="p">,</span> <span class="s2">"violin"</span><span class="p">,</span> <span class="s2">"boxing"</span><span class="p">],</span>
 <span class="p">)</span>
 
 <span class="c1"># Write to storage (here a JSON file)</span>
-<span class="n">person</span><span class="o">.</span><span class="n">dlite_inst</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">&#39;json://homes.json?mode=w&#39;</span><span class="p">)</span>
+<span class="n">person</span><span class="o">.</span><span class="n">dlite_inst</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="s1">'json://homes.json?mode=w'</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To access this new instance from C, you can first generate a header file from the meta data</p>
@@ -579,24 +596,24 @@ In Python we can now make a DLite-aware subclass of <code class="docutils litera
 <div class="highlight-c notranslate"><div class="highlight"><pre><span></span><span class="c1">// homes.c -- sample program that loads instance from homes.json and prints it</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
 <span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;dlite.h&gt;</span>
-<span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;person.h&quot;</span><span class="c1">  // header generated with dlite-codegen</span>
+<span class="cp">#include</span><span class="w"> </span><span class="cpf">"person.h"</span><span class="w">  </span><span class="c1">// header generated with dlite-codegen</span>
 
 <span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span>
 <span class="p">{</span>
 <span class="w">  </span><span class="cm">/* URL of instance to load using the json driver.  The storage is</span>
-<span class="cm">     here the file &#39;homes.json&#39; and the instance we want to load in</span>
+<span class="cm">     here the file 'homes.json' and the instance we want to load in</span>
 <span class="cm">     this file is identified with the UUID following the hash (#)</span>
 <span class="cm">     sign. */</span>
-<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;json://homes.json#315088f2-6ebd-4c53-b825-7a6ae5c9659b&quot;</span><span class="p">;</span>
+<span class="w">  </span><span class="kt">char</span><span class="w"> </span><span class="o">*</span><span class="n">url</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">"json://homes.json#315088f2-6ebd-4c53-b825-7a6ae5c9659b"</span><span class="p">;</span>
 
 <span class="w">  </span><span class="n">Person</span><span class="w"> </span><span class="o">*</span><span class="n">person</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">Person</span><span class="w"> </span><span class="o">*</span><span class="p">)</span><span class="n">dlite_instance_load_url</span><span class="p">(</span><span class="n">url</span><span class="p">);</span>
 
 <span class="w">  </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
-<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;name:  %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span>
-<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;age:   %g</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">age</span><span class="p">);</span>
-<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;skills:</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"name:  %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">name</span><span class="p">);</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"age:   %g</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">age</span><span class="p">);</span>
+<span class="w">  </span><span class="n">printf</span><span class="p">(</span><span class="s">"skills:</span><span class="se">\n</span><span class="s">"</span><span class="p">);</span>
 <span class="w">  </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">&lt;</span><span class="n">person</span><span class="o">-&gt;</span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
-<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;  - %s</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">skills</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
+<span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">"  - %s</span><span class="se">\n</span><span class="s">"</span><span class="p">,</span><span class="w"> </span><span class="n">person</span><span class="o">-&gt;</span><span class="n">skills</span><span class="p">[</span><span class="n">i</span><span class="p">]);</span>
 
 <span class="w">  </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
 <span class="p">}</span>

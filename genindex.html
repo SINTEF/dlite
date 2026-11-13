@@ -191,9 +191,11 @@
 <li class="toctree-l2"><a class="reference internal" href="user_guide/type-system.html">Type system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/exceptions.html">Errors and exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/plugin_system.html">The DLite plugin system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="user_guide/plugin_reference.html">Plugin reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/search_paths.html">Search paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/mappings.html">Mappings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="user_guide/transactions.html">Transactions</a></li>
@@ -208,8 +210,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="contributors_guide/coding_guideline.html">Coding guideline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
-
+<li class="toctree-l2"><a class="reference internal" href="contributors_guide/documentation_testing.html">Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contributors_guide/release_instructions.html">Creating a new release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contributors_guide/code_changes.html">Code changes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
@@ -219,6 +220,22 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="autoapi/dlite/index.html">Python API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/datamodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.datamodel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/dataset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/dlite/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dlite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/factory/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/mappings/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.mappings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/options/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.options</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/paths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/protocol/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/quantity/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/rdf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.rdf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/table/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/testutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.testutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="autoapi/dlite/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.utils</span></code></a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="c-api/src/dlite-arrays.html">dlite-arrays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="c-api/src/dlite-behavior.html">dlite-behavior</a></li>
@@ -459,11 +476,13 @@ document.write(`
  | <a href="#H"><strong>H</strong></a>
  | <a href="#I"><strong>I</strong></a>
  | <a href="#J"><strong>J</strong></a>
+ | <a href="#K"><strong>K</strong></a>
  | <a href="#L"><strong>L</strong></a>
  | <a href="#M"><strong>M</strong></a>
  | <a href="#N"><strong>N</strong></a>
  | <a href="#O"><strong>O</strong></a>
  | <a href="#P"><strong>P</strong></a>
+ | <a href="#Q"><strong>Q</strong></a>
  | <a href="#R"><strong>R</strong></a>
  | <a href="#S"><strong>S</strong></a>
  | <a href="#T"><strong>T</strong></a>
@@ -471,10 +490,177 @@ document.write(`
  | <a href="#V"><strong>V</strong></a>
  | <a href="#W"><strong>W</strong></a>
  | <a href="#X"><strong>X</strong></a>
+ | <a href="#Z"><strong>Z</strong></a>
  
 </div>
 <h2 id="_">_</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Metadata.__call__">__call__() (dlite.Metadata method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.__call__">(dlite.quantity.QuantityHelper method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.__contains__">__contains__() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.FUPath.__contains__">(dlite.FUPath method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.__contains__">(dlite.Instance method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.__del__">__del__() (dlite.protocol.Protocol method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.__delitem__">__delitem__() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.FUPath.__delitem__">(dlite.FUPath method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.__dir__">__dir__() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.errctl.__enter__">__enter__() (dlite.errctl method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.HideDLiteWarnings.__enter__">(dlite.HideDLiteWarnings method)</a>
+</li>
+        <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.__enter__">(dlite.protocol.Protocol method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.__enter__">(dlite.Storage method)</a>
+</li>
+        <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.raises.__enter__">(dlite.testutils.raises method)</a>
+</li>
+        <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.skip_on_service_mismatch.__enter__">(dlite.testutils.skip_on_service_mismatch method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Dimension.__eq__">__eq__() (dlite.Dimension method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.__eq__">(dlite.Instance method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Property.__eq__">(dlite.Property method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Relation.__eq__">(dlite.Relation method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.errctl.__exit__">__exit__() (dlite.errctl method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.HideDLiteWarnings.__exit__">(dlite.HideDLiteWarnings method)</a>
+</li>
+        <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.__exit__">(dlite.protocol.Protocol method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.__exit__">(dlite.Storage method)</a>
+</li>
+        <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.raises.__exit__">(dlite.testutils.raises method)</a>
+</li>
+        <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.skip_on_service_mismatch.__exit__">(dlite.testutils.skip_on_service_mismatch method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.__getattr__">__getattr__() (dlite.Instance method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/options/index.html#dlite.options.Options.__getattr__">(dlite.options.Options method)</a>
+</li>
+        <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.__getattr__">(dlite.quantity.QuantityHelper method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.__getitem__">__getitem__() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.FUPath.__getitem__">(dlite.FUPath method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.__getitem__">(dlite.Instance method)</a>
+</li>
+        <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.__getitem__">(dlite.quantity.QuantityHelper method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.__hash__">__hash__() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.__iter__">__iter__() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.FUPath.__iter__">(dlite.FUPath method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.__iter__">(dlite.Storage method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.StorageIterator.__iter__">(dlite.StorageIterator method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.StoragePluginIter.__iter__">(dlite.StoragePluginIter method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.__len__">__len__() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.FUPath.__len__">(dlite.FUPath method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.__len__">(dlite.Instance method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.StorageIterator.__next__">__next__() (dlite.StorageIterator method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.StoragePluginIter.__next__">(dlite.StoragePluginIter method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.__reduce__">__reduce__() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.__repr__">__repr__() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.FUPath.__repr__">(dlite.FUPath method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.__repr__">(dlite.Instance method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Metadata.__repr__">(dlite.Metadata method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.__setattr__">__setattr__() (dlite.Instance method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/options/index.html#dlite.options.Options.__setattr__">(dlite.options.Options method)</a>
+</li>
+        <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.__setattr__">(dlite.quantity.QuantityHelper method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.__setitem__">__setitem__() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.FUPath.__setitem__">(dlite.FUPath method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.__setitem__">(dlite.Instance method)</a>
+</li>
+        <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.__setitem__">(dlite.quantity.QuantityHelper method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.__str__">__str__() (dlite.Instance method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/options/index.html#dlite.options.Options.__str__">(dlite.options.Options method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Dimension.__swig_destroy__">__swig_destroy__ (dlite.Dimension attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.FUPath.__swig_destroy__">(dlite.FUPath attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.__swig_destroy__">(dlite.Instance attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Property.__swig_destroy__">(dlite.Property attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Relation.__swig_destroy__">(dlite.Relation attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.__swig_destroy__">(dlite.Storage attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.StorageIterator.__swig_destroy__">(dlite.StorageIterator attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.StoragePluginIter.__swig_destroy__">(dlite.StoragePluginIter attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.__version__">__version__ (in module dlite)</a>
+</li>
+  </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c._D_ALLOC_NAMLEN">_D_ALLOC_NAMLEN (C macro)</a>
 </li>
@@ -483,6 +669,8 @@ document.write(`
       <li><a href="c-api/src/utils/compat-src/dirent.html#c._DIRENT_HAVE_D_NAMLEN">_DIRENT_HAVE_D_NAMLEN (C macro)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c._DIRENT_HAVE_D_TYPE">_DIRENT_HAVE_D_TYPE (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/factory/index.html#dlite.factory.BaseExtension._dlite__new__">_dlite__new__() (dlite.factory.BaseExtension class method)</a>
 </li>
       <li><a href="c-api/src/dlite-misc.html#_CPPv426_dlite_deprecation_warningPKcPKcPKcPKc">_dlite_deprecation_warning (C++ function)</a>
 </li>
@@ -540,8 +728,6 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv4N19_DLiteStoragePlugin5closeE">_DLiteStoragePlugin::close (C++ member)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv4N19_DLiteStoragePlugin4dataE">_DLiteStoragePlugin::data (C++ member)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv4N19_DLiteStoragePlugin9dataModelE">_DLiteStoragePlugin::dataModel (C++ member)</a>
@@ -614,18 +800,72 @@ document.write(`
 <h2 id="A">A</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.add">add() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/utils/index.html#dlite.utils.DictStore.add">(dlite.utils.DictStore method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.add_data">add_data() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.add_dataset">add_dataset() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.add_dimension">add_dimension() (dlite.datamodel.DataModel method)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.add_property">add_property() (dlite.datamodel.DataModel method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.add_relation">add_relation() (dlite.Collection method)</a>
+</li>
       <li><a href="c-api/src/dlite-type.html#c.alignof">alignof (C macro)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv49alphasortPPK6direntPPK6dirent">alphasort (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath.append">append() (dlite.FUPath method)</a>
+</li>
       <li><a href="c-api/src/utils/strutils.html#_CPPv47aprintfPKcz">aprintf (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.archive_add">archive_add() (in module dlite.protocol)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.archive_check">archive_check() (in module dlite.protocol)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.archive_extract">archive_extract() (in module dlite.protocol)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.archive_names">archive_names() (in module dlite.protocol)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.asbool">asbool() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.asbson">asbson() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Dimension.asdict">asdict() (dlite.Dimension method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.asdict">(dlite.Instance method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Property.asdict">(dlite.Property method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Relation.asdict">(dlite.Relation method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.asjson">asjson() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath.aslist">aslist() (dlite.FUPath method)</a>
+</li>
       <li><a href="c-api/src/utils/compat.html#c.asnpprintf">asnpprintf (C macro)</a>
 </li>
       <li><a href="c-api/src/utils/compat.html#c.asnprintf">asnprintf (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Relation.aspreferred">aspreferred() (dlite.Relation method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Dimension.asstrings">asstrings() (dlite.Dimension method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Property.asstrings">(dlite.Property method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Relation.asstrings">(dlite.Relation method)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/utils/strtob.html#_CPPv44atobPKc">atob (C++ function)</a>
 </li>
   </ul></td>
@@ -634,6 +874,16 @@ document.write(`
 <h2 id="B">B</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/factory/index.html#dlite.factory.BaseExtension">BaseExtension (class in dlite.factory)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.BASIC_METADATA_SCHEMA">BASIC_METADATA_SCHEMA (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Behavior">Behavior (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.BlobType">BlobType (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.BoolType">BoolType (in module dlite)</a>
+</li>
       <li><a href="c-api/src/utils/bson.html#_CPPv411bson_appendPhi8BsonTypePKciPKv">bson_append (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/bson.html#_CPPv418bson_append_binaryPhiiPv">bson_append_binary (C++ function)</a>
@@ -660,14 +910,14 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/bson.html#_CPPv416bson_scan_doublePKhPKcP9BsonError">bson_scan_double (C++ function)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/bson.html#_CPPv415bson_scan_int32PKhPKcP9BsonError">bson_scan_int32 (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/bson.html#_CPPv416bson_scan_stringPKhPKcP9BsonError">bson_scan_string (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/bson.html#_CPPv410bson_scannPKhPKc6size_tPPvPi">bson_scann (C++ function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/bson.html#_CPPv413bson_typename8BsonType">bson_typename (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/bson.html#_CPPv49BsonError">BsonError (C++ enum)</a>
@@ -706,15 +956,57 @@ document.write(`
 <h2 id="C">C</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.call">call() (in module dlite.protocol)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.CannotInferDimensionError">CannotInferDimensionError (class in dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.chk_semver">chk_semver() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.classfactory">classfactory() (in module dlite)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/factory/index.html#dlite.factory.classfactory">(in module dlite.factory)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv45Close">Close (C++ type)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.close">close() (dlite.protocol.Protocol method)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.closed">closed (dlite.protocol.Protocol attribute)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv48closedirP3DIR">closedir (C++ function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/clp2.html#_CPPv44clp26size_t">clp2 (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.cmp_semver">cmp_semver() (in module dlite)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection">Collection (class in dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.COLLECTION_ENTITY">COLLECTION_ENTITY (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.conn">conn (dlite.protocol.Protocol attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.copy">copy() (dlite.Instance method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Relation.copy">(dlite.Relation method)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/dlite-macros.html#c.countof">countof (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.create_from_location">create_from_location() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.create_from_metaid">create_from_metaid() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.create_from_storage">create_from_storage() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.create_from_url">create_from_url() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.create_metadata">create_metadata() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.csvsniff">csvsniff() (in module dlite.table)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -722,7 +1014,19 @@ document.write(`
 <h2 id="D">D</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Relation.d">d (dlite.Relation attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.DATA_NS">DATA_NS (in module dlite)</a>
+</li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv49DataModel">DataModel (C++ type)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel">(class in dlite.datamodel)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DMTable.datamodel_mappings">datamodel_mappings (dlite.table.DMTable attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModelError">DataModelError (class in dlite.datamodel)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv413DataModelFree">DataModelFree (C++ type)</a>
 </li>
@@ -730,8 +1034,28 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-macros.html#c.DEBUG_LOG">DEBUG_LOG (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DEFAULT_DATAMODEL_MAPPINGS">DEFAULT_DATAMODEL_MAPPINGS (in module dlite.table)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DEFAULT_PROPERTY_MAPPINGS">DEFAULT_PROPERTY_MAPPINGS (in module dlite.table)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.delete">delete() (dlite.protocol.Protocol method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.delete">(dlite.Storage method)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv414DeleteInstance">DeleteInstance (C++ type)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.deprecation_warning">deprecation_warning() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.description">description (dlite.datamodel.DataModel attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Dimension.description">(dlite.Dimension attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Property.description">(dlite.Property attribute)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/dlite-macros.html#c.DFAIL0">DFAIL0 (C macro)</a>
 </li>
       <li><a href="c-api/src/dlite-macros.html#c.DFAIL1">DFAIL1 (C macro)</a>
@@ -741,6 +1065,28 @@ document.write(`
       <li><a href="c-api/src/dlite-macros.html#c.DFAIL3">DFAIL3 (C macro)</a>
 </li>
       <li><a href="c-api/src/dlite-macros.html#c.DFAIL4">DFAIL4 (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.DictStore">DictStore (class in dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Dimension">Dimension (class in dlite)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.Dimension">(in module dlite.dataset)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.dimensional_string">dimensional_string() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.dimensions">dimensions (dlite.datamodel.DataModel attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.dimensions">(dlite.Instance property)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.DimensionType">DimensionType (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Metadata.dimnames">dimnames() (dlite.Metadata method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.dims">dims (dlite.Property attribute)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv43DIR">DIR (C++ struct)</a>
 </li>
@@ -771,6 +1117,106 @@ document.write(`
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv416dirent_set_errnoi">dirent_set_errno (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv417dirent_wcstombs_sP6size_tPc6size_tPKw6size_t">dirent_wcstombs_s (C++ function)</a>
+</li>
+      <li>
+    dlite
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#module-dlite">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.datamodel
+
+      <ul>
+        <li><a href="autoapi/dlite/datamodel/index.html#module-dlite.datamodel">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.dataset
+
+      <ul>
+        <li><a href="autoapi/dlite/dataset/index.html#module-dlite.dataset">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.dlite
+
+      <ul>
+        <li><a href="autoapi/dlite/dlite/index.html#module-dlite.dlite">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.factory
+
+      <ul>
+        <li><a href="autoapi/dlite/factory/index.html#module-dlite.factory">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.mappings
+
+      <ul>
+        <li><a href="autoapi/dlite/mappings/index.html#module-dlite.mappings">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.options
+
+      <ul>
+        <li><a href="autoapi/dlite/options/index.html#module-dlite.options">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.paths
+
+      <ul>
+        <li><a href="autoapi/dlite/paths/index.html#module-dlite.paths">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.protocol
+
+      <ul>
+        <li><a href="autoapi/dlite/protocol/index.html#module-dlite.protocol">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.quantity
+
+      <ul>
+        <li><a href="autoapi/dlite/quantity/index.html#module-dlite.quantity">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.rdf
+
+      <ul>
+        <li><a href="autoapi/dlite/rdf/index.html#module-dlite.rdf">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.table
+
+      <ul>
+        <li><a href="autoapi/dlite/table/index.html#module-dlite.table">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.testutils
+
+      <ul>
+        <li><a href="autoapi/dlite/testutils/index.html#module-dlite.testutils">module</a>
+</li>
+      </ul></li>
+      <li>
+    dlite.utils
+
+      <ul>
+        <li><a href="autoapi/dlite/utils/index.html#module-dlite.utils">module</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.dlite2emmotype">dlite2emmotype() (in module dlite.dataset)</a>
 </li>
       <li><a href="c-api/src/dlite-misc.html#_CPPv418dlite_add_dll_pathv">dlite_add_dll_path (C++ function)</a>
 </li>
@@ -804,6 +1250,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-arrays.html#_CPPv421dlite_array_transposeP10DLiteArray">dlite_array_transpose (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/factory/index.html#dlite.factory.BaseExtension.dlite_assign">dlite_assign() (dlite.factory.BaseExtension method)</a>
+</li>
       <li><a href="c-api/src/dlite-schemas.html#c.DLITE_BASIC_METADATA_SCHEMA">DLITE_BASIC_METADATA_SCHEMA (C macro)</a>
 </li>
       <li><a href="c-api/src/dlite-behavior.html#_CPPv418dlite_behavior_getPKc">dlite_behavior_get (C++ function)</a>
@@ -821,6 +1269,8 @@ document.write(`
       <li><a href="c-api/src/dlite-bson.html#_CPPv424dlite_bson_from_instancePK13DLiteInstanceP6size_t">dlite_bson_from_instance (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-bson.html#_CPPv424dlite_bson_load_instancePKh">dlite_bson_load_instance (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_BUILD_ROOT">dlite_BUILD_ROOT (in module dlite.paths)</a>
 </li>
       <li><a href="c-api/src/dlite-codegen.html#_CPPv413dlite_codegenPKcPK13DLiteInstancePKc">dlite_codegen (C++ function)</a>
 </li>
@@ -1048,6 +1498,12 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-misc.html#_CPPv410dlite_initv">dlite_init (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.dlite_INSTALL_ROOT">dlite_INSTALL_ROOT (in module dlite)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_INSTALL_ROOT">(in module dlite.paths)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/dlite-entity.html#_CPPv430dlite_instance_aprint_propertyPPcP6size_t6size_tPK13DLiteInstancePKcii13DLiteTypeFlag">dlite_instance_aprint_property (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-entity.html#_CPPv439dlite_instance_aprint_property_by_indexPPcP6size_t6size_tPK13DLiteInstance6size_tii13DLiteTypeFlag">dlite_instance_aprint_property_by_index (C++ function)</a>
@@ -1262,6 +1718,10 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-json.html#_CPPv419dlite_jstore_removeP6JStorePKc">dlite_jstore_remove (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_LD_LIBRARY_PATH">dlite_LD_LIBRARY_PATH (in module dlite.paths)</a>
+</li>
+      <li><a href="autoapi/dlite/factory/index.html#dlite.factory.BaseExtension.dlite_load">dlite_load() (dlite.factory.BaseExtension method)</a>
+</li>
       <li><a href="c-api/src/dlite-mapping.html#_CPPv413dlite_mappingPKcPPK13DLiteInstancei">dlite_mapping (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-mapping.html#_CPPv420dlite_mapping_createPKcPPKci">dlite_mapping_create (C++ function)</a>
@@ -1293,6 +1753,8 @@ document.write(`
       <li><a href="c-api/src/dlite-mapping-plugins.html#_CPPv427dlite_mapping_plugin_unloadPKc">dlite_mapping_plugin_unload (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-mapping-plugins.html#_CPPv431dlite_mapping_plugin_unload_allv">dlite_mapping_plugin_unload_all (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_MAPPING_PLUGINS">dlite_MAPPING_PLUGINS (in module dlite.paths)</a>
 </li>
       <li><a href="c-api/src/dlite-mapping.html#_CPPv420dlite_mapping_stringPK12DLiteMapping">dlite_mapping_string (C++ function)</a>
 </li>
@@ -1346,6 +1808,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-entity.html#_CPPv426dlite_metamodel_add_stringP14DLiteMetaModelPKcPKc">dlite_metamodel_add_string (C++ function)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/dlite-entity.html#_CPPv425dlite_metamodel_add_valueP14DLiteMetaModelPKcPKv">dlite_metamodel_add_value (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-entity.html#_CPPv422dlite_metamodel_createPKcPKc">dlite_metamodel_create (C++ function)</a>
@@ -1380,14 +1844,14 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-codegen.html#_CPPv417dlite_option_subsP8TGenSubsPKc">dlite_option_subs (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_PATH">dlite_PATH (in module dlite.paths)</a>
+</li>
       <li><a href="c-api/src/dlite-misc.html#_CPPv418dlite_pkg_root_getv">dlite_pkg_root_get (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-entity.html#c.DLITE_PROP">DLITE_PROP (C macro)</a>
 </li>
       <li><a href="c-api/src/dlite-entity.html#c.DLITE_PROP_DESCR">DLITE_PROP_DESCR (C macro)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/dlite-entity.html#c.DLITE_PROP_DIM">DLITE_PROP_DIM (C macro)</a>
 </li>
       <li><a href="c-api/src/dlite-entity.html#c.DLITE_PROP_DIMS">DLITE_PROP_DIMS (C macro)</a>
@@ -1470,6 +1934,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/pyembed/dlite-python-mapping.html#_CPPv439dlite_python_mapping_paths_remove_indexi">dlite_python_mapping_paths_remove_index (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_PYTHON_MAPPING_PLUGINS">dlite_PYTHON_MAPPING_PLUGINS (in module dlite.paths)</a>
+</li>
       <li><a href="c-api/src/pyembed/dlite-python-mapping.html#_CPPv427dlite_python_mapping_unloadv">dlite_python_mapping_unload (C++ function)</a>
 </li>
       <li><a href="c-api/src/pyembed/dlite-python-singletons.html#_CPPv425dlite_python_module_classPKc">dlite_python_module_class (C++ function)</a>
@@ -1483,6 +1949,8 @@ document.write(`
       <li><a href="c-api/src/pyembed/dlite-python-protocol.html#_CPPv427dlite_python_protocol_pathsv">dlite_python_protocol_paths (C++ function)</a>
 </li>
       <li><a href="c-api/src/pyembed/dlite-python-protocol.html#_CPPv433dlite_python_protocol_paths_clearv">dlite_python_protocol_paths_clear (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_PYTHON_PROTOCOL_PLUGINS">dlite_PYTHON_PROTOCOL_PLUGINS (in module dlite.paths)</a>
 </li>
       <li><a href="c-api/src/pyembed/dlite-python-path.html#_CPPv417dlite_python_rootv">dlite_python_root (C++ function)</a>
 </li>
@@ -1504,7 +1972,13 @@ document.write(`
 </li>
       <li><a href="c-api/src/pyembed/dlite-python-storage.html#_CPPv439dlite_python_storage_paths_remove_indexi">dlite_python_storage_paths_remove_index (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_PYTHON_STORAGE_PLUGINS">dlite_PYTHON_STORAGE_PLUGINS (in module dlite.paths)</a>
+</li>
       <li><a href="c-api/src/pyembed/dlite-python-storage.html#_CPPv427dlite_python_storage_unloadv">dlite_python_storage_unload (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_PYTHONPATH">dlite_PYTHONPATH (in module dlite.paths)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.DLITE_QUANTITY_TYPES">DLITE_QUANTITY_TYPES (in module dlite.quantity)</a>
 </li>
       <li><a href="c-api/src/dlite-entity.html#c.DLITE_REL">DLITE_REL (C macro)</a>
 </li>
@@ -1604,11 +2078,15 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv430dlite_storage_plugin_paths_getv">dlite_storage_plugin_paths_get (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_STORAGE_PLUGINS">dlite_STORAGE_PLUGINS (in module dlite.paths)</a>
+</li>
       <li><a href="c-api/src/dlite-storage.html#_CPPv424dlite_storage_set_idflagP12DLiteStorage11DLiteIDFlag">dlite_storage_set_idflag (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-storage.html#_CPPv419dlite_storage_uuidsPK12DLiteStoragePKc">dlite_storage_uuids (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-storage.html#_CPPv424dlite_storage_uuids_freePPc">dlite_storage_uuids_free (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_STORAGES">dlite_STORAGES (in module dlite.paths)</a>
 </li>
       <li><a href="c-api/src/dlite-store.html#_CPPv415dlite_store_addP10DLiteStoreP13DLiteInstance">dlite_store_add (C++ function)</a>
 </li>
@@ -1633,6 +2111,8 @@ document.write(`
       <li><a href="c-api/src/dlite-store.html#_CPPv418dlite_store_removeP10DLiteStorePKc">dlite_store_remove (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-store.html#_CPPv416dlite_store_saveP12DLiteStorageP10DLiteStore">dlite_store_save (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/paths/index.html#dlite.paths.dlite_TEMPLATES">dlite_TEMPLATES (in module dlite.paths)</a>
 </li>
       <li><a href="c-api/src/dlite-type.html#_CPPv417dlite_type_aprintPPcP6size_t6size_tPKv9DLiteType6size_tii13DLiteTypeFlag">dlite_type_aprint (C++ function)</a>
 </li>
@@ -1906,6 +2386,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-mapping.html#_CPPv4N12DLiteMapping10output_uriE">DLiteMapping::output_uri (C++ member)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.DLiteMappingBase">DLiteMappingBase (in module dlite)</a>
+</li>
       <li><a href="c-api/src/dlite-mapping-plugins.html#_CPPv422DLiteMappingPluginIter">DLiteMappingPluginIter (C++ struct)</a>
 </li>
       <li><a href="c-api/src/dlite-mapping-plugins.html#_CPPv4N22DLiteMappingPluginIter4iterE">DLiteMappingPluginIter::iter (C++ member)</a>
@@ -1942,13 +2424,19 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-entity.html#_CPPv4N11DLiteParent4uuidE">DLiteParent::uuid (C++ member)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.DLiteProtocolBase">DLiteProtocolBase (class in dlite)</a>
+</li>
       <li><a href="c-api/src/dlite-type.html#_CPPv413DLiteRelation">DLiteRelation (C++ type)</a>
 </li>
       <li><a href="c-api/src/dlite-entity.html#_CPPv417DLiteSaveProperty">DLiteSaveProperty (C++ type)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.DLiteSearchError">DLiteSearchError (class in dlite)</a>
+</li>
       <li><a href="c-api/src/dlite-entity.html#_CPPv417DLiteSetDimension">DLiteSetDimension (C++ type)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#c.DLiteStorage_HEAD">DLiteStorage_HEAD (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.DLiteStorageBase">DLiteStorageBase (in module dlite)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv417DLiteStorageFlags">DLiteStorageFlags (C++ enum)</a>
 </li>
@@ -2006,6 +2494,12 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/uuid.html#c.DLLEXTERN">DLLEXTERN (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/rdf/index.html#dlite.rdf.DM">DM (in module dlite.rdf)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DMTable.dmdicts">dmdicts (dlite.table.DMTable attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DMTable">DMTable (class in dlite.table)</a>
+</li>
       <li><a href="c-api/src/utils/rng.html#_CPPv412drand_msws32v">drand_msws32 (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/rng.html#_CPPv414drand_msws32_rP11MSWS32State">drand_msws32_r (C++ function)</a>
@@ -2013,6 +2507,8 @@ document.write(`
       <li><a href="c-api/src/utils/rng.html#_CPPv412drand_msws64v">drand_msws64 (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/rng.html#_CPPv414drand_msws64_rP11MSWS64State">drand_msws64_r (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.driver">driver (dlite.Storage attribute)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv411DriverFreer">DriverFreer (C++ type)</a>
 </li>
@@ -2052,6 +2548,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.DTTOIF">DTTOIF (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.dtype">dtype (dlite.Property property)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -2059,14 +2557,58 @@ document.write(`
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/triplestore.html#c.EMMO">EMMO (C macro)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.EMMO">(in module dlite.dataset)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.emmo2dlitetype">emmo2dlitetype() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.EMMO_TYPES">EMMO_TYPES (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.EMMO_VERSIONIRI">EMMO_VERSIONIRI (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.ENTITY_SCHEMA">ENTITY_SCHEMA (in module dlite)</a>
 </li>
       <li><a href="c-api/src/utils/err.html#c.err_default_stream">err_default_stream (C macro)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.err_get_levelname">err_get_levelname() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.err_get_stream">err_get_stream() (in module dlite)</a>
+</li>
       <li><a href="c-api/src/utils/err.html#c.ERR_MSGSIZE">ERR_MSGSIZE (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.err_set_file">err_set_file() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.err_set_levelname">err_set_levelname() (in module dlite)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.err_set_stream">err_set_stream() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.errcheck">errcheck() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.errclr">errclr() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.errctl">errctl (class in dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.errgetexc">errgetexc() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.errmsg">errmsg() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.errval">errval() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.exc">exc (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.raises.exceptions">exceptions (dlite.testutils.raises attribute)</a>
+</li>
       <li><a href="c-api/src/utils/execprocess.html#_CPPv412exec_processPKcA_PCcA_PCc">exec_process (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.MissingDependencyError.exit_code">exit_code (dlite.utils.MissingDependencyError attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.skip_on_service_mismatch.exitcode">exitcode (dlite.testutils.skip_on_service_mismatch attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath.extend">extend() (dlite.FUPath method)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2074,6 +2616,8 @@ document.write(`
 <h2 id="F">F</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/factory/index.html#dlite.factory.FactoryError">FactoryError</a>
+</li>
       <li><a href="c-api/src/dlite-macros.html#c.FAIL">FAIL (C macro)</a>
 </li>
       <li><a href="c-api/src/dlite-macros.html#c.FAIL1">FAIL1 (C macro)</a>
@@ -2098,6 +2642,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-macros.html#c.FAILCODE5">FAILCODE5 (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.failed_plugins">failed_plugins() (dlite.protocol.Protocol class method)</a>
+</li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.FILE_ATTRIBUTE_DEVICE">FILE_ATTRIBUTE_DEVICE (C macro)</a>
 </li>
       <li><a href="c-api/src/utils/fileinfo.html#_CPPv415fileinfo_existsPKc">fileinfo_exists (C++ function)</a>
@@ -2108,13 +2654,53 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/fileinfo.html#_CPPv419fileinfo_isreadablePKc">fileinfo_isreadable (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.errctl.filename">filename (dlite.errctl attribute)</a>
+</li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.FILENAME_MAX">FILENAME_MAX (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.FixStringType">FixStringType (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.flags">flags (dlite.Storage attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.FloatType">FloatType (in module dlite)</a>
 </li>
       <li><a href="c-api/src/utils/clp2.html#_CPPv44flp26size_t">flp2 (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv45Flush">Flush (C++ type)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.flush">flush() (dlite.Storage method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.format_dict">format_dict() (in module dlite)</a>
+</li>
       <li><a href="c-api/src/dlite-mapping-plugins.html#_CPPv45Freer">Freer (C++ type)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.freeze">freeze() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.from_bson">from_bson() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.from_bytes">from_bytes() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DMTable.from_csv">from_csv() (dlite.table.DMTable static method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.from_dict">from_dict() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DMTable.from_excel">from_excel() (dlite.table.DMTable static method)</a>
+</li>
+      <li><a href="autoapi/dlite/rdf/index.html#dlite.rdf.from_graph">from_graph() (in module dlite.rdf)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.from_json">from_json() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.from_location">from_location() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.from_metaid">from_metaid() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/rdf/index.html#dlite.rdf.from_rdf">from_rdf() (in module dlite.rdf)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.from_storage">from_storage() (dlite.Instance class method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.from_typename">from_typename() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.from_url">from_url() (dlite.Instance class method)</a>
 </li>
       <li><a href="c-api/src/utils/fileutils.html#_CPPv411fu_basenamePKc">fu_basename (C++ function)</a>
 </li>
@@ -2146,6 +2732,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/fileutils.html#_CPPv47fu_joinPKcz">fu_join (C++ function)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/fileutils.html#_CPPv411fu_join_sepiPKcz">fu_join_sep (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/fileutils.html#_CPPv410fu_lastsepPKc">fu_lastsep (C++ function)</a>
@@ -2166,8 +2754,6 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/fileutils.html#_CPPv415fu_paths_appendP7FUPathsPKc">fu_paths_append (C++ function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/fileutils.html#_CPPv416fu_paths_appendnP7FUPathsPKc6size_t">fu_paths_appendn (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/fileutils.html#c.FU_PATHS_CHUNKSIZE">FU_PATHS_CHUNKSIZE (C macro)</a>
@@ -2236,6 +2822,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/fileutils.html#_CPPv4N10FUErrCodes12fu_PathErrorE">FUErrCodes::fu_PathError (C++ enumerator)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath">FUPath (class in dlite)</a>
+</li>
       <li><a href="c-api/src/utils/fileutils.html#_CPPv47FUPaths">FUPaths (C++ struct)</a>
 </li>
       <li><a href="c-api/src/utils/fileutils.html#_CPPv4N7FUPaths1nE">FUPaths::n (C++ member)</a>
@@ -2268,11 +2856,129 @@ document.write(`
 <h2 id="G">G</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.generic">generic (dlite.Storage attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.get">get() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.get">(dlite.datamodel.DataModel method)</a>
+</li>
+        <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.get">(dlite.quantity.QuantityHelper method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.get_alignment">get_alignment() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.get_cachedir">get_cachedir() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.get_collection">get_collection() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_copy">get_copy() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.get_data">get_data() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.get_dataclass_entity_schema">get_dataclass_entity_schema() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DMTable.get_datamodels">get_datamodels() (dlite.table.DMTable method)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.get_dataset">get_dataset() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_dimension_size">get_dimension_size() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_dimension_size_by_index">get_dimension_size_by_index() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_dimensions">get_dimensions() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.get_driver">get_driver() (dlite.Storage method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.get_dtype">get_dtype() (dlite.Property method)</a>
+</li>
       <li><a href="c-api/src/utils/execprocess.html#_CPPv415get_environmentv">get_environment (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/execprocess.html#_CPPv411get_envitemPPcPKc">get_envitem (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/execprocess.html#_CPPv410get_envvarPPcPKc">get_envvar (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.get_first_relation">get_first_relation() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_hash">get_hash() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.get_id">get_id() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.get_idtype">get_idtype() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.get_instance">get_instance() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.get_instances">get_instances() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.get_labels">get_labels() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.get_license">get_license() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_meta">get_meta() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.get_missing_dimensions">get_missing_dimensions() (dlite.datamodel.DataModel method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.get_objects">get_objects() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.get_package_paths">get_package_paths() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath.get_pathsep">get_pathsep() (dlite.FUPath method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath.get_platform">get_platform() (dlite.FUPath method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.get_predicates">get_predicates() (dlite.Collection method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_property">get_property() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_property_as_string">get_property_as_string() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_property_by_index">get_property_by_index() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_property_descr">get_property_descr() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.get_pydantic_entity_schema">get_pydantic_entity_schema() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_quantity">get_quantity() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.get_quantity_helper">get_quantity_helper() (in module dlite.quantity)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.get_referred_instances">get_referred_instances() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.get_relations">get_relations() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.get_shape">get_shape() (dlite.Property method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.get_shape">(in module dlite.dataset)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_snapshot">get_snapshot() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.get_subjects">get_subjects() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.get_type">get_type() (dlite.Property method)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.get_unit_iri">get_unit_iri() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.get_unit_symbol">get_unit_symbol() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.get_unused_dimensions">get_unused_dimensions() (dlite.datamodel.DataModel method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_uri">get_uri() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.get_uuid">get_uuid() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.get_uuids">get_uuids() (dlite.Instance class method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.get_uuids">(dlite.Storage method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.get_version">get_version() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.get_warnings_hide">get_warnings_hide() (in module dlite)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv411GetDataName">GetDataName (C++ type)</a>
 </li>
@@ -2280,9 +2986,9 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-mapping-plugins.html#_CPPv418GetDLiteMappingAPI">GetDLiteMappingAPI (C++ type)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv418GetDLiteStorageAPI">GetDLiteStorageAPI (C++ type)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath.getitem">getitem() (dlite.FUPath method)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv410GetMetaURI">GetMetaURI (C++ type)</a>
 </li>
@@ -2290,11 +2996,15 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/compat-src/getopt.html#_CPPv411getopt_longiA_PCcPKcPK6optionPi">getopt_long (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Metadata.getprop">getprop() (dlite.Metadata method)</a>
+</li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv411GetProperty">GetProperty (C++ type)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv48GetUUIDs">GetUUIDs (C++ type)</a>
 </li>
       <li><a href="c-api/src/utils/globmatch.html#_CPPv49globmatchPKcPKc">globmatch (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.globmatch">globmatch() (in module dlite)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2302,15 +3012,45 @@ document.write(`
 <h2 id="H">H</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.has">has() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.has_dimension">has_dimension() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.has_dimension_by_index">has_dimension_by_index() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.has_id">has_id() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.has_instance">has_instance() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.has_property">has_property() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.has_property_by_index">has_property_by_index() (dlite.Instance method)</a>
+</li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv412HasDimension">HasDimension (C++ type)</a>
 </li>
-      <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv411HasProperty">HasProperty (C++ type)</a>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.hasDimension">hasDimension (in module dlite.dataset)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv411HasProperty">HasProperty (C++ type)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.hasScalarData">hasScalarData (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.HAVE_DATACLASSES">HAVE_DATACLASSES (in module dlite.utils)</a>
+</li>
       <li><a href="c-api/src/dlite.html#c.HAVE_DLITE">HAVE_DLITE (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.HAVE_PYDANTIC">HAVE_PYDANTIC (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.HAVE_TRIPPER">HAVE_TRIPPER (in module dlite.table)</a>
+</li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv44Help">Help (C++ type)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.help">help() (dlite.Storage method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.HideDLiteWarnings.hide">hide (dlite.HideDLiteWarnings attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.HideDLiteWarnings">HideDLiteWarnings (class in dlite)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2318,7 +3058,25 @@ document.write(`
 <h2 id="I">I</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Relation.id">id (dlite.Relation attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.idflag">idflag (dlite.Storage attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.IDKeepID">IDKeepID (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.IDRequireUUID">IDRequireUUID (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.IDTranslateToUUID">IDTranslateToUUID (in module dlite)</a>
+</li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.IFTODT">IFTODT (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.importcheck">importcheck() (in module dlite.testutils)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.importskip">importskip() (in module dlite.testutils)</a>
+</li>
+      <li><a href="autoapi/dlite/factory/index.html#dlite.factory.IncompatibleClassError">IncompatibleClassError</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.infer_dimensions">infer_dimensions() (in module dlite.utils)</a>
 </li>
       <li><a href="c-api/src/utils/infixcalc.html#_CPPv49infixcalcPKcPK17InfixCalcVariable6size_tPc6size_t">infixcalc (C++ function)</a>
 </li>
@@ -2330,15 +3088,63 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/infixcalc.html#_CPPv4N17InfixCalcVariable5valueE">InfixCalcVariable::value (C++ member)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath.insert">insert() (dlite.FUPath method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance">Instance (class in dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.instance_cast">instance_cast() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.instance_from_dict">instance_from_dict() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/mappings/index.html#dlite.mappings.instance_routes">instance_routes() (in module dlite.mappings)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.instancefactory">instancefactory() (in module dlite)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/factory/index.html#dlite.factory.instancefactory">(in module dlite.factory)</a>
+</li>
+      </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.instances">instances() (dlite.Storage method)</a>
+</li>
+      <li><a href="autoapi/dlite/mappings/index.html#dlite.mappings.instantiate">instantiate() (in module dlite.mappings)</a>
+</li>
+      <li><a href="autoapi/dlite/mappings/index.html#dlite.mappings.instantiate_all">instantiate_all() (in module dlite.mappings)</a>
+</li>
+      <li><a href="autoapi/dlite/mappings/index.html#dlite.mappings.instantiate_from_routes">instantiate_from_routes() (in module dlite.mappings)</a>
+</li>
       <li><a href="c-api/src/utils/infixcalc.html#c.INT_MIN">INT_MIN (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.IntType">IntType (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.InvalidNumberOfDimensionsError">InvalidNumberOfDimensionsError (class in dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.is_archive">is_archive() (in module dlite.protocol)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.is_conda_base">is_conda_base (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.is_data">is_data (dlite.Instance property)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.is_frozen">is_frozen() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.is_meta">is_meta (dlite.Instance property)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.is_metameta">is_metameta (dlite.Instance property)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.is_valid_url">is_valid_url() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.istore_get_uuids">istore_get_uuids() (in module dlite)</a>
 </li>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv45isurlPKc">isurl (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv46isurlnPKci">isurln (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/uuid.html#_CPPv46isuuidPKc">isuuid (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.items">items() (dlite.quantity.QuantityHelper method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.StoragePluginIter.iter">iter (dlite.StoragePluginIter attribute)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv410IterCreate">IterCreate (C++ type)</a>
 </li>
@@ -2352,6 +3158,10 @@ document.write(`
 <h2 id="J">J</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.join_meta_uri">join_meta_uri() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.join_url">join_url() (in module dlite)</a>
+</li>
       <li><a href="c-api/src/utils/jsmnx.html#c.JSMN_CHUNK_SIZE">JSMN_CHUNK_SIZE (C macro)</a>
 </li>
       <li><a href="c-api/src/utils/jsmnx.html#_CPPv410jsmn_countPK9jsmntok_t">jsmn_count (C++ function)</a>
@@ -2376,6 +3186,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/jsmnx.html#c.JSMN_STRICT">JSMN_STRICT (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.JStore">JStore() (in module dlite)</a>
+</li>
       <li><a href="c-api/src/utils/jstore.html#_CPPv410jstore_addP6JStorePKcPKc">jstore_add (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/jstore.html#_CPPv411jstore_addnP6JStorePKc6size_tPKc6size_t">jstore_addn (C++ function)</a>
@@ -2388,12 +3200,12 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/jstore.html#_CPPv410jstore_getP6JStorePKc">jstore_get (C++ function)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/jstore.html#_CPPv416jstore_get_labelP6JStorePKc">jstore_get_label (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/jstore.html#_CPPv421jstore_get_single_keyP6JStore">jstore_get_single_key (C++ function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/jstore.html#_CPPv418jstore_iter_deinitP10JStoreIter">jstore_iter_deinit (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/jstore.html#_CPPv416jstore_iter_initP6JStoreP10JStoreIter">jstore_iter_init (C++ function)</a>
@@ -2437,10 +3249,42 @@ document.write(`
   </ul></td>
 </tr></table>
 
+<h2 id="K">K</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.KBError">KBError</a>
+</li>
+  </ul></td>
+</tr></table>
+
 <h2 id="L">L</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.load">load() (dlite.Collection class method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.load">(dlite.Instance class method)</a>
+</li>
+        <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.load">(dlite.protocol.Protocol method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.load">(dlite.Storage method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.load_path">load_path() (in module dlite.protocol)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.load_plugins">load_plugins() (dlite.protocol.Protocol class method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.load_plugins">(dlite.Storage class method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.loaded_plugins">loaded_plugins() (dlite.protocol.Protocol class method)</a>
+</li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv412LoadInstance">LoadInstance (C++ type)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.location">location (dlite.Storage attribute)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2448,6 +3292,8 @@ document.write(`
 <h2 id="M">M</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/options/index.html#dlite.options.make_query">make_query() (in module dlite.options)</a>
+</li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv49map_api_t">map_api_t (C++ struct)</a>
 </li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv4N9map_api_t4baseE">map_api_t::base (C++ member)</a>
@@ -2508,9 +3354,13 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/map.html#c.MAP_VERSION">MAP_VERSION (C macro)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/dlite-mapping-plugins.html#_CPPv46Mapper">Mapper (C++ type)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.mapping">mapping() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.mapping_plugin_path">mapping_plugin_path (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.mapping_plugin_unload">mapping_plugin_unload() (in module dlite)</a>
 </li>
       <li><a href="c-api/src/utils/md5.html#_CPPv47MD5_CTX">MD5_CTX (C++ struct)</a>
 </li>
@@ -2530,6 +3380,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/md5.html#_CPPv4N7MD5_CTX2loE">MD5_CTX::lo (C++ member)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/md5.html#_CPPv411MD5_u32plus">MD5_u32plus (C++ type)</a>
 </li>
       <li><a href="c-api/src/utils/md5.html#_CPPv48MD5FinalPhP7MD5_CTX">MD5Final (C++ function)</a>
@@ -2541,6 +3393,57 @@ document.write(`
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv415MemLoadInstance">MemLoadInstance (C++ type)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv415MemSaveInstance">MemSaveInstance (C++ type)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.meta">meta (dlite.Instance property)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Metadata">Metadata (class in dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.metadata_to_rdf">metadata_to_rdf() (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.MetadataNotDefinedError">MetadataNotDefinedError (class in dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/factory/index.html#dlite.factory.MetaExtension">MetaExtension (class in dlite.factory)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.MissingDependencyError">MissingDependencyError (class in dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.MissingDimensionError">MissingDimensionError (class in dlite.datamodel)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.MissingUnitError">MissingUnitError (class in dlite.dataset)</a>
+</li>
+      <li>
+    module
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#module-dlite">dlite</a>
+</li>
+        <li><a href="autoapi/dlite/datamodel/index.html#module-dlite.datamodel">dlite.datamodel</a>
+</li>
+        <li><a href="autoapi/dlite/dataset/index.html#module-dlite.dataset">dlite.dataset</a>
+</li>
+        <li><a href="autoapi/dlite/dlite/index.html#module-dlite.dlite">dlite.dlite</a>
+</li>
+        <li><a href="autoapi/dlite/factory/index.html#module-dlite.factory">dlite.factory</a>
+</li>
+        <li><a href="autoapi/dlite/mappings/index.html#module-dlite.mappings">dlite.mappings</a>
+</li>
+        <li><a href="autoapi/dlite/options/index.html#module-dlite.options">dlite.options</a>
+</li>
+        <li><a href="autoapi/dlite/paths/index.html#module-dlite.paths">dlite.paths</a>
+</li>
+        <li><a href="autoapi/dlite/protocol/index.html#module-dlite.protocol">dlite.protocol</a>
+</li>
+        <li><a href="autoapi/dlite/quantity/index.html#module-dlite.quantity">dlite.quantity</a>
+</li>
+        <li><a href="autoapi/dlite/rdf/index.html#module-dlite.rdf">dlite.rdf</a>
+</li>
+        <li><a href="autoapi/dlite/table/index.html#module-dlite.table">dlite.table</a>
+</li>
+        <li><a href="autoapi/dlite/testutils/index.html#module-dlite.testutils">dlite.testutils</a>
+</li>
+        <li><a href="autoapi/dlite/utils/index.html#module-dlite.utils">dlite.utils</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.msg">msg (in module dlite)</a>
 </li>
       <li><a href="c-api/src/utils/rng.html#_CPPv411MSWS32State">MSWS32State (C++ struct)</a>
 </li>
@@ -2576,7 +3479,17 @@ document.write(`
 <h2 id="N">N</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath.n">n (dlite.FUPath attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Dimension.name">name (dlite.Dimension attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Property.name">(dlite.Property attribute)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.NAME_MAX">NAME_MAX (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.names">names() (dlite.quantity.QuantityHelper method)</a>
 </li>
       <li><a href="c-api/src/utils/uuid.html#_CPPv413NameSpace_DNS">NameSpace_DNS (C++ member)</a>
 </li>
@@ -2590,7 +3503,17 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/strutils.html#_CPPv45natoiPKci">natoi (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.ndims">ndims (dlite.Property attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.StorageIterator.next">next() (dlite.StorageIterator method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.StoragePluginIter.next">(dlite.StoragePluginIter method)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/utils/compat-src/getopt.html#c.no_argument">no_argument (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.normalise_id">normalise_id() (in module dlite)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -2598,6 +3521,14 @@ document.write(`
 <h2 id="O">O</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Relation.o">o (dlite.Relation attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.objectfactory">objectfactory() (in module dlite)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/factory/index.html#dlite.factory.objectfactory">(in module dlite.factory)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv44Open">Open (C++ type)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv47opendirPKc">opendir (C++ function)</a>
@@ -2622,6 +3553,10 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/compat-src/getopt.html#c.optional_argument">optional_argument (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/options/index.html#dlite.options.Options">Options (class in dlite.options)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.options">options (dlite.Storage attribute)</a>
+</li>
       <li><a href="c-api/src/utils/compat-src/getopt.html#_CPPv46optopt">optopt (C++ member)</a>
 </li>
       <li><a href="c-api/src/triplestore.html#c.OWL">OWL (C macro)</a>
@@ -2632,11 +3567,21 @@ document.write(`
 <h2 id="P">P</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Relation.p">p (dlite.Relation attribute)</a>
+</li>
       <li><a href="c-api/src/dlite-type.html#c.padding_at">padding_at (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.parse">parse() (dlite.quantity.QuantityHelper method)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.parse_expression">parse_expression() (dlite.quantity.QuantityHelper method)</a>
+</li>
+      <li><a href="autoapi/dlite/options/index.html#dlite.options.parse_query">parse_query() (in module dlite.options)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.PATH_MAX">PATH_MAX (C macro)</a>
 </li>
       <li><a href="c-api/src/pathshash.html#_CPPv49pathshashPhiPK7FUPathsPKc">pathshash (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.HideDLiteWarnings.pattern">pattern (dlite.HideDLiteWarnings attribute)</a>
 </li>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv410pct_decodePclPKc">pct_decode (C++ function)</a>
 </li>
@@ -2648,6 +3593,10 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv411pct_xencodePclPKcl11StrCategoryPKc">pct_xencode (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.PermissionWarning">PermissionWarning</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.pint">pint (in module dlite.quantity)</a>
+</li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv420plugin_api_iter_initP10PluginIterPK10PluginInfo">plugin_api_iter_init (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv420plugin_api_iter_nextP10PluginIter">plugin_api_iter_next (C++ function)</a>
@@ -2655,6 +3604,8 @@ document.write(`
       <li><a href="c-api/src/utils/plugin.html#_CPPv414plugin_get_apiP10PluginInfoPKci">plugin_get_api (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv414plugin_has_apiP10PluginInfoPKc">plugin_has_api (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.plugin_help">plugin_help() (dlite.Storage class method)</a>
 </li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv418plugin_info_createPKcPKcPKcPv">plugin_info_create (C++ function)</a>
 </li>
@@ -2680,8 +3631,6 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv418plugin_path_removeP10PluginInfoPKc">plugin_path_remove (C++ function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/plugin.html#_CPPv424plugin_path_remove_indexP10PluginInfoi">plugin_path_remove_index (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv419plugin_register_apiP10PluginInfoPK9PluginAPI">plugin_register_api (C++ function)</a>
@@ -2694,6 +3643,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv414PluginErrCodes">PluginErrCodes (C++ enum)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/plugin.html#_CPPv4N14PluginErrCodes17pluginMemoryErrorE">PluginErrCodes::pluginMemoryError (C++ enumerator)</a>
 </li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv410PluginFunc">PluginFunc (C++ type)</a>
@@ -2722,6 +3673,40 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/plugin.html#_CPPv4N10PluginIter5miterE">PluginIter::miter (C++ member)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.properties">properties (dlite.Collection attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.properties">(dlite.datamodel.DataModel attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.properties">(dlite.Instance property)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property">Property (class in dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DMTable.property_mappings">property_mappings (dlite.table.DMTable attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.PropertyType">PropertyType (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Metadata.propnames">propnames() (dlite.Metadata method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Metadata.props">props (dlite.Metadata property)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol">Protocol (class in dlite.protocol)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.protocol">protocol (dlite.protocol.Protocol attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/rdf/index.html#dlite.rdf.PUBLIC_ID">PUBLIC_ID (in module dlite.rdf)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.pull_snapshot">pull_snapshot() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.push_snapshot">push_snapshot() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.pydantic_to_instance">pydantic_to_instance() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.pydantic_to_metadata">pydantic_to_metadata() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.pydantic_to_property">pydantic_to_property() (in module dlite.utils)</a>
+</li>
       <li><a href="c-api/src/pyembed/dlite-pyembed.html#c.PYFAILCODE">PYFAILCODE (C macro)</a>
 </li>
       <li><a href="c-api/src/pyembed/dlite-pyembed.html#c.PYFAILCODE1">PYFAILCODE1 (C macro)</a>
@@ -2732,12 +3717,40 @@ document.write(`
 </li>
       <li><a href="c-api/src/pyembed/dlite-pyembed.html#c.PYFAILCODE4">PYFAILCODE4 (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.python_mapping_plugin_path">python_mapping_plugin_path (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.python_mapping_unload">python_mapping_unload() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.python_protocol_plugin_path">python_protocol_plugin_path (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.python_storage_plugin_path">python_storage_plugin_path (in module dlite)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Q">Q</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.q">q (dlite.Instance property)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.quantity">quantity() (dlite.quantity.QuantityHelper method)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.quantity_helper">quantity_helper (in module dlite.quantity)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper">QuantityHelper (class in dlite.quantity)</a>
+</li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.query">query() (dlite.protocol.Protocol method)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.raises">raises (class in dlite.testutils)</a>
+</li>
       <li><a href="c-api/src/utils/rng.html#_CPPv411rand_msws32v">rand_msws32 (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/rng.html#_CPPv413rand_msws32_rP11MSWS32State">rand_msws32_r (C++ function)</a>
@@ -2756,11 +3769,27 @@ document.write(`
 </li>
       <li><a href="c-api/src/triplestore.html#c.RDFS">RDFS (C macro)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.readable">readable (dlite.Storage attribute)</a>
+</li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv47readdirP3DIR">readdir (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv49readdir_rP3DIRP6direntPP6dirent">readdir_r (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.ref">ref (dlite.Property attribute)</a>
+</li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.RefType">RefType (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Relation">Relation (class in dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.relations">relations (dlite.datamodel.DataModel attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.RelationType">RelationType (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.remove">remove() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.remove_relations">remove_relations() (dlite.Collection method)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/getopt.html#c.required_argument">required_argument (C macro)</a>
 </li>
@@ -2776,12 +3805,20 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/compat.html#_CPPv414rpl_vasnprintfPPcP6size_tPKc7va_list">rpl_vasnprintf (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.run_file">run_file() (in module dlite)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="S">S</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.Relation.s">s (dlite.Relation attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.StorageIterator.s">(dlite.StorageIterator attribute)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.S_IEXEC">S_IEXEC (C macro)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.S_IFBLK">S_IFBLK (C macro)</a>
@@ -2838,9 +3875,39 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.S_IXUSR">S_IXUSR (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.save">save() (dlite.Collection method)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.save">(dlite.Instance method)</a>
+</li>
+        <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.Protocol.save">(dlite.protocol.Protocol method)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.save">(dlite.Storage method)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.save_path">save_path() (in module dlite.protocol)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.save_to_storage">save_to_storage() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.save_to_url">save_to_url() (dlite.Instance method)</a>
+</li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv412SaveInstance">SaveInstance (C++ type)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv47scandirPKcPPP6direntPFiPK6direntEPFiPPK6direntPPK6direntE">scandir (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.schema">schema (dlite.datamodel.DataModel attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.serverskip">serverskip() (in module dlite.testutils)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.skip_on_service_mismatch.service">service (dlite.testutils.skip_on_service_mismatch attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.service_available">service_available() (in module dlite.testutils)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.service_config">service_config() (in module dlite.testutils)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.SERVICE_MISMATCH_PATTERNS">SERVICE_MISMATCH_PATTERNS (in module dlite.testutils)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.serviceskip">serviceskip() (in module dlite.testutils)</a>
 </li>
       <li><a href="c-api/src/utils/session.html#_CPPv417session_add_stateP7SessionPKcPvPFvPvE">session_add_state (C++ function)</a>
 </li>
@@ -2865,6 +3932,22 @@ document.write(`
       <li><a href="c-api/src/utils/execprocess.html#_CPPv411set_envitemPPcPKc">set_envitem (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/execprocess.html#_CPPv410set_envvarPPcPKcPKc">set_envvar (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.set_parent">set_parent() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.FUPath.set_platform">set_platform() (dlite.FUPath method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.set_property">set_property() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.set_property_by_index">set_property_by_index() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.set_property_from_string">set_property_from_string() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.set_quantity">set_quantity() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.set_shape">set_shape() (dlite.Property method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.set_warnings_hide">set_warnings_hide() (in module dlite)</a>
 </li>
       <li><a href="c-api/src/dlite-storage-plugins.html#_CPPv411SetDataName">SetDataName (C++ type)</a>
 </li>
@@ -2912,6 +3995,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/sha3.html#_CPPv410SHA3_FLAGS">SHA3_FLAGS (C++ enum)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/sha3.html#_CPPv4N10SHA3_FLAGS17SHA3_FLAGS_KECCAKE">SHA3_FLAGS::SHA3_FLAGS_KECCAK (C++ enumerator)</a>
 </li>
       <li><a href="c-api/src/utils/sha3.html#_CPPv4N10SHA3_FLAGS15SHA3_FLAGS_NONEE">SHA3_FLAGS::SHA3_FLAGS_NONE (C++ enumerator)</a>
@@ -2920,8 +4005,6 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/sha3.html#_CPPv49sha3_InitP12sha3_contextj">sha3_Init (C++ function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/sha3.html#_CPPv412sha3_Init256P12sha3_context">sha3_Init256 (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/sha3.html#_CPPv412sha3_Init384P12sha3_context">sha3_Init384 (C++ function)</a>
@@ -2942,9 +4025,27 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/sha3.html#_CPPv411sha3_UpdateP12sha3_contextPKv6size_t">sha3_Update (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.shape">shape (dlite.Property property)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.raises.silent">silent (dlite.testutils.raises attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.silent">(in module dlite)</a>
+</li>
+      </ul></li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.size">size (dlite.Property attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.skip_on_service_mismatch">skip_on_service_mismatch (class in dlite.testutils)</a>
+</li>
       <li><a href="c-api/src/triplestore.html#c.SKOS">SKOS (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.snapshot">snapshot() (dlite.Instance method)</a>
+</li>
       <li><a href="c-api/src/triplestore.html#c.SOFT">SOFT (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.split_meta_uri">split_meta_uri() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.split_url">split_url() (in module dlite)</a>
 </li>
       <li><a href="c-api/src/utils/rng.html#_CPPv412srand_msws328uint64_t">srand_msws32 (C++ function)</a>
 </li>
@@ -2957,6 +4058,20 @@ document.write(`
       <li><a href="c-api/src/utils/rng.html#_CPPv49srand_mwc8uint32_t">srand_mwc (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/rng.html#_CPPv411srand_mwc_rP8MWCState8uint32_t">srand_mwc_r (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.standardise">standardise() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.StorageIterator.state">state (dlite.StorageIterator attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage">Storage (class in dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.storage_path">storage_path (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.storage_plugin_path">storage_plugin_path (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.StorageIterator">StorageIterator (class in dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.StoragePluginIter">StoragePluginIter (class in dlite)</a>
 </li>
       <li><a href="c-api/src/utils/strutils.html#_CPPv411strcatcjspnPKc11StrCategory">strcatcjspn (C++ function)</a>
 </li>
@@ -3003,6 +4118,8 @@ document.write(`
       <li><a href="c-api/src/utils/strutils.html#_CPPv413strhex_encodePc6size_tPKh6size_t">strhex_encode (C++ function)</a>
 </li>
       <li><a href="c-api/src/dlite-macros.html#c.STRINGIFY">STRINGIFY (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.StringPtrType">StringPtrType (in module dlite)</a>
 </li>
       <li><a href="c-api/src/utils/execprocess.html#_CPPv411strlist_addPPcPKc">strlist_add (C++ function)</a>
 </li>
@@ -3068,6 +4185,10 @@ document.write(`
 <h2 id="T">T</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.template_path">template_path (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.TEST_SERVICES">TEST_SERVICES (in module dlite.testutils)</a>
+</li>
       <li><a href="c-api/src/utils/tgen.html#_CPPv44tgenPKcP8TGenSubsPv">tgen (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/tgen.html#_CPPv411tgen_appendP7TGenBufPKciP8TGenSubsPv">tgen_append (C++ function)</a>
@@ -3166,8 +4287,6 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/tgen.html#_CPPv4N7TGenSub3varE">TGenSub::var (C++ member)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/tgen.html#_CPPv48TGenSubs">TGenSubs (C++ struct)</a>
 </li>
       <li><a href="c-api/src/utils/tgen.html#_CPPv4N8TGenSubs3mapE">TGenSubs::map (C++ member)</a>
@@ -3180,6 +4299,28 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/tgen.html#_CPPv4N8TGenSubs4subsE">TGenSubs::subs (C++ member)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Dimension.thisown">thisown (dlite.Dimension attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.FUPath.thisown">(dlite.FUPath attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.thisown">(dlite.Instance attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Property.thisown">(dlite.Property attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Relation.thisown">(dlite.Relation attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.Storage.thisown">(dlite.Storage attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.StorageIterator.thisown">(dlite.StorageIterator attribute)</a>
+</li>
+        <li><a href="autoapi/dlite/index.html#dlite.StoragePluginIter.thisown">(dlite.StoragePluginIter attribute)</a>
+</li>
+      </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.title">title() (in module dlite.dataset)</a>
+</li>
       <li><a href="c-api/src/utils/tmpfileplus.html#c.TMPFILE_KEEP">TMPFILE_KEEP (C macro)</a>
 </li>
       <li><a href="c-api/src/utils/tmpfileplus.html#_CPPv411tmpfileplusPKcPKcPPci">tmpfileplus (C++ function)</a>
@@ -3188,8 +4329,30 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/tmpfileplus.html#c.TMPFILEPLUS_H_">TMPFILEPLUS_H_ (C macro)</a>
 </li>
-      <li><a href="c-api/src/triple.html#_CPPv46Triple">Triple (C++ struct)</a>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.to_bytes">to_bytes() (dlite.Instance method)</a>
 </li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.to_dict">to_dict() (dlite.quantity.QuantityHelper method)</a>
+</li>
+      <li><a href="autoapi/dlite/rdf/index.html#dlite.rdf.to_graph">to_graph() (in module dlite.rdf)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.to_metadata">to_metadata() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/rdf/index.html#dlite.rdf.to_rdf">to_rdf() (in module dlite.rdf)</a>
+</li>
+      <li><a href="autoapi/dlite/table/index.html#dlite.table.DMTable.to_triplestore">to_triplestore() (dlite.table.DMTable method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.to_typename">to_typename() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.to_typenumber">to_typenumber() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.tojson">tojson() (dlite.Instance method)</a>
+</li>
+      <li><a href="c-api/src/triple.html#_CPPv46Triple">Triple (C++ struct)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.Triple">(in module dlite.dataset)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/triple.html#_CPPv4N6Triple1dE">Triple::d (C++ member)</a>
 </li>
       <li><a href="c-api/src/triple.html#_CPPv4N6Triple2idE">Triple::id (C++ member)</a>
@@ -3266,17 +4429,55 @@ document.write(`
 </li>
       <li><a href="c-api/src/triplestore.html#_CPPv417triplestore_valueP11TripleStorePKcPKcPKcPKcPKci">triplestore_value (C++ function)</a>
 </li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.TS_EMMO">TS_EMMO (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.type">type (dlite.Property property)</a>
+</li>
   </ul></td>
 </tr></table>
 
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/index.html#dlite.UIntType">UIntType (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/utils/index.html#dlite.utils.uncaught_exception_hook">uncaught_exception_hook() (in module dlite.utils)</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.UnexpectedExceptionError">UnexpectedExceptionError</a>
+</li>
+      <li><a href="autoapi/dlite/testutils/index.html#dlite.testutils.UnexpectedSuccessError">UnexpectedSuccessError</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Property.unit">unit (dlite.Property attribute)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.unit_cache">unit_cache (in module dlite.dataset)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.unit_registry">unit_registry (dlite.quantity.QuantityHelper property)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.units">units() (dlite.quantity.QuantityHelper method)</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.UnknownUnitWarning">UnknownUnitWarning</a>
+</li>
+      <li><a href="autoapi/dlite/dataset/index.html#dlite.dataset.UnsupportedTypeError">UnsupportedTypeError</a>
+</li>
       <li><a href="c-api/src/dlite-macros.html#c.UNUSED">UNUSED (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.UnusedDimensionError">UnusedDimensionError (class in dlite.datamodel)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.update">update() (dlite.quantity.QuantityHelper method)</a>
+</li>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.uri">uri (dlite.datamodel.DataModel attribute)</a>
+
+      <ul>
+        <li><a href="autoapi/dlite/index.html#dlite.Instance.uri">(dlite.Instance attribute)</a>
+</li>
+      </ul></li>
       <li><a href="c-api/src/utils/uri_encode.html#_CPPv410uri_decodePKcK6size_tPc">uri_decode (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/uri_encode.html#_CPPv410uri_encodePKcK6size_tPc">uri_encode (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.uridecode">uridecode() (in module dlite)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.uriencode">uriencode() (in module dlite)</a>
 </li>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv413UrlComponents">UrlComponents (C++ struct)</a>
 </li>
@@ -3300,6 +4501,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv4N13UrlComponents8port_lenE">UrlComponents::port_len (C++ member)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv4N13UrlComponents5queryE">UrlComponents::query (C++ member)</a>
 </li>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv4N13UrlComponents9query_lenE">UrlComponents::query_len (C++ member)</a>
@@ -3316,13 +4519,13 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv48urlsplitPKcP13UrlComponents">urlsplit (C++ function)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/urlsplit.html#_CPPv49urlsplitnPKciP13UrlComponents">urlsplitn (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/unicode.html#_CPPv410utf8decodePKcPl">utf8decode (C++ function)</a>
 </li>
       <li><a href="c-api/src/utils/unicode.html#_CPPv410utf8encodelPc">utf8encode (C++ function)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.uuid">uuid (dlite.Instance attribute)</a>
 </li>
       <li><a href="c-api/src/utils/uuid4.html#_CPPv414uuid4_generatePc">uuid4_generate (C++ function)</a>
 </li>
@@ -3368,11 +4571,21 @@ document.write(`
 <h2 id="V">V</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/datamodel/index.html#dlite.datamodel.DataModel.validate">validate() (dlite.datamodel.DataModel method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Collection.value">value() (dlite.Collection method)</a>
+</li>
+      <li><a href="autoapi/dlite/quantity/index.html#dlite.quantity.QuantityHelper.values">values() (dlite.quantity.QuantityHelper method)</a>
+</li>
       <li><a href="c-api/src/utils/compat.html#c.vasnpprintf">vasnpprintf (C macro)</a>
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/compat.html#c.vasnprintf">vasnprintf (C macro)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.verify_hash">verify_hash() (dlite.Instance method)</a>
+</li>
+      <li><a href="autoapi/dlite/index.html#dlite.Instance.verify_transaction">verify_transaction() (dlite.Instance method)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#_CPPv411versionsortPPK6direntPPK6dirent">versionsort (C++ function)</a>
 </li>
@@ -3394,10 +4607,10 @@ document.write(`
 </li>
       <li><a href="c-api/src/dlite-macros.html#c.WARN5">WARN5 (C macro)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.wclosedir">wclosedir (C macro)</a>
 </li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.WDIR">WDIR (C macro)</a>
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.wdirent">wdirent (C macro)</a>
@@ -3410,6 +4623,8 @@ document.write(`
 </li>
       <li><a href="c-api/src/utils/compat-src/dirent.html#c.wrewinddir">wrewinddir (C macro)</a>
 </li>
+      <li><a href="autoapi/dlite/index.html#dlite.Storage.writable">writable (dlite.Storage attribute)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -3421,6 +4636,14 @@ document.write(`
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="c-api/src/triplestore.html#c.XSD">XSD (C macro)</a>
+</li>
+  </ul></td>
+</tr></table>
+
+<h2 id="Z">Z</h2>
+<table style="width: 100%" class="indextable genindextable"><tr>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="autoapi/dlite/protocol/index.html#dlite.protocol.zip_compressions">zip_compressions (in module dlite.protocol)</a>
 </li>
   </ul></td>
 </tr></table>

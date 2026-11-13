@@ -194,9 +194,11 @@
 <li class="toctree-l2"><a class="reference internal" href="type-system.html">Type system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exceptions.html">Errors and exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html">The DLite plugin system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storage_plugins.html">Storage plugins / Drivers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_reference.html">Plugin reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="search_paths.html">Search paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mappings.html">Mappings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transactions.html">Transactions</a></li>
@@ -211,8 +213,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
-
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
@@ -222,6 +223,22 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/dlite/index.html">Python API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/datamodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.datamodel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dataset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dlite/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dlite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/factory/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/mappings/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.mappings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/options/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.options</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/paths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/protocol/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/quantity/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/rdf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.rdf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/table/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/testutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.testutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.utils</span></code></a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
@@ -528,6 +545,16 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="collections.html#example">Example</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="plugin_system.html">The DLite plugin system</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html#content">Content</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html#introduction">Introduction</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html#the-three-plugin-families">The three plugin families</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html#language-layering">Language layering</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html#plugin-lifecycle">Plugin lifecycle</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html#making-plugins-available">Making plugins available</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html#generic-and-specific-plugins">Generic and specific plugins</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="storage_plugins.html">Storage plugins / Drivers</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="storage_plugins.html#content">Content</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storage_plugins.html#introduction">Introduction</a></li>
@@ -549,6 +576,13 @@ document.write(`
 <li class="toctree-l2"><a class="reference internal" href="protocol_plugins.html#creating-protocol-plugins">Creating protocol plugins</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="plugin_reference.html">Plugin reference</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="plugin_reference.html#content">Content</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_reference.html#storage-plugins-drivers">Storage plugins (drivers)</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_reference.html#protocol-plugins">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_reference.html#availability-of-plugins">Availability of plugins</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="search_paths.html">Search paths</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="search_paths.html#setting-environment-variables">Setting environment variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="search_paths.html#appending-to-dlite-path-variables">Appending to DLite path variables</a></li>
@@ -558,7 +592,9 @@ document.write(`
 <li class="toctree-l1"><a class="reference internal" href="mappings.html">Mappings</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="mappings.html#content">Content</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mappings.html#introduction">Introduction</a></li>
-<li class="toctree-l2"><a class="reference internal" href="mappings.html#example">Example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mappings.html#instance-mappings">Instance mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mappings.html#property-mappings">Property mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="mappings.html#which-kind-of-mapping-to-choose">Which kind of mapping to choose</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="transactions.html">Transactions</a><ul>

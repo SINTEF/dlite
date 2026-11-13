@@ -194,9 +194,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/type-system.html">Type system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/exceptions.html">Errors and exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plugin_system.html">The DLite plugin system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plugin_reference.html">Plugin reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/search_paths.html">Search paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/mappings.html">Mappings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/transactions.html">Transactions</a></li>
@@ -211,8 +213,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
-
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
@@ -222,6 +223,22 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/dlite/index.html">Python API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/datamodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.datamodel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dataset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dlite/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dlite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/factory/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/mappings/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.mappings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/options/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.options</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/paths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/protocol/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/quantity/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/rdf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.rdf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/table/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/testutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.testutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.utils</span></code></a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
@@ -569,21 +586,21 @@ We start by creating a <code class="docutils literal notranslate"><span class="p
 <p>First, we must provide a unique identifier for our Entity.
 There are several ways of doing this:</p>
 <section id="uniform-resource-identifier-uri">
-<h4><strong>1.  Uniform Resource Identifier (URI)</strong><a class="headerlink" href="#uniform-resource-identifier-uri" title="Link to this heading">#</a></h4>
+<span id="1--uniform-resource-identifier-uri"></span><h4><strong>1.  Uniform Resource Identifier (URI)</strong><a class="headerlink" href="#uniform-resource-identifier-uri" title="Link to this heading">#</a></h4>
 <p>We can create and assign a unique Uniform Resource Identifier (URI).
 A URI has the form <strong>namespace/version/nameOfEntity</strong>, and it can be either written directly in the json file:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://www.ontotrans.eu/0.1/solarPanelMeasurement&quot;</span><span class="p">,</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.ontotrans.eu/0.1/solarPanelMeasurement"</span><span class="p">,</span>
 </pre></div>
 </div>
 <p>or we can give the <strong>namespace</strong>, <strong>version</strong>, and <strong>name</strong> of our Entity as separate fields:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;solarPanelMeasurement&quot;</span><span class="p">,</span>
-<span class="nt">&quot;namespace&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://www.ontotrans.eu/&quot;</span><span class="p">,</span>
-<span class="nt">&quot;version&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;0.1&quot;</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"solarPanelMeasurement"</span><span class="p">,</span>
+<span class="nt">"namespace"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.ontotrans.eu/"</span><span class="p">,</span>
+<span class="nt">"version"</span><span class="p">:</span><span class="w"> </span><span class="s2">"0.1"</span>
 </pre></div>
 </div>
 </section>
 <section id="universally-unique-identifier-uuid">
-<h4><strong>2. Universally Unique Identifier (UUID)</strong><a class="headerlink" href="#universally-unique-identifier-uuid" title="Link to this heading">#</a></h4>
+<span id="2-universally-unique-identifier-uuid"></span><h4><strong>2. Universally Unique Identifier (UUID)</strong><a class="headerlink" href="#universally-unique-identifier-uuid" title="Link to this heading">#</a></h4>
 <p>Alternatively, we can generate and assign a universally unique identifier (UUID).
 In Python, this can be achieved by the use of the <code class="docutils literal notranslate"><span class="pre">dlite.get_uuid()</span></code> function or the <a class="reference external" href="https://github.com/SINTEF/dlite/blob/master/doc/user_guide/tools.md#dlite-getuuid">dlite-getuuid</a> tool.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span> <span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">uuid</span>
@@ -591,13 +608,13 @@ In Python, this can be achieved by the use of the <code class="docutils literal 
  <span class="c1"># Generate a random UUID</span>
  <span class="o">&gt;&gt;&gt;</span> <span class="n">entity_uuid</span> <span class="o">=</span> <span class="n">uuid</span><span class="o">.</span><span class="n">uuid4</span><span class="p">()</span>
 
- <span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">&quot;myEntity.json&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">entity_file</span><span class="p">:</span>
- <span class="o">...</span>     <span class="n">entity_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;&quot;uuid&quot;: </span><span class="si">{}</span><span class="s1">&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entity_uuid</span><span class="p">))</span>
+ <span class="o">&gt;&gt;&gt;</span> <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="s2">"myEntity.json"</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">)</span> <span class="k">as</span> <span class="n">entity_file</span><span class="p">:</span>
+ <span class="o">...</span>     <span class="n">entity_file</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">'"uuid": </span><span class="si">{}</span><span class="s1">'</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">entity_uuid</span><span class="p">))</span>
 
 </pre></div>
 </div>
 <p>Our json file now contains the following:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;uuid&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;&lt;uuid&gt;&quot;</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">"uuid"</span><span class="p">:</span><span class="w"> </span><span class="s2">"&lt;uuid&gt;"</span>
 </pre></div>
 </div>
 <p>where <code class="docutils literal notranslate"><span class="pre">&lt;uuid&gt;</span></code> is a unique identifier for our Entity.</p>
@@ -612,8 +629,8 @@ The <em>EntitySchema</em> defines the structure of the Entity.
 In the <strong>meta</strong> field of our Entity, we need to provide the URI of the EntitySchema.
 For a schematic overview of the DLite data structures and further detail, see <a class="reference external" href="https://sintef.github.io/dlite/user_guide/concepts.html">Concepts section of the DLite User Guide</a>.
 We add this information to our json file in the following manner:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://www.ontotrans.eu/0.1/solarPanelMeasurement&quot;</span><span class="p">,</span>
-<span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://onto-ns.com/meta/0.3/EntitySchema&quot;</span><span class="p">,</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.ontotrans.eu/0.1/solarPanelMeasurement"</span><span class="p">,</span>
+<span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://onto-ns.com/meta/0.3/EntitySchema"</span><span class="p">,</span>
 </pre></div>
 </div>
 <div class="admonition note">
@@ -625,9 +642,9 @@ We add this information to our json file in the following manner:</p>
 <h3><strong>Step 3</strong>: Adding a human-understandable description<a class="headerlink" href="#step-3-adding-a-human-understandable-description" title="Link to this heading">#</a></h3>
 <p>Next, we want to include a human-understandable description of what the Entity represents.
 In our example case, such a <strong>description</strong> field could be</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://www.ontotrans.eu/0.1/solarPanelMeasurement&quot;</span><span class="p">,</span>
-<span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://onto-ns.com/meta/0.3/EntitySchema&quot;</span><span class="p">,</span>
-<span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Measurement data from one solar panel.&quot;</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.ontotrans.eu/0.1/solarPanelMeasurement"</span><span class="p">,</span>
+<span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://onto-ns.com/meta/0.3/EntitySchema"</span><span class="p">,</span>
+<span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Measurement data from one solar panel."</span>
 </pre></div>
 </div>
 </section>
@@ -638,11 +655,11 @@ Each dimension should have a <strong>name</strong> and a human-understandable <s
 In our example case, we only have one dimension since all the quantities we are interested in are measured with the same frequency (i.e., we have the same number of data points for all the measured quantities).
 Note that even though we only have one dimension, we need to give it in a list format.</p>
 <p>We will give our dimension the generic name “N”, and describe it as the number of measurements:</p>
-<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://www.ontotrans.eu/0.1/solarPanelMeasurement&quot;</span><span class="p">,</span>
-<span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://onto-ns.com/meta/0.3/EntitySchema&quot;</span><span class="p">,</span>
-<span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Measurement data from one solar panel.&quot;</span><span class="p">,</span>
-<span class="nt">&quot;dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">      </span><span class="nt">&quot;N&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Number of measurements.&quot;</span>
+<div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.ontotrans.eu/0.1/solarPanelMeasurement"</span><span class="p">,</span>
+<span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://onto-ns.com/meta/0.3/EntitySchema"</span><span class="p">,</span>
+<span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Measurement data from one solar panel."</span><span class="p">,</span>
+<span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">      </span><span class="nt">"N"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Number of measurements."</span>
 <span class="p">}</span>
 </pre></div>
 </div>
@@ -654,48 +671,48 @@ Here is where we can give meaning to our data.
 As for the dimensions, we add the properties as a list of <code class="docutils literal notranslate"><span class="pre">json</span></code> structures, each one having a <strong>name</strong>, <strong>type</strong>, <strong>description</strong>, and if relevant, <strong>unit</strong>, <strong>shape</strong> (the dimensionality of the property) and <strong>ref</strong> (the metadata for <em>ref</em> types).</p>
 <p>Inserting the properties displayed in the table above, our Entity is complete and may look like</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;uri&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://www.ontotrans.eu/0.1/solarPanelMeasurement&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;meta&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;http://onto-ns.com/meta/0.3/EntitySchema&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Measurement data from one solar panel.&quot;</span><span class="p">,</span>
-<span class="w">    </span><span class="nt">&quot;dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;N&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Number of measurements.&quot;</span>
+<span class="w">    </span><span class="nt">"uri"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://www.ontotrans.eu/0.1/solarPanelMeasurement"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"meta"</span><span class="p">:</span><span class="w"> </span><span class="s2">"http://onto-ns.com/meta/0.3/EntitySchema"</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Measurement data from one solar panel."</span><span class="p">,</span>
+<span class="w">    </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"N"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Number of measurements."</span>
 <span class="w">    </span><span class="p">},</span>
-<span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">        </span><span class="nt">&quot;t&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;str&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="s2">&quot;ns&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Time&quot;</span>
+<span class="w">    </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">        </span><span class="nt">"t"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"str"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="s2">"ns"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Time"</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;MPP&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Maximum Power&quot;</span>
+<span class="w">        </span><span class="nt">"MPP"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="s2">"W"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Maximum Power"</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;impp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Maximum power point current.&quot;</span>
+<span class="w">        </span><span class="nt">"impp"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Maximum power point current."</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;isc&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Short circuit current.&quot;</span>
+<span class="w">        </span><span class="nt">"isc"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Short circuit current."</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;vmpp&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;V&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Maximum power point voltage.&quot;</span>
+<span class="w">        </span><span class="nt">"vmpp"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"V"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Maximum power point voltage."</span>
 <span class="w">        </span><span class="p">},</span>
-<span class="w">        </span><span class="nt">&quot;voc&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;V&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Open circuit voltage.&quot;</span>
+<span class="w">        </span><span class="nt">"voc"</span><span class="p">:</span><span class="w"> </span><span class="p">{</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"V"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Open circuit voltage."</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">}</span>
 <span class="p">}</span>
@@ -705,54 +722,54 @@ As for the dimensions, we add the properties as a list of <code class="docutils 
 <p class="admonition-title">Note</p>
 <p>Both dimensions and properties can also be provided as arrays using a <code class="docutils literal notranslate"><span class="pre">dict</span></code> with the name as key. This may look like</p>
 <div class="highlight-json notranslate"><div class="highlight"><pre><span></span><span class="p">{</span>
-<span class="w">    </span><span class="nt">&quot;dimensions&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">"dimensions"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;N&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Number of measurements.&quot;</span>
+<span class="w">            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"N"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Number of measurements."</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">],</span>
-<span class="w">    </span><span class="nt">&quot;properties&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="nt">"properties"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;t&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;str&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="s2">&quot;ns&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Time&quot;</span>
+<span class="w">            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"t"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"str"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="s2">"ns"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Time"</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;MPP&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="s2">&quot;W&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Maximum Power&quot;</span>
+<span class="w">            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"MPP"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="s2">"W"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Maximum Power"</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;impp&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Maximum power point current.&quot;</span>
+<span class="w">            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"impp"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Maximum power point current."</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;isc&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;A&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Short circuit current.&quot;</span>
+<span class="w">            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"isc"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"A"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Short circuit current."</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;vmpp&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;V&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Maximum power point voltage.&quot;</span>
+<span class="w">            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"vmpp"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"V"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Maximum power point voltage."</span>
 <span class="w">        </span><span class="p">},</span>
 <span class="w">        </span><span class="p">{</span>
-<span class="w">            </span><span class="nt">&quot;name&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;voc&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;type&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;float64&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;unit&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;V&quot;</span><span class="p">,</span>
-<span class="w">            </span><span class="nt">&quot;shape&quot;</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;N&quot;</span><span class="p">],</span>
-<span class="w">            </span><span class="nt">&quot;description&quot;</span><span class="p">:</span><span class="w"> </span><span class="s2">&quot;Open circuit voltage.&quot;</span>
+<span class="w">            </span><span class="nt">"name"</span><span class="p">:</span><span class="w"> </span><span class="s2">"voc"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"type"</span><span class="p">:</span><span class="w"> </span><span class="s2">"float64"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"unit"</span><span class="p">:</span><span class="w"> </span><span class="s2">"V"</span><span class="p">,</span>
+<span class="w">            </span><span class="nt">"shape"</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s2">"N"</span><span class="p">],</span>
+<span class="w">            </span><span class="nt">"description"</span><span class="p">:</span><span class="w"> </span><span class="s2">"Open circuit voltage."</span>
 <span class="w">        </span><span class="p">}</span>
 <span class="w">    </span><span class="p">]</span>
 <span class="p">}</span>
@@ -766,25 +783,25 @@ As for the dimensions, we add the properties as a list of <code class="docutils 
 <h2>Loading an Entity with DLite<a class="headerlink" href="#loading-an-entity-with-dlite" title="Link to this heading">#</a></h2>
 <p>We will now load our Entity in Python. There are several ways of doing this.</p>
 <section id="using-the-json-storage-plugin">
-<h3>1. Using the json storage plugin:<a class="headerlink" href="#using-the-json-storage-plugin" title="Link to this heading">#</a></h3>
+<span id="1-using-the-json-storage-plugin"></span><h3>1. Using the json storage plugin:<a class="headerlink" href="#using-the-json-storage-plugin" title="Link to this heading">#</a></h3>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
 
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">SolarPanelEntity</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Instance</span><span class="o">.</span><span class="n">from_location</span><span class="p">(</span><span class="s1">&#39;json&#39;</span><span class="p">,</span> <span class="s1">&#39;myEntity.json&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">SolarPanelEntity</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Instance</span><span class="o">.</span><span class="n">from_location</span><span class="p">(</span><span class="s1">'json'</span><span class="p">,</span> <span class="s1">'myEntity.json'</span><span class="p">)</span>
 
 </pre></div>
 </div>
 </section>
 <section id="adding-the-file-to-storage-path">
-<h3>2. Adding the file to <code class="docutils literal notranslate"><span class="pre">storage_path</span></code><a class="headerlink" href="#adding-the-file-to-storage-path" title="Link to this heading">#</a></h3>
+<span id="2-adding-the-file-to-storage_path"></span><h3>2. Adding the file to <code class="docutils literal notranslate"><span class="pre">storage_path</span></code><a class="headerlink" href="#adding-the-file-to-storage-path" title="Link to this heading">#</a></h3>
 <p>In this method, we append the <code class="docutils literal notranslate"><span class="pre">json</span></code> file to <code class="docutils literal notranslate"><span class="pre">storage_path</span></code> and then use the <a class="reference external" href="https://sintef.github.io/dlite/autoapi/dlite/index.html?highlight=get_instance#dlite.get_instance">get_instance()</a> function to load the Entity using its URI.
 In Python, this may be done by</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
 
     <span class="c1"># Append the entity file path to the search path for storages</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">dlite</span><span class="o">.</span><span class="n">storage_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">&#39;myEntity.json&#39;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">dlite</span><span class="o">.</span><span class="n">storage_path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'myEntity.json'</span><span class="p">)</span>
 
     <span class="c1"># Load Entity using its uri</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">SolarPanelEntity</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">get_instance</span><span class="p">(</span><span class="s2">&quot;http://www.ontotrans.eu/0.1/solarPanelMeasurement&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">SolarPanelEntity</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">get_instance</span><span class="p">(</span><span class="s2">"http://www.ontotrans.eu/0.1/solarPanelMeasurement"</span><span class="p">)</span>
 
 </pre></div>
 </div>
@@ -798,19 +815,19 @@ Note that you may have to provide a full file path to the <code class="docutils 
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
 
     <span class="c1"># Read csv file using pandas, store its contents in a pandas DataFrame</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">solar_panel_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;data.csv&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">solar_panel_dataframe</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">'data.csv'</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">','</span><span class="p">,</span> <span class="n">header</span> <span class="o">=</span> <span class="mi">0</span><span class="p">)</span>
 
     <span class="c1"># Instantiate an instance of the Entity that we loaded above</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">inst</span> <span class="o">=</span> <span class="n">SolarPanelEntity</span><span class="p">({</span><span class="s2">&quot;N&quot;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">solar_panel_dataframe</span><span class="p">)})</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">inst</span> <span class="o">=</span> <span class="n">SolarPanelEntity</span><span class="p">({</span><span class="s2">"N"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">solar_panel_dataframe</span><span class="p">)})</span>
 
     <span class="c1"># Create a dicitionary that defines the mapping between property names and column headers</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="n">mapping</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="o">...</span>     <span class="s2">&quot;t&quot;</span><span class="p">:</span> <span class="s2">&quot;time&quot;</span><span class="p">,</span>
-    <span class="o">...</span>     <span class="s2">&quot;MPP&quot;</span><span class="p">:</span> <span class="s2">&quot;MPP [W]&quot;</span><span class="p">,</span>
-    <span class="o">...</span>     <span class="s2">&quot;voc&quot;</span><span class="p">:</span> <span class="s2">&quot;Voc [V]&quot;</span><span class="p">,</span>
-    <span class="o">...</span>     <span class="s2">&quot;vmpp&quot;</span><span class="p">:</span> <span class="s2">&quot;Vmpp [V]&quot;</span><span class="p">,</span>
-    <span class="o">...</span>     <span class="s2">&quot;isc&quot;</span> <span class="p">:</span> <span class="s2">&quot;Isc [A]&quot;</span><span class="p">,</span>
-    <span class="o">...</span>     <span class="s2">&quot;impp&quot;</span><span class="p">:</span> <span class="s2">&quot;Impp [A]&quot;</span><span class="p">,</span>
+    <span class="o">...</span>     <span class="s2">"t"</span><span class="p">:</span> <span class="s2">"time"</span><span class="p">,</span>
+    <span class="o">...</span>     <span class="s2">"MPP"</span><span class="p">:</span> <span class="s2">"MPP [W]"</span><span class="p">,</span>
+    <span class="o">...</span>     <span class="s2">"voc"</span><span class="p">:</span> <span class="s2">"Voc [V]"</span><span class="p">,</span>
+    <span class="o">...</span>     <span class="s2">"vmpp"</span><span class="p">:</span> <span class="s2">"Vmpp [V]"</span><span class="p">,</span>
+    <span class="o">...</span>     <span class="s2">"isc"</span> <span class="p">:</span> <span class="s2">"Isc [A]"</span><span class="p">,</span>
+    <span class="o">...</span>     <span class="s2">"impp"</span><span class="p">:</span> <span class="s2">"Impp [A]"</span><span class="p">,</span>
     <span class="o">...</span> <span class="p">}</span>
 
     <span class="c1"># Loop through the dictionary keys and populate the instance with data</span>
@@ -864,47 +881,47 @@ The code example will use the following data model:</p>
 </div>
 <p>The code below will create one BodyMassIndex instance object (variable <code class="docutils literal notranslate"><span class="pre">person</span></code>) and assign the properties of the <code class="docutils literal notranslate"><span class="pre">person</span></code> using physical quantities.
 You can use the method <code class="docutils literal notranslate"><span class="pre">person.set_quantity</span></code> to set a property with a quantity or you can use the shortcut <code class="docutils literal notranslate"><span class="pre">person.q</span></code> like shown below:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="n">BodyMassIndex</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">get_instance</span><span class="p">(</span><span class="s2">&quot;http://onto-ns.com/meta/0.1/BodyMassIndex&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="n">BodyMassIndex</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">get_instance</span><span class="p">(</span><span class="s2">"http://onto-ns.com/meta/0.1/BodyMassIndex"</span><span class="p">)</span>
 
     <span class="c1"># create a BodyMassIndex instance</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span> <span class="o">=</span> <span class="n">BodyMassIndex</span><span class="p">()</span>
 
     <span class="c1"># assign the name of the person</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;John Doe&quot;</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="s2">"John Doe"</span>
 
     <span class="c1"># assign the age of the person without a physical quantity</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="mi">5</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">age</span> <span class="o">==</span> <span class="mf">5.0</span>
 
     <span class="c1"># assign the age of the person with a physical quantity</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">set_quantity</span><span class="p">(</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s2">&quot;years&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">set_quantity</span><span class="p">(</span><span class="s2">"age"</span><span class="p">,</span> <span class="mf">3.0</span><span class="p">,</span> <span class="s2">"years"</span><span class="p">)</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">age</span> <span class="o">==</span> <span class="mf">3.0</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1461</span><span class="p">,</span> <span class="s2">&quot;days&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1461</span><span class="p">,</span> <span class="s2">"days"</span><span class="p">)</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">age</span> <span class="o">==</span> <span class="mf">4.0</span>
 
     <span class="c1"># assign the height and the weight</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="s2">&quot;1.72m&quot;</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="s2">&quot;63kg&quot;</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">height</span> <span class="o">=</span> <span class="s2">"1.72m"</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="s2">"63kg"</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">height</span> <span class="o">==</span> <span class="mf">172.0</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">weight</span> <span class="o">==</span> <span class="mf">63.0</span>
 
     <span class="c1"># compute the BMI</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">bmi</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;kg&quot;</span><span class="p">)</span> <span class="o">/</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">height</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">&quot;m&quot;</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">get_quantity</span><span class="p">(</span><span class="s2">&quot;bmi&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span> <span class="o">==</span> <span class="mf">21.0</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">bmi</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">weight</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"kg"</span><span class="p">)</span> <span class="o">/</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">height</span><span class="o">.</span><span class="n">to</span><span class="p">(</span><span class="s2">"m"</span><span class="p">)</span> <span class="o">**</span> <span class="mi">2</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">np</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">get_quantity</span><span class="p">(</span><span class="s2">"bmi"</span><span class="p">)</span><span class="o">.</span><span class="n">magnitude</span><span class="p">)</span> <span class="o">==</span> <span class="mf">21.0</span>
 
     <span class="c1"># the following line will give the same result as the line above</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">bmi</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">weight</span> <span class="o">/</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">height</span> <span class="o">**</span> <span class="mi">2</span>
 
     <span class="c1"># the following line will raise a TypeError exception, because the property</span>
-    <span class="c1"># &quot;category&quot; with the type &quot;string&quot; cannot be converted into a quantity.</span>
+    <span class="c1"># "category" with the type "string" cannot be converted into a quantity.</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="n">category</span> <span class="o">=</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">category</span>
 
     <span class="c1"># assign the category</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s2">&quot;normal&quot;</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">person</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s2">"normal"</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="k">if</span> <span class="n">person</span><span class="o">.</span><span class="n">bmi</span> <span class="o">&lt;</span> <span class="mf">18.5</span><span class="p">:</span>
-    <span class="o">...</span>     <span class="n">person</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="o">=</span> <span class="s2">&quot;underweight&quot;</span>
+    <span class="o">...</span>     <span class="n">person</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="o">=</span> <span class="s2">"underweight"</span>
     <span class="o">...</span> <span class="k">elif</span> <span class="n">person</span><span class="o">.</span><span class="n">bmi</span> <span class="o">&gt;=</span> <span class="mf">25.0</span><span class="p">:</span>
-    <span class="o">...</span>     <span class="n">person</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s2">&quot;overweight&quot;</span>
+    <span class="o">...</span>     <span class="n">person</span><span class="o">.</span><span class="n">category</span> <span class="o">=</span> <span class="s2">"overweight"</span>
 
 </pre></div>
 </div>
@@ -914,29 +931,29 @@ You can use the method <code class="docutils literal notranslate"><span class="p
 <a class="reference external" href="https://pint.readthedocs.io/en/0.10.1/tutorial.html#using-pint-in-your-projects"><code class="docutils literal notranslate"><span class="pre">pint.set_application_registry()</span></code></a></p>
 </div>
 <p>The Python property <code class="docutils literal notranslate"><span class="pre">q</span></code> of the dlite.Instance objects as some other methods:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">names</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;age&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;bmi&quot;</span><span class="p">]</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">units</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span><span class="s2">&quot;year&quot;</span><span class="p">,</span> <span class="s2">&quot;cm&quot;</span><span class="p">,</span> <span class="s2">&quot;kg&quot;</span><span class="p">,</span> <span class="s2">&quot;kg/m^2&quot;</span><span class="p">]</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">names</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span><span class="s2">"age"</span><span class="p">,</span> <span class="s2">"height"</span><span class="p">,</span> <span class="s2">"weight"</span><span class="p">,</span> <span class="s2">"bmi"</span><span class="p">]</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="k">assert</span> <span class="n">person</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">units</span><span class="p">()</span> <span class="o">==</span> <span class="p">[</span><span class="s2">"year"</span><span class="p">,</span> <span class="s2">"cm"</span><span class="p">,</span> <span class="s2">"kg"</span><span class="p">,</span> <span class="s2">"kg/m^2"</span><span class="p">]</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">quantity</span> <span class="ow">in</span> <span class="n">persion</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-    <span class="o">...</span>     <span class="n">quantity</span><span class="o">.</span><span class="n">defaut_format</span> <span class="o">=</span> <span class="s2">&quot;~&quot;</span>  <span class="c1"># format the unit with a compact format</span>
-    <span class="o">...</span>     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">quantity</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="o">...</span>     <span class="n">quantity</span><span class="o">.</span><span class="n">defaut_format</span> <span class="o">=</span> <span class="s2">"~"</span>  <span class="c1"># format the unit with a compact format</span>
+    <span class="o">...</span>     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2"> = </span><span class="si">{</span><span class="n">quantity</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
 </pre></div>
 </div>
 <p>See <a class="reference external" href="https://pint.readthedocs.io/en/stable/user/formatting.html">quantity formatting</a>.</p>
 <p>You should not keep the Python property <code class="docutils literal notranslate"><span class="pre">q</span></code> as a local variable, it will result with wrong assignment if you work with several instances.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Don&#39;t do this!</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span>    <span class="c1"># Don't do this!</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="n">p1</span> <span class="o">=</span> <span class="n">person1</span><span class="o">.</span><span class="n">q</span>
     <span class="o">&gt;&gt;&gt;</span> <span class="n">p2</span> <span class="o">=</span> <span class="n">person2</span><span class="o">.</span><span class="n">q</span>
     <span class="c1"># this will assign the weight to person2, and not to person1</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">p1</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="s2">&quot;34kg&quot;</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">p1</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="s2">"34kg"</span>
 
     <span class="c1"># Instead, you should write the code like this</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">person1</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="s2">&quot;34kg&quot;</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">person2</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="s2">&quot;32kg&quot;</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">person1</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="s2">"34kg"</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">person2</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">weight</span> <span class="o">=</span> <span class="s2">"32kg"</span>
 
     <span class="c1"># For more complex formulas, you can assign the quantities to local variables</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">w1</span><span class="p">,</span> <span class="n">h1</span> <span class="o">=</span> <span class="n">person1</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">)</span>
-    <span class="o">&gt;&gt;&gt;</span> <span class="n">w2</span><span class="p">,</span> <span class="n">h2</span><span class="p">,</span> <span class="n">a2</span> <span class="o">=</span> <span class="n">person2</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;weight&quot;</span><span class="p">,</span> <span class="s2">&quot;height&quot;</span><span class="p">,</span> <span class="s2">&quot;age&quot;</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">w1</span><span class="p">,</span> <span class="n">h1</span> <span class="o">=</span> <span class="n">person1</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"weight"</span><span class="p">,</span> <span class="s2">"height"</span><span class="p">)</span>
+    <span class="o">&gt;&gt;&gt;</span> <span class="n">w2</span><span class="p">,</span> <span class="n">h2</span><span class="p">,</span> <span class="n">a2</span> <span class="o">=</span> <span class="n">person2</span><span class="o">.</span><span class="n">q</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"weight"</span><span class="p">,</span> <span class="s2">"height"</span><span class="p">,</span> <span class="s2">"age"</span><span class="p">)</span>
 
 </pre></div>
 </div>

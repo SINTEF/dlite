@@ -57,7 +57,7 @@ DLite
    :caption: API Reference
    :hidden:
 
-   Python API <autoapi/python/index>
+   Python API <autoapi/dlite/index>
    C-API <c-api/src>
 
 

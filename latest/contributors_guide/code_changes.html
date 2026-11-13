@@ -194,9 +194,11 @@
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/type-system.html">Type system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/exceptions.html">Errors and exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plugin_system.html">The DLite plugin system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../user_guide/plugin_reference.html">Plugin reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/search_paths.html">Search paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/mappings.html">Mappings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../user_guide/transactions.html">Transactions</a></li>
@@ -211,8 +213,7 @@
 <li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">Contributor’s Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
 <li class="toctree-l2"><a class="reference internal" href="coding_guideline.html">Coding guideline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="documentation_contributors.html">Guideline for contributing documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="documentation_testing.html">Testing Python examples in the documentation</a></li>
-
+<li class="toctree-l2"><a class="reference internal" href="documentation_testing.html">Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="release_instructions.html">Creating a new release</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">Code changes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="tips_and_tricks.html">Tips and Tricks</a></li>
@@ -222,6 +223,22 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/dlite/index.html">Python API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/datamodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.datamodel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dataset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dlite/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dlite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/factory/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/mappings/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.mappings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/options/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.options</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/paths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/protocol/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/quantity/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/rdf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.rdf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/table/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/testutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.testutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.utils</span></code></a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
@@ -542,7 +559,7 @@ This function is a simple wrapper around <code class="docutils literal notransla
 <p>In C, use the <code class="docutils literal notranslate"><span class="pre">dlite_deprecation_warning()</span></code> function to mark a deprecation warning.</p>
 <p>The idea with these functions is to make it easy to grep for deprecation warnings that should be remove in a new backward-incompatible release.
 The following command can e.g. be used to find all deprecation warnings:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>find \( -name &#39;*.py&#39; -o -name &#39;*.i&#39; -o -name &#39;*.c&#39; \) ! -path &#39;./build*&#39; | xargs grep -n -A1 deprecation_warning
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>find \( -name '*.py' -o -name '*.i' -o -name '*.c' \) ! -path './build*' | xargs grep -n -A1 deprecation_warning
 </pre></div>
 </div>
 </section>
@@ -576,7 +593,7 @@ The following command can e.g. be used to find all deprecation warnings:</p>
 </div>
 </li>
 <li><p><strong>programmatically from C</strong>:</p>
-<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dlite_behavior_set(&quot;&lt;NAME&gt;&quot;, 1);
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>dlite_behavior_set("&lt;NAME&gt;", 1);
 </pre></div>
 </div>
 </li>

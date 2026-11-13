@@ -194,9 +194,11 @@
 <li class="toctree-l2"><a class="reference internal" href="type-system.html">Type system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="exceptions.html">Errors and exceptions</a></li>
 <li class="toctree-l2"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html">The DLite plugin system</a></li>
 <li class="toctree-l2"><a class="reference internal" href="storage_plugins.html">Storage plugins / Drivers</a></li>
 <li class="toctree-l2 current active"><a class="current reference internal" href="#">MongoDB storage plugin</a></li>
 <li class="toctree-l2"><a class="reference internal" href="protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_reference.html">Plugin reference</a></li>
 <li class="toctree-l2"><a class="reference internal" href="search_paths.html">Search paths</a></li>
 <li class="toctree-l2"><a class="reference internal" href="mappings.html">Mappings</a></li>
 <li class="toctree-l2"><a class="reference internal" href="transactions.html">Transactions</a></li>
@@ -211,8 +213,7 @@
 <li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing Python examples in the documentation</a></li>
-
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
@@ -222,6 +223,22 @@
 </ul>
 <p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
 <ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/dlite/index.html">Python API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/datamodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.datamodel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dataset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dlite/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dlite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/factory/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/mappings/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.mappings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/options/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.options</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/paths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/protocol/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/quantity/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/rdf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.rdf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/table/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/testutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.testutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.utils</span></code></a></li>
+</ul>
+</details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
@@ -522,28 +539,28 @@ password can be defined in the URI (see
 <a class="reference external" href="https://www.mongodb.com/docs/manual/reference/connection-string/#connection-string-formats">mongodb URI</a>
 for more details).</p>
 <p>First, set up the connection string:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">user</span> <span class="o">=</span> <span class="s2">&quot;USERNAME&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">password</span> <span class="o">=</span> <span class="s2">&quot;PASSWORD&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="s2">&quot;MYSERVERADDRESS&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">uri</span> <span class="o">=</span>  <span class="sa">f</span><span class="s2">&quot;mongodb+srv://</span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">server</span><span class="si">}</span><span class="s2">&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">user</span> <span class="o">=</span> <span class="s2">"USERNAME"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">password</span> <span class="o">=</span> <span class="s2">"PASSWORD"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">server</span> <span class="o">=</span> <span class="s2">"MYSERVERADDRESS"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">uri</span> <span class="o">=</span>  <span class="sa">f</span><span class="s2">"mongodb+srv://</span><span class="si">{</span><span class="n">user</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">password</span><span class="si">}</span><span class="s2">@</span><span class="si">{</span><span class="n">server</span><span class="si">}</span><span class="s2">"</span>
 </pre></div>
 </div>
 <p>Then, you must define the name of the database and the name of the collection.
 The dlite storage will store and retireve instances from a collection
 (see the definitions of <a class="reference external" href="https://www.mongodb.com/docs/manual/core/databases-and-collections/">Databases and Collections</a>).</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">database</span> <span class="o">=</span> <span class="s2">&quot;test-database&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">collection</span> <span class="o">=</span> <span class="s2">&quot;test-collection&quot;</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">database</span> <span class="o">=</span> <span class="s2">"test-database"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">collection</span> <span class="o">=</span> <span class="s2">"test-collection"</span>
 </pre></div>
 </div>
 <p>With those information you can create a dlite storage instance.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">options</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;mode=w,database=</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">,collection=</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s2">&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">storage</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">&quot;mongodb&quot;</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">options</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"mode=w,database=</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">,collection=</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s2">"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">storage</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">"mongodb"</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="n">options</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>This storage instance can then be used like any other dlite storage instance.
 For example saving and loading instances:</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">inst1</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Instance</span><span class="o">.</span><span class="n">from_location</span><span class="p">(</span><span class="s2">&quot;json&quot;</span><span class="p">,</span> <span class="s2">&quot;MY/INSTANCE/PATH.JSON&quot;</span><span class="p">)</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">inst1</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Instance</span><span class="o">.</span><span class="n">from_location</span><span class="p">(</span><span class="s2">"json"</span><span class="p">,</span> <span class="s2">"MY/INSTANCE/PATH.JSON"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">storage</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">inst1</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">storage</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">inst1</span><span class="o">.</span><span class="n">uuid</span><span class="p">)</span>
 </pre></div>
@@ -559,9 +576,9 @@ for your MongoDB server.</p>
 can be passed via the dlite storage parameters <code class="docutils literal notranslate"><span class="pre">options</span></code>, like shown below.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dlite.options</span><span class="w"> </span><span class="kn">import</span> <span class="n">Options</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;mode=w,database=</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">,collection=</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">options</span> <span class="o">=</span> <span class="n">Options</span><span class="p">(</span><span class="sa">f</span><span class="s2">"mode=w,database=</span><span class="si">{</span><span class="n">database</span><span class="si">}</span><span class="s2">,collection=</span><span class="si">{</span><span class="n">collection</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">options</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">connect</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">maxPoolSize</span><span class="o">=</span><span class="mi">200</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">storage</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">&quot;mongodb&quot;</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">options</span><span class="p">))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">storage</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">"mongodb"</span><span class="p">,</span> <span class="n">uri</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">options</span><span class="p">))</span>
 </pre></div>
 </div>
 </section>
@@ -569,15 +586,15 @@ can be passed via the dlite storage parameters <code class="docutils literal not
 <h2>Connect to Azure MongoDB<a class="headerlink" href="#connect-to-azure-mongodb" title="Link to this heading">#</a></h2>
 <p>In the <a class="reference external" href="https://portal.azure.com/">Azure portal</a>, create an <strong>Azure CosmosDB for MongoDB</strong> account, then open the new account, and open the menu Settings &gt; Connection strings.
 In the <strong>Connection strings</strong> page, show and copy to the clipboard the <strong>PRIMARY CONNECTION STRING</strong>. Then paste the string to a <em>.env</em> file.</p>
-<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># &quot;.env&quot; file</span>
+<div class="highlight-sh notranslate"><div class="highlight"><pre><span></span><span class="c1"># ".env" file</span>
 <span class="nv">AZURE_MONGODB</span><span class="o">=</span>mongodb://...
 </pre></div>
 </div>
 <p>Then, in your Python code, load the connection string and use it to create a dlite storage.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">dotenv</span><span class="w"> </span><span class="kn">import</span> <span class="n">dotenv_values</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">dotenv_values</span><span class="p">(</span><span class="s2">&quot;.env&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">options</span> <span class="o">=</span> <span class="s2">&quot;mode=w,database=test-database,collection=test-collection&quot;</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">storage</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">&quot;mongodb&quot;</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">&quot;AZURE_MONGODB&quot;</span><span class="p">],</span> <span class="n">options</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">config</span> <span class="o">=</span> <span class="n">dotenv_values</span><span class="p">(</span><span class="s2">".env"</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">options</span> <span class="o">=</span> <span class="s2">"mode=w,database=test-database,collection=test-collection"</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">storage</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Storage</span><span class="p">(</span><span class="s2">"mongodb"</span><span class="p">,</span> <span class="n">config</span><span class="p">[</span><span class="s2">"AZURE_MONGODB"</span><span class="p">],</span> <span class="n">options</span><span class="p">)</span>
 </pre></div>
 </div>
 </section>
