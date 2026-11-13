@@ -9,17 +9,10 @@
 #include "dlite-storage-plugins.h"
 #include "config-paths.h"
 
-/* This header should define HOST, DATABASE, USER and PASSWORD */
-#include "pgconf.h"
+/* Defines pg_location, pg_options and pgtestconf_init() */
+#include "pgtestconf.h"
 
 DLiteStorage *db=NULL;
-#ifdef PASSWORD
-// cppcheck-suppress [syntaxError, unknownMacro]
-char *options = "database=" DATABASE ";user=" USER ";password=" PASSWORD;
-#else
-// cppcheck-suppress [syntaxError, unknownMacro]
-char *options = "database=" DATABASE ";user=" USER;
-#endif
 
 
 
@@ -29,12 +22,13 @@ char *options = "database=" DATABASE ";user=" USER;
 MU_TEST(test_for_psycopg)
 {
   if (!dlite_pyembed_has_module("psycopg")) exit(44);
+  pgtestconf_init();
 }
 
 
 MU_TEST(test_open_db)
 {
-  mu_check((db = dlite_storage_open("postgresql", HOST, options)));
+  mu_check((db = dlite_storage_open("postgresql", pg_location, pg_options)));
   mu_assert_int_eq(1, dlite_storage_is_writable(db));
 }
 
@@ -59,9 +53,9 @@ MU_TEST(test_save)
   mu_assert_int_eq(0, dlite_instance_save_url("json://persons.json?mode=w",
                                               inst));
   if (db) {
-    char url[256];
+    char url[1024];
     mu_assert_int_eq(0, dlite_instance_save(db, inst));
-    snprintf(url, sizeof(url), "postgresql://%s?%s", HOST, options);
+    snprintf(url, sizeof(url), "postgresql://%s?%s", pg_location, pg_options);
     mu_assert_int_eq(0, dlite_instance_save_url(url,
                                                 (DLiteInstance *)inst->meta));
   }

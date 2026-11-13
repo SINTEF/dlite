@@ -65,6 +65,10 @@ endforeach()
 # Additional properties
 set_property(TEST test_postgresql2_read-py PROPERTY
   DEPENDS test_postgresql1_write-py)
+
+# Don't run tests using the same PostgreSQL database concurrently
+set_property(TEST test_postgresql1_write-py test_postgresql2_read-py
+  APPEND PROPERTY RESOURCE_LOCK postgresql)
 set_property(TEST test_collection_load-py APPEND PROPERTY
   DEPENDS test_collection-py)
 set_property(TEST test_dataset2_load-py APPEND PROPERTY

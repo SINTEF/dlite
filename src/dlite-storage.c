@@ -244,16 +244,21 @@ void dlite_storage_iter_free(DLiteStorage *s, void *iter)
 DLiteInstance *dlite_storage_load(const DLiteStorage *s, const char *id)
 {
   char uuid[DLITE_UUID_LENGTH+1];
-  DLiteInstance **ptr, *inst=NULL;
+  DLiteMapInstance *cache = &(((DLiteStorage *)s)->cache);
+  DLiteInstance *inst=NULL;
   if (dlite_get_uuid(uuid, id) < 0) return NULL;
-  if ((ptr = map_get(&(((DLiteStorage *)s)->cache), uuid))) return *ptr;
+
+  /* Break recursive calls if `id` is already being loaded */
+  if (map_get(cache, uuid)) return NULL;
 
   if (s->api->loadInstance) {
-    /* Add NULL to cache to mark that we are about to load the instance and
-       break recursive calls */
-    map_set(&(((DLiteStorage *)s)->cache), uuid, NULL);
+    /* Mark that we are loading the instance while calling loadInstance().
+       Don't keep the instance in the cache afterwards, since it holds no
+       reference to it.  Already loaded instances are found in the
+       instance store. */
+    map_set(cache, uuid, NULL);
     inst = s->api->loadInstance(s, id);
-    map_set(&(((DLiteStorage *)s)->cache), uuid, inst);
+    map_remove(cache, uuid);
   }
   return inst;
 }

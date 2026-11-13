@@ -927,10 +927,12 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   /* check if storage implements the instance api */
   if (s->api->loadInstance) {
     if (!(inst = dlite_storage_load(s, id))) goto fail;
-    if (metaid)
-      return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
-    else
-      return inst;
+    if (metaid) {
+      instance = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+      dlite_instance_decref(inst);
+      return instance;
+    }
+    return inst;
   }
 
   /* create datamodel and get metadata uri */
@@ -1014,13 +1016,16 @@ DLiteInstance *_instance_load_casted(const DLiteStorage *s, const char *id,
   }
 
   /* cast if `metaid` is not NULL */
-  if (inst && metaid)
+  if (inst && metaid) {
     instance = dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
-  else
+    dlite_instance_decref(inst);
+    inst = NULL;
+  } else {
     instance = inst;
+  }
 
  fail:
-  if (!inst && !err_geteval())
+  if (!instance && !err_geteval())
     err(dliteIOError, "cannot load id '%s' from storage '%s'", id, s->location);
   if (!instance && inst) dlite_instance_decref(inst);
   if (d) dlite_datamodel_free(d);
@@ -1145,10 +1150,13 @@ DLiteInstance *dlite_instance_memload(const char *driver,
 
   if (!(inst = api->memLoadInstance(api, buf, size, id, options)))
     return NULL;
-  if (metaid)
-    return dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
-  else
-    return inst;
+  if (metaid) {
+    DLiteInstance *mapped =
+      dlite_mapping(metaid, (const DLiteInstance **)&inst, 1);
+    dlite_instance_decref(inst);
+    return mapped;
+  }
+  return inst;
 }
 
 /*
