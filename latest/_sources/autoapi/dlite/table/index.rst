@@ -107,6 +107,7 @@ Attributes
                       details.
       :param unit_handling: How to handle units that are not found in the EMMO
                             ontology.  Must be one of:
+
                             - 'raise': Raise a MissingUnit exception (default)
                             - 'ignore': Don't add the unit to the property.  Will issue
                               a warning.
@@ -124,7 +125,7 @@ Attributes
    .. py:method:: from_excel(excelfile, sheet = 0, cellrange = None, datamodel_mappings = DEFAULT_DATAMODEL_MAPPINGS, property_mappings = DEFAULT_PROPERTY_MAPPINGS, baseuri = None, unit_handling = 'raise')
       :staticmethod:
 
-      Parse a csv file using the standard library csv module.
+      Parse an Excel file using openpyxl.
 
       :param excelfile: Name of excel file to parse.
       :param sheet: Sheet name or number to load.
@@ -144,6 +145,7 @@ Attributes
                       details.
       :param unit_handling: How to handle units that are not found in the EMMO
                             ontology.  Must be one of:
+
                             - 'raise': Raise a MissingUnit exception (default)
                             - 'ignore': Don't add the unit to the property.  Will issue
                               a warning.

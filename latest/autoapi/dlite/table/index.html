@@ -208,6 +208,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/history.html">History</a></li>
 </ul>
 </details></li>
 <li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
@@ -669,13 +670,11 @@ ref, unit, shape, description) to table header names.</p></li>
 See the corresponding argument of the __init__() method for
 details.</p></li>
 <li><p><strong>unit_handling</strong> (<em>Literal</em><em>[</em><em>'raise'</em><em>, </em><em>'ignore'</em><em>, </em><em>'force'</em><em>]</em>) – <p>How to handle units that are not found in the EMMO
-ontology.  Must be one of:
-- ‘raise’: Raise a MissingUnit exception (default)
-- ‘ignore’: Don’t add the unit to the property.  Will issue</p>
-<blockquote>
-<div><p>a warning.</p>
-</div></blockquote>
+ontology.  Must be one of:</p>
 <ul>
+<li><p>’raise’: Raise a MissingUnit exception (default)</p></li>
+<li><p>’ignore’: Don’t add the unit to the property.  Will issue
+a warning.</p></li>
 <li><p>’force’: Add the unit to the property. Will issue a warning.</p></li>
 </ul>
 </p></li>
@@ -698,7 +697,7 @@ formatting parameters.  For more details, see
 <dl class="py method">
 <dt class="sig sig-object py" id="dlite.table.DMTable.from_excel">
 <em class="property"><span class="k"><span class="pre">static</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">from_excel</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">excelfile</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sheet</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cellrange</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">datamodel_mappings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DEFAULT_DATAMODEL_MAPPINGS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">property_mappings</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">DEFAULT_PROPERTY_MAPPINGS</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">baseuri</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unit_handling</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'raise'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.table.DMTable.from_excel" title="Link to this definition">#</a></dt>
-<dd><p>Parse a csv file using the standard library csv module.</p>
+<dd><p>Parse an Excel file using openpyxl.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><ul class="simple">
@@ -719,13 +718,11 @@ ref, unit, shape, description) to table header names.</p></li>
 See the corresponding argument of the __init__() method for
 details.</p></li>
 <li><p><strong>unit_handling</strong> (<em>Literal</em><em>[</em><em>'raise'</em><em>, </em><em>'ignore'</em><em>, </em><em>'force'</em><em>]</em>) – <p>How to handle units that are not found in the EMMO
-ontology.  Must be one of:
-- ‘raise’: Raise a MissingUnit exception (default)
-- ‘ignore’: Don’t add the unit to the property.  Will issue</p>
-<blockquote>
-<div><p>a warning.</p>
-</div></blockquote>
+ontology.  Must be one of:</p>
 <ul>
+<li><p>’raise’: Raise a MissingUnit exception (default)</p></li>
+<li><p>’ignore’: Don’t add the unit to the property.  Will issue
+a warning.</p></li>
 <li><p>’force’: Add the unit to the property. Will issue a warning.</p></li>
 </ul>
 </p></li>
