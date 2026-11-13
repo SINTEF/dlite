@@ -1,10 +1,13 @@
 import os
 import subprocess
+import sys
 
 import dlite
 from dlite.testutils import importskip
 
 importskip("requests")  # skip this test if requests is not available
+
+import requests
 
 
 current_branch = 'master'
@@ -58,6 +61,14 @@ assert str(meta) == """
 # TODO: Replace the entities below with a dedicated test entity that
 #       will not be cleaned up.
 uri = "http://onto-ns.com/meta/0.4/HallPetch"
+
+# Skip the rest of this test if the entity service is unavailable
+try:
+    requests.get(uri, timeout=3).raise_for_status()
+except requests.RequestException as exc:
+    print(f"Entity service unavailable: {exc}: skipping test", file=sys.stderr)
+    sys.exit(44)
+
 HallPetch = dlite.get_instance(uri)
 assert HallPetch.uri == uri
 
