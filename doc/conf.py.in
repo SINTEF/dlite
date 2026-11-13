@@ -77,24 +77,21 @@ if plugin_root.exists():
         if plugin_dir.is_dir()
     ]
 
-# Prefer the built Python package tree (stable module namespace), but fall
-# back to source tree if docs are built without package generation.
+# Document the built Python package.  It is complete (including the
+# generated SWIG module `dlite.py`, `__init__.py` and `paths.py`) and
+# gives a stable `dlite` module namespace.  It is always available when
+# building the docs, since the Sphinx target depends on Doxygen, which
+# depends on dlitepy.
+#
+# Only fall back to the source tree if the built package is missing.
+# Do not include both, since that would generate a duplicated set of API
+# pages under a `python` namespace (from the source directory name).
 autoapi_build_dir = Path("@CMAKE_BINARY_DIR@/bindings/python/dlite")
 autoapi_source_dir = Path("@CMAKE_SOURCE_DIR@/bindings/python")
 
-def _has_python_sources(path: Path) -> bool:
-    if not path.exists() or not path.is_dir():
-        return False
-    return any(path.rglob("*.py")) or any(path.rglob("*.pyi"))
-
-# Prefer the source tree for deterministic docs in CI. The build tree can
-# exist but still be incomplete depending on build order/configuration.
-autoapi_dirs = []
-if _has_python_sources(autoapi_source_dir):
-    autoapi_dirs.append(str(autoapi_source_dir))
-if _has_python_sources(autoapi_build_dir):
-    autoapi_dirs.append(str(autoapi_build_dir))
-if not autoapi_dirs:
+if (autoapi_build_dir / "__init__.py").exists():
+    autoapi_dirs = [str(autoapi_build_dir)]
+else:
     autoapi_dirs = [str(autoapi_source_dir)]
 
 print(f"[conf.py] AutoAPI dirs: {autoapi_dirs}")
