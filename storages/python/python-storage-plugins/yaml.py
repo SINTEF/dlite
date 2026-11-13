@@ -12,6 +12,44 @@ if TYPE_CHECKING:  # pragma: no cover
     from typing import Generator, Optional
 
 
+# Mapping from deprecated option names to their canonical names, for
+# consistency with the json plugin.
+_DEPRECATED_OPTION_NAMES = {
+    "with_uuid": "with-uuid",
+    "with_meta": "with-meta",
+    "urikey": "uri-key",
+}
+
+
+def _update_deprecated_options(opts):
+    """Replaces deprecated option names in dict-like `opts` with their
+    canonical names, issuing a deprecation warning for each use.
+    """
+    for old, new in _DEPRECATED_OPTION_NAMES.items():
+        if old in opts:
+            dlite.deprecation_warning(
+                "0.7.0",
+                f"yaml option `{old}` is deprecated, use `{new}` instead.",
+            )
+            if new not in opts:
+                opts[new] = opts[old]
+
+
+def _get_options(options, defaults):
+    """Returns an Options object for `options` with default values given by
+    the `defaults` option string.
+
+    Deprecated option names in `options` are translated to their canonical
+    names before the defaults are applied, such that explicitly-provided
+    deprecated options take precedence over the default values.
+    """
+    opts = Options(options)
+    _update_deprecated_options(opts)
+    for key, value in Options(defaults).items():
+        opts.setdefault(key, value)
+    return opts
+
+
 class yaml(dlite.DLiteStorageBase):
     """DLite storage plugin for YAML."""
 
@@ -29,14 +67,19 @@ class yaml(dlite.DLiteStorageBase):
                 - `w`: Open for writing. If `location` exists, it is truncated.
             - `soft7`: Whether to save using SOFT7 format.
             - `single`: Whether to save in single-instance form.
-            - `with_uuid`: Whether to include UUID when saving.
-            - with_meta: Whether to always include "meta" (even for metadata)
-            - with_parent: Whether to include parent info for transactions.
-            - urikey: Whether the URI is the preferred keys in multi-instance
-                format.
+            - `with-uuid`: Whether to include UUID when saving.
+            - `with-meta`: Whether to always include "meta" (even for
+                metadata).
+            - `with_parent`: Whether to include parent info for transactions.
+            - `uri-key`: Whether the URI is the preferred keys in
+                multi-instance format.
+
+            The option names `with_uuid`, `with_meta` and `urikey` are
+            deprecated aliases for `with-uuid`, `with-meta` and `uri-key`,
+            respectively.
         """
-        df = "mode=a;soft7=true;with_meta=false;with_parent=true;urikey=false"
-        self.options = Options(options, defaults=df)
+        df = "mode=a;soft7=true;with-meta=false;with_parent=true;uri-key=false"
+        self.options = _get_options(options, df)
         mode = self.options.mode
         self.writable = "w" in mode or "a" in mode
         self.generic = True
@@ -50,8 +93,8 @@ class yaml(dlite.DLiteStorageBase):
                 self._store.load_dict(data)
 
         self.with_uuid = None
-        if "with_uuid" in self.options:
-            self.with_uuid = dlite.asbool(self.options.with_uuid)
+        if "with-uuid" in self.options:
+            self.with_uuid = dlite.asbool(self.options["with-uuid"])
 
         self.single = None
         if "single" in self.options:
@@ -66,9 +109,9 @@ class yaml(dlite.DLiteStorageBase):
                         soft7=dlite.asbool(self.options.soft7),
                         single=self.single,
                         with_uuid=self.with_uuid,
-                        with_meta=dlite.asbool(self.options.with_meta),
+                        with_meta=dlite.asbool(self.options["with-meta"]),
                         with_parent=dlite.asbool(self.options.with_parent),
-                        urikey=dlite.asbool(self.options.urikey),
+                        urikey=dlite.asbool(self.options["uri-key"]),
                     ),
                     f,
                     default_flow_style=False,
@@ -153,19 +196,22 @@ class yaml(dlite.DLiteStorageBase):
             inst: Instance to save.
             options: Supported options:
             - `soft7`: Whether to structure metadata as SOFT7.
-            - `with_uuid`: Whether to include UUID in the output.
-            - `single`: Whether to include UUID in the output.
+            - `with-uuid`: Whether to include UUID in the output.
+            - `single`: Whether to write in single-entity form.
+
+        The option names `with_uuid` is a deprecated alias for
+        `with-uuid`.
 
         Returns:
             The bytes (or bytearray) object that the instance is saved to.
         """
-        opts = Options(
-            options, defaults="soft7=true;with_uuid=false;single=true"
+        opts = _get_options(
+            options, defaults="soft7=true;with-uuid=false;single=true"
         )
         return pyyaml.safe_dump(
             inst.asdict(
                 soft7=dlite.asbool(opts.soft7),
-                uuid=dlite.asbool(opts.with_uuid),
+                uuid=dlite.asbool(opts["with-uuid"]),
                 single=dlite.asbool(opts.single),
             ),
             default_flow_style=False,

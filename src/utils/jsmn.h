@@ -395,7 +395,10 @@ JSMN_API int jsmn_parse(jsmn_parser *parser, const char *js, const size_t len,
       }
       break;
 #ifdef JSMN_STRICT
-    /* In strict mode primitives are: numbers and booleans */
+    /* In strict mode primitives are: numbers and booleans.
+       We also allow "NaN", "Infinity" and "-Infinity" as valid
+       primitive values, since these are the representations used by
+       e.g. Python's json module for non-finite numbers. */
     case '-':
     case '0':
     case '1':
@@ -410,6 +413,8 @@ JSMN_API int jsmn_parse(jsmn_parser *parser, const char *js, const size_t len,
     case 't':
     case 'f':
     case 'n':
+    case 'N':
+    case 'I':
       /* And they must not be keys of the object */
       if (tokens != NULL && parser->toksuper != -1) {
         const jsmntok_t *t = &tokens[parser->toksuper];
