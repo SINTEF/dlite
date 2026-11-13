@@ -110,17 +110,24 @@ install and setup a postgresql server on Fedora. Short instructions:
     postgres=# CREATE USER my_username WITH PASSWORD 'my_password';
     postgres=# CREATE DATABASE my_database OWNER my_username;
 
-The `test_postgresql`_storage test require local configurations of the
-PostgreSQL server.  The test is only enabled if a file pgconf.h can be
-found in the [tests-c/](tests-c/) sub-directory.  Example pgconf.h file:
+The tests of the postgresql, redis, minio and mongodb storages require
+running servers.  The easiest way to start them is with the
+[compose.yaml](../../test-services/compose.yaml) file in the
+[test-services](../../test-services) directory:
 
-    #define HOST "pg_server_host"
-    #define USER "my_username"
-    #define DATABASE "my_database"
-    #define PASSWORD "my_password"
+    docker compose -f test-services/compose.yaml up -d
 
-Depending on how the server is set up, or if you have a ~/.pgpass
-file, PASSWORD can be left undefined.
+Tests that need a server that is not running are skipped.  The
+credentials are defined by `TEST_SERVICES` in
+[testutils.py](../../bindings/python/testutils.py) and can be
+overridden with environment variables named
+`DLITE_TEST_<SERVICE>_<KEY>`, e.g.
+
+    export DLITE_TEST_POSTGRESQL_HOST=pg_server_host
+    export DLITE_TEST_POSTGRESQL_PORT=5432
+    export DLITE_TEST_POSTGRESQL_USER=my_username
+    export DLITE_TEST_POSTGRESQL_PASSWORD=my_password
+    export DLITE_TEST_POSTGRESQL_DATABASE=my_database
 
 For running the tests, you may also have to run an ident server
 running.  Install it with
