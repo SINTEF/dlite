@@ -7,18 +7,12 @@
 #include "dlite-macros.h"
 #include "pyembed/dlite-pyembed-utils.h"
 #include "dlite-storage-plugins.h"
+#include "config-paths.h"
 
-/* This header should define HOST, DATABASE, USER and PASSWORD */
-#include "pgconf.h"
+/* Defines pg_location, pg_options and pgtestconf_init() */
+#include "pgtestconf.h"
 
 
-#ifdef PASSWORD
-// cppcheck-suppress [syntaxError, unknownMacro]
-char *options = "database=" DATABASE ";user=" USER ";password=" PASSWORD;
-#else
-// cppcheck-suppress [syntaxError, unknownMacro]
-char *options = "database=" DATABASE ";user=" USER;
-#endif
 
 
 // Not really a unit test, but check that the Python package "psycopg"
@@ -27,18 +21,19 @@ char *options = "database=" DATABASE ";user=" USER;
 MU_TEST(test_for_psycopg)
 {
   if (!dlite_pyembed_has_module("psycopg")) exit(44);
+  pgtestconf_init();
 }
 
 
 MU_TEST(test_load_meta)
 {
   DLiteInstance *meta;
-  char url[256], *id="http://onto-ns.com/meta/0.1/Person";
+  char url[1024], *id="http://onto-ns.com/meta/0.1/Person";
   char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests-c/*.json";
 
-  mu_check(dlite_storage_plugin_path_append(paths) >= 0);
+  mu_check(dlite_storage_paths_append(paths) >= 0);
 
-  snprintf(url, sizeof(url), "postgresql://%s?%s#%s", HOST, options, id);
+  snprintf(url, sizeof(url), "postgresql://%s?%s#%s", pg_location, pg_options, id);
   mu_check((meta = dlite_instance_load_url(url)));
 
   mu_assert_int_eq(0, dlite_instance_save_url("json:Person2.json?mode=w",
@@ -48,8 +43,8 @@ MU_TEST(test_load_meta)
 MU_TEST(test_load_inst)
 {
   DLiteInstance *inst;
-  char url[256], *id="21495524-a02f-5695-82e2-b117addc0b1e";
-  snprintf(url, sizeof(url), "postgresql://%s?%s#%s", HOST, options, id);
+  char url[1024], *id="21495524-a02f-5695-82e2-b117addc0b1e";
+  snprintf(url, sizeof(url), "postgresql://%s?%s#%s", pg_location, pg_options, id);
   mu_check((inst = dlite_instance_load_url(url)));
 
   mu_assert_int_eq(0, dlite_instance_save_url("json:persons3.json?mode=w",

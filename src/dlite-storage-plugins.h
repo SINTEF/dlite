@@ -47,7 +47,7 @@
   const DLiteStoragePlugin *api;  /*!< Pointer to plugin api */            \
   char *location;           /*!< Location passed to dlite_storage_open() */\
   char *options;            /*!< Options passed to dlite_storage_open() */ \
-  DLiteMapInstance cache;   /*!< Map to loaded instances */                \
+  DLiteMapInstance cache;   /*!< Instances being loaded (breaks recursion) */                \
   DLiteStorageFlags flags;  /*!< Storage flags */                          \
   DLiteIDFlag idflag;       /*!< How to handle instance id's */            \
   int refcount;             /*!< Number of references to this storage */

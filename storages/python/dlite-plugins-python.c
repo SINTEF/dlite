@@ -292,7 +292,8 @@ DLiteInstance *loader(const DLiteStorage *s, const char *id)
     inst = dlite_pyembed_get_instance(v);
     Py_DECREF(v);
   } else
-    dlite_pyembed_err(1, "calling load() in Python plugin '%s'%s",
+    dlite_pyembed_err(dliteStorageLoadError,
+                      "calling load() in Python plugin '%s'%s",
                       classname, failmsg());
 
   return inst;
@@ -384,7 +385,8 @@ DLiteInstance *memloader(const DLiteStoragePlugin *api,
     inst = dlite_pyembed_get_instance(v);
     Py_DECREF(v);
   } else
-    dlite_pyembed_err(1, "calling from_bytes() in Python plugin '%s'%s",
+    dlite_pyembed_err(dliteStorageLoadError,
+                      "calling from_bytes() in Python plugin '%s'%s",
                       classname, failmsg());
   return inst;
 }

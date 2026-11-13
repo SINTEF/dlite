@@ -267,7 +267,6 @@ static DLiteInstance *mapper(const DLiteMappingPlugin *api,
   Py_XDECREF(outinst);
   Py_XDECREF(insts);
   Py_XDECREF(map);
-  for (i=0; i<n; i++) dlite_instance_decref((DLiteInstance *)instances[i]);
   return inst;
 }
 

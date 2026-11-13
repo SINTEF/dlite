@@ -86,7 +86,7 @@ foreach(test ${python-tests})
 endforeach()
 
 
-# Skip minio test if the minio playground storage is full
+# Skip minio test if the minio server storage is full or not responding
 set_property(TEST test_minio PROPERTY
   SKIP_REGULAR_EXPRESSION "(XMinioStorageFull)|(ConnectTimeoutError)"
 )
