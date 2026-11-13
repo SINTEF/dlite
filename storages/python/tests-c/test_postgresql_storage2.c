@@ -7,6 +7,7 @@
 #include "dlite-macros.h"
 #include "pyembed/dlite-pyembed-utils.h"
 #include "dlite-storage-plugins.h"
+#include "config-paths.h"
 
 /* Defines pg_location, pg_options and pgtestconf_init() */
 #include "pgtestconf.h"
@@ -30,7 +31,7 @@ MU_TEST(test_load_meta)
   char url[1024], *id="http://onto-ns.com/meta/0.1/Person";
   char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests-c/*.json";
 
-  mu_check(dlite_storage_plugin_path_append(paths) >= 0);
+  mu_check(dlite_storage_paths_append(paths) >= 0);
 
   snprintf(url, sizeof(url), "postgresql://%s?%s#%s", pg_location, pg_options, id);
   mu_check((meta = dlite_instance_load_url(url)));
