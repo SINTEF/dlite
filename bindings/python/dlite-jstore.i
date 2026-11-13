@@ -76,7 +76,7 @@ struct _JStore {};
            "Return instance with given `id` from store. "
            "If `id` is None and there is exactly one instance in the store, "
            "return the instance.  Otherwise raise an DLiteLookupError.") get;
-  %newobject get;
+  %newobject _get;
   struct _DLiteInstance *_get(const char *id=NULL) {
     if (!id && !(id = _single_id($self))) return NULL;
     return dlite_jstore_get($self, id);

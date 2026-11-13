@@ -28,6 +28,7 @@ RUN \
         build-essential \
         librdf0-dev \
         libhdf5-dev \
+        libpq5 \
         pkg-config \
         git && \
     add-apt-repository -y ppa:deadsnakes/ppa

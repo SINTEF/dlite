@@ -7,18 +7,12 @@
 #include "dlite-macros.h"
 #include "pyembed/dlite-pyembed-utils.h"
 #include "dlite-storage-plugins.h"
+#include "config-paths.h"
 
-/* This header should define HOST, DATABASE, USER and PASSWORD */
-#include "pgconf.h"
+/* Defines pg_location, pg_options and pgtestconf_init() */
+#include "pgtestconf.h"
 
 DLiteStorage *db=NULL;
-#ifdef PASSWORD
-// cppcheck-suppress [syntaxError, unknownMacro]
-char *options = "database=" DATABASE ";user=" USER ";password=" PASSWORD;
-#else
-// cppcheck-suppress [syntaxError, unknownMacro]
-char *options = "database=" DATABASE ";user=" USER;
-#endif
 
 
 
@@ -28,12 +22,13 @@ char *options = "database=" DATABASE ";user=" USER;
 MU_TEST(test_for_psycopg)
 {
   if (!dlite_pyembed_has_module("psycopg")) exit(44);
+  pgtestconf_init();
 }
 
 
 MU_TEST(test_open_db)
 {
-  mu_check((db = dlite_storage_open("postgresql", HOST, options)));
+  mu_check((db = dlite_storage_open("postgresql", pg_location, pg_options)));
   mu_assert_int_eq(1, dlite_storage_is_writable(db));
 }
 
@@ -46,10 +41,10 @@ MU_TEST(test_save)
   double age = 42.;
   const char *skills[] = {"jumping", "hopping"};
   int n, i;
-  char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests-c/*.json";
+  char *paths = dlite_SOURCE_ROOT "/bindings/python/tests/entities/*.json";
 
   mu_check(dlite_storage_paths_append(paths) >= 0);
-  mu_check((meta = dlite_instance_load_url("json://Person.json?mode=r")));
+  mu_check((meta = dlite_instance_get("http://onto-ns.com/meta/0.1/Person")));
   mu_check((inst = dlite_instance_create((DLiteMeta *)meta, dims, "ada")));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "name", &name));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "age", &age));
@@ -58,9 +53,9 @@ MU_TEST(test_save)
   mu_assert_int_eq(0, dlite_instance_save_url("json://persons.json?mode=w",
                                               inst));
   if (db) {
-    char url[256];
+    char url[1024];
     mu_assert_int_eq(0, dlite_instance_save(db, inst));
-    snprintf(url, sizeof(url), "postgresql://%s?%s", HOST, options);
+    snprintf(url, sizeof(url), "postgresql://%s?%s", pg_location, pg_options);
     mu_assert_int_eq(0, dlite_instance_save_url(url,
                                                 (DLiteInstance *)inst->meta));
   }
