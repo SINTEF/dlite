@@ -7,7 +7,10 @@ name: CI tests
 #   environment variables using `openssl rand -base64 12`
 # - Enable the postgres and mongo services and update tests to use them.
 
-on: [push]
+on:
+  push:
+  pull_request:
+
 
 jobs:
   test:

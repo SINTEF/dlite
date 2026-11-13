@@ -3,11 +3,10 @@
 This simple plugin was initially added to support the entity service (see
 https://github.com/SINTEF/dlite-entities-service), but may have other uses.
 """
-import json
 import os
 import requests
 import subprocess
-from tempfile import NamedTemporaryFile
+import tempfile
 
 import dlite
 from dlite.options import Options
@@ -30,8 +29,12 @@ class http(dlite.DLiteStorageBase):
         """
         self.options = Options("single=auto")
 
-        r = requests.get(location)
-        self.content = json.loads(r.content)
+        r = requests.get(location, timeout=3)
+        if not r.ok:
+            raise dlite.DLiteStorageOpenError(
+                f"HTTP GET {location} failed: {r.status_code} {r.reason}"
+            )
+        self.content = r.json()
         if "detail" in self.content:
             raise dlite.DLiteStorageOpenError(self.content["detail"])
 
@@ -52,14 +55,14 @@ class http(dlite.DLiteStorageBase):
         """
         # We explicitly remove `tmpfile` in the finally statement to
         # avoid problems with file locking on Windows...
+        with tempfile.NamedTemporaryFile(
+            mode="wt", delete=False, suffix=".json"
+        ) as f:
+            tmpfile = f.name
         try:
-            tmpfile = tempfile.NamedTemporaryFile(
-                mode="wt", delete=False, prefix=".json"
-            )
             inst.save("json", tmpfile, "mode=w")
             subprocess.call(
-                ["entities-service", "upload", "--file", tmpfile],
-                shell=True,
+                ["entities-service", "upload", "--file", tmpfile]
             )
         finally:
             os.remove(tmpfile)
