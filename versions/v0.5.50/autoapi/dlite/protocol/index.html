@@ -1,0 +1,961 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>dlite.protocol &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../../_static/copybutton.js?v=5029451f"></script>
+    <script src="../../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'autoapi/dlite/protocol/index';</script>
+    <script src="../../../_static/version-switcher.js"></script>
+    <link rel="icon" href="../../../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+    <link rel="next" title="dlite.quantity" href="../quantity/index.html" />
+    <link rel="prev" title="dlite.paths" href="../paths/index.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../../../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../user_guide/index.html">User Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/plugin_system.html">The DLite plugin system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/plugin_reference.html">Plugin reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/search_paths.html">Search paths</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/mappings.html">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/vocabulary.html">Short vocabulary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../user_guide/history.html">History</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/documentation_testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="../index.html">Python API</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../datamodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.datamodel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dataset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../dlite/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dlite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../factory/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../mappings/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.mappings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../options/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.options</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../paths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../quantity/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../rdf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.rdf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../table/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../testutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.testutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../../../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../../c-api/src/triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../c-api/src/pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../../../c-api/src/utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../../../c-api/src/utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../../../c-api/src/utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../../../c-api/src/utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../../../c-api/src/utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fautoapi/dlite/protocol/index.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../../_sources/autoapi/dlite/protocol/index.rst" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.rst</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>dlite.protocol</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol"><code class="docutils literal notranslate"><span class="pre">Protocol</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.conn"><code class="docutils literal notranslate"><span class="pre">Protocol.conn</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.protocol"><code class="docutils literal notranslate"><span class="pre">Protocol.protocol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.closed"><code class="docutils literal notranslate"><span class="pre">Protocol.closed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.close"><code class="docutils literal notranslate"><span class="pre">Protocol.close()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.load"><code class="docutils literal notranslate"><span class="pre">Protocol.load()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.save"><code class="docutils literal notranslate"><span class="pre">Protocol.save()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.delete"><code class="docutils literal notranslate"><span class="pre">Protocol.delete()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.query"><code class="docutils literal notranslate"><span class="pre">Protocol.query()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.load_plugins"><code class="docutils literal notranslate"><span class="pre">Protocol.load_plugins()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.loaded_plugins"><code class="docutils literal notranslate"><span class="pre">Protocol.loaded_plugins()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.failed_plugins"><code class="docutils literal notranslate"><span class="pre">Protocol.failed_plugins()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.__enter__"><code class="docutils literal notranslate"><span class="pre">Protocol.__enter__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.__exit__"><code class="docutils literal notranslate"><span class="pre">Protocol.__exit__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.__del__"><code class="docutils literal notranslate"><span class="pre">Protocol.__del__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.call"><code class="docutils literal notranslate"><span class="pre">call()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.zip_compressions"><code class="docutils literal notranslate"><span class="pre">zip_compressions</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.load_path"><code class="docutils literal notranslate"><span class="pre">load_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.save_path"><code class="docutils literal notranslate"><span class="pre">save_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.is_archive"><code class="docutils literal notranslate"><span class="pre">is_archive()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.archive_check"><code class="docutils literal notranslate"><span class="pre">archive_check()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.archive_names"><code class="docutils literal notranslate"><span class="pre">archive_names()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.archive_extract"><code class="docutils literal notranslate"><span class="pre">archive_extract()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.archive_add"><code class="docutils literal notranslate"><span class="pre">archive_add()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="module-dlite.protocol">
+<span id="dlite-protocol"></span><h1><a class="reference internal" href="#module-dlite.protocol" title="dlite.protocol"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a><a class="headerlink" href="#module-dlite.protocol" title="Link to this heading">#</a></h1>
+<p>Protocol plugins.</p>
+<p>The module also include a few help functions for calling
+functions/class methods and using zipfile to transparently
+representing a file directory.</p>
+<section id="module-contents">
+<h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
+<section id="classes">
+<h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dlite.protocol.Protocol" title="dlite.protocol.Protocol"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Protocol</span></code></a></p></td>
+<td><p>Provides an interface to protocol plugins.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dlite.protocol.call" title="dlite.protocol.call"><code class="xref py py-obj docutils literal notranslate"><span class="pre">call</span></code></a>(func, *args, **kwargs)</p></td>
+<td><p>Call a function.  Keyword arguments that are None, will not be passed</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dlite.protocol.load_path" title="dlite.protocol.load_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">load_path</span></code></a>(path[, include, exclude, compression, ...])</p></td>
+<td><p>Returns content of path as bytes.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dlite.protocol.save_path" title="dlite.protocol.save_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">save_path</span></code></a>(data, path[, overwrite, include, exclude])</p></td>
+<td><p>Save <cite>data</cite> to file path.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dlite.protocol.is_archive" title="dlite.protocol.is_archive"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_archive</span></code></a>(data)</p></td>
+<td><p>Returns true if binary data <cite>data</cite> is an archieve, otherwise false.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dlite.protocol.archive_check" title="dlite.protocol.archive_check"><code class="xref py py-obj docutils literal notranslate"><span class="pre">archive_check</span></code></a>(data)</p></td>
+<td><p>Raises an exception if <cite>data</cite> is not an archive.  Otherwise return</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dlite.protocol.archive_names" title="dlite.protocol.archive_names"><code class="xref py py-obj docutils literal notranslate"><span class="pre">archive_names</span></code></a>(data)</p></td>
+<td><p>If <cite>data</cite> is an archive, return a list of archive file names.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dlite.protocol.archive_extract" title="dlite.protocol.archive_extract"><code class="xref py py-obj docutils literal notranslate"><span class="pre">archive_extract</span></code></a>(data, name)</p></td>
+<td><p>If <cite>data</cite> is an archieve, return object with given name.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#dlite.protocol.archive_add" title="dlite.protocol.archive_add"><code class="xref py py-obj docutils literal notranslate"><span class="pre">archive_add</span></code></a>(data, name, content)</p></td>
+<td><p>If <cite>data</cite> is an archieve, return a new bytes object with</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="attributes">
+<h3>Attributes<a class="headerlink" href="#attributes" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#dlite.protocol.zip_compressions" title="dlite.protocol.zip_compressions"><code class="xref py py-obj docutils literal notranslate"><span class="pre">zip_compressions</span></code></a></p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<dl class="py class">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol">
+<em class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">Protocol</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">protocol</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">location</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">options</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol" title="Link to this definition">#</a></dt>
+<dd><p>Provides an interface to protocol plugins.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>protocol</strong> – Name of protocol.</p></li>
+<li><p><strong>location</strong> – Location of resource.  Typically a URL or file path.</p></li>
+<li><p><strong>options</strong> – Options passed to the protocol plugin.</p></li>
+</ul>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.conn">
+<span class="sig-name descname"><span class="pre">conn</span></span><a class="headerlink" href="#dlite.protocol.Protocol.conn" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.protocol">
+<span class="sig-name descname"><span class="pre">protocol</span></span><a class="headerlink" href="#dlite.protocol.Protocol.protocol" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.closed">
+<span class="sig-name descname"><span class="pre">closed</span></span><em class="property"><span class="w"> </span><span class="pre">=</span> <span class="pre">False</span></em><a class="headerlink" href="#dlite.protocol.Protocol.closed" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.close">
+<span class="sig-name descname"><span class="pre">close</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.close" title="Link to this definition">#</a></dt>
+<dd><p>Close connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.load">
+<span class="sig-name descname"><span class="pre">load</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.load" title="Link to this definition">#</a></dt>
+<dd><p>Load data from connection and return it as a bytes object.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.save">
+<span class="sig-name descname"><span class="pre">save</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">uuid</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.save" title="Link to this definition">#</a></dt>
+<dd><p>Save bytes object <cite>data</cite> to connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.delete">
+<span class="sig-name descname"><span class="pre">delete</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">uuid</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.delete" title="Link to this definition">#</a></dt>
+<dd><p>Delete instance with given <cite>uuid</cite> from connection.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.query">
+<span class="sig-name descname"><span class="pre">query</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pattern</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.query" title="Link to this definition">#</a></dt>
+<dd><p>Generator method that iterates over all UUIDs in the connection
+who”s metadata URI matches glob pattern <cite>pattern</cite>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>pattern</strong> – Glob pattern for matching metadata URIs.</p>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p>UUIDs of instances who’s metadata URI matches glob pattern <cite>pattern</cite>.
+If no <cite>pattern</cite> is given, the UUIDs of all instances in the
+connection are yielded.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.load_plugins">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">load_plugins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.load_plugins" title="Link to this definition">#</a></dt>
+<dd><p>Load all protocol plugins.</p>
+<p>The names of all plugin files that have been attempted to load
+are cached (regardless whether loading succeeded or
+not). Hence, it is safe to call this class method multiple
+times.  It won’t reload already loaded plugins or try to
+reload plugins that already failed to load.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.loaded_plugins">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">loaded_plugins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.loaded_plugins" title="Link to this definition">#</a></dt>
+<dd><p>Return a set with the names of already loaded plugins.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.failed_plugins">
+<em class="property"><span class="k"><span class="pre">classmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">failed_plugins</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.failed_plugins" title="Link to this definition">#</a></dt>
+<dd><p>Return a set with the stem of the plugin files that have failed ot
+load.  This is typically the same as the plugin names.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.__enter__">
+<span class="sig-name descname"><span class="pre">__enter__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.__enter__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.__exit__">
+<span class="sig-name descname"><span class="pre">__exit__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">exc</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.__exit__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="dlite.protocol.Protocol.__del__">
+<span class="sig-name descname"><span class="pre">__del__</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.Protocol.__del__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dlite.protocol.call">
+<span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">call</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">func</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.call" title="Link to this definition">#</a></dt>
+<dd><p>Call a function.  Keyword arguments that are None, will not be passed
+to <cite>func</cite> if <cite>func</cite> does not have this argument.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="dlite.protocol.zip_compressions">
+<span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">zip_compressions</span></span><a class="headerlink" href="#dlite.protocol.zip_compressions" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dlite.protocol.load_path">
+<span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">load_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compression</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'lzma'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compresslevel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.load_path" title="Link to this definition">#</a></dt>
+<dd><p>Returns content of path as bytes.</p>
+<p>If <cite>path</cite> is a directory, it will be zipped first.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>path</strong> – File-like object or name to a regular file, directory or
+socket to load from .</p></li>
+<li><p><strong>include</strong> – Regular expression matching file names to be included
+when path is a directory.</p></li>
+<li><p><strong>exclude</strong> – Regular expression matching file names to be excluded
+when path is a directory.  May exclude files included with
+<cite>include</cite>.</p></li>
+<li><p><strong>compression</strong> – Compression to use if path is a directory.
+Should be “none”, “deflated”, “bzip2” or “lzma”.</p></li>
+<li><p><strong>compresslevel</strong> – Integer compression level.
+For compresison “none” or “lzma”; no effect.
+For compresison “deflated”; 0 to 9 are valid.
+For compresison “bzip2”; 1 to 9 are valid.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>Bytes object with content of <cite>path</cite>.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dlite.protocol.save_path">
+<span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">save_path</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overwrite</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">include</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">exclude</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.save_path" title="Link to this definition">#</a></dt>
+<dd><p>Save <cite>data</cite> to file path.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>data</strong> – Bytes object to save.</p></li>
+<li><p><strong>path</strong> – File-like object or name to a regular file, directory or
+socket to save to.</p></li>
+<li><p><strong>overwrite</strong> – Whether to overwrite an existing path.</p></li>
+<li><p><strong>include</strong> – Regular expression matching file names to be included
+when path is a directory.</p></li>
+<li><p><strong>exclude</strong> – Regular expression matching file names to be excluded
+when path is a directory.  May exclude files included with
+<cite>include</cite>.</p></li>
+</ul>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dlite.protocol.is_archive">
+<span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">is_archive</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.is_archive" title="Link to this definition">#</a></dt>
+<dd><p>Returns true if binary data <cite>data</cite> is an archieve, otherwise false.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dlite.protocol.archive_check">
+<span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">archive_check</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.archive_check" title="Link to this definition">#</a></dt>
+<dd><p>Raises an exception if <cite>data</cite> is not an archive.  Otherwise return
+a io.BytesIO object for data.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dlite.protocol.archive_names">
+<span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">archive_names</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.archive_names" title="Link to this definition">#</a></dt>
+<dd><p>If <cite>data</cite> is an archive, return a list of archive file names.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dlite.protocol.archive_extract">
+<span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">archive_extract</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.archive_extract" title="Link to this definition">#</a></dt>
+<dd><p>If <cite>data</cite> is an archieve, return object with given name.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="dlite.protocol.archive_add">
+<span class="sig-prename descclassname"><span class="pre">dlite.protocol.</span></span><span class="sig-name descname"><span class="pre">archive_add</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">name</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">content</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#dlite.protocol.archive_add" title="Link to this definition">#</a></dt>
+<dd><p>If <cite>data</cite> is an archieve, return a new bytes object with
+<cite>content</cite> added to <cite>data</cite> using the given name.</p>
+</dd></dl>
+
+</section>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../paths/index.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../quantity/index.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributes">Attributes</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol"><code class="docutils literal notranslate"><span class="pre">Protocol</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.conn"><code class="docutils literal notranslate"><span class="pre">Protocol.conn</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.protocol"><code class="docutils literal notranslate"><span class="pre">Protocol.protocol</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.closed"><code class="docutils literal notranslate"><span class="pre">Protocol.closed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.close"><code class="docutils literal notranslate"><span class="pre">Protocol.close()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.load"><code class="docutils literal notranslate"><span class="pre">Protocol.load()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.save"><code class="docutils literal notranslate"><span class="pre">Protocol.save()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.delete"><code class="docutils literal notranslate"><span class="pre">Protocol.delete()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.query"><code class="docutils literal notranslate"><span class="pre">Protocol.query()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.load_plugins"><code class="docutils literal notranslate"><span class="pre">Protocol.load_plugins()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.loaded_plugins"><code class="docutils literal notranslate"><span class="pre">Protocol.loaded_plugins()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.failed_plugins"><code class="docutils literal notranslate"><span class="pre">Protocol.failed_plugins()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.__enter__"><code class="docutils literal notranslate"><span class="pre">Protocol.__enter__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.__exit__"><code class="docutils literal notranslate"><span class="pre">Protocol.__exit__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.Protocol.__del__"><code class="docutils literal notranslate"><span class="pre">Protocol.__del__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.call"><code class="docutils literal notranslate"><span class="pre">call()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.zip_compressions"><code class="docutils literal notranslate"><span class="pre">zip_compressions</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.load_path"><code class="docutils literal notranslate"><span class="pre">load_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.save_path"><code class="docutils literal notranslate"><span class="pre">save_path()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.is_archive"><code class="docutils literal notranslate"><span class="pre">is_archive()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.archive_check"><code class="docutils literal notranslate"><span class="pre">archive_check()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.archive_names"><code class="docutils literal notranslate"><span class="pre">archive_names()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.archive_extract"><code class="docutils literal notranslate"><span class="pre">archive_extract()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dlite.protocol.archive_add"><code class="docutils literal notranslate"><span class="pre">archive_add()</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

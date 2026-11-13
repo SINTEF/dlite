@@ -1,0 +1,893 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Mappings &#8212; DLite  documentation</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css?v=8f2a1f02" />
+    <link rel="stylesheet" type="text/css" href="../_static/styles/sphinx-book-theme.css?v=eba8b062" />
+    <link rel="stylesheet" type="text/css" href="../_static/graphviz.css?v=4ae1632d" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-design.min.css?v=95c83b7e" />
+    <link rel="stylesheet" type="text/css" href="../_static/version-switcher.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../_static/doctools.js?v=9bcbadda"></script>
+    <script src="../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../_static/toggleprompt.js?v=5801b3bb"></script>
+    <script src="../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../_static/copybutton.js?v=5029451f"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script src="../_static/design-tabs.js?v=f930bc37"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'user_guide/mappings';</script>
+    <script src="../_static/version-switcher.js"></script>
+    <link rel="icon" href="../_static/favicon.ico"/>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Transactions" href="transactions.html" />
+    <link rel="prev" title="Search paths" href="search_paths.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search..."
+         aria-label="Search..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+<aside class="bd-header-announcement" aria-label="Announcement">
+  <div class="bd-header-announcement__content">This documentation is under development!</div>
+</aside>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../index.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/logo.svg" class="logo__image only-light" alt="DLite  documentation - Home"/>
+    <script>document.write(`<img src="../_static/logo.svg" class="logo__image only-dark" alt="DLite  documentation - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Contents</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../getting_started/index.html">Getting started</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/about.html">About DLite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/installation.html">Installing DLite</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../getting_started/build/index.html">Build from source</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build.html">Build from source</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_dependencies.html">Installing build dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/runtime_dependencies.html">Installing runtime dependencies</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_against_python_env.html">Build against Python environment</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/build_with_vs.html">Build with Visual Studio</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/patch_activate.html">Patch activate</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../getting_started/build/cmake_variables.html">CMake variables</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/tutorial.html">Tutorial</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/more_advanced_example.html">More advanced example</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../getting_started/features.html">Full feature list</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 current active has-children"><a class="reference internal" href="index.html">User Guide</a><details open="open"><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="concepts.html">DLite Concepts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="datamodels.html">Representing a datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="type-system.html">Type system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="exceptions.html">Errors and exceptions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="collections.html">Collections</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_system.html">The DLite plugin system</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage_plugins.html">Storage plugins / Drivers</a></li>
+<li class="toctree-l2"><a class="reference internal" href="storage_plugins_mongodb.html">MongoDB storage plugin</a></li>
+<li class="toctree-l2"><a class="reference internal" href="protocol_plugins.html">Protocol plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="plugin_reference.html">Plugin reference</a></li>
+<li class="toctree-l2"><a class="reference internal" href="search_paths.html">Search paths</a></li>
+<li class="toctree-l2 current active"><a class="current reference internal" href="#">Mappings</a></li>
+<li class="toctree-l2"><a class="reference internal" href="transactions.html">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="tools.html">Tools</a></li>
+<li class="toctree-l2"><a class="reference internal" href="code_generation.html">Code generation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="configure_behavior_changes.html">Configure behavior changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="environment_variables.html">Environment variables</a></li>
+<li class="toctree-l2"><a class="reference internal" href="features.html">Features</a></li>
+<li class="toctree-l2"><a class="reference internal" href="vocabulary.html">Short vocabulary</a></li>
+<li class="toctree-l2"><a class="reference internal" href="history.html">History</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../contributors_guide/index.html">Contributor’s Guide</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/coding_guideline.html">Coding guideline</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_contributors.html">Guideline for contributing documentation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/documentation_testing.html">Testing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/release_instructions.html">Creating a new release</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/code_changes.html">Code changes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../contributors_guide/tips_and_tricks.html">Tips and Tricks</a></li>
+</ul>
+</details></li>
+<li class="toctree-l1"><a class="reference internal" href="../license.html">License</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">API Reference</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1 has-children"><a class="reference internal" href="../autoapi/dlite/index.html">Python API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/datamodel/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.datamodel</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dataset/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dataset</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/dlite/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.dlite</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/factory/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.factory</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/mappings/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.mappings</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/options/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.options</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/paths/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.paths</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/protocol/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.protocol</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/quantity/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.quantity</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/rdf/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.rdf</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/table/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.table</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/testutils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.testutils</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="../autoapi/dlite/utils/index.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">dlite.utils</span></code></a></li>
+</ul>
+</details></li>
+<li class="toctree-l1 has-children"><a class="reference internal" href="../c-api/src.html">C-API</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-arrays.html">dlite-arrays</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-behavior.html">dlite-behavior</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-bson.html">dlite-bson</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-codegen.html">dlite-codegen</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-collection.html">dlite-collection</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-datamodel.html">dlite-datamodel</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-entity.html">dlite-entity</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-errors.html">dlite-errors</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-getlicense.html">dlite-getlicense</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-json.html">dlite-json</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-macros.html">dlite-macros</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping-plugins.html">dlite-mapping-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-mapping.html">dlite-mapping</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-misc.html">dlite-misc</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-schemas.html">dlite-schemas</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage-plugins.html">dlite-storage-plugins</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-storage.html">dlite-storage</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-store.html">dlite-store</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type-cast.html">dlite-type-cast</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite-type.html">dlite-type</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/dlite.html">dlite</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/pathshash.html">pathshash</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triple.html">triple</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../c-api/src/triplestore.html">triplestore</a></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/pyembed.html">pyembed</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed-utils.html">dlite-pyembed-utils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-pyembed.html">dlite-pyembed</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-mapping.html">dlite-python-mapping</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-path.html">dlite-python-path</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-protocol.html">dlite-python-protocol</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-singletons.html">dlite-python-singletons</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/pyembed/dlite-python-storage.html">dlite-python-storage</a></li>
+</ul>
+</details></li>
+<li class="toctree-l2 has-children"><a class="reference internal" href="../c-api/src/utils.html">utils</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/bson.html">bson</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/clp2.html">clp2</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/compat.html">compat</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/dsl.html">dsl</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/err.html">err</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/execprocess.html">execprocess</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileinfo.html">fileinfo</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/fileutils.html">fileutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/globmatch.html">globmatch</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/infixcalc.html">infixcalc</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jsmnx.html">jsmnx</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/jstore.html">jstore</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/map.html">map</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/md5.html">md5</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/plugin.html">plugin</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/rng.html">rng</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/session.html">session</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha1.html">sha1</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/sha3.html">sha3</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strtob.html">strtob</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/strutils.html">strutils</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tgen.html">tgen</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/tmpfileplus.html">tmpfileplus</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/unicode.html">unicode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uri_encode.html">uri_encode</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/urlsplit.html">urlsplit</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid.html">uuid</a></li>
+<li class="toctree-l3"><a class="reference internal" href="../c-api/src/utils/uuid4.html">uuid4</a></li>
+<li class="toctree-l3 has-children"><a class="reference internal" href="../c-api/src/utils/compat-src.html">compat-src</a><details><summary><span class="toctree-toggle" role="presentation"><i class="fa-solid fa-chevron-down"></i></span></summary><ul>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/dirent.html">dirent</a></li>
+<li class="toctree-l4"><a class="reference internal" href="../c-api/src/utils/compat-src/getopt.html">getopt</a></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+</details></li>
+</ul>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../genindex.html">Index</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+
+
+
+<div class="dropdown dropdown-source-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Source repositories">
+    <i class="fab fa-github"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite" target="_blank"
+   class="btn btn-sm btn-source-repository-button dropdown-item"
+   title="Source repository"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+<span class="btn__text-container">Repository</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li><a href="https://github.com/SINTEF/dlite/issues/new?title=Issue%20on%20page%20%2Fuser_guide/mappings.html&body=Your%20issue%20content%20here." target="_blank"
+   class="btn btn-sm btn-source-issues-button dropdown-item"
+   title="Open an issue"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-lightbulb"></i>
+  </span>
+<span class="btn__text-container">Open issue</span>
+</a>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/user_guide/mappings.md" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.md</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Mappings</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instance-mappings">Instance mappings</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-instance-mappings">Using instance mappings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#writing-an-instance-mapping-plugin">Writing an instance mapping plugin</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unloading-mapping-plugins">Unloading mapping plugins</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#property-mappings">Property mappings</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How it works</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lower-level-mapping-functions">Lower-level mapping functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-kind-of-mapping-to-choose">Which kind of mapping to choose</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section id="mappings">
+<h1>Mappings<a class="headerlink" href="#mappings" title="Link to this heading">#</a></h1>
+<section id="content">
+<h2>Content<a class="headerlink" href="#content" title="Link to this heading">#</a></h2>
+<ol class="arabic simple">
+<li><p><a class="reference internal" href="#introduction">Introduction</a></p></li>
+<li><p><a class="reference internal" href="#instance-mappings">Instance mappings</a></p></li>
+<li><p><a class="reference internal" href="#property-mappings">Property mappings</a></p></li>
+<li><p><a class="reference internal" href="#which-kind-of-mapping-to-choose">Which kind of mapping to choose</a></p></li>
+</ol>
+</section>
+<section id="introduction">
+<h2>Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h2>
+<p>Mappings convert data described by one datamodel into data described by
+another datamodel.  DLite distinguishes between two kinds of mappings:</p>
+<ul class="simple">
+<li><p><strong>Instance mappings</strong> convert a whole instance of one metadata into an
+instance of another metadata.  They are implemented by <em>mapping
+plugins</em>, which may be written in C or Python, and are typically used
+for metadata that represent the same kind of thing at different levels
+of detail.</p></li>
+<li><p><strong>Property mappings</strong> map individual properties between datamodels via
+an ontology, using the <a class="reference external" href="https://github.com/EMMC-ASBL/tripper">tripper</a> library.  They make it possible to
+describe <em>how</em> the properties of a datamodel correspond to concepts in
+an ontology, and let DLite use these descriptions to automatically
+instantiate new instances from existing data.</p></li>
+</ul>
+</section>
+<section id="instance-mappings">
+<h2>Instance mappings<a class="headerlink" href="#instance-mappings" title="Link to this heading">#</a></h2>
+<p>An instance mapping plugin converts a sequence of input instances into
+an instance of a given output metadata.</p>
+<section id="using-instance-mappings">
+<h3>Using instance mappings<a class="headerlink" href="#using-instance-mappings" title="Link to this heading">#</a></h3>
+<p>Instance mappings are typically invoked via a <a class="reference external" href="https://sintef.github.io/dlite/user_guide/collections.html">collection</a>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">substance</span> <span class="o">=</span> <span class="n">coll</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">'C2H6'</span><span class="p">,</span> <span class="s1">'http://onto-ns.com/meta/0.1/Substance'</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>If the instance labelled <code class="docutils literal notranslate"><span class="pre">'C2H6'</span></code> in the collection is an instance of
+some other metadata (say <code class="docutils literal notranslate"><span class="pre">Molecule</span></code>), DLite looks up a registered
+mapping plugin that takes <code class="docutils literal notranslate"><span class="pre">Molecule</span></code> instances as input and produces
+<code class="docutils literal notranslate"><span class="pre">Substance</span></code> instances, applies it and returns the result.  If no such
+mapping is registered, a <code class="docutils literal notranslate"><span class="pre">DLiteMappingError</span></code> is raised.</p>
+<p>The top-level mapping function is also available directly:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">substance</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">mapping</span><span class="p">(</span><span class="s1">'http://onto-ns.com/meta/0.1/Substance'</span><span class="p">,</span>
+<span class="gp">... </span>                          <span class="p">[</span><span class="n">molecule</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>If several mappings can produce the requested output, the one with the
+lowest cost is selected.  Mapping plugins have a <code class="docutils literal notranslate"><span class="pre">cost</span></code> attribute for
+this purpose.  The default cost is 25, while the trivial mapping to an
+existing input has cost zero.</p>
+</section>
+<section id="writing-an-instance-mapping-plugin">
+<h3>Writing an instance mapping plugin<a class="headerlink" href="#writing-an-instance-mapping-plugin" title="Link to this heading">#</a></h3>
+<p>A Python instance mapping plugin is a Python module defining a subclass
+of <code class="docutils literal notranslate"><span class="pre">dlite.DLiteMappingBase</span></code> with the following class attributes:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Attribute</p></th>
+<th class="head"><p>Type</p></th>
+<th class="head"><p>Description</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">name</span></code></p></td>
+<td><p>str</p></td>
+<td><p>Name of the mapping.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">input_uris</span></code></p></td>
+<td><p>sequence of str</p></td>
+<td><p>URIs of the metadata of the input instances.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="docutils literal notranslate"><span class="pre">output_uri</span></code></p></td>
+<td><p>str</p></td>
+<td><p>URI of the metadata of the produced instance.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="docutils literal notranslate"><span class="pre">cost</span></code></p></td>
+<td><p>int</p></td>
+<td><p>Cost of the mapping (optional, default is 25).</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>and a <code class="docutils literal notranslate"><span class="pre">map()</span></code> method that takes the sequence of input instances as
+argument and returns a new instance of <code class="docutils literal notranslate"><span class="pre">output_uri</span></code>:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Molecule2Substance</span><span class="p">(</span><span class="n">dlite</span><span class="o">.</span><span class="n">DLiteMappingBase</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">'Molecule2Substance'</span>
+    <span class="n">input_uris</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'http://onto-ns.com/meta/0.1/Molecule'</span><span class="p">]</span>
+    <span class="n">output_uri</span> <span class="o">=</span> <span class="s1">'http://onto-ns.com/meta/0.1/Substance'</span>
+    <span class="n">cost</span> <span class="o">=</span> <span class="mi">25</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">map</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">instances</span><span class="p">):</span>
+        <span class="n">molecule</span> <span class="o">=</span> <span class="n">instances</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+        <span class="n">substance</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Instance</span><span class="o">.</span><span class="n">from_metaid</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">output_uri</span><span class="p">,</span> <span class="p">[])</span>
+        <span class="n">substance</span><span class="o">.</span><span class="n">id</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">substance</span><span class="o">.</span><span class="n">molecule_energy</span> <span class="o">=</span> <span class="n">molecule</span><span class="o">.</span><span class="n">groundstate_energy</span>
+        <span class="k">return</span> <span class="n">substance</span>
+</pre></div>
+</div>
+<p>For DLite to find the plugin, its module must be in the search path
+given by the <code class="docutils literal notranslate"><span class="pre">DLITE_PYTHON_MAPPING_PLUGIN_DIRS</span></code> environment variable or
+appended to <code class="docutils literal notranslate"><span class="pre">dlite.python_mapping_plugin_path</span></code> (see <a class="reference external" href="https://sintef.github.io/dlite/user_guide/search_paths.html">Search paths</a>).</p>
+<div class="admonition attention">
+<p class="admonition-title">Attention</p>
+<p>The base class must be referred to by its <strong>qualified name</strong>
+(<code class="docutils literal notranslate"><span class="pre">dlite.DLiteMappingBase</span></code>).  Since DLite v0.5.23, plugins are evaluated
+in separate scopes, so unqualified names from the <code class="docutils literal notranslate"><span class="pre">dlite</span></code> module are not
+available in a plugin module.</p>
+</div>
+<p>A complete, runnable example is provided in
+<a class="reference external" href="https://github.com/SINTEF/dlite/tree/master/examples/dehydrogenation">examples/dehydrogenation</a>, where <code class="docutils literal notranslate"><span class="pre">Molecule</span></code> instances from a simple
+workflow are mapped to <code class="docutils literal notranslate"><span class="pre">Substance</span></code> instances to compute reaction
+energies.</p>
+<p>Mapping plugins can also be written in C, using the same plugin
+mechanism as C storage plugins.  A C mapping plugin is a shared library
+defining a <code class="docutils literal notranslate"><span class="pre">get_dlite_mapping_api()</span></code> function returning a
+<code class="docutils literal notranslate"><span class="pre">DLiteMappingPlugin</span></code> struct.  See the <a class="reference external" href="https://sintef.github.io/dlite/dlite/mapping.html">C reference manual</a> for details.</p>
+</section>
+<section id="unloading-mapping-plugins">
+<h3>Unloading mapping plugins<a class="headerlink" href="#unloading-mapping-plugins" title="Link to this heading">#</a></h3>
+<p>Loaded mapping plugins can be unloaded with:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">dlite</span><span class="o">.</span><span class="n">mapping_plugin_unload</span><span class="p">(</span><span class="s1">'Molecule2Substance'</span><span class="p">)</span>  <span class="c1"># unload one</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dlite</span><span class="o">.</span><span class="n">mapping_plugin_unload</span><span class="p">()</span>                     <span class="c1"># unload all</span>
+</pre></div>
+</div>
+</section>
+</section>
+<section id="property-mappings">
+<h2>Property mappings<a class="headerlink" href="#property-mappings" title="Link to this heading">#</a></h2>
+<p>Property mappings are based on <a class="reference external" href="https://github.com/EMMC-ASBL/tripper">tripper</a> and describe, via an ontology,
+how the properties of datamodels correspond to each other.  Combined
+with mapping functions, this allows new instances to be automatically
+instantiated from data described by other datamodels.</p>
+<p>Property mappings require the optional dependencies listed in
+<code class="docutils literal notranslate"><span class="pre">requirements_mappings.txt</span></code> in the <a class="reference external" href="https://github.com/SINTEF/dlite">DLite repository</a> (most notably
+<a class="reference external" href="https://github.com/EMMC-ASBL/tripper">tripper</a> and <a class="reference external" href="https://pint.readthedocs.io/">pint</a>).</p>
+<section id="how-it-works">
+<h3>How it works<a class="headerlink" href="#how-it-works" title="Link to this heading">#</a></h3>
+<p>A property mapping is expressed as triples in a triplestore connecting
+properties of datamodels to concepts in an ontology.  The example below
+(from <a class="reference external" href="https://github.com/SINTEF/dlite/tree/master/examples/mappings">examples/mappings</a>) maps properties of two datamodels to concepts
+of the <a class="reference external" href="https://emmo-repo.github.io/">Elementary Multiperspective Material Ontology (EMMO)</a> and
+provides Python functions for the concepts that require computation:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span><span class="w"> </span><span class="nn">tripper</span><span class="w"> </span><span class="kn">import</span> <span class="n">EMMO</span><span class="p">,</span> <span class="n">Triplestore</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span><span class="w"> </span><span class="nn">dlite</span>
+
+<span class="gp">&gt;&gt;&gt; </span><span class="n">coll</span> <span class="o">=</span> <span class="n">dlite</span><span class="o">.</span><span class="n">Collection</span><span class="p">()</span>          <span class="c1"># our knowledge base</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span> <span class="o">=</span> <span class="n">Triplestore</span><span class="p">(</span><span class="n">backend</span><span class="o">=</span><span class="s2">"collection"</span><span class="p">,</span> <span class="n">collection</span><span class="o">=</span><span class="n">coll</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">DON</span> <span class="o">=</span> <span class="n">ts</span><span class="o">.</span><span class="n">bind</span><span class="p">(</span><span class="s2">"don"</span><span class="p">,</span> <span class="s2">"http://example.com/demo-ontology#"</span><span class="p">)</span>
+
+<span class="go"># Add mappings from the input datamodels -- data provider</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">AT</span><span class="o">.</span><span class="n">symbols</span><span class="p">,</span> <span class="n">DON</span><span class="o">.</span><span class="n">ChemicalSymbol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">RES</span><span class="o">.</span><span class="n">potential_energy</span><span class="p">,</span> <span class="n">EMMO</span><span class="o">.</span><span class="n">PotentialEnergy</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">RES</span><span class="o">.</span><span class="n">forces</span><span class="p">,</span> <span class="n">EMMO</span><span class="o">.</span><span class="n">Force</span><span class="p">)</span>
+
+<span class="go"># Add mappings to the output datamodel -- modeller</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">MOL</span><span class="o">.</span><span class="n">energy</span><span class="p">,</span> <span class="n">EMMO</span><span class="o">.</span><span class="n">PotentialEnergy</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">MOL</span><span class="o">.</span><span class="n">maxforce</span><span class="p">,</span> <span class="n">DON</span><span class="o">.</span><span class="n">MaxForce</span><span class="p">)</span>
+
+<span class="go"># Add mapping functions -- ontologist</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">ts</span><span class="o">.</span><span class="n">add_function</span><span class="p">(</span><span class="n">norm</span><span class="p">,</span> <span class="n">expects</span><span class="o">=</span><span class="p">[</span><span class="n">EMMO</span><span class="o">.</span><span class="n">Force</span><span class="p">],</span> <span class="n">returns</span><span class="o">=</span><span class="p">[</span><span class="n">DON</span><span class="o">.</span><span class="n">ForceNorm</span><span class="p">])</span>
+</pre></div>
+</div>
+<p>With these mappings in place, an instance of <code class="docutils literal notranslate"><span class="pre">MOL</span></code> can be created
+directly from the collection:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">molecule</span><span class="p">,</span> <span class="o">=</span> <span class="n">coll</span><span class="o">.</span><span class="n">get_instances</span><span class="p">(</span><span class="n">metaid</span><span class="o">=</span><span class="n">MOL</span><span class="p">,</span> <span class="n">property_mappings</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>DLite resolves the mapping routes from the source properties to the
+target properties, applies the mapping functions and returns a new
+instance with all properties populated.</p>
+</section>
+<section id="lower-level-mapping-functions">
+<h3>Lower-level mapping functions<a class="headerlink" href="#lower-level-mapping-functions" title="Link to this heading">#</a></h3>
+<p>The <code class="docutils literal notranslate"><span class="pre">dlite.mappings</span></code> module provides the underlying functionality:</p>
+<ul class="simple">
+<li><p><code class="docutils literal notranslate"><span class="pre">instance_routes(meta,</span> <span class="pre">instances,</span> <span class="pre">triplestore)</span></code>: returns a dict of
+all possible mapping routes for populating an instance of <code class="docutils literal notranslate"><span class="pre">meta</span></code>.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instantiate(meta,</span> <span class="pre">instances,</span> <span class="pre">triplestore)</span></code>: creates a new instance of
+<code class="docutils literal notranslate"><span class="pre">meta</span></code> populated with the selected mapping routes.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">instantiate_all(meta,</span> <span class="pre">instances,</span> <span class="pre">triplestore)</span></code>: like <code class="docutils literal notranslate"><span class="pre">instantiate()</span></code>,
+but returns a generator over all possible instances.</p></li>
+</ul>
+<p>See the docstrings of these functions for a complete description of
+their arguments.  Units are handled with <a class="reference external" href="https://pint.readthedocs.io/">pint</a> and shapes with numpy,
+so mappings between properties with different units and dimensions are
+resolved automatically.</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
+<p>Some older examples in the repository (under
+<code class="docutils literal notranslate"><span class="pre">examples/dehydrogenation/3-property-mappings/</span></code>) refer to a
+<code class="docutils literal notranslate"><span class="pre">make_instance()</span></code> function that no longer exists.  Use
+<code class="docutils literal notranslate"><span class="pre">instantiate()</span></code> or <code class="docutils literal notranslate"><span class="pre">coll.get_instances(...,</span> <span class="pre">property_mappings=True)</span></code>
+instead.</p>
+</div>
+</section>
+</section>
+<section id="which-kind-of-mapping-to-choose">
+<h2>Which kind of mapping to choose<a class="headerlink" href="#which-kind-of-mapping-to-choose" title="Link to this heading">#</a></h2>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head"><p>Instance mappings</p></th>
+<th class="head"><p>Property mappings</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Granularity</p></td>
+<td><p>Whole instances</p></td>
+<td><p>Individual properties</p></td>
+</tr>
+<tr class="row-odd"><td><p>Ontology</p></td>
+<td><p>Not required</p></td>
+<td><p>Required (tripper/triplestore)</p></td>
+</tr>
+<tr class="row-even"><td><p>Implementation</p></td>
+<td><p>Mapping plugin (C/Python)</p></td>
+<td><p>RDF triples + mapping functions</p></td>
+</tr>
+<tr class="row-odd"><td><p>Units</p></td>
+<td><p>Manual</p></td>
+<td><p>Automatic (pint)</p></td>
+</tr>
+<tr class="row-even"><td><p>Best suited for</p></td>
+<td><p>Connecting workflows with known datamodels</p></td>
+<td><p>Semantic interoperability across domains</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>In short: use an <strong>instance mapping</strong> when you know both datamodels and
+just need to convert between them.  Use <strong>property mappings</strong> when the
+correspondences should be expressed with proper semantics, e.g. in a
+setting where datamodels and ontologies evolve independently.</p>
+</section>
+</section>
+
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="search_paths.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Search paths</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="transactions.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Transactions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#content">Content</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">Introduction</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#instance-mappings">Instance mappings</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#using-instance-mappings">Using instance mappings</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#writing-an-instance-mapping-plugin">Writing an instance mapping plugin</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#unloading-mapping-plugins">Unloading mapping plugins</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#property-mappings">Property mappings</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-it-works">How it works</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#lower-level-mapping-functions">Lower-level mapping functions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#which-kind-of-mapping-to-choose">Which kind of mapping to choose</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By SINTEF
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright © SINTEF 2024.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
