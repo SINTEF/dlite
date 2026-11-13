@@ -5,10 +5,15 @@ from time import sleep
 from pathlib import Path
 
 import dlite
-from dlite.testutils import importskip, serverskip
+from dlite.testutils import importskip, serviceskip
 
 importskip("redis", env_exitcode=None)  # skip this test if redis is not available
-serverskip("localhost", 6379)  # skip test if redis is down
+
+# Skip test if redis is down.  The server is configured in
+# test-services/compose.yaml (see dlite.testutils.service_config()).
+config = serviceskip("redis")
+host = config["host"]
+port = config["port"]
 
 
 thisdir = Path(__file__).resolve().parent
@@ -31,7 +36,7 @@ save2 = inst2.asdict(single=True, uuid=True)
 EXPIRE = 60
 
 # Test storing to Redis
-with dlite.Storage("redis", "localhost", f"expire={EXPIRE};db=13") as s:
+with dlite.Storage("redis", host, f"port={port};expire={EXPIRE};db=13") as s:
     try:
         s.save(inst1)
     except dlite.DLiteError as exc:
@@ -50,17 +55,17 @@ with dlite.Storage("redis", "localhost", f"expire={EXPIRE};db=13") as s:
 del meta
 del inst1
 del inst2
-with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
+with dlite.Storage("redis", host, f"port={port};db=13") as s:
     newmeta = s.load(save0["uuid"])
     newinst1 = s.load(save1["uuid"])
 
 newinst2 = dlite.Instance.from_location(
-    "redis", "localhost", "port=6379;db=13", id=save2["uuid"]
+    "redis", host, f"port={port};db=13", id=save2["uuid"]
 )
 
 
 # Test deleting from Redis
-with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
+with dlite.Storage("redis", host, f"port={port};db=13") as s:
     uuid = save1["uuid"]
     assert uuid in s.get_uuids()
     s.delete(save1["uuid"])
@@ -70,14 +75,14 @@ with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
 # Test instance expiration
 # Remove what is left from the tests above (and earlier runs), then store
 # an instance with a short expiration time and check that it disappears.
-with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
+with dlite.Storage("redis", host, f"port={port};db=13") as s:
     for uuid in s.get_uuids():
         s.delete(uuid)
     assert not s.get_uuids()
-newinst1.save("redis", "localhost", "port=6379;db=13;expire=1")
+newinst1.save("redis", host, f"port={port};db=13;expire=1")
 print("Wait for instances in redis storage has expired...")
 sleep(2)
-with dlite.Storage("redis", "localhost", "port=6379;db=13") as s:
+with dlite.Storage("redis", host, f"port={port};db=13") as s:
     assert not s.get_uuids()
 
 
@@ -88,16 +93,16 @@ except ImportError:
     print("Skipping testing encryption")
 else:
     fernet_key = Fernet.generate_key().decode()
-    options = f"port=6379;expire={EXPIRE};db=13;fernet_key={fernet_key}"
+    options = f"port={port};expire={EXPIRE};db=13;fernet_key={fernet_key}"
 
-    newinst2.save("redis", "localhost", options)
+    newinst2.save("redis", host, options)
 
     del newinst2
     inst2 = dlite.Instance.from_location(
-        "redis", "localhost", options, id=save2["uuid"],
+        "redis", host, options, id=save2["uuid"],
     )
 
     # Clean up
-    with dlite.Storage("redis", "localhost", options) as s:
+    with dlite.Storage("redis", host, options) as s:
         s.delete(save2["uuid"])
         assert not s.get_uuids()

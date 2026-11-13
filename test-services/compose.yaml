@@ -1,0 +1,135 @@
+# Services used by the DLite tests.  See README.md in this directory.
+#
+# Start all services from the root of the repository with
+#
+#     docker compose -f test-services/compose.yaml up -d
+#
+# or only some of them, e.g.
+#
+#     docker compose -f test-services/compose.yaml up -d postgres redis
+#
+# and stop them again with
+#
+#     docker compose -f test-services/compose.yaml down
+#
+# The credentials below are only meant for local testing.  They agree
+# with the defaults in TEST_SERVICES in bindings/python/testutils.py
+# and can be changed with environment variables named
+# DLITE_TEST_<SERVICE>_<KEY>.
+
+# Images are given with fully qualified names, which is required by podman.
+
+# Fixed project name, so that the services are easy to recognise and
+# can be managed from any directory (e.g. when also testing tripper).
+name: dlite-test-services
+
+services:
+
+  postgres:
+    image: docker.io/library/postgres:17
+    # set shared memory limit when using docker compose
+    shm_size: 128mb
+    environment:
+      POSTGRES_USER: ${DLITE_TEST_POSTGRESQL_USER:-dlite}
+      POSTGRES_PASSWORD: ${DLITE_TEST_POSTGRESQL_PASSWORD:-dlite-test}
+      POSTGRES_DB: ${DLITE_TEST_POSTGRESQL_DATABASE:-dlite}
+    ports:
+      - "${DLITE_TEST_POSTGRESQL_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  redis:
+    image: docker.io/library/redis:7
+    ports:
+      - "${DLITE_TEST_REDIS_PORT:-6379}:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  minio:
+    # MinIO no longer publishes free container images (quay.io/minio/minio
+    # and docker.io/minio/minio are not updated or not accessible).  Use
+    # the image built by Chainguard instead.
+    image: docker.io/chainguard/minio:latest
+    command: server --console-address ":9001" /data
+    environment:
+      MINIO_ROOT_USER: ${DLITE_TEST_MINIO_ACCESS_KEY:-dlite}
+      # Must be at least 8 characters
+      MINIO_ROOT_PASSWORD: ${DLITE_TEST_MINIO_SECRET_KEY:-dlite-test}
+    ports:
+      - "${DLITE_TEST_MINIO_PORT:-9000}:9000"  # S3 API
+      - "9001:9001"                            # Web console
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  mongodb:
+    # MongoDB 8 refuses to start on Linux kernels from 6.19 up to 7.0.14
+    # (used by the GitHub runners), due to an incompatibility in TCMalloc.
+    # See https://jira.mongodb.org/browse/SERVER-121912
+    image: docker.io/library/mongo:7
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${DLITE_TEST_MONGODB_USER:-dlite}
+      MONGO_INITDB_ROOT_PASSWORD: ${DLITE_TEST_MONGODB_PASSWORD:-dlite-test}
+    ports:
+      - "${DLITE_TEST_MONGODB_PORT:-27017}:27017"
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping')"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  ## Not used by the DLite tests yet.  Configured as expected by the
+  ## tripper tests (admin password "admin0" and a "test_repo" dataset on
+  ## port 3030), so that the same services can be used when developing
+  ## DLite and tripper together.
+  #fuseki:
+  #  image: docker.io/stain/jena-fuseki
+  #  environment:
+  #    ADMIN_PASSWORD: ${DLITE_TEST_FUSEKI_PASSWORD:-admin0}
+  #    FUSEKI_DATASET_1: ${DLITE_TEST_FUSEKI_DATASET:-test_repo}
+  #  ports:
+  #    - "${DLITE_TEST_FUSEKI_PORT:-3030}:3030"
+  #  healthcheck:
+  #    test: ["CMD-SHELL", "curl -fs http://localhost:3030/$$/ping || exit 1"]
+  #    interval: 5s
+  #    timeout: 3s
+  #    retries: 10
+  #
+  ## Not used by the DLite tests yet.  Configured as expected by the
+  ## tripper tests (a "test_repo" repository with full-text search on
+  ## port 7200).
+  #graphdb:
+  #  image: docker.io/ontotext/graphdb:10.8.3
+  #  ports:
+  #    - "${DLITE_TEST_GRAPHDB_PORT:-7200}:7200"
+  #  healthcheck:
+  #    test: ["CMD-SHELL", "curl -fs http://localhost:7200/protocol || exit 1"]
+  #    interval: 5s
+  #    timeout: 3s
+  #    retries: 30
+  #
+  ## One-shot service that creates the "test_repo" repository in graphdb
+  ## (if it doesn't already exist) when graphdb is up.
+  #graphdb-init:
+  #  image: docker.io/curlimages/curl
+  #  depends_on:
+  #    graphdb:
+  #      condition: service_healthy
+  #  volumes:
+  #    - ./graphdb-test_repo-config.ttl:/config.ttl:ro,z
+  #  command:
+  #    - sh
+  #    - -c
+  #    - >-
+  #      curl -fs http://graphdb:7200/rest/repositories/test_repo >/dev/null
+  #      || curl -fsS -X POST -F config=@/config.ttl
+  #      http://graphdb:7200/rest/repositories
+  #  restart: "no"
