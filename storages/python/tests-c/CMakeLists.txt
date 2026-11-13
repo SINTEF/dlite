@@ -72,9 +72,6 @@ add_custom_target(
     ${dlite_BINARY_DIR}/storages/python/c-tests
   )
 
-# Copy metadata def. to working directory
-file(COPY Person.json DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 # Compile and add tests
 foreach(test ${tests})
   add_executable(${test} ${test}.c)

@@ -7,6 +7,7 @@
 #include "dlite-macros.h"
 #include "pyembed/dlite-pyembed-utils.h"
 #include "dlite-storage-plugins.h"
+#include "config-paths.h"
 
 /* This header should define HOST, DATABASE, USER and PASSWORD */
 #include "pgconf.h"
@@ -46,10 +47,10 @@ MU_TEST(test_save)
   double age = 42.;
   const char *skills[] = {"jumping", "hopping"};
   int n, i;
-  char *paths = STRINGIFY(dlite_SOURCE_DIR) "/storage/python/tests-c/*.json";
+  char *paths = dlite_SOURCE_ROOT "/bindings/python/tests/entities/*.json";
 
   mu_check(dlite_storage_paths_append(paths) >= 0);
-  mu_check((meta = dlite_instance_load_url("json://Person.json?mode=r")));
+  mu_check((meta = dlite_instance_get("http://onto-ns.com/meta/0.1/Person")));
   mu_check((inst = dlite_instance_create((DLiteMeta *)meta, dims, "ada")));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "name", &name));
   mu_assert_int_eq(0, dlite_instance_set_property(inst, "age", &age));
