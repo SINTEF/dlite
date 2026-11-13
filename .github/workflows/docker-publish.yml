@@ -11,6 +11,13 @@ on:
   push:
     branches: [ "master" ]
     tags: [ 'v*.*.*' ]
+    # Only rebuild on pushes to master that change what goes into the
+    # images.  Path filters are ignored for tag pushes, so releases always
+    # rebuild.  The weekly schedule picks up new base images and packages.
+    paths:
+      - ".github/docker/**"
+      - "requirements*.txt"
+      - ".github/workflows/docker-publish.yml"
   #pull_request:
   #  branches: [ "master" ]
   workflow_dispatch:  # Allow to trigger the workflow manually
