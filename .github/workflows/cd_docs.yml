@@ -80,7 +80,7 @@ jobs:
         run: cmake --build . --target Sphinx --verbose
         working-directory: ${{ env.BUILD_DIR }}
 
-      - name: Verify Python AutoAPI output
+      - name: Verify HTML output
         run: |
           set -euo pipefail
           DOCS_HTML_DIR="${BUILD_DIR}/doc/html"
@@ -90,7 +90,6 @@ jobs:
             exit 1
           fi
           echo "DOCS_HTML_DIR=${DOCS_HTML_DIR}" >> "$GITHUB_ENV"
-          # Keep the existing AutoAPI checks below this point.
 
       - name: Verify Python AutoAPI output
         run: |
@@ -110,7 +109,7 @@ jobs:
           BEST_AUTOAPI_INDEX_COUNT=-1
           for CANDIDATE_DIR in "${DOCS_CANDIDATES[@]}"; do
             CANDIDATE_AUTOAPI_DIR="${CANDIDATE_DIR}/autoapi"
-            CANDIDATE_AUTOAPI_INDEX_COUNT=$(find "${CANDIDATE_AUTOAPI_DIR}" -type f -name index.html 2>/dev/null | wc -l)
+            CANDIDATE_AUTOAPI_INDEX_COUNT=$( (find "${CANDIDATE_AUTOAPI_DIR}" -type f -name index.html 2>/dev/null || true) | wc -l)
             echo "Candidate docs HTML directory: ${CANDIDATE_DIR} (AutoAPI index pages: ${CANDIDATE_AUTOAPI_INDEX_COUNT})"
             if [[ "${CANDIDATE_AUTOAPI_INDEX_COUNT}" -gt "${BEST_AUTOAPI_INDEX_COUNT}" ]]; then
               BEST_AUTOAPI_INDEX_COUNT="${CANDIDATE_AUTOAPI_INDEX_COUNT}"
