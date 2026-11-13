@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <math.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -114,6 +115,31 @@ MU_TEST(test_sprint)
   dlite_instance_decref((DLiteInstance *)coll);
   //printf("\n--------------------------------------------------------\n");
   //printf("%s\n", buf);
+
+
+  /* Test for issue #886: non-finite floats should be serialised as
+     \"NaN\", \"Infinity\" and \"-Infinity\" (and not as \"nan\" and
+     \"inf\"), such that the output can be parsed with e.g. Python's
+     json module. */
+  {
+    double v = NAN;
+    mu_assert_int_eq(0, dlite_instance_set_property(
+        inst, "mydouble", &v));
+    m = dlite_json_sprint(buf, sizeof(buf), inst, 0, dliteJsonSingle);
+    mu_check(strstr(buf, "\"mydouble\": NaN") != NULL);
+
+    v = INFINITY;
+    mu_assert_int_eq(0, dlite_instance_set_property(
+        inst, "mydouble", &v));
+    m = dlite_json_sprint(buf, sizeof(buf), inst, 0, dliteJsonSingle);
+    mu_check(strstr(buf, "\"mydouble\": Infinity") != NULL);
+
+    v = -INFINITY;
+    mu_assert_int_eq(0, dlite_instance_set_property(
+        inst, "mydouble", &v));
+    m = dlite_json_sprint(buf, sizeof(buf), inst, 0, dliteJsonSingle);
+    mu_check(strstr(buf, "\"mydouble\": -Infinity") != NULL);
+  }
 
 
   //printf("\n========================================================\n");

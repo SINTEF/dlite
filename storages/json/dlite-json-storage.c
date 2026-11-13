@@ -348,7 +348,8 @@ int json_memsave(const DLiteStoragePlugin *api,
     {'M', "with-meta", "false", "Always include meta in output."},
     {'a', "arrays",    "false", "Serialise metadata dims and props as arrays."},
     {'n', "no-parent", "false", "Do not write transaction parent info."},
-    {'c', "compact",   "false", "Write relations with no newline."},
+    {'c', "compact-rel", "false", "Write relations with no newlines."},
+    {'C', "compact",   "false", "Alias for `compact-rel` (deprecated)."},
     {0, NULL, NULL, NULL}
   };
   char *optcopy = (options) ? strdup(options) : NULL;
@@ -362,6 +363,10 @@ int json_memsave(const DLiteStoragePlugin *api,
   if (atob(opts[4].value)) flags |= dliteJsonWithMeta;
   if (atob(opts[5].value)) flags |= dliteJsonArrays;
   if (atob(opts[6].value)) flags |= dliteJsonNoParent;
+  if (atob(opts[8].value)) {
+    warn("json option `compact` is deprecated, use `compact-rel` instead");
+    flags |= dliteJsonCompactRel;
+  }
   if (atob(opts[7].value)) flags |= dliteJsonCompactRel;
   retval = dlite_json_sprint((char *)buf, size, inst, indent, flags);
  fail:
