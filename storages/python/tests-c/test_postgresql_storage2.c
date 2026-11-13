@@ -16,11 +16,12 @@
 
 
 // Not really a unit test, but check that the Python package "psycopg"
-// is available.  If not, exit with code 44, indicating that the test
-// should be skipped
+// is available and that the PostgreSQL server is reachable.  If not,
+// exit with code 44, indicating that the test should be skipped
 MU_TEST(test_for_psycopg)
 {
   if (!dlite_pyembed_has_module("psycopg")) exit(44);
+  if (!pgtestconf_server_available(2.0)) exit(44);
   pgtestconf_init();
 }
 
