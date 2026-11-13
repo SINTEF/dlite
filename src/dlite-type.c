@@ -1,6 +1,7 @@
 #include "config.h"
 
 #include <assert.h>
+#include <math.h>
 #include <string.h>
 #include <stddef.h>
 #include <ctype.h>
@@ -698,6 +699,44 @@ static StrquoteFlags as_qflags(DLiteType dtype, DLiteTypeFlag flags)
 #define PDIFF(a, b) (((size_t)(a) > (size_t)(b)) ? (a) - (b) : 0)
 
 /*
+  Prints a non-finite floating point value (NaN, +Inf or -Inf) to `dest`.
+
+  The representations "NaN", "Infinity" and "-Infinity" are used, since
+  these are the ones understood by most JSON parsers (e.g. Python's json
+  module).  They are also valid input to strtod(), so the C scanners can
+  read them back.
+
+  Returns the number of bytes printed if the value of `p` is non-finite,
+  and -1 if it is finite (in which case nothing is printed).  Unknown
+  sizes also returns -1, such that dlite_type_print() reports the error.
+*/
+static int print_nonfinite_float(char *dest, size_t n, int w, int r,
+                                 const void *p, size_t size)
+{
+  long double v;  /* large enough to hold any supported float type */
+  switch (size) {
+  case 4:  v = *((float32_t *)p); break;
+  case 8:  v = *((float64_t *)p); break;
+#ifdef HAVE_FLOAT80
+  case 10: v = *((float80_t *)p); break;
+#endif
+#ifdef HAVE_FLOAT96
+  case 12: v = *((float96_t *)p); break;
+#endif
+#ifdef HAVE_FLOAT128
+  case 16: v = *((float128_t *)p); break;
+#endif
+  default: return -1;
+  }
+  if (isnan(v))
+    return snprintf(dest, n, "%*.*s", w, r, "NaN");
+  if (isinf(v))
+    return snprintf(dest, n, "%*.*s", w, r,
+                    (v > 0) ? "Infinity" : "-Infinity");
+  return -1;
+}
+
+/*
   Serialises data of type `dtype` and size `size` pointed to by `p`.
   The string representation is written to `dest`.  No more than
   `n` bytes are written (incl. the terminating NUL).
@@ -785,7 +824,8 @@ int dlite_type_print(char *dest, size_t n, const void *p, DLiteType dtype,
   case dliteFloat:
     if (w == -1) w = 12;
     if (r == -1) r = 6;
-    switch (size) {
+    m = print_nonfinite_float(dest, n, w, r, p, size);
+    if (m < 0) switch (size) {
     case 4:  m = snprintf(dest, n, "%*.*g",  w, r, *((float32_t *)p)); break;
     case 8:  m = snprintf(dest, n, "%*.*g",  w, r, *((float64_t *)p)); break;
 #ifdef HAVE_FLOAT80

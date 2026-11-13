@@ -446,9 +446,9 @@ Call signatures:
   }
 
   %feature("docstring",
-           "Save instance to bytes using given storage driver.") to_bytes;
-  %newobject to_bytes;
-  void to_bytes(const char *driver, unsigned char **ARGOUT_BYTES, size_t *LEN,
+           "Save instance to bytes using given storage driver.") _to_bytes;
+  %newobject _to_bytes;
+  void _to_bytes(const char *driver, unsigned char **ARGOUT_BYTES, size_t *LEN,
                 const char *options=NULL) {
     unsigned char *buf=NULL;
     int m, n = dlite_instance_memsave(driver, buf, 0, $self, options);
